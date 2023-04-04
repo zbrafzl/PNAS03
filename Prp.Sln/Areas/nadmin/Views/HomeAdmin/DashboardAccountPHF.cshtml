@@ -1,0 +1,446 @@
+﻿@using System;
+@using System.Collections.Generic;
+@using System.Text;
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Configuration;
+@using System.Web.Script.Serialization;
+
+@{
+    ViewBag.Title = "Dashboard Status";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.HomeModelAdmin
+@section RenderCss{
+    <style>
+
+        .tile_stats_count {
+            cursor: pointer;
+        }
+
+            .tile_stats_count:hover {
+                opacity: 0.5;
+            }
+
+        .tile_info tr {
+            cursor: pointer;
+        }
+
+            .tile_info tr:hover {
+                opacity: 0.5;
+            }
+
+        .tdddd {
+            width: 49%;
+            float: left;
+        }
+
+        .panel_toolbox {
+            margin: 3px 0px 0px 0px !important;
+        }
+
+        .ank-title {
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+
+        .x_content p {
+            margin-bottom: 0px;
+        }
+
+        .fixed_height_320 {
+            height: 215px;
+        }
+
+        .txt {
+            width: 83% !important;
+            float: left
+        }
+
+        .cnt {
+            width: 17% !important;
+            float: left
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        dateFormat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
+
+        $(document).ready(function () {
+
+            $(document).on('click', '.btnTotal125', function () {
+                //var id = ConvertToInt($(this).attr("id"));
+                //var typeId = ConvertToInt($(this).attr("typeid"));
+                //window.location = "/admin/applicant-search?statusTypeId=" + typeId + "&statusId=" + id;
+                //var data = '';
+                //if (data == '')
+                //    return;
+                getTotalList125();
+            });
+            $(document).on('click', '.btnTotal126', function () {
+                //var id = ConvertToInt($(this).attr("id"));
+                //var typeId = ConvertToInt($(this).attr("typeid"));
+                //window.location = "/admin/applicant-search?statusTypeId=" + typeId + "&statusId=" + id;
+                //var data = '';
+                //if (data == '')
+                //    return;
+                getTotalList126();
+            });
+            $(document).on('click', '.btnTotal127', function () {
+                //var id = ConvertToInt($(this).attr("id"));
+                //var typeId = ConvertToInt($(this).attr("typeid"));
+                //window.location = "/admin/applicant-search?statusTypeId=" + typeId + "&statusId=" + id;
+                //var data = '';
+                //if (data == '')
+                //    return;
+                getTotalList127();
+            });
+            $(document).on('click', '.btnTotal128', function () {
+                //var id = ConvertToInt($(this).attr("id"));
+                //var typeId = ConvertToInt($(this).attr("typeid"));
+                //window.location = "/admin/applicant-search?statusTypeId=" + typeId + "&statusId=" + id;
+                //var data = '';
+                //if (data == '')
+                //    return;
+                getTotalList128();
+            });
+            $(document).on('click', '.btnNavigate', function () {
+                window.open("/admin/applicant-search?statusTypeId=73&statusId=3", '_blank');
+                //window.location = "/admin/applicant-search?statusTypeId=73&statusId=3";
+            });
+            
+        });
+        function getTotalList125() {
+            //alert('jere');
+            var resp = CallActionGet("/HomeAdmin/GetTotalApplicantsWithVoucher125");
+            var request_data = resp;
+            console.log(resp);
+            if (request_data == '')
+                return;
+
+            JSONToCSVConvertor(request_data, "Applicants Voucher Data", true);
+        }
+        function getTotalList126() {
+            //alert('jere');
+            var resp = CallActionGet("/HomeAdmin/GetTotalApplicantsWithVoucher126");
+            var request_data = resp;
+            console.log(resp);
+            if (request_data == '')
+                return;
+
+            JSONToCSVConvertor(request_data, "Applicants Voucher Data", true);
+        }
+        function getTotalList127() {
+            //alert('jere');
+            var resp = CallActionGet("/HomeAdmin/GetTotalApplicantsWithVoucher127");
+            var request_data = resp;
+            console.log(resp);
+            if (request_data == '')
+                return;
+
+            JSONToCSVConvertor(request_data, "Applicants Voucher Data", true);
+        }
+        function getTotalList128() {
+            //alert('jere');
+            var resp = CallActionGet("/HomeAdmin/GetTotalApplicantsWithVoucher128");
+            var request_data = resp;
+            console.log(resp);
+            if (request_data == '')
+                return;
+
+            JSONToCSVConvertor(request_data, "Applicants Voucher Data", true);
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script>
+
+        function convertToCSV(objArray) {
+            var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+            var str = '';
+
+            for (var i = 0; i < array.length; i++) {
+                var line = '';
+                for (var index in array[i]) {
+                    if (line != '') line += ','
+
+                    line += array[i][index];
+                }
+
+                str += line + '\r\n';
+            }
+
+            return str;
+        }
+
+        function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
+            if (ShowLabel) {
+                JSONData.unshift(ShowLabel);
+            }
+
+            // Convert Object to JSON
+            var jsonObject = JSON.stringify(JSONData);
+
+            var csv = this.convertToCSV(jsonObject);
+
+            var exportedFilenmae = ReportTitle + '.csv';
+
+            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, exportedFilenmae);
+            } else {
+                var link = document.createElement("a");
+                if (link.download !== undefined) { // feature detection
+                    // Browsers that support HTML5 download attribute
+                    var url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", exportedFilenmae);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+        }
+    </script>
+}
+
+<!-- /top tiles -->
+
+<div class="row col-md-12 col-sm-12">
+    <div class="row x_title col-md-12 col-sm-12">
+        <div class="col-md-6">
+            <h3>PNAS <small>Punjab Nursing Admission System  </small></h3>
+        </div>
+
+    </div>
+</div>
+@{
+    if (Model.listDashBoard != null && Model.listDashBoard.Count > 0)
+    {
+
+
+        <div class="row col-md-12 col-sm-12">
+            @{
+                object a;
+                object a2;
+                var listVerification = Model.listDashBoard.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.voucherPhf).ToList();
+                if (listVerification != null && listVerification.Count > 0)
+                {
+                    string query = "select avb.applicantNo appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
+                    + "avb.transactionIdBank bankTransId, avb.amount amount, avb.dated dateVerified from tblApplicant a "
+                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId "
+                    + "inner join tblApplicantVoucherBank avb on av.applicantId = avb.applicantId";
+
+                    string query2 = "select CONCAT('128',av.applicantId) appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
+                    + "av.submittedDate submitDate, '500' amount from tblApplicant a "
+                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId";
+
+                    SqlConnection con = new SqlConnection();
+                    SqlCommand cmd = new SqlCommand(query);
+                    SqlCommand cmd2 = new SqlCommand(query2);
+                    DataTable table = new DataTable();
+                    DataTable table2 = new DataTable();
+                    var JSONString = new StringBuilder();
+                    var JSONString2 = new StringBuilder();
+
+                    try
+                    {
+                        string Conn = ConfigurationManager.ConnectionStrings["DbPrpConn"].ConnectionString;
+                        con = new SqlConnection(Conn);
+                        con.Open();
+                        cmd.Connection = con;
+                        cmd2.Connection = con;
+                        SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                        SqlDataAdapter sda2 = new SqlDataAdapter(cmd2);
+                        sda.Fill(table);
+                        sda2.Fill(table2);
+
+                        if (table.Rows.Count > 0)
+                        {
+                            JSONString.Append("[");
+                            for (int i = 0; i < table.Rows.Count; i++)
+                            {
+                                JSONString.Append("{");
+                                for (int j = 0; j < table.Columns.Count; j++)
+                                {
+                                    if (j < table.Columns.Count - 1)
+                                    {
+                                        JSONString.Append("\"" + table.Columns[j].ColumnName.ToString() + "\":" + "\"" + table.Rows[i][j].ToString() + "\",");
+                                    }
+                                    else if (j == table.Columns.Count - 1)
+                                    {
+                                        JSONString.Append("\"" + table.Columns[j].ColumnName.ToString() + "\":" + "\"" + table.Rows[i][j].ToString() + "\"");
+                                    }
+                                }
+                                if (i == table.Rows.Count - 1)
+                                {
+                                    JSONString.Append("}");
+                                }
+                                else
+                                {
+                                    JSONString.Append("},");
+                                }
+                            }
+                            JSONString.Append("]");
+                            JavaScriptSerializer jk = new JavaScriptSerializer();
+                            //a = 
+                            Session["submitted"] = jk.Deserialize(JSONString.ToString(), typeof(object)).ToString();
+                        }
+                        if (table2.Rows.Count > 0)
+                        {
+                            JSONString2.Append("[");
+                            for (int i = 0; i < table2.Rows.Count; i++)
+                            {
+                                JSONString2.Append("{");
+                                for (int j = 0; j < table2.Columns.Count; j++)
+                                {
+                                    if (j < table2.Columns.Count - 1)
+                                    {
+                                        JSONString2.Append("\"" + table2.Columns[j].ColumnName.ToString() + "\":" + "\"" + table2.Rows[i][j].ToString() + "\",");
+                                    }
+                                    else if (j == table2.Columns.Count - 1)
+                                    {
+                                        JSONString2.Append("\"" + table2.Columns[j].ColumnName.ToString() + "\":" + "\"" + table2.Rows[i][j].ToString() + "\"");
+                                    }
+                                }
+                                if (i == table2.Rows.Count - 1)
+                                {
+                                    JSONString2.Append("}");
+                                }
+                                else
+                                {
+                                    JSONString2.Append("},");
+                                }
+                            }
+                            JSONString2.Append("]");
+                            JavaScriptSerializer j2 = new JavaScriptSerializer();
+                            //a2 = j2.Deserialize(JSONString2.ToString(), typeof(object));
+                            Session["verified"] = j2.Deserialize(JSONString2.ToString(), typeof(object));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        con.Close();
+                    }
+
+                    var verifyToal = 0;
+                    var verifyPending = 0;
+                    var verifyActive = 0;
+                    var verifyInActive = 0;
+                    try
+                    {
+                        verifyToal = listVerification.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+                        verifyToal = 0;
+                    }
+
+                    if (verifyToal > 0)
+                    {
+
+                        try
+                        {
+                            verifyActive = listVerification.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+
+                        try
+                        {
+                            //verifyInActive = listVerification.Where(x => x.statusId == 6).FirstOrDefault().totalCount;
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                        try
+                        {
+                            //verifyPending = listVerification.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                        <div class="col-md-12 col-sm-12 ">
+                            <div class="x_panel tile fixed_height_320 overflow_hidden">
+                                <div class="x_title">
+                                    <h2>Voucher Status PHF </h2>
+                                    <button class="btn-success btnNavigate pull-right">Applicant Vouchers List</button>
+                                    <div class="clearfix"></div>
+                                </div>
+                                
+                                <div class="x_content">
+                                    <table style="width:100%">
+                                        <tr>
+                                            <th>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <p class="">Status</p>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <p class="">Count</p>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <p class=""></p>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table class="">
+                                                                <tr class="" id="-1" typeid="73">
+                                                                    <td style="width:39%">
+                                                                        <p><i class="fa fa-square black"></i>Total </p>
+                                                                    </td>
+                                                                    <td style="width:16.44%">@verifyToal</td>
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal125">125 Excel Download</button></td>
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal126">126 Excel Download</button></td>
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal127">127 Excel Download</button></td>
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal128">128 Excel Download</button></td>
+                                                                </tr>
+                                                    @*<tr class="trclick" id="1" typeid="73">
+                                                            <td>
+                                                                <p><i class="fa fa-square green"></i>Valid </p>
+                                                            </td>
+                                                            <td>@verifyActive</td>
+                                                        </tr>
+                                                        <tr class="trclick" id="6" typeid="73">
+                                                            <td>
+                                                                <p><i class="fa fa-square  red"></i>In Valid </p>
+                                                            </td>
+                                                            <td>@verifyInActive</td>
+                                                        </tr>
+                                                        <tr class="trclick" id="3" typeid="73">
+                                                            <td>
+                                                                <p><i class="fa fa-square aero"></i>Pending </p>
+                                                            </td>
+                                                            <td>@verifyPending</td>
+                                                        </tr>*@
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+            }
+        </div>
+
+
+    }
+}

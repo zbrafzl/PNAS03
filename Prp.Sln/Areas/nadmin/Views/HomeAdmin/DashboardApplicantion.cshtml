@@ -1,0 +1,540 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.HomeModelAdmin
+@section RenderCss{
+    <style>
+
+        .tile_stats_count {
+            cursor: pointer;
+        }
+
+            .tile_stats_count:hover {
+                opacity: 0.5;
+            }
+
+        .tile_info tr {
+            cursor: pointer;
+        }
+
+            .tile_info tr:hover {
+                opacity: 0.5;
+            }
+
+        .tdddd {
+            width: 49%;
+            float: left;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        //dateFormat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
+
+        $(document).ready(function () {
+
+
+
+            $(document).on('click', '.tile_stats_count', function () {
+                var id = ConvertToInt($(this).attr("id"));
+                window.location = "/admin/applicant-account-status?statusId=" + id;
+            });
+
+            $(document).on('click', '.tr-status', function () {
+                var id = ConvertToInt($(this).attr("id"));
+                window.location = "/admin/applicant-application-status?applicationStatusId=" + id;
+            });
+        });
+
+    </script>
+}
+
+<!-- /top tiles -->
+
+<div class="row col-md-12 col-sm-12">
+    <div class="row x_title col-md-12 col-sm-12">
+        <div class="col-md-6">
+            <h3>PRP <small>Punjab Residency Program </small></h3>
+        </div>
+
+    </div>
+</div>
+@{
+    if (Model.listDashBoard != null && Model.listDashBoard.Count > 0)
+    {
+        <div class="row col-md-12 col-sm-12">
+            @{
+                var listAccountStatus = Model.listDashBoard.Where(x => x.statusTypeId == 52).ToList();
+                if (listAccountStatus != null && listAccountStatus.Count > 0)
+                {
+
+                    var toalCount = 0;
+                    var activeCount = 0;
+                    var inActiveCount = 0;
+                    try
+                    {
+                        toalCount = listAccountStatus.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+                        toalCount = 0;
+                    }
+
+                    try
+                    {
+                        activeCount = listAccountStatus.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        inActiveCount = listAccountStatus.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+
+                    <div class="col-md-4 col-sm-4 ">
+                        <div class="x_panel tile fixed_height_320 overflow_hidden" style="height:250px;">
+                            <div class="x_title">
+                                <h2>Registration Count</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <table style="width:100%">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="tile_stats_count" id="1">
+                                                    <td>
+                                                        <p><i class="fa fa-square black"></i>Total </p>
+                                                    </td>
+                                                    <td>@toalCount</td>
+                                                </tr>
+                                                <tr class="tile_stats_count" id="2">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>Active </p>
+                                                    </td>
+                                                    <td>@activeCount</td>
+                                                </tr>
+                                                <tr class="tile_stats_count" id="3">
+                                                    <td>
+                                                        <p><i class="fa fa-square red"></i>In-Active </p>
+                                                    </td>
+                                                    <td>@inActiveCount</td>
+                                                </tr>
+
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+
+                var listStatusApplication = Model.listDashBoard.Where(x => x.statusTypeId == 53).ToList();
+                if (listStatusApplication != null && listStatusApplication.Count > 0)
+                {
+
+
+
+                    var countProfile = 0;
+                    var countEducation = 0;
+                    var countExprience = 0;
+                    var countResearchPaper = 0;
+                    var countSpecility = 0;
+                    var countProofReading = 0;
+                    var countCompleted = 0;
+                    var countPayment = 0;
+
+
+
+                    try
+                    {
+                        countProfile = listStatusApplication.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        countEducation = listStatusApplication.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+
+                    try
+                    {
+                        countExprience = listStatusApplication.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        countResearchPaper = listStatusApplication.Where(x => x.statusId == 4).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        countSpecility = listStatusApplication.Where(x => x.statusId == 5).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+
+                    try
+                    {
+                        countPayment = listStatusApplication.Where(x => x.statusId == 6).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        countProofReading = listStatusApplication.Where(x => x.statusId == 7).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        countCompleted = listStatusApplication.Where(x => x.statusId == 8).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    <div class="col-md-8 col-sm-8 ">
+                        <div class="x_panel tile fixed_height_320 overflow_hidden" style="height:250px;">
+                            <div class="x_title">
+                                <h2>Application Count</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <table class="tdddd">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="tr-status" id="1">
+                                                    <td>
+                                                        <p><i class="fa fa-square black"></i>Profile </p>
+                                                    </td>
+                                                    <td>@countProfile</td>
+                                                </tr>
+                                                <tr class="tr-status" id="2">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>Education </p>
+                                                    </td>
+                                                    <td>@countEducation</td>
+                                                </tr>
+                                                <tr class="tr-status" id="3">
+                                                    <td>
+                                                        <p>
+                                                            <i class="fa fa-square purple"></i>
+                                                            Experience
+                                                        </p>
+                                                    </td>
+                                                    <td>@countExprience</td>
+                                                </tr>
+                                                <tr class="tr-status" id="4">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Research Paper </p>
+                                                    </td>
+                                                    <td>@countResearchPaper</td>
+                                                </tr>
+                                                <tr class="tr-status" id="5">
+                                                    <td>
+                                                        <p><i class="fa fa-square red"></i>Speciality </p>
+                                                    </td>
+                                                    <td>@countSpecility</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table class="tdddd">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="tr-status" id="6">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>View Voucher </p>
+                                                    </td>
+                                                    <td>@countPayment</td>
+                                                </tr>
+                                                <tr class="tr-status" id="7">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>Fee Deposited </p>
+                                                    </td>
+                                                    <td>@countProofReading</td>
+                                                </tr>
+                                                <tr class="tr-status" id="7">
+                                                    <td>
+                                                        <p><i class="fa fa-square blue"></i>Proof Reading </p>
+                                                    </td>
+                                                    <td>@countProofReading</td>
+                                                </tr>
+                                                <tr class="tr-status" id="8">
+                                                    <td>
+                                                        <p><i class="fa fa-square red"></i>Completed </p>
+                                                    </td>
+                                                    <td>@countCompleted</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+
+        <div class="row col-md-12 col-sm-12">
+            @{
+
+                var listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 131).ToList();
+                if (listVerification != null && listVerification.Count > 0)
+                {
+                    var totalCount = 0;
+                    var pendingCount = 0;
+                    var approvedCount = 0;
+                    var rejectedCount = 0;
+
+                    try
+                    {
+                        totalCount = listVerification.Where(x => x.id == -1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        pendingCount = listVerification.Where(x => x.id == 0).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    try
+                    {
+                        approvedCount = listVerification.Where(x => x.id == 1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        rejectedCount = listVerification.Where(x => x.id == 2).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    <div class="col-md-4 col-sm-4 ">
+                        <div class="x_panel tile fixed_height_320 overflow_hidden" style="height:250px;">
+                            <div class="x_title">
+                                <h2>Verification Count</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <table style="width:100%">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="tile_verifiy_count" id="1">
+                                                    <td>
+                                                        <p><i class="fa fa-square black"></i>Total </p>
+                                                    </td>
+                                                    <td>@totalCount</td>
+                                                </tr>
+                                                <tr class="tile_verifiy_count" id="2">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Pending </p>
+                                                    </td>
+                                                    <td>@pendingCount</td>
+                                                </tr>
+                                                <tr class="tile_verifiy_count" id="3">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>Accepted </p>
+                                                    </td>
+                                                    <td>@approvedCount</td>
+                                                </tr>
+
+                                                <tr class="tile_verifiy_count" id="3">
+                                                    <td>
+                                                        <p><i class="fa fa-square red"></i>Rejected </p>
+                                                    </td>
+                                                    <td>@rejectedCount</td>
+                                                </tr>
+
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                var listGrievance = Model.listDashBoard.Where(x => x.statusTypeId == 132).ToList();
+                if (listGrievance != null && listGrievance.Count > 0)
+                {
+                    var totalCount = 0;
+                    var appearCount = 0;
+                    var absentCount = 0;
+                   
+
+                    try
+                    {
+                        totalCount = listGrievance.Where(x => x.id == -1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        appearCount = listGrievance.Where(x => x.id == 1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    try
+                    {
+                        absentCount = listGrievance.Where(x => x.id == 2).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    <div class="col-md-4 col-sm-4 ">
+                        <div class="x_panel tile fixed_height_320 overflow_hidden" style="height:250px;">
+                            <div class="x_title">
+                                <h2>Verification - Grievance Count</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <table style="width:100%">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="tile_verifiy_count" id="1">
+                                                    <td>
+                                                        <p><i class="fa fa-square black"></i>Total </p>
+                                                    </td>
+                                                    <td>@totalCount</td>
+                                                </tr>
+                                                <tr class="tile_verifiy_count" id="2">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Appear </p>
+                                                    </td>
+                                                    <td>@appearCount</td>
+                                                </tr>
+                                                <tr class="tile_verifiy_count" id="3">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>Absent </p>
+                                                    </td>
+                                                    <td>@absentCount</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+}

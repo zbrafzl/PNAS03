@@ -1,0 +1,205 @@
+﻿@{
+    ViewBag.Title = "Print Applicant Attachment Hospital";
+    Layout = "~/Areas/nadmin/Views/Shared/_LayoutPrint.cshtml";
+}
+@model Prp.Sln.ReportApplicantModel
+@section RenderCss{
+    <style>
+        td span {
+            line-height: 18px;
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+        var attachStatusId = 0, hospitalId = 0;
+        $(document).ready(function () {
+
+            hospitalId = ConvertToInt($("#hfdHospitalId").val());
+            attachStatusId = ConvertToInt($("#hfdAttachStatusId").val());
+
+            if (hospitalId > 0) {
+
+                HospitalInfo();
+                GetAndBindJoiningApplicantByHospitalSearch();
+
+            }
+
+            PageInit();
+
+        });
+
+
+        function HospitalInfo() {
+
+            $("#spnHospitalName").html("");
+            try {
+                var resp = CallActionGet("/Hospitals/GetHospitalById?hospitalId=" + hospitalId);
+                $("#spnHospitalName").html("LIST OF PGRs : " + resp.name);
+
+            } catch (e) {
+
+            }
+        }
+
+
+        function GetAndBindJoiningApplicantByHospitalSearch() {
+
+            var htmlAll = "", htmlSingle = "";
+
+            $("#divPagination").hide();
+            $("#ankPrint").hide();
+
+            var url = "/admin/print-applicant-attach-hospital?hospitalId=" + hospitalId + "&attachStatusId=" + ConvertToInt($("#ddlAttchedStatus").val());
+
+            $("#ankPrint").attr("href", url);
+
+
+            var obj = {};
+            obj.top = 5000;
+            obj.pageNum = 1;
+            obj.search = "";
+            obj.hospitalId = hospitalId;
+            obj.attachStatusId = attachStatusId;
+
+            var resp = CallActionPost("/Reportss/JoinedApplicantByHospitalSearch", obj);
+            if (resp != null && resp.length > 0) {
+
+
+                $("#ankPrint").show();
+
+
+                var objItem = {};
+                var htmlTemp = $("#tbTempt").html();
+
+                for (var i = 0; i < resp.length; i++) {
+
+                    htmlSingle = htmlTemp;
+                    objItem = resp[i];
+
+
+                    htmlAll = htmlAll + htmlSingle.replace(/{#rowNum#}/g, objItem.rowNum)
+                        .replace(/{#induction#}/g, objItem.induction)
+                        .replace(/{#hospital#}/g, objItem.hospital)
+                        .replace(/{#name#}/g, objItem.name)
+                        .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                        .replace(/{#fatherName#}/g, objItem.fatherName)
+                        .replace(/{#applicantId#}/g, objItem.applicantId)
+                        .replace(/{#attachStatus#}/g, objItem.attachStatus);
+
+                }
+
+                $("#tbList").html(htmlAll);
+
+                PageInit();
+            }
+
+
+
+        }
+
+        function PageInit() {
+
+            //printDiv();
+
+            $(document).on('click', '#btnPrint', function (event) {
+                printDiv();
+            });
+
+
+        }
+    </script>
+}
+<div style="width:1271px;">
+
+    <input type="hidden" id="hfdHospitalId" value="@Model.hospitalId" />
+    <input type="hidden" id="hfdAttachStatusId" value="@Model.attachStatusId" />
+
+    <div class="center-div">
+        <a id="btnPrint" class="btn btn-app animated-button btn_print"><i class="fa fa-save"></i> &nbsp; Print </a>
+    </div>
+    <div class="clearfix"></div>
+    <div class="ln_solid"></div>
+    <div id="divprint" class="col-md-12 col-sm-12 col-xs-12">
+        <style type="text/css">
+            td span {
+                line-height: 18px !important;
+            }
+
+            .heading {
+                float: left;
+                width: 100%;
+                text-align: center;
+            }
+
+            .tbl {
+                border-collapse: collapse;
+            }
+
+                .tbl td {
+                    border: 1px solid black;
+                }
+        </style>
+        <table style="width:1271px;">
+            <tr>
+                <td>
+                    <table style="margin:0px 0px 0px 0px;">
+                        <tr>
+                            <td>
+                                <table style="width:100%;">
+                                    <tr>
+                                        <td class="heading" style="font-size: 25px;">
+                                            <b>  <span id="spnHospitalName"> LIST OF PGRs: </span></b>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="heading" style="font-size: 15px;">
+                                            <b>  <span class="spnDateTime"> Print Date Time : @DateTime.Now </span></b>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table class="tbl">
+                                    <thead>
+                                        <tr class="headings">
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Sr. </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Induction </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Form No. </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Name </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Father Name </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">PMDC No </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Attachment Status  </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact; width:200px; ">Remarks </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbList">
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+</div>
+<div style="display:none;">
+    <table>
+        <tbody id="tbTempt">
+            <tr>
+                <td>{#rowNum#}</td>
+                <td>{#induction#}</td>
+                <td>{#applicantId#}</td>
+                <td>{#name#}</td>
+                <td>{#fatherName#}</td>
+                <td>{#pmdcNo#}</td>
+                <td>{#attachStatus#}</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

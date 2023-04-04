@@ -1,0 +1,413 @@
+﻿@{
+    ViewBag.Title = "Speciality Job Applications";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.SpecialityJobModelAdmin
+@section RenderCss{
+
+    <style>
+        .imgView {
+            height: 50px;
+            width: 45px;
+        }
+
+        .chosen-container {
+            width: 100% !important;
+        }
+
+        .chosen-single {
+            height: 39px !important;
+        }
+
+            .chosen-single span {
+                margin-top: 5px !important;
+            }
+
+            .chosen-single div {
+                margin-top: 5px !important;
+            }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var countryTypeId = 0, perPageRecords = 20, statusId = 0
+            , pageNum = 1, totalCount = 0, obj = {};
+
+        var typeId = 0, quotaId = 0, specialityId = 0, hospitalId = 0;
+        $(document).ready(function () {
+
+
+
+            $(document).on('change', '#ddlTypef', function () {
+                typeId = $(this).val();
+                quotaId = 0; specialityId = 0; hospitalId = 0;
+
+                DDLSetToDefault("ddlQuota", 'Select One', 0);
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+                DDLSetToDefault("ddlHospital", 'Select One', 0);
+                if (typeId > 0)
+                    BindQoutaDDL();
+            });
+
+            $(document).on('change', '#ddlQuota', function () {
+                quotaId = $(this).val();
+
+                specialityId = 0; hospitalId = 0;
+
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+                DDLSetToDefault("ddlHospital", 'Select One', 0);
+                if (quotaId > 0)
+                    BindSpecialityDDL();
+            });
+
+            $(document).on('change', '#ddlSpeciality', function () {
+                quotaId = $(this).val();
+
+                hospitalId = 0;
+
+                DDLSetToDefault("ddlHospital", 'Select One', 0);
+                if (quotaId > 0)
+                    BindHospitalDDL();
+            });
+
+            $(document).on('click', '#btnSearch', function () {
+                SearchApplications();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchApplications();
+                }
+            });
+
+            $(document).on('click', '.liPage', function () {
+
+                var id = ConvertToInt($(this).closest('li').attr("id"));
+
+                $(".liclick").removeClass("current");
+
+                var pageNo = id;// ConvertToInt($(this).val());
+
+                if (pageNo == 0) {
+
+                    if ($(this).attr("type") == "first") {
+
+                        pageNo = 1;
+                    }
+                    else
+                        if ($(this).attr("type") == "last") {
+
+                            var lastPage = Math.ceil(totalCount / perPageRecords);
+                            pageNo = lastPage;
+                        }
+                }
+                pageNum = pageNo;
+
+                SearchApplications();
+
+            });
+
+        });
+
+        function BindQoutaDDL() {
+
+            var objHos = {};
+            objHos.instituteId = instituteId;
+            objHos.condition = "ByHospital";
+
+            DDLSetToDefault("ddlQuota", 'Select One', 0);
+
+            var list = CallActionPost("/Hospitals/GetHospitalDDL", objHos);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+                    $("#ddlQuota").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+            }
+
+        }
+
+        function BindSpecialityDDL() {
+
+            var objHos = {};
+            objHos.instituteId = instituteId;
+            objHos.condition = "ByHospital";
+
+            DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+
+            var list = CallActionPost("/Hospitals/GetHospitalDDL", objHos);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+                    $("#ddlSpeciality").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+            }
+
+        }
+
+        function BindHospitalDDL() {
+
+            var objHos = {};
+            objHos.instituteId = instituteId;
+            objHos.condition = "ByHospital";
+
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+
+            var list = CallActionPost("/Hospitals/GetHospitalDDL", objHos);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+                    $("#ddlHospital").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+            }
+
+        }
+
+        function SearchApplications() {
+
+            var rowHtml = "";
+
+            $("#tbPanel").html("");
+
+            obj = {};
+            obj.top = perPageRecords;
+            obj.pageNum = pageNum;
+            obj.inductionId = ConvertToInt($("#hfdInductionId").val());
+            obj.statusTypeId = 138;
+            obj.typeId = ConvertToInt($("#ddlType").val());
+            obj.quotaId = 0;// ConvertToInt($("#ddlLevel").val());
+            obj.search = ConvertToString($("#txtSearch").val());
+
+            var url = "/SpecialityAdmin/SpecialityJobPrefferenceSearch";
+
+            var list = CallActionPost(url, obj);
+
+            var html = "", status = "";
+
+            var singleHtml = "", objItem = {};
+            if (list != null && list.length > 0) {
+
+                totalCount = list[0].totalCount;
+                rowHtml = $("#tbTempHtml").html();
+
+                for (var i = 0; i < list.length; i++) {
+
+                    objItem = list[i];
+                    singleHtml = rowHtml;
+
+                    status = "In-Active";
+                    if (objItem.isActive == true)
+                        status = "Active";
+
+                    html = html + singleHtml.replace(/{#rowNum#}/g, objItem.rowNum)
+                        .replace(/{#totalApplication#}/g, objItem.totalApplication)
+                        .replace(/{#quotaName#}/g, objItem.quotaName)
+                        .replace(/{#specialityName#}/g, objItem.specialityName)
+                        .replace(/{#hospitalName#}/g, objItem.hospitalName)
+                        .replace(/{#jobs#}/g, objItem.jobs)
+                       
+
+                    
+                        .replace(/{#specialityJobId#}/g, objItem.specialityJobId);
+                }
+
+                $("#tblPanel").show();
+                $("#tbPanel").html(html);
+
+                if (totalCount > 0)
+                    CreatePaginationHtml(perPageRecords, totalCount, pageNum);
+            }
+            else {
+
+                $("#tblPanel").hide();
+                $("#tbPanel").html("");
+            }
+
+        }
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+        function ShowingRowsText(perPageRecords, count, pageNum) {
+
+            var rcordsNow = pageNum * perPageRecords;
+            var startRecords = rcordsNow - perPageRecords;
+            if (rcordsNow > count)
+                rcordsNow = count;
+
+            startRecords = startRecords + 1;
+            $("#divShowingResult").html("Showing " + startRecords + " to " + rcordsNow + " of " + count + " entries");
+
+
+        }
+
+        function CreatePaginationHtml(perPageRecords, count, pageNum) {
+
+            try {
+
+                ShowingRowsText(perPageRecords, count, pageNum);
+                $("#divPagination").show();
+
+                var htmlPagination = $("#templatePagination").html();
+                var pageStart = 1, pageEnd = 5;
+                var lastPage = Math.ceil(count / perPageRecords);
+
+                if (pageNum > 3) {
+                    pageStart = pageNum - 2;
+                    pageEnd = pageNum + 2;
+                }
+
+                if (pageEnd > lastPage)
+                    pageEnd = lastPage;
+
+                var lisHtml = "";
+                for (var i = pageStart; i <= pageEnd; i++) {
+                    lisHtml = lisHtml + "<li class='liPage' id='" + i + "'> " + i + "</li>";
+                }
+                htmlPagination = htmlPagination.replace(/{#lastPage#}/g, lastPage).replace(/{#Pagination#}/g, lisHtml);
+                $(".list_pagination").html(htmlPagination);
+
+                $("#" + pageNum).addClass("current");
+
+
+
+            } catch (e) {
+                $("#liPagination").hide();
+            }
+        }
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Speciality List (Application Count) </h2>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            <div class="form-group col-lg-12">
+                @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionId" })
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    &nbsp;
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard">Type :</label>
+                    <select id="ddlType" name="ddlType" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                        @if (Model != null && (Model.listType != null && Model.listType.Count > 0))
+                        {
+                            foreach (var u in Model.listType)
+                            {
+                                <option value="@u.id">@u.value </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2" style="display:none;">
+                    <label for="heard">Quota :</label>
+                    <select id="ddlQuota" name="ddlQuota" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2" style="display:none;">
+                    <label for="heard">Speciality :</label>
+                    <select id="ddlSpeciality" name="ddlSpeciality" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2" style="display:none;">
+                    <label for="heard">Hospital :</label>
+                    <select id="ddlHospital" name="ddlHospital" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                    </select>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <label for="heard">Search :</label>
+                    <input type="text" id="txtSearch" name="txtSearch" placeholder="Search By Quota, Speciality, Hospital" class="form-control" />
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard" style="width:100%;">&nbsp;</label>
+                    <input type="button" id="btnSearch" name="btnSearch" value="Search" class="btn btn-success" />
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    &nbsp;
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table id="tblPanel" class="table table-striped jambo_table bulk_action" style="display:none;">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Sr. </th>
+                            <th class="column-title">Job ID </th>
+                            <th class="column-title">Quota </th>
+                            <th class="column-title">Speciality</th>
+                            <th class="column-title">Hospital </th>
+                            <th class="column-title">Seats </th>
+                            <th class="column-title">Applications</th>
+                            <th style="display:none;">
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbPanel">
+                    </tbody>
+                </table>
+                <div id="divPagination" style="display:none;">
+                    <div id="msgPagination" class="col-md-4">
+                        <div class="dataTables_info" id="divShowingResult">
+                            Showing
+                            <span id="shStart"> </span> to <span id="shEnd"> </span> of <span id="shTotal"></span>
+                            entries
+                        </div>
+                    </div>
+                    <div id="liPagination" class="col-md-8">
+                        <ul class="list_pagination">
+                        </ul>
+                    </div>
+                    <ul id="templatePagination" style="display:none;">
+                        <li class='liPage' id='0' type="first"> First Page</li>
+                        {#Pagination#}
+                        <li class='liPage' id='0' type="last"> Last Page</li>
+                    </ul>
+                </div>
+                <div style="display:none;">
+                    <table>
+                        <tbody id="tbTempHtml">
+                            <tr class="tbRow" id="{#specialityJobId#}">
+                                <td>{#rowNum#}</td>
+                                <td>{#specialityJobId#}</td>
+                                <td>{#quotaName#}</td>
+                                <td>{#specialityName#}</td>
+                                <td>{#hospitalName#}</td>
+                                <td>{#jobs#}</td>
+                                <td>{#totalApplication#}</td>
+                                <td style="display:none;">
+                                    <a title="Edit " class="ank" href="/admin/hospital-setup?id={#hospitalId#}"><i class="fa fa-pencil-square-o"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,396 @@
+﻿@{
+    ViewBag.Title = "Applicant Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicationStatusModel
+@section RenderCss{
+
+}
+
+@section RenderScript{
+
+    <script>
+        var applicantId = 0;
+        $(document).ready(function () {
+
+        });
+
+    </script>
+}
+
+
+<div class="container content">
+    <div class="row main">
+        @if (Model.applicationStatusId == 8)
+        {
+            if (Model.loggedInUser.adminId > 0)
+            {
+                @Html.Partial("_ApplicantLinksForAdmin")
+            }
+            else
+            {
+                @Html.Partial("_ApplicantLinks")
+            }
+        }
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal">
+                    <h3 class="text-center">Application Status</h3>
+                    <hr class="colorgraph">
+                    <div class="row" style="padding:0px 20px;">
+                        @if (Model.listStatus != null && Model.listStatus.Count > 0)
+                        {
+                            try
+                            {
+                                var objAccount = Model.listStatus.Where(x => x.statusTypeId == ProjConstant.Constant.statusApplicantAccount).FirstOrDefault();
+                                if (objAccount != null && objAccount.statusTypeId > 0)
+                                {
+                                    <fieldset>
+                                        <legend>
+                                            <label class="checkbox-inline" for="chkConfirm">
+                                                Account
+                                            </label>
+                                        </legend>
+                                        <div class="row col-md-12  ">
+                                            <div class="col-md-12">
+                                                <p>
+                                                    Account status is @objAccount.status
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                }
+
+                            }
+                            catch (Exception)
+                            {
+
+
+                            }
+
+                            try
+                            {
+                                var objAccount = Model.listStatus.Where(x => x.statusTypeId == ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
+
+
+                                if (objAccount != null && objAccount.statusTypeId > 0)
+                                {
+                                    <fieldset>
+                                        <legend>
+                                            <label class="checkbox-inline" for="chkConfirm">
+                                                Application
+                                            </label>
+                                        </legend>
+                                        <div class="row col-md-12  ">
+                                            <div class="col-md-12">
+                                                <p>
+                                                    Application status is @objAccount.status
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                }
+
+                            }
+                            catch (Exception)
+                            {
+
+
+                            }
+
+
+
+                            try
+                            {
+                                var objAccount = Model.listStatus.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.verification).FirstOrDefault();
+                                if (objAccount != null && objAccount.statusTypeId > 0)
+                                {
+                                    <fieldset>
+                                        <legend>
+                                            <label class="checkbox-inline" for="chkConfirm">
+                                                Verification
+                                            </label>
+                                        </legend>
+                                        <div class="row col-md-12  ">
+                                            <div class="col-md-12">
+                                                <p>
+                                                    <b> Verification status is :  </b> @objAccount.status
+                                                </p>
+                                                @{
+                                                    if (objAccount.statusId == 0)
+                                                    {
+                                                        <p>
+                                                            Your application is under-process, please wait till the verification.
+                                                        </p>
+                                                    }
+                                                    else
+                                                    {
+                                                        var objStatusVerify = Model.listStatusApproval.FirstOrDefault(x => x.approvalStatusTypeId == 131 && x.approvalStatusId == 2);
+                                                        if (objStatusVerify != null && objStatusVerify.approvalStatusTypeId > 0)
+                                                        {
+                                                            <p>
+                                                                <b> Rejected Reason :</b>
+                                                            </p>
+                                                            <p>
+                                                                @objStatusVerify.comments
+                                                            </p>
+                                                            <p>
+                                                                <b>  Grievance Committee Timeline :</b>
+                                                            </p>
+                                                            <p>
+                                                                @objStatusVerify.statusMessage
+                                                            </p>
+                                                        }
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                }
+                            }
+                            catch (Exception)
+                            {
+                            }
+
+
+                            if (1 > 2)
+                            {
+                                try
+                                {
+                                    var objAccount = Model.listStatus.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.ammendment).FirstOrDefault();
+                                    if (objAccount != null && objAccount.statusTypeId > 0)
+                                    {
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkConfirm">
+                                                    Ammendment
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12">
+
+                                                    <p>
+                                                        <b> Ammendment status is :  </b> @objAccount.status
+                                                    </p>
+                                                    @if (objAccount != null && objAccount.statusId == 1)
+                                                    {
+                                                        <p>
+                                                            Your application form has been amended as per request presented before the Grievances Committee
+                                                        </p>
+                                                    }
+                                                    else if (objAccount != null && objAccount.statusId == 2)
+                                                    {
+                                                        var objStatusVerify = Model.listStatusApproval.FirstOrDefault(x => x.approvalStatusTypeId == 132 && x.approvalStatusId == 2);
+                                                        if (objStatusVerify != null && objStatusVerify.approvalStatusTypeId > 0)
+                                                        {
+                                                            <p>
+                                                                <b> Rejected Reason :</b>
+                                                            </p>
+                                                            <p>
+                                                                @objStatusVerify.comments
+                                                            </p>
+                                                        }
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    }
+
+                                }
+                                catch (Exception)
+                                {
+                                }
+
+                                try
+                                {
+                                    var objAccount = Model.listStatus.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.round01).FirstOrDefault();
+                                    if (objAccount != null && objAccount.statusTypeId > 0)
+                                    {
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkConfirm">
+                                                    Round 01 - ( Form No : @Model.loggedInUser.applicantId , PMDC No. : @Model.loggedInUser.pmdcNo )
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12">
+                                                    <p>
+                                                        Consent Status : @objAccount.status
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    }
+                                    else
+                                    {
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkConfirm">
+                                                    Round 01
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12">
+                                                    <p>
+                                                        You are low in merit.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    }
+
+                                }
+                                catch (Exception)
+                                {
+
+
+                                }
+
+
+                                try
+                                {
+                                    var objAccount = Model.listStatus.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.round02).FirstOrDefault();
+
+
+                                    if (objAccount != null && objAccount.statusTypeId > 0)
+                                    {
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkConfirm">
+                                                    Round 02 - ( Form No : @Model.loggedInUser.applicantId , PMDC No. : @Model.loggedInUser.pmdcNo )
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12">
+                                                    <p>
+                                                        Consent Status : @objAccount.status
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    }
+                                    else
+                                    {
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkConfirm">
+                                                    Round 02
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12">
+                                                    <p>
+                                                        You are low in merit / have not-given consent in Round-01, so you failed qualify for Round-02
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    }
+
+
+                                }
+                                catch (Exception)
+                                {
+
+
+                                }
+
+
+                                try
+                                {
+                                    var objAccount = Model.listStatus.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.round03).FirstOrDefault();
+
+
+                                    if (objAccount != null && objAccount.statusTypeId > 0)
+                                    {
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkConfirm">
+                                                    Round 03 - ( Form No : @Model.loggedInUser.applicantId , PMDC No. : @Model.loggedInUser.pmdcNo )
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12">
+                                                    <p>
+                                                        Consent Status : @objAccount.status
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    }
+                                    else
+                                    {
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkConfirm">
+                                                    Round 03
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12">
+                                                    <p>
+                                                        You are low in merit / have not-given consent in Round-02, so you failed qualify for Round-03
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    }
+
+
+                                }
+                                catch (Exception)
+                                {
+                                }
+                                try
+                                {
+                                    var objAccount = Model.listStatus.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.join).FirstOrDefault();
+
+
+                                    if (objAccount != null && objAccount.statusTypeId > 0)
+                                    {
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkConfirm">
+                                                    Joining
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12">
+                                                    <p>
+                                                        Joining Status : @objAccount.status
+                                                    </p>
+                                                    @if (objAccount.statusId == 3 && Model.final != null && Model.final.applicantId > 0)
+                                                    {
+                                                        <p>
+                                                            Please join your respective hospital/institute (@Model.final.instituteName) w.e.f. 26-07-2021 (Monday) 08AM to 27-07-2021 (Tuesday) 02 PM.
+                                                        </p>
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    }
+
+
+
+                                }
+                                catch (Exception)
+                                {
+                                }
+                            }
+
+
+                        }
+                        else
+                        {
+
+
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

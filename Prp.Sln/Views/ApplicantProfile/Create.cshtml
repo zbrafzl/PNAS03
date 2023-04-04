@@ -1,0 +1,2171 @@
+﻿
+@{
+    ViewBag.Title = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model PrpSln.ProfileModel
+@section RenderCss{
+
+}
+@section RenderScript{
+    <!-- jQuery Smart Wizard -->
+    @*<script src="/vendors/jQuery-Smart-Wizard/js/jquery.smartWizard.js"></script>*@
+    <script>
+
+        var action = "PersonalInfo", step = 1, provinceIdInfo = 0, districtIdInfo = 0;
+        var applicantDetailId = 0, applicantDegreeDetailId = 0, specialityIdFCPS = 0, specialityIdMSMD = 0, imagesPath = "/Images/Applicant/";
+
+        var graduateType = 1, htmlTempExp = "", htmlTempDisnt = "";
+
+        var objApplication = {}, objApplicant = {}, objApplicantInfo = {}, objDegree = {}, objEducation = {},
+            objDegreeMarksList = [], objSpecialityList = [], objExperience = {}, objExperienceList = [];
+
+        $(document).ready(function () {
+
+            imagesPath = imagesPath + applicantId + "/"
+            $("#step1").addClass("selected");
+            $("#step1").removeClass("disabled");
+            step = 3;
+
+            $(".grd-foreign").hide();
+
+            htmlTempExp = $("#tbBodyExp").html();
+            htmlTempDisnt = $("#tbBodyDisnt").html();
+
+            MoveWizardPanel(step);
+
+            BindInstituteDDL(1, 0);
+            BindAllPanelsData();
+
+            $('#txtDob').datetimepicker({
+                format: 'DD/MM/YYYY',
+                maxDate: new Date()
+            });
+
+            $('#txtExpiryDatePMDC').datetimepicker({
+                format: 'DD/MM/YYYY',
+                minDate: new Date()
+            });
+
+            $('#txtDateOfPassingMBBS').datetimepicker({
+                format: 'DD/MM/YYYY',
+                maxDate: new Date()
+            });
+
+            $('#txtCNICExpiryDate').datetimepicker({
+                format: 'DD/MM/YYYY',
+                minDate: new Date()
+            });
+
+            $('#txtPassingDateFCPS').datetimepicker({
+                format: 'DD/MM/YYYY',
+                maxDate: new Date()
+            });
+
+            $('#txtPassingDateMSMD').datetimepicker({
+                format: 'DD/MM/YYYY',
+                maxDate: new Date()
+            });
+
+            $('#txtExpDateStart').datetimepicker({
+                format: 'DD/MM/YYYY',
+                maxDate: new Date()
+            });
+
+            $('#txtExpDateEnd').datetimepicker({
+                format: 'DD/MM/YYYY',
+                maxDate: new Date()
+            });
+
+            // For Pakistan = 132
+            $('#ddlCountry').val(132);
+
+            //step-wizard
+
+            $(document).on('change', '#ddlProvince', function () {
+                var provinceId = $(this).val();
+
+                DDLSetToDefault("ddlDistrict", 'Select One', 0);
+                $("#hfdDistrictId").val(0);
+
+                if (provinceId > 0)
+                    BindDistrictDDL(provinceId, 0);
+            });
+
+            $(document).on('click', '.step-head', function () {
+
+                step = ConvertToInt(step);
+                var attrId = $(this).attr("id");
+                var id = attrId.replace("step", "");
+
+                var hasClass = $(this).hasClass("disabled")
+                if (hasClass == true) {
+                    return;
+                }
+                if (step == id) {
+                    return;
+                }
+                step = id;
+
+                MoveWizardPanel(step);
+
+            });
+
+            $(document).on('change', '.flup', function () {
+
+                var idAttr = $(this).attr("id");
+
+                var ctrlImg = idAttr.replace("fl", "img");
+                //imgCnicFront
+                var _size = this.files[0].size;
+                var fSExt = new Array('Bytes', 'KB', 'MB', 'GB'),
+                    i = 0; while (_size > 900) { _size /= 1024; i++; }
+
+                var exactSize = (Math.round(_size * 100) / 100);
+                if (exactSize > 500) {
+                    var exactSizeFull = (Math.round(_size * 100) / 100) + ' ' + fSExt[i];
+                    alert("File size " + exactSizeFull + " greater then 500 KB. Please compress image size.");
+                    $(this).val("");
+                    $('#' + ctrlImg).attr('src', "");
+                    $('#' + ctrlImg).hide();
+                }
+                else {
+                    readURL(this, ctrlImg);
+                }
+            });
+
+
+            //
+
+            //  Satrt Education Tab
+
+            //
+
+            $(document).on('change', '#ddlInstituteType', function () {
+                var instituteType = $(this).val();
+
+                DDLSetToDefault("ddlInstitute", 'Select One', 0);
+
+
+                if (instituteType > 0)
+                    BindInstituteDDL(instituteType, 0);
+            });
+
+            $(document).on('change', 'input:radio[name="rbtnGraduate"]', function () {
+
+                var attrId = $(this).attr("id");
+                if (attrId == "rbtnGraduateLocal") {
+                    $(".grd-foreign").hide();
+                    $(".grd-local").show();
+                    graduateType = 1;
+                }
+                else if (attrId == "rbtnGraduateForeign") {
+
+                    $(".grd-local").hide();
+                    $(".grd-foreign").show();
+                    graduateType = 2;
+                }
+            });
+
+            $(document).on('change', 'input:radio[name="rbtnHouseJob"]', function () {
+
+                var attrId = $(this).attr("id");
+                if (attrId == "rbtnHouseJobYes") {
+                    $(".divHouseJob").show();
+                }
+                else if (attrId == "rbtnHouseJobNo") {
+
+                    $(".divHouseJob").hide();
+                }
+            });
+
+            //marks
+
+            $(document).on('keyup', '.marksd', function () {
+
+                var attrId = $(this).attr("id");
+                var attrId2nd = "";
+                var obtainMarks = 0, totalMarks = 0;
+                if (attrId.toLowerCase().indexOf("obtain") !== -1) {
+
+                    attrId2nd = attrId.replace("Obtain", "Total");
+                    obtainMarks = ConvertToInt($(this).val());
+                    totalMarks = ConvertToInt($("#" + attrId2nd).val());
+                    if (obtainMarks > 0) {
+                        if (totalMarks > 0 && obtainMarks > totalMarks) {
+
+                            alert("Please enter obtain marks less then total marks.");
+                        }
+                    }
+
+                }
+                else if (attrId.toLowerCase().indexOf("total") !== -1) {
+
+                    attrId2nd = attrId.replace("Total", "Obtain");
+                    totalMarks = ConvertToInt($(this).val());
+                    obtainMarks = ConvertToInt($("#" + attrId2nd).val());
+                    if (totalMarks > 0) {
+                        if (obtainMarks > 0 && totalMarks < obtainMarks) {
+
+                            alert("Please enter total marks greater then obtain marks.");
+                        }
+                    }
+                }
+
+
+            });
+
+            $(document).on('click', '#chkFCPS', function () {
+                var status = $("#chkFCPS").is(':checked');
+                $("#divFCPS").hide();
+                if (status == true) {
+                    $("#divFCPS").show();
+                }
+            });
+
+            $(document).on('click', '#chkMSMD', function () {
+                var status = $("#chkMSMD").is(':checked');
+                $("#divMSMD").hide();
+                if (status == true) {
+                    $("#divMSMD").show();
+                }
+            });
+
+            //  End Education Tab
+
+            // Exaprience Tab Start
+
+            $(document).on('change', '#ddlExpInstitueLevel', function () {
+                var instituteLevel = $(this).val();
+
+                DDLSetToDefault("ddlExpLevelType", 'Select One', 0);
+
+
+                if (instituteLevel > 0)
+                    BindLevelTypeDDL(instituteLevel, 0);
+            });
+
+            //Exaprience Tab End
+
+            $(document).on('click', '#btnExpSave', function () {
+
+                SaveExperienceDate();
+            });
+
+            $(document).on('click', '#btnSaveAndProceed', function () {
+
+                step = ConvertToInt(step);
+                if (step == 1) {
+
+                    objApplicantInfo = ValidateFormInfo();
+
+                    if (objApplicantInfo.isError == false) {
+
+                        var resp = CallActionPost("/ApplicantProfile/ApplicantInfoAddUpdate", objApplicantInfo);
+                        if (resp != null && resp.status == true) {
+
+                            var respInfo = CallActionGet("/ApplicantProfile/GetApplicantInfoData?applicantId=" + applicantId);
+                            if (respInfo != null) {
+
+                                if (respInfo != null && respInfo.applicantDetailId > 0) {
+
+                                    objApplicantInfo = respInfo;
+                                    BindPenelInfo(false);
+                                }
+                            }
+                            step = step + 1;
+                            MoveWizardPanel(step);
+                            $("#btnPrivous").show();
+
+                        }
+                    }
+                }
+                else if (step == 2) {
+
+
+                    if (ValidateFormEducation() == false) {
+
+                        var resp = CallActionPost("/ApplicantProfile/ApplicantEducationAddUpdate", objEducation);
+                        if (resp != null && resp.status == true) {
+
+                            var respEdu = CallActionGet("/ApplicantProfile/GetApplicantEducationData?applicantId=" + applicantId);
+                            if (respEdu != null) {
+
+                                if (respEdu.applicantDegree != null && respEdu.applicantDegree.applicantDegreeDetailId > 0) {
+                                    objDegree = respEdu.applicantDegree;
+                                    //BindPenelInfo(false);
+                                }
+
+                                if (respEdu.listDegreeMarks != null && respEdu.listDegreeMarks.length > 0) {
+                                    objDegreeMarksList = respEdu.listDegreeMarks;
+                                    //BindPenelInfo(false);
+                                }
+
+                                if (respEdu.listSpeciality != null && respEdu.listSpeciality.length > 0) {
+                                    objSpecialityList = respEdu.listSpeciality;
+                                    //BindPenelInfo(false);
+                                }
+                            }
+                            step = step + 1;
+                            MoveWizardPanel(step);
+                            $("#btnPrivous").show();
+
+                        }
+                    }
+                }
+            });
+
+            $(document).on('click', '#btnPrivous', function () {
+
+                step = ConvertToInt(step);
+                step = step - 1;
+                MoveWizardPanel(step);
+
+
+                $("#btnPrivous").hide();
+
+                if (step > 1) {
+                    $("#btnPrivous").show();
+                }
+            });
+
+
+
+
+
+        });
+
+        function BindDistrictDDL(provinceId, districtId) {
+
+            var list = CallActionGet("/Common/RegionGetByCondition?typeId=4" + "&parentId=" + provinceId + "&condition=");
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (districtId == ddlItem.regionId)
+                        $("#ddlDistrict").append("<option  value='" + ddlItem.regionId + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlDistrict").append("<option  value='" + ddlItem.regionId + "'>" + ddlItem.name + "</option>");
+                }
+            }
+
+        }
+
+        function BindInstituteDDL(instituteTypeId, instituteId) {
+
+            var list = CallActionGet("/Common/InstitueGetByType?typeId=" + instituteTypeId);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (instituteId == ddlItem.instituteId)
+                        $("#ddlInstitute").append("<option  value='" + ddlItem.instituteId + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlInstitute").append("<option  value='" + ddlItem.instituteId + "'>" + ddlItem.name + "</option>");
+                }
+            }
+
+        }
+
+        function BindLevelTypeDDL(instituteLevel, levelId) {
+
+            var list = CallActionGet("/Common/ConstantGetByType?typeId=" + instituteLevel);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (levelId == ddlItem.id)
+                        $("#ddlExpLevelType").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlExpLevelType").append("<option  value='" + ddlItem.id + "'>" + ddlItem.name + "</option>");
+                }
+            }
+        }
+
+        function readURL(input, ctrlImg) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#' + ctrlImg).attr('src', e.target.result);
+                    $('#' + ctrlImg).show();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function MoveWizardPanel(id) {
+
+            $(".step-head").removeClass("selected");
+            $(".step-head").removeClass("disabled");
+            $(".step-head").addClass("disabled");
+            $(".step-head").removeClass("done");
+            $(".step-body").hide();
+
+            if (id > 1) {
+                for (var i = 1; i < id; i++) {
+                    $("#step" + i).removeClass("selected");
+                    $("#step" + i).removeClass("disabled");
+                    $("#step" + i).addClass("done");
+                }
+            }
+
+
+            $("#step" + id).removeClass("disabled");
+            $("#step" + id).addClass("selected");
+
+            $("#step-" + id).show();
+        }
+
+        function SaveExperienceDate() {
+
+        }
+
+        function ValidateFormInfo() {
+
+
+            var isError = false, ctrl = "";
+            objApplicantInfo = {};
+
+            var genderId = 0, isDisable = 0;
+
+            if ($("#rbtnGenderMale").is(':checked'))
+                genderId = 1;
+            else if ($("#rbtnGenderFemale").is(':checked'))
+                genderId = 2;
+
+            if ($("#rbtnDisableYes").is(':checked'))
+                isDisable = true;
+            else if ($("#rbtnDisableNo").is(':checked'))
+                isDisable = false;
+
+            objApplicantInfo.fatherName = ConvertToString($("#txtFatherName").val());
+            objApplicantInfo.genderId = genderId;
+            objApplicantInfo.isDisable = isDisable;
+            objApplicantInfo.dob = ConvertToString($("#txtDob").data('date'));
+            objApplicantInfo.pmdcExpiryDate = ConvertToString($("#txtExpiryDatePMDC").data('date'));
+            objApplicantInfo.mbbsPassingDate = ConvertToString($("#txtDateOfPassingMBBS").data('date'));
+            objApplicantInfo.countryId = ConvertToInt($("#ddlCountry").val());
+            objApplicantInfo.provinceId = ConvertToInt($("#ddlProvince").val());
+            objApplicantInfo.districtId = ConvertToInt($("#ddlDistrict").val());
+            objApplicantInfo.domicileProvinceId = $("#ddlDomicileProvince").val();
+            objApplicantInfo.address = ConvertToString($("#txtAddress").val());
+            objApplicantInfo.cnicNo = ConvertToString($("#txtCNIC").val());
+            objApplicantInfo.cnicExpiryDate = ConvertToString($("#txtCNICExpiryDate").data('date'));
+
+            if (applicantDetailId == 0) {
+                objApplicantInfo.cnicPicFront = UploadImage("flCnicFront", applicantId, "CnicFront");
+                $("#hfdCnicFront").val(objApplicantInfo.cnicPicFront);
+            }
+            else {
+
+                if ($("#flCnicFront").val()) {
+                    objApplicantInfo.cnicPicFront = UploadImage("flCnicFront", applicantId, "CnicFront");
+                    $("#hfdCnicFront").val(objApplicantInfo.cnicPicFront);
+                }
+            }
+            objApplicantInfo.cnicPicFront = ConvertToString($("#hfdCnicFront").val());
+
+            if (applicantDetailId == 0) {
+                objApplicantInfo.cnicPicBack = UploadImage("flCnicBack", applicantId, "CnicBack");
+                $("#hfdCnicBack").val(objApplicantInfo.cnicPicBack);
+            }
+            else {
+
+                if ($("#flCnicFront").val()) {
+                    objApplicantInfo.cnicPicBack = UploadImage("flCnicBack", applicantId, "CnicBack");
+                    $("#hfdCnicBack").val(objApplicantInfo.cnicPicBack);
+                }
+            }
+            objApplicantInfo.cnicPicBack = ConvertToString($("#hfdCnicBack").val());
+
+
+
+            if ($("#flPic").val()) {
+                objApplicantInfo.pic = UploadImage("flPic", applicantId, "pic");
+                $("#hfdPic").val(objApplicantInfo.pic);
+            }
+            objApplicantInfo.pic = ConvertToString($("#hfdPic").val());
+
+            objApplicant.pic = ConvertToString($("#hfdPic").val());
+
+
+            if ($("#flDomicileFront").val()) {
+                objApplicantInfo.domicilePicFront = UploadImage("flDomicileFront", applicantId, "DomicileFront");
+                $("#hfdDomicileFront").val(objApplicantInfo.domicilePicFront);
+            }
+            objApplicantInfo.domicilePicFront = ConvertToString($("#hfdDomicileFront").val());
+
+            if ($("#flDomicileBack").val()) {
+                objApplicantInfo.domicilePicBack = UploadImage("flDomicileBack", applicantId, "DomicileBack");
+                $("#hfdDomicileBack").val(objApplicantInfo.domicilePicBack);
+            }
+            objApplicantInfo.domicilePicBack = ConvertToString($("#hfdDomicileBack").val());
+
+
+            if (objApplicantInfo.fatherName == "") {
+                $("#txtFatherName").addClass("req-fld");
+                ctrl = "txtFatherName";
+                isError = true;
+            }
+            if (objApplicantInfo.dob == "") {
+
+                $("#txtDob").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtDob";
+            }
+
+            if (objApplicantInfo.pmdcExpiryDate == "") {
+
+                $("#txtExpiryDatePMDC").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtExpiryDatePMDC";
+            }
+
+            if (objApplicantInfo.mbbsPassingDate == "") {
+
+                $("#txtDateOfPassingMBBS").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtDateOfPassingMBBS";
+            }
+
+            if (objApplicantInfo.countryId == 0) {
+
+                $("#ddlCountry").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlCountry";
+            }
+
+            if (objApplicantInfo.provinceId == 0) {
+
+                $("#ddlProvince").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlProvince";
+            }
+
+            if (objApplicantInfo.districtId == 0) {
+
+                $("#ddlDistrict").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlDistrict";
+            }
+
+            if (objApplicantInfo.domicileProvinceId == 0) {
+
+                $("#ddlDomicileProvince").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlDomicileProvince";
+            }
+
+            if (objApplicantInfo.address == "") {
+
+                $("#txtAddress").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtAddress";
+            }
+
+            if (objApplicantInfo.cnicNo == "") {
+
+                $("#txtCNIC").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtCNIC";
+            }
+
+            if (objApplicantInfo.cnicExpiryDate == "") {
+
+                $("#txtCNICExpiryDate").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtCNICExpiryDate";
+            }
+
+
+            if (objApplicantInfo.cnicPicFront == "") {
+
+                $("#flCnicFront").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flCnicFront";
+            }
+
+            if (objApplicantInfo.cnicPicBack == "") {
+
+                $("#flCnicBack").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flCnicBack";
+            }
+
+            if (objApplicantInfo.domicilePicFront == "") {
+
+                $("#flDomicileFront").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flDomicileFront";
+            }
+
+            if (objApplicantInfo.domicilePicBack == "") {
+
+                $("#flDomicileBack").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flDomicileBack";
+            }
+
+            if (objApplicantInfo.pic == "") {
+
+                $("#flPic").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flPic";
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            objApplicantInfo.isError = isError;
+
+            return objApplicantInfo;
+        }
+
+        function ValidateFormEducation() {
+
+            var isError = false, ctrl = "";
+            objDegree = {}; objDegreeMarksList = []; objSpecialityList = [];
+
+            objDegree.applicantDegreeDetailId = applicantDegreeDetailId;
+            objDegree.applicantId = applicantId;
+
+            if ($("#rbtnGraduateLocal").is(':checked'))
+                objDegree.graduateTypeId = 1;
+            else if ($("#rbtnGraduateForeign").is(':checked'))
+                objDegree.graduateTypeId = 2;
+
+            objDegree.degreeTypeId = ConvertToInt($("#ddlDegree").val());
+            objDegree.degreeYear = ConvertToInt($("#ddlNoOfYear").val());
+            objDegree.instituteTypeId = ConvertToInt($("#ddlInstituteType").val());
+            objDegree.instituteId = ConvertToInt($("#ddlInstitute").val());
+
+            if ($("#flDegree").val()) {
+                objDegree.imageDegree = UploadImage("flDegree", applicantId, "Degree");
+                $("#hfdDegree").val(objDegree.imageDegree);
+            }
+            objDegree.imageDegree = ConvertToString($("#hfdDegree").val());
+
+
+            objDegreeMarksList = [];
+            if (objDegree.graduateTypeId == 1) {
+
+
+                for (var i = 1; i <= 5; i++) {
+
+                    var objDegreeMarks = {};
+                    objDegreeMarks.degreeMarksId = ConvertToInt($("#hfdRowDegree" + i + "Id").val());
+                    objDegreeMarks.applicantId = applicantId;
+                    objDegreeMarks.year = i;
+                    objDegreeMarks.obtainMarks = ConvertToInt($("#txtRowDegree" + i + "MarksObtain").val());
+                    objDegreeMarks.totalMarks = ConvertToInt($("#txtRowDegree" + i + "MarksTotal").val());
+                    objDegreeMarks.attempt = ConvertToInt($("#ddlRowDegree" + i + "Attempt").val());
+
+                    if ($("#flRowDegree" + i).val()) {
+                        objDegreeMarks.imageDMC = UploadImage("flRowDegree" + i, applicantId, "DMCDegree" + i);
+                        $("#hfdRowDegree" + i).val(objDegreeMarks.imageDMC);
+                    }
+                    objDegreeMarks.imageDMC = ConvertToString($("#hfdRowDegree" + i).val());
+
+
+                    objDegreeMarksList.push(objDegreeMarks);
+                }
+
+                objDegree.totalMarks = 0;
+                objDegree.obtainMarks = 0;
+                objDegree.imageDegreeForeignFront = "";
+                objDegree.imageDegreeForeignBack = "";
+            }
+            else if (objDegree.graduateTypeId == 2) {
+
+                for (var i = 1; i <= 3; i++) {
+
+                    var objDegreeMarks = {};
+                    objDegreeMarks.degreeMarksId = ConvertToInt($("#txtRowPMDC" + i + "Id").val());
+                    objDegreeMarks.applicantId = applicantId;
+                    objDegreeMarks.year = i;
+                    objDegreeMarks.obtainMarks = 0;
+                    objDegreeMarks.totalMarks = 0;
+                    objDegreeMarks.attempt = ConvertToInt($("#ddlRowPMDC" + i + "Attempt").val());
+
+                    if ($("#flRowPMDC" + i).val()) {
+                        objDegreeMarks.imageDMC = UploadImage("flRowPMDC" + i, applicantId, "DMCPMDC" + i);
+                        $("#hfdRowPMDC" + i).val(objDegreeMarks.imageDMC);
+                    }
+                    objDegreeMarks.imageDMC = ConvertToString($("#hfdRowPMDC" + i).val());
+
+                    objDegreeMarksList.push(objDegreeMarks);
+                }
+
+                objDegree.totalMarks = ConvertToInt($("#txtTotalMarksForeign").val());
+                objDegree.obtainMarks = ConvertToInt($("#txtObtainMarksForeign").val());
+
+
+                if ($("#flDMCForeignFront").val()) {
+                    objDegree.imageDegreeForeignFront = UploadImage("flDMCForeignFront", applicantId, "DegreeDMCBack");
+                    $("#hfdDMCForeignBack").val(objDegree.imageDegreeForeignFront);
+                }
+                objDegree.imageDegreeForeignFront = ConvertToString($("#hfdDMCForeignBack").val());
+
+                if ($("#fllDMCForeignBack").val()) {
+                    objDegree.imageDegreeForeignBack = UploadImage("fllDMCForeignBack", applicantId, "DegreeDMCBack");
+                    $("#hfdDMCForeignBack").val(objDegree.imageDegreeForeignBack);
+                }
+                objDegree.imageDegreeForeignBack = ConvertToString($("#hfdDMCForeignBack").val());
+
+
+
+            }
+
+            // House Job
+            if ($("#rbtnHouseJobYes").is(':checked'))
+                objDegree.isHouseJob = true;
+            else if ($("#rbtnHouseJobNo").is(':checked'))
+                objDegree.isHouseJob = false;
+
+            if (objDegree.isHouseJob == true) {
+
+                objDegree.instituteIdHouseJob = ConvertToInt($("#ddlInstituteHouseJob").val());
+                objDegree.provinceIdHouseJob = ConvertToInt($("#ddlProvinceHouseJob").val());
+
+                if ($("#flHouseJobCertificate").val()) {
+                    objDegree.imageHouseJob = UploadImage("flHouseJobCertificate", applicantId, "HouseJob");
+                    $("#hfdHouseJobCertificate").val(objDegree.imageHouseJob);
+                }
+                objDegree.imageHouseJob = ConvertToString($("#hfdHouseJobCertificate").val());
+            }
+
+            //txtObtainMarksFCPS
+
+            objDegree.isFCPS = $("#chkFCPS").is(':checked');
+
+            if (objDegree.isFCPS == true) {
+
+                var objSpeciality = {};
+                objSpeciality.specialityId = ConvertToInt($("#hfdFCPS").val());
+                objSpeciality.specialityTypeId = 1;
+                objSpeciality.applicantId = applicantId;
+                objSpeciality.obtainMarks = ConvertToInt($("#txtObtainMarksFCPS").val());
+                objSpeciality.totalMarks = ConvertToInt($("#txtTotalMarksFCPS").val());
+                objSpeciality.degreeDate = ConvertToString($("#txtPassingDateFCPS").data('date'));
+
+                if ($("#flDMCFCPS").val()) {
+                    objSpeciality.imageCertificate = UploadImage("flDMCFCPS", applicantId, "FCPS");
+                    $("#hfdDMCFCPS").val(objSpeciality.imageCertificate);
+                }
+                objSpeciality.imageCertificate = ConvertToString($("#hfdDMCFCPS").val());
+
+                objSpecialityList.push(objSpeciality);
+            }
+
+            objDegree.isMSMD = $("#chkMSMD").is(':checked');
+
+            if (objDegree.isMSMD == true) {
+
+                var objSpeciality = {};
+                objSpeciality.specialityId = ConvertToInt($("#hfdMSMD").val());
+                objSpeciality.specialityTypeId = 2;
+                objSpeciality.applicantId = applicantId;
+                objSpeciality.obtainMarks = ConvertToInt($("#txtObtainMarksMSMD").val());
+                objSpeciality.totalMarks = ConvertToInt($("#txtTotalMarksMSMD").val());
+
+                objSpeciality.degreeDate = ConvertToString($("#txtPassingDateMSMD").data('date'));
+
+                if ($("#flDMCMSMD").val()) {
+                    objSpeciality.imageCertificate = UploadImage("flDMCMSMD", applicantId, "MSMD");
+                    $("#hfdDMCMSMD").val(objSpeciality.imageCertificate);
+                }
+                objSpeciality.imageCertificate = ConvertToString($("#hfdDMCMSMD").val());
+
+                objSpecialityList.push(objSpeciality);
+            }
+
+
+            //Check Validation
+            if (objDegree.graduateTypeId == 1) {
+
+                if (objDegree.instituteTypeId == 0) {
+                    $("#ddlInstituteType").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "ddlInstituteType";
+                }
+                if (objDegree.instituteId == 0) {
+                    $("#ddlInstitute").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "ddlInstitute";
+                }
+
+                var ctrlLoop = "";
+                for (var i = 1; i <= 5; i++) {
+
+                    var objDegreeMarks = objDegreeMarksList[i - 1];
+
+                    if (objDegreeMarks.obtainMarks == 0) {
+                        ctrlLoop = "txtRowDegree" + i + "MarksObtain";
+                        $("#" + ctrlLoop).addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = ctrlLoop;
+                    }
+
+                    if (objDegreeMarks.totalMarks == 0) {
+                        ctrlLoop = "txtRowDegree" + i + "MarksTotal";
+                        $("#" + ctrlLoop).addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = ctrlLoop;
+                    }
+
+                    if (objDegreeMarks.attempt == 0) {
+                        ctrlLoop = "ddlRowDegree" + i + "Attempt";
+                        $("#" + ctrlLoop).addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = ctrlLoop;
+                    }
+
+                    if (objDegreeMarks.imageDMC == 0) {
+                        ctrlLoop = "flRowDegree" + i;
+                        $("#" + ctrlLoop).addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = ctrlLoop;
+                    }
+                }
+            }
+            else if (objDegree.graduateTypeId == 2) {
+
+                var ctrlLoop = "";
+                for (var i = 1; i <= 3; i++) {
+
+                    var objDegreeMarks = objDegreeMarksList[i - 1];
+
+                    if (objDegreeMarks.attempt == 0) {
+                        ctrlLoop = "ddlRowPMDC" + i + "Attempt";
+                        $("#" + ctrlLoop).addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = ctrlLoop;
+                    }
+
+                    if (objDegreeMarks.imageDMC == 0) {
+                        ctrlLoop = "flRowPMDC" + i;
+                        $("#" + ctrlLoop).addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = ctrlLoop;
+                    }
+                }
+
+
+                if (objDegree.totalMarks == 0) {
+                    $("#txtTotalMarksForeign").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtTotalMarksForeign";
+                }
+
+                if (objDegree.obtainMarks == 0) {
+                    $("#txtObtainMarksForeign").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtObtainMarksForeign";
+                }
+
+                if (objDegree.imageDegreeForeignFront == 0) {
+                    $("#flDMCForeignFront").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flDMCForeignFront";
+                }
+
+                if (objDegree.imageDegreeForeignBack == 0) {
+                    $("#fllDMCForeignBack").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "fllDMCForeignBack";
+                }
+
+            }
+
+            if (objDegree.imageDegree == "") {
+                $("#flDegree").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flDegree";
+            }
+
+            if (objDegree.isHouseJob == true) {
+
+                if (objDegree.instituteIdHouseJob == 0) {
+                    $("#ddlInstituteHouseJob").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "ddlInstituteHouseJob";
+
+                }
+
+                if (objDegree.provinceIdHouseJob == 0) {
+                    $("#ddlProvinceHouseJob").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "ddlProvinceHouseJob";
+                }
+
+                if (objDegree.imageHouseJob == "") {
+                    $("#flHouseJobCertificate").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flHouseJobCertificate";
+                }
+            }
+
+            if (objDegree.isFCPS == true) {
+
+                var objSpeciality = {};
+                if (objSpecialityList.length > 0)
+                    objSpeciality = objSpecialityList[0];
+
+                if (objSpeciality.obtainMarks == 0) {
+                    $("#txtObtainMarksFCPS").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtObtainMarksFCPS";
+                }
+
+                if (objSpeciality.totalMarks == 0) {
+                    $("#txtTotalMarksFCPS").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtTotalMarksFCPS";
+                }
+
+                if (objSpeciality.degreeDate == "") {
+                    $("#txtPassingDateFCPS").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtPassingDateFCPS";
+                }
+
+                if (objSpeciality.imageCertificate == "") {
+                    $("#flDMCFCPS").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flDMCFCPS";
+                }
+
+
+            }
+            if (objDegree.isMSMD == true) {
+
+                var objSpeciality = {};
+                if (objSpecialityList.length > 0) {
+
+                    if (objSpecialityList.length == 2)
+                        objSpeciality = objSpecialityList[1];
+                    else
+                        objSpeciality = objSpecialityList[0];
+
+                }
+
+                if (objSpeciality.obtainMarks == 0) {
+                    $("#txtObtainMarksMSMD").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtObtainMarksMSMD";
+                }
+
+                if (objSpeciality.totalMarks == 0) {
+                    $("#txtTotalMarksMSMD").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtTotalMarksMSMD";
+                }
+
+                if (objSpeciality.degreeDate == 0) {
+                    $("#txtPassingDateMSMD").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtPassingDateMSMD";
+                }
+
+                if (objSpeciality.imageCertificate == "") {
+                    $("#flDMCMSMD").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flDMCMSMD";
+                }
+
+            }
+
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+
+            objEducation = {};
+            objEducation.applicantDegree = objDegree;
+            objEducation.listDegreeMarks = objDegreeMarksList;
+            objEducation.listSpeciality = objSpecialityList;
+
+
+            return isError;
+        }
+
+        function ValidateExperienceFrom() {
+
+            var isError = false, ctrl = "";
+            objExperience = {};
+
+            objExperience.applicantId = applicantId;
+            objExperience.levelId = ConvertToString($("#ddlExpInstitueLevel").val());
+            objExperience.levelTypeId = ConvertToString($("#ddlExpLevelType").val()); 
+            objExperience.name = ConvertToString($("#txtExpName").val());
+            objExperience.startDated = ConvertToString($("#txtExpDateStart").data('date'));
+            objExperience.endDate = ConvertToString($("#txtExpDateEnd").data('date'));
+
+            var fileName = "Experience" + objExperience.levelId + "_" + objExperience.levelTypeId;
+
+            if ($("#flExp").val()) {
+                objExperience.imageExperience = UploadImage("flExp", applicantId, "Experience");
+                $("#hfdExp").val(objExperience.imageExperience);
+            }
+
+            if (isError == false)
+                objExperienceList.push(objExperience);
+
+            return isError;
+        }
+
+        function BindAllPanelsData() {
+
+
+            var resp = CallActionGet("/ApplicantProfile/GetApplicationDetailData?applicantId=" + applicantId);
+            if (resp != null) {
+
+                if (resp.applicantInfo != null && resp.applicantInfo.applicantDetailId > 0) {
+
+                    objApplicant = resp.applicant;
+                    objApplicantInfo = resp.applicantInfo;
+                    BindPenelInfo(true);
+                }
+
+
+                if (resp.applicantDegree != null && resp.applicantDegree.applicantDegreeDetailId > 0) {
+                    objDegree = resp.applicantDegree;
+                    objDegreeMarksList = resp.listDegreeMarks;
+                    objSpecialityList = resp.listSpeciality;
+
+                    BindPenelEducation(true);
+                }
+
+
+            }
+
+        }
+
+        function BindPenelInfo(IsRefresh) {
+
+            applicantDetailId = objApplicantInfo.applicantDetailId;
+
+            $("#txtFatherName").val(objApplicantInfo.fatherName);
+
+            var dateTicks = parseInt(objApplicantInfo.dob.TooOnlyNumbers());
+
+            $('#txtDob').datetimepicker({
+                date: new Date(dateTicks),
+                format: 'DD/MM/YYYY',
+                maxDate: new Date()
+            });
+
+            dateTicks = parseInt(objApplicantInfo.pmdcExpiryDate.TooOnlyNumbers());
+            $('#txtExpiryDatePMDC').datetimepicker({
+                date: new Date(dateTicks),
+                format: 'DD/MM/YYYY',
+                minDate: new Date()
+            });
+
+            dateTicks = parseInt(objApplicantInfo.mbbsPassingDate.TooOnlyNumbers());
+            $('#txtDateOfPassingMBBS').datetimepicker({
+                date: new Date(dateTicks),
+                format: 'DD/MM/YYYY',
+                maxDate: new Date()
+            });
+
+
+            $("#ddlCountry").val(objApplicantInfo.countryId);
+            $("#ddlProvince").val(objApplicantInfo.provinceId);
+            if (IsRefresh == true)
+                BindDistrictDDL(objApplicantInfo.provinceId, objApplicantInfo.districtId);
+            else
+                $("#ddlDistrict").val(objApplicantInfo.districtId);
+
+            $("#ddlDomicileProvince").val(objApplicantInfo.domicileProvinceId);
+            $("#txtAddress").val(objApplicantInfo.address);
+            $("#txtCNIC").val(objApplicantInfo.cnicNo);
+
+            dateTicks = parseInt(objApplicantInfo.cnicExpiryDate.TooOnlyNumbers());
+            $('#txtCNICExpiryDate').datetimepicker({
+                date: new Date(dateTicks),
+                format: 'DD/MM/YYYY',
+                minDate: new Date()
+            });
+
+            $('#imgCnicFront').attr('src', imagesPath + objApplicantInfo.cnicPicFront);
+            $('#imgCnicFront').show();
+
+            $('#imgCnicBack').attr('src', imagesPath + objApplicantInfo.cnicPicBack);
+            $('#imgCnicBack').show();
+
+            $('#imgDomicileFront').attr('src', imagesPath + objApplicantInfo.domicilePicFront);
+            $('#imgDomicileFront').show();
+
+            $('#imgDomicileBack').attr('src', imagesPath + objApplicantInfo.domicilePicBack);
+            $('#imgDomicileBack').show();
+
+            $('#imgPic').attr('src', imagesPath + objApplicant.pic);
+            $('#imgPic').show();
+
+
+            $("#hfdCnicFront").val(objApplicantInfo.cnicPicFront);
+            $("#hfdCnicBack").val(objApplicantInfo.cnicPicBack);
+            $("#hfdPic").val(objApplicant.pic);
+            $("#hfdDomicileFront").val(objApplicantInfo.domicilePicFront);
+            $("#hfdDomicileBack").val(objApplicantInfo.domicilePicBack);
+
+
+            if (objApplicantInfo.genderId == 1)
+                $("#rbtnGenderMale").attr("checked", "checked");
+            else
+                $("#rbtnGenderFemale").attr("checked", "checked");
+
+            if (objApplicantInfo.isDisable == true)
+                $("#rbtnDisableYes").attr("checked", "checked");
+            else
+                $("#rbtnDisableNo").attr("checked", "checked");
+        }
+
+        function BindPenelEducation(IsRefresh) {
+
+            applicantDegreeDetailId = objDegree.applicantDegreeDetailId;
+
+            $("#ddlDegree").val(objDegree.degreeTypeId);
+            $("#ddlNoOfYear").val(objDegree.degreeYear);
+            $("#ddlInstituteType").val(objDegree.instituteTypeId);
+            if (IsRefresh == true)
+                BindInstituteDDL(objDegree.instituteTypeId, objDegree.instituteId);
+            else
+                $("#ddlInstitute").val(objDegree.instituteId);
+
+            $("#hfdDegree").val(objDegree.imageDegree);
+            if (objDegree.imageDegree != "") {
+                $('#imgDegree').attr('src', imagesPath + objDegree.imageDegree);
+                $('#imgDegree').show();
+            }
+
+
+            if (objDegree.graduateTypeId == 1) {
+
+                $(".grd-local").show();
+                $(".grd-foreign").hide();
+
+                $("#rbtnGraduateLocal").attr("checked", "checked");
+
+                for (var i = 1; i <= objDegreeMarksList.length; i++) {
+
+                    var objDegreeMarks = objDegreeMarksList[i - 1];
+
+                    $("#hfdRowDegree" + i + "Id").val(objDegreeMarks.degreeMarksId);
+                    $("#txtRowDegree" + i + "MarksObtain").val(objDegreeMarks.obtainMarks);
+                    $("#txtRowDegree" + i + "MarksTotal").val(objDegreeMarks.totalMarks);
+                    $("#ddlRowDegree" + i + "Attempt").val(objDegreeMarks.attempt);
+
+
+                    $("#hfdRowDegree" + i).val(objDegreeMarks.imageDMC);
+                    if (objDegreeMarks.imageDMC != "") {
+                        $("#imgRowDegree" + i).attr('src', imagesPath + objDegreeMarks.imageDMC);
+                        $("#imgRowDegree" + i).show();
+                    }
+
+                }
+            }
+            else if (objDegree.graduateTypeId == 2) {
+
+                $(".grd-local").hide();
+                $(".grd-foreign").show();
+
+                $("#rbtnGraduateForeign").attr("checked", "checked");
+
+
+                for (var i = 1; i <= objDegreeMarksList.length; i++) {
+
+                    var objDegreeMarks = objDegreeMarksList[i];
+
+                    $("#hfdRowPMDC" + i + "Id").val(objDegreeMarks.degreeMarksId);
+
+                    $("#ddlRowPMDC" + i + "Attempt").val(objDegreeMarks.attempt);
+
+
+                    $("#hfdRowPMDC" + i).val(objDegreeMarks.imageDMC);
+                    if (objDegreeMarks.imageDMC != "") {
+                        $("#imgRowPMDC" + i).attr('src', imagesPath + objDegreeMarks.imageDMC);
+                        $("#imgRowPMDC" + i).show();
+                    }
+
+                }
+
+
+                $("#txtTotalMarksForeign").val(objDegree.totalMarks);
+                $("#txtObtainMarksForeign").val(objDegree.obtainMarks);
+
+                $("#hfdDMCForeignFront").val(objDegree.imageDegreeForeignFront);
+                if (objDegree.imageDegreeForeignFront != "") {
+
+                    $('#imgDMCForeignFront').attr('src', imagesPath + objDegree.imageDegreeForeignFront);
+                    $('#imgDMCForeignFront').show();
+                }
+
+                $("#hfdDMCForeignBack").val(objDegree.imageDegreeForeignBack);
+                if (objDegree.imageDegreeForeignBack != "") {
+
+                    $('#imgDMCForeignBack').attr('src', imagesPath + objDegree.imageDegreeForeignBack);
+                    $('#imgDMCForeignBack').show();
+                }
+
+            }
+
+
+            if (objDegree.isHouseJob == true) {
+                $(".divHouseJob").show();
+                $("#rbtnHouseJobYes").attr("checked", "checked");
+                $("#ddlInstituteHouseJob").val(objDegree.instituteIdHouseJob);
+                $("#ddlProvinceHouseJob").val(objDegree.provinceIdHouseJob);
+                $("#hfdHouseJobCertificate").val(objDegree.imageHouseJob);
+                if (objDegree.imageHouseJob != "") {
+
+                    $('#imgHouseJobCertificate').attr('src', imagesPath + objDegree.imageHouseJob);
+                    $('#imgHouseJobCertificate').show();
+                }
+            }
+            else {
+                $(".divHouseJob").hide();
+                $("#rbtnHouseJobNo").attr("checked", "checked");
+            }
+
+            if (objDegree.isFCPS == true) {
+                $("#divFCPS").show();
+
+
+                if (objSpecialityList != null && objSpecialityList.length > 0) {
+                    var objSpeciality = $.grep(objSpecialityList, function (n, i) {
+                        return n.specialityTypeId == 1;
+                    })[0];
+
+                    if (objSpeciality != null) {
+
+                        $("#chkFCPS").attr("checked", "checked");
+                        $("#hfdFCPS").val(objSpeciality.specialityId);
+                        $("#txtObtainMarksFCPS").val(objSpeciality.obtainMarks);
+                        $("#txtTotalMarksFCPS").val(objSpeciality.totalMarks);
+
+                        var dateTicks = parseInt(objSpeciality.degreeDate.TooOnlyNumbers());
+
+                        $('#txtPassingDateFCPS').datetimepicker({
+                            date: new Date(dateTicks),
+                            format: 'DD/MM/YYYY',
+                            maxDate: new Date()
+                        });
+
+                        $("#hfdDMCFCPS").val(objSpeciality.imageCertificate);
+                        if (objSpeciality.imageCertificate != "") {
+
+                            $('#imgDMCFCPS').attr('src', imagesPath + objSpeciality.imageCertificate);
+                            $('#imgDMCFCPS').show();
+                        }
+                    }
+                }
+
+            }
+            else {
+                $("#divFCPS").hide();
+                $("#chkFCPS").attr("checked", "");
+            }
+
+            if (objDegree.isMSMD == true) {
+
+                $("#divMSMD").show();
+
+                $("#chkMSMD").attr("checked", "checked");
+                if (objSpecialityList != null && objSpecialityList.length > 0) {
+
+                    var objSpeciality = $.grep(objSpecialityList, function (n, i) {
+                        return n.specialityTypeId == 2;
+                    })[0];
+
+                    if (objSpeciality != null) {
+
+                        $("#hfdMSMD").val(objSpeciality.specialityId);
+                        $("#txtObtainMarksMSMD").val(objSpeciality.obtainMarks);
+                        $("#txtTotalMarksMSMD").val(objSpeciality.totalMarks);
+
+                        var dateTicks = parseInt(objSpeciality.degreeDate.TooOnlyNumbers());
+
+                        $('#txtPassingDateMSMD').datetimepicker({
+                            date: new Date(dateTicks),
+                            format: 'DD/MM/YYYY',
+                            maxDate: new Date()
+                        });
+
+                        $("#hfdDMCMSMD").val(objSpeciality.imageCertificate);
+                        if (objSpeciality.imageCertificate != "") {
+
+                            $('#imgDMCMSMD').attr('src', imagesPath + objSpeciality.imageCertificate);
+                            $('#imgDMCMSMD').show();
+                        }
+                    }
+                }
+
+            }
+            else {
+                $("#divMSMD").hide();
+                $("#chkMSMD").attr("checked", "");
+            }
+
+        }
+
+
+        //  Satrt Education Tab
+
+        function GraduateTypeChangeEvent() {
+
+        }
+                                                                                                                                                                                                                                        //  End Education Tab
+
+    </script>
+}
+<div class="">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 ">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Applicant Profile <small></small></h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div id="wizard" class="form_wizard wizard_horizontal">
+                        <ul class="wizard_steps">
+                            <li>
+                                <a href="#" id="step1" class="step-head disabled">
+                                    <span class="step_no">1</span>
+                                    <span class="step_descr">
+                                        Personal Info
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="step2" class="step-head disabled">
+                                    <span class="step_no">2</span>
+                                    <span class="step_descr">
+                                        Education
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="step3" class="step-head disabled">
+                                    <span class="step_no">3</span>
+                                    <span class="step_descr">
+                                        Work Experience
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="step4" class="step-head disabled">
+                                    <span class="step_no">4</span>
+                                    <span class="step_descr">
+                                        Research Paper
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div id="step-1" class="step-body">
+                            <form class="form-horizontal form-label-left">
+                                <div class="x_panel">
+                                    <div class="x_content">
+                                        <div class="row">
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Name </label>
+                                                <input id="txtName" type="text" placeholder="Name" class="form-control" disabled>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Father Name</label>
+                                                <input id="txtFatherName" type="text" placeholder="Father Name" class="form-control lenth reqfd" len="50" tabindex="1">
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Email</label>
+                                                <input id="txtEamailId" type="text" placeholder="Email" class="form-control" disabled>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Cell</label>
+                                                <input id="txtCell" type="text" placeholder="Cell" class="form-control" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>PM & DC Number"</label>
+                                                <input id="txtPMDCNo" type="text" placeholder="PM & DC Number" class="form-control" disabled>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Expiry Date of PM & DC Registration</label>
+                                                <div class='input-group date txtDatePicker' id='txtExpiryDatePMDC'>
+                                                    <input type='text' class="form-control" tabindex="1" />
+                                                    <span class="input-group-addon">
+                                                        <span class="fa fa-calendar-o"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Date of passing MBBS/BDS</label>
+                                                <div class='input-group date txtDatePicker' id='txtDateOfPassingMBBS'>
+                                                    <input type='text' class="form-control" tabindex="1" />
+                                                    <span class="input-group-addon">
+                                                        <span class="fa fa-calendar-o"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Date of Birth</label>
+                                                <div class='input-group date txtDatePicker' id='txtDob'>
+                                                    <input type='text' class="form-control" tabindex="1" />
+                                                    <span class="input-group-addon">
+                                                        <span class="fa fa-calendar-o"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 col-sm-12  form-group">
+                                                <label>Gender</label>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" checked="checked" value="option1" id="rbtnGenderMale" name="rbtnGender" tabindex="1" /> Male
+                                                    </label>
+                                                    &nbsp;&nbsp;&nbsp;
+                                                    <label>
+                                                        <input type="radio" value="option2" id="rbtnGenderFemale" name="rbtnGender" tabindex="1" /> Female
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12  form-group">
+                                                <label>Do you want to apply for disability Quota only?</label>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" value="option1" id="rbtnDisableYes" name="rbtndisable" tabindex="1" /> Yes
+                                                    </label>
+                                                    &nbsp;&nbsp;&nbsp;
+                                                    <label>
+                                                        <input type="radio" checked="checked" value="option2" id="rbtnDisableNo" name="rbtndisable" tabindex="1" /> No
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Country</label>
+                                                <select id="ddlCountry" name="ddlCountry" class="form-control reqfd" tabindex="1">
+                                                    <option value="0" selected="selected"> Select One </option>
+                                                    @foreach (var u in Model.listCountry)
+                                                    {
+                                                        <option value="@u.regionId"> @u.name </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Province</label>
+                                                <select id="ddlProvince" name="ddlProvince" class="form-control reqfd" tabindex="1">
+                                                    <option value="0" selected="selected"> Select One </option>
+                                                    @foreach (var u in Model.listProvince)
+                                                    {
+                                                        <option value="@u.regionId"> @u.name </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>District </label>
+
+                                                <select id="ddlDistrict" name="ddlDistrict" class="form-control" tabindex="1">
+                                                    <option value="0" selected="selected"> Select One </option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>Domicile</label>
+                                                <select id="ddlDomicileProvince" name="ddlDomicileProvince" class="form-control reqfd" tabindex="1">
+                                                    <option value="0" selected="selected"> Select One </option>
+                                                    @foreach (var u in Model.listProvince)
+                                                    {
+                                                        <option value="@u.regionId"> @u.name </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12 col-sm-12  form-group">
+                                                <label>Address</label>
+                                                <textarea id="txtAddress" rows="4" class="form-control lenth reqfd" placeholder="Address" len="1000" tabindex="1"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>CNIC No.</label>
+                                                <input id="txtCNIC" type="text" placeholder="CNIC No" class="form-control reqfd" tabindex="1">
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label>CNIC ExpiryDate</label>
+                                                <div class='input-group date txtDatePicker' id='txtCNICExpiryDate'>
+                                                    <input type='text' class="form-control" tabindex="1" />
+                                                    <span class="input-group-addon">
+                                                        <span class="fa fa-calendar-o"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label class="lbl-head">CNIC Front</label>
+                                                <input type="file" id="flCnicFront" class="flup" tabindex="1">
+                                                <input type="hidden" id="hfdCnicFront" value="" />
+                                                <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label class="lbl-head">CNIC Back</label>
+                                                <input type="file" id="flCnicBack" class="flup" tabindex="1">
+                                                <input type="hidden" id="hfdCnicBack" value="" />
+                                                <img id="imgCnicBack" class="flup-img" src="" alt="" style="display:none;" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label class="lbl-head">Profile Picture</label>
+                                                <input type="file" id="flPic" class="flup" tabindex="1">
+                                                <input type="hidden" id="hfdPic" value="" />
+                                                <img id="imgPic" class="flup-img" src="" alt="" style="display:none;" />
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label class="lbl-head">Domicile Front</label>
+                                                <input type="file" id="flDomicileFront" class="flup" tabindex="1">
+                                                <input type="hidden" id="hfdDomicileFront" value="" />
+                                                <img id="imgDomicileFront" class="flup-img" src="" alt="" style="display:none;" />
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group">
+                                                <label class="lbl-head">Domicile Back</label>
+                                                <input type="file" id="flDomicileBack" class="flup" tabindex="1">
+                                                <input type="hidden" id="hfdDomicileBack" value="" />
+                                                <img id="imgDomicileBack" class="flup-img" src="" alt="" style="display:none;" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="step-2" class="step-body" style="display:none;">
+                            <form class="form-horizontal form-label-left">
+                                <div class="x_panel">
+                                    <div class="x_content">
+                                        <div class="row">
+                                            <div class="col-md-12 col-sm-12  form-group">
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" checked="checked" value="option1" id="rbtnGraduateLocal" name="rbtnGraduate" tabindex="2" /> Local University Graduate
+                                                    </label>
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <label>
+                                                        <input type="radio" value="option2" id="rbtnGraduateForeign" name="rbtnGraduate" tabindex="2" /> Foreign University Graduate
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-2 col-sm-12  form-group">
+                                                <label>Degree</label>
+                                                <select id="ddlDegree" name="ddlDegree" class="form-control reqfd" tabindex="1">
+                                                    @foreach (var u in Model.listDegree)
+                                                    {
+                                                        <option value="@u.id"> @u.name </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2 col-sm-12  form-group grd-local">
+                                                <label>Degree Durration</label>
+                                                <select id="ddlNoOfYear" name="ddlNoOfYear" class="form-control reqfd" tabindex="1" disabled>
+                                                    <option value="5" selected="selected"> 5 Years </option>
+                                                    <option value="4"> 4 Years </option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 col-sm-12  form-group grd-local">
+                                                <label>Institute Type</label>
+                                                <select id="ddlInstituteType" name="ddlInstituteType" class="form-control reqfd" tabindex="1">
+                                                    @foreach (var u in Model.listInstituteType)
+                                                    {
+                                                        <option value="@u.id"> @u.name </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-md-5 col-sm-12  form-group grd-local">
+                                                <label>Institute </label>
+                                                <select id="ddlInstitute" name="ddlInstitute" class="form-control" tabindex="1">
+                                                    <option value="0" selected="selected"> Select One </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="border:1px dashed #000;">
+                                            <div class="col-md-12 col-sm-12  form-group">
+                                                <b style="margin-top:5px;">Degree Detail</b>
+                                            </div>
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="ln_dash"></div>
+                                                <div class="col-md-12 col-sm-12  form-group">
+                                                    Please confirm that marks entered in both in "Obtained Marks" and "Total Marks" are inclusive of Pakistan studies and Islamyat Marks.
+                                                </div>
+                                                <div class="ln_dash"></div>
+                                                <div class="row col-md-12 col-sm-12 grd-local">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <label>Year</label>
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Obtain Marks</label>
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Total Marks</label>
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Attempt</label>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <label>DMC Image</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row col-md-12 col-sm-12 grd-local" id="rowDegree1">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <input type="hidden" id="hfdRowDegree1Id" value="0" />
+                                                        <input type="text" id="txtRowDegree1Year" value="1" class="form-control" disabled tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree1MarksObtain" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree1MarksTotal" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <select id="ddlRowDegree1Attempt" name="ddlRowDegree1Attempt" class="form-control reqfd" tabindex="1">
+                                                            <option value="1" selected="selected"> 1 </option>
+                                                            <option value="2"> 2 or more </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <input type="file" id="flRowDegree1" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdRowDegree1" value="" />
+                                                        <img id="imgRowDegree1" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div class="row col-md-12 col-sm-12 grd-local" id="rowDegree2">
+
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <input type="hidden" id="hfdRowDegree2Id" value="0" />
+                                                        <input type="text" id="txtRowDegree2Year" class="form-control" value="2" disabled tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree2MarksObtain" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree2MarksTotal" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <select id="ddlRowDegree2Attempt" name="ddlRowDegree2Attempt" class="form-control reqfd" tabindex="1">
+                                                            <option value="1" selected="selected"> 1 </option>
+                                                            <option value="2"> 2 or more </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <input type="file" id="flRowDegree2" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdRowDegree2" value="" />
+                                                        <img id="imgRowDegree2" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div class="row col-md-12 col-sm-12 grd-local" id="rowDegree3">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <input type="hidden" id="hfdRowDegree3Id" value="0" />
+                                                        <input type="text" id="txtRowDegree3Year" class="form-control" value="3" disabled tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree3MarksObtain" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree3MarksTotal" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <select id="ddlRowDegree3Attempt" name="ddlRowDegree3Attempt" class="form-control reqfd" tabindex="1">
+                                                            <option value="1" selected="selected"> 1 </option>
+                                                            <option value="2"> 2 or more </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <input type="file" id="flRowDegree3" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdRowDegree3" value="" />
+                                                        <img id="imgRowDegree3" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div class="row col-md-12 col-sm-12 grd-local" id="rowDegree4">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <input type="hidden" id="hfdRowDegree4Id" value="0" />
+                                                        <input type="text" id="txtRowDegree4Year" class="form-control" value="4" disabled tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree4MarksObtain" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree4MarksTotal" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <select id="ddlRowDegree4Attempt" name="ddlRowDegree4Attempt" class="form-control reqfd" tabindex="1">
+                                                            <option value="1" selected="selected"> 1 </option>
+                                                            <option value="2"> 2 or more </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <input type="file" id="flRowDegree4" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdRowDegree4" value="" />
+                                                        <img id="imgRowDegree4" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div class="row col-md-12 col-sm-12 grd-local" id="rowDegree5">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <input type="hidden" id="hfdRowDegree5Id" value="0" />
+                                                        <input type="text" id="txtRowDegree5Year" class="form-control" value="5" disabled tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree5MarksObtain" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <input type="text" id="txtRowDegree5MarksTotal" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <select id="ddlRowDegree5Attempt" name="ddlRowDegree5Attempt" class="form-control reqfd" tabindex="1">
+                                                            <option value="1" selected="selected"> 1 </option>
+                                                            <option value="2"> 2 or more </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <input type="file" id="flRowDegree5" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdRowDegree5" value="" />
+                                                        <img id="imgRowDegree5" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div class="row col-md-12 col-sm-12 grd-foreign" style="display:none;">
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Obtain Marks</label>
+                                                        <input type="text" id="txtObtainMarksForeign" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Total Marks</label>
+                                                        <input type="text" id="txtTotalMarksForeign" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-12  form-group">
+                                                        <label>DMC Image Front Image </label>
+                                                        <input type="file" id="flDMCForeignFront" class="flup" tabindex="1">
+                                                        <input type="hidden" id="hfdlDMCForeignFront" value="" />
+                                                        <img id="imglDMCForeignFront" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-12  form-group">
+                                                        <label>DMC Image Back Side </label>
+                                                        <input type="file" id="fllDMCForeignBack" class="flup" tabindex="1">
+                                                        <input type="hidden" id="hfdDMCForeignBack" value="" />
+                                                        <img id="imgDMCForeignBack" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div class="row col-md-12 col-sm-12">
+                                                    <div class="col-md-6 col-sm-12  form-group">
+                                                        <label class="lbl-head">MBBS/BDS Degree Image</label>
+                                                        <input type="file" id="flDegree" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdDegree" value="" />
+                                                        <img id="imgDegree" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div class="ln_dash grd-foreign"></div>
+                                                <div class="row grd-foreign">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <label>Sr#</label>
+                                                    </div>
+
+                                                    <div class="col-md-3 col-sm-12  form-group">
+                                                        <label>Attempt</label>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <label>PMDC Equivalence Result</label>
+                                                    </div>
+                                                </div>
+                                                <div id="rowPMDC1" class="row grd-foreign">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <input type="hidden" id="hfdRowPMDC1Id" value="0" />
+                                                        <input type="text" id="txtRowPMDC1Year" value="1" class="form-control" disabled tabindex="2">
+                                                    </div>
+
+                                                    <div class="col-md-3 col-sm-12  form-group">
+                                                        <select id="ddlRowPMDC1Attempt" name="ddlRowPMDC1Attempt" class="form-control reqfd" tabindex="1">
+                                                            <option value="1" selected="selected"> 1 </option>
+                                                            <option value="2"> 2 or more </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <input type="file" id="flRowPMDC1" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdRowPMDC1" value="" />
+                                                        <img id="imgRowPMDC1" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div id="rowPMDC2" class="row grd-foreign">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <input type="hidden" id="hfdRowPMDC2Id" value="0" />
+                                                        <input type="text" id="txtRowPMDC2Year" value="2" class="form-control" disabled tabindex="2">
+                                                    </div>
+
+                                                    <div class="col-md-3 col-sm-12  form-group">
+                                                        <select id="ddlRowPMDC2Attempt" name="ddlRowPMDC2Attempt" class="form-control reqfd" tabindex="1">
+                                                            <option value="1" selected="selected"> 1 </option>
+                                                            <option value="2"> 2 or more </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <input type="file" id="flRowPMDC2" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdRowPMDC2" value="" />
+                                                        <img id="imgRowPMDC2" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                                <div id="rowPMDC3" class="row grd-foreign">
+                                                    <div class="col-md-1 col-sm-12  form-group">
+                                                        <input type="hidden" id="hfdRowPMDC3Id" value="0" />
+                                                        <input type="text" id="txtRowPMDC3Year" value="3" class="form-control" disabled tabindex="2">
+                                                    </div>
+
+                                                    <div class="col-md-3 col-sm-12  form-group">
+                                                        <select id="ddlRowPMDC3Attempt" name="ddlRowPMDC3Attempt" class="form-control reqfd" tabindex="1">
+                                                            <option value="1" selected="selected"> 1 </option>
+                                                            <option value="2"> 2 or more </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <input type="file" id="flRowPMDC3" class="flup" tabindex="2">
+                                                        <input type="hidden" id="hfdRowPMDC3" value="" />
+                                                        <img id="imgRowPMDC3" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="border:1px dashed #000; margin-top:10px;">
+                                            <div class="col-md-12 col-sm-12  form-group">
+                                                <label><b> House job in public institute? </b></label>
+                                                <div class="ln_dash"></div>
+                                                <div>
+                                                    Please select "Yes". If you have done complete one year house job from public teaching institite under The Health Department of Government.
+                                                    This is also includes if you have done your house job in differnt  public teaching institite under The Health Department of Government. For detail <b>Clcik Here</b>.
+                                                </div>
+                                                <div class="ln_dash"></div>
+                                                <div>
+                                                    <div class="radio">
+                                                        <label>
+                                                            <input type="radio" checked="checked" value="option1" id="rbtnHouseJobYes" name="rbtnHouseJob" tabindex="2" /> Yes
+                                                        </label>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label>
+                                                            <input type="radio" value="option2" id="rbtnHouseJobNo" name="rbtnHouseJob" tabindex="2" /> No
+                                                        </label>
+                                                    </div>
+
+                                                </div>
+                                                <div class="ln_dash divHouseJob"></div>
+                                                <div class="divHouseJob">
+                                                    In case of House job in multiple institute, Please create one image by putting all certificates togeather and upload
+                                                </div>
+                                                <div class="ln_dash divHouseJob"></div>
+                                            </div>
+                                            <div class="row col-md-12 col-sm-12 divHouseJob">
+                                                <div class="col-md-5 col-sm-12  form-group">
+                                                    <label>House job institute name (as mentioned on certificate)</label>
+                                                    <select id="ddlInstituteHouseJob" name="ddlInstituteHouseJob" class="form-control reqfd chosen-choices" tabindex="1">
+                                                        <option value="0" selected="selected"> Select One </option>
+                                                        @foreach (var u in Model.listInstitute)
+                                                        {
+                                                            <option value="@u.instituteId"> @u.name </option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3 col-sm-12  form-group">
+                                                    <label>House Job Province</label>
+                                                    <select id="ddlProvinceHouseJob" name="ddlProvinceHouseJob" class="form-control reqfd" tabindex="1">
+                                                        <option value="0" selected="selected"> Select One </option>
+                                                        @foreach (var u in Model.listProvince)
+                                                        {
+                                                            <option value="@u.regionId"> @u.name </option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4 col-sm-12  form-group">
+                                                    <label class="lbl-head">House Job certificate Image </label>
+                                                    <input type="file" id="flHouseJobCertificate" class="flup" tabindex="1">
+                                                    <input type="hidden" id="hfdHouseJobCertificate" value="" />
+                                                    <img id="imgHouseJobCertificate" class="flup-img" src="" alt="" style="display:none;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="border:1px dashed #000; margin-top:10px;">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="form-group">
+                                                    <label> <input id="chkFCPS" type="checkbox" /> <b> Part 1 FCPS</b>  </label>
+                                                    <input type="hidden" id="hfdFCPS" value="0" />
+                                                </div>
+                                                <div id="divFCPS" class="row col-md-12 col-sm-12" style="display:none;">
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Obtain Marks</label>
+                                                        <input type="text" id="txtObtainMarksFCPS" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Total Marks</label>
+                                                        <input type="text" id="txtTotalMarksFCPS" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-3 col-sm-12  form-group">
+                                                        <label>Passing Date</label>
+                                                        <div class='input-group date txtDatePicker' id='txtPassingDateFCPS'>
+                                                            <input type='text' class="form-control" tabindex="2" />
+                                                            <span class="input-group-addon">
+                                                                <span class="fa fa-calendar-o"></span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <label class="lbl-head">Certificate Image </label>
+                                                        <input type="file" id="flDMCFCPS" class="flup" tabindex="1">
+                                                        <input type="hidden" id="hfdDMCFCPS" value="" />
+                                                        <img id="imgDMCFCPS" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="ln_dash"></div>
+                                                <div class="col-md-12 col-sm-12  form-group">
+                                                    <label> <input id="chkMSMD" type="checkbox" /> <b> Part 1 MS/MD</b></label>
+                                                    <input type="hidden" id="hfdMSMD" value="0" />
+                                                </div>
+                                                <div id="divMSMD" class="row col-md-12 col-sm-12" style="display:none;">
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Obtain Marks</label>
+                                                        <input type="text" id="txtObtainMarksMSMD" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-12  form-group">
+                                                        <label>Total Marks</label>
+                                                        <input type="text" id="txtTotalMarksMSMD" class="form-control marks" tabindex="2">
+                                                    </div>
+                                                    <div class="col-md-3 col-sm-12  form-group">
+                                                        <label>Passing Date</label>
+                                                        <div class='input-group date txtDatePicker' id='txtPassingDateMSMD'>
+                                                            <input type='text' class="form-control" tabindex="2" />
+                                                            <span class="input-group-addon">
+                                                                <span class="fa fa-calendar-o"></span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12  form-group">
+                                                        <label class="lbl-head">Certificate Image </label>
+                                                        <input type="file" id="flDMCMSMD" class="flup" tabindex="1">
+                                                        <input type="hidden" id="hfdDMCMSMD" value="" />
+                                                        <img id="imgDMCMSMD" class="flup-img" src="" alt="" style="display:none;" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="step-3" class="step-body" style="display:none;">
+                            <form class="form-horizontal form-label-left">
+                                <div class="x_panel">
+                                    <div class="x_content">
+                                        <div class="row col-md-12 col-sm-12" style="border:dashed 1px #000;">
+                                            <div class="row">
+                                                <label>Exprience </label>
+                                            </div>
+                                            <div class="row">
+                                                Add experience of public institition under the health department of government only. All other public institition experience are in valid.
+                                            </div>
+                                            <div class="ln_dash"></div>
+                                            <div class="row">
+                                                <div class="col-md-3 col-sm-12  form-group">
+                                                    <label>Institute Type</label>
+                                                    <select id="ddlExpInstitueLevel" name="ddlExpInstitueLevel" class="form-control reqfd" tabindex="1">
+                                                        <option value="0" selected="selected"> Select One </option>
+                                                        @foreach (var u in Model.listInstituteLevel)
+                                                        {
+                                                            <option value="@u.id"> @u.name </option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3 col-sm-12  form-group">
+                                                    <label>Category </label>
+                                                    <select id="ddlExpLevelType" name="ddlExpLevelType" class="form-control" tabindex="1">
+                                                        <option value="0" selected="selected"> Select One </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 col-sm-12  form-group">
+                                                    <label>Name<small> THQ/DHQ/RHC/BHU/Dispansary as mentioned on certificate</small></label>
+                                                    <input id="txtExpName" type="text" placeholder="Name" class="form-control reqfd" tabindex="2">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+
+                                                <div class="col-md-3 col-sm-12  form-group">
+                                                    <label>Start Date</label>
+                                                    <div class='input-group date txtDatePicker' id='txtExpDateStart'>
+                                                        <input type='text' class="form-control" tabindex="1" />
+                                                        <span class="input-group-addon">
+                                                            <span class="fa fa-calendar-o"></span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 col-sm-12  form-group">
+                                                    <label>End Date</label>
+                                                    <div class='input-group date txtDatePicker' id='txtExpDateEnd'>
+                                                        <input type='text' class="form-control" tabindex="1" />
+                                                        <span class="input-group-addon">
+                                                            <span class="fa fa-calendar-o"></span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-sm-12  form-group">
+                                                    <label class="lbl-head">Certificate</label>
+                                                    <input type="file" id="flExp" class="flup" tabindex="1">
+                                                    <input type="hidden" id="hfdExp" value="" />
+                                                    <img id="imgExp" class="flup-img" src="" alt="" style="display:none;" />
+                                                </div>
+
+
+                                                <div class="col-md-2 col-sm-12  form-group">
+                                                    <label class="lbl-head">&nbsp;</label>
+                                                    <input id="btnExpSave" type="button" class="btn btn-success" value="Save Experience" />
+                                                </div>
+                                            </div>
+                                            <div id="divExpList" class="row" style="display:none;">
+                                                <div id="divTestList" style="display:none;" class="x_panel">
+                                                    <div class="x_content">
+                                                        <table class="table table-striped responsive-utilities jambo_table bulk_action">
+                                                            <thead>
+                                                                <tr class="headings">
+                                                                    <th class="column-title">Name</th>
+                                                                    <th class="column-title">Level </th>
+                                                                    <th class="column-title">Category</th>
+                                                                    <th class="column-title">Start Date</th>
+                                                                    <th class="column-title">End Date Collected</th>
+                                                                    <th class="column-title">Certificate</th>
+                                                                    <th class="column-title">Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tbExpList">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div style="display:none;">
+                                                    <table>
+                                                        <tbody id="tbBodyExp">
+                                                            <tr>
+                                                                <td>{#level#}</td>
+                                                                <td>{#levelType#}</td>
+                                                                <td>{#name#}</td>
+                                                                <td>{#startDate#}</td>
+                                                                <td>{#endDate#}</td>
+                                                                <td>{#image#}</td>
+                                                                <td> <a id="{#labTestId#}" class="editsample" title="Edit" href="#"><i class="fa fa-pencil-square-o"></i></a></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row col-md-12 col-sm-12" style="border:dashed 1px #000; margin-top:10px;">
+                                            <div class="row">
+                                                <label>Distiction </label>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-2 col-sm-12  form-group">
+                                                    <label>Year</label>
+                                                    <select id="ddlDisntYear" name="ddlDisntYear" class="form-control reqfd" tabindex="1">
+                                                        <option value="5" selected="selected"> 5 </option>
+                                                        <option value="4"> 4 </option>
+                                                        <option value="3"> 3 </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4 col-sm-12  form-group">
+                                                    <label>Subject</label>
+                                                    <select id="ddlDisntSubject" name="ddlDisntSubject" class="form-control reqfd" tabindex="1">
+                                                        <option value="0" selected="selected"> Select One </option>
+                                                        @foreach (var u in Model.listSubject)
+                                                        {
+                                                            <option value="@u.subjectId"> @u.name </option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4 col-sm-12  form-group">
+                                                    <label class="lbl-head">Certificate</label>
+                                                    <input type="file" id="flDisnt" class="flup" tabindex="1">
+                                                    <input type="hidden" id="hfdDisnt" value="" />
+                                                    <img id="imgDisnt" class="flup-img" src="" alt="" style="display:none;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="step-4" class="step-body" style="display:none;">
+                            <h2 class="StepTitle">Step 4 Content</h2>
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                            </p>
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                                in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                            </p>
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                                in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                            </p>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-5">
+                                <input id="btnPrivous" type="button" class="btn btn-primary" value="Previous" style="display:none;" />
+                                <input id="btnSaveAndProceed" type="button" class="btn btn-success" value="Save & Proceed" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End SmartWizard Content -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

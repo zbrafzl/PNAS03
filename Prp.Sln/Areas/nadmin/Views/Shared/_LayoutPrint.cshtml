@@ -1,0 +1,151 @@
+﻿@model Prp.Sln.ModelBaseAdmin
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="images/favicon.ico" type="image/ico" />
+
+    <title>PNAS | @ViewBag.Title </title>
+
+    <!-- Bootstrap -->
+    <!-- Bootstrap -->
+    <link href="/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+
+    <!-- bootstrap-progressbar -->
+    <link href="/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <!-- JQVMap -->
+    <link href="/vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
+    <!-- bootstrap-daterangepicker -->
+    @*<link href="/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">*@
+    <link href="~/assets/jquery/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <!-- bootstrap-datetimepicker -->
+    <link href="../vendors/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+    <!-- Custom Theme Style -->
+    <link href="/build/css/custom.min.css" rel="stylesheet">
+
+    @*chosen*@
+    <link rel="stylesheet" href="/Scripts/chosen/prism.css">
+    <link rel="stylesheet" href="/Scripts/chosen/chosen.css">
+
+    <style>
+
+        .center-div {
+            margin: auto;
+            width: 20%;
+            padding: 10px;
+            height: 60px;
+        }
+
+        .btn_print {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .right_col { margin-left:0px !important;
+        }
+
+
+       
+    </style>
+
+    @RenderSection("RenderCss", required: false)
+</head>
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <!-- page content -->
+            <div class="right_col" role="main">
+                <input type="hidden" id="hfdLoggedInUserId" value="@(Model.loggedInUser.userId)" />
+                @RenderBody()
+                <!-- top tiles -->
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="/vendors/jquery/dist/jquery.min.js">
+    </script>
+    < !--Bootstrap-- >
+    <script src="/vendors/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FastClick -->
+    <script src="/vendors/fastclick/lib/fastclick.js">
+    </script>
+    <!--NProgress-- >
+    <script src="/vendors/nprogress/nprogress.js"></script>
+    <!-- Chart.js -->
+    <script src="/vendors/Chart.js/dist/Chart.min.js">
+    </script>
+    <!--gauge.js-- >
+    <script src="/vendors/gauge.js/dist/gauge.min.js"></script>
+    <!-- bootstrap-progressbar -->
+    <script src="/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js">
+    </script>
+    <!--iCheck-- >
+    <script src="/vendors/iCheck/icheck.min.js"></script>
+    <!-- Skycons -->
+    <script src="/vendors/skycons/skycons.js">
+    </script>
+    <!-- Flot plugins -->
+    <script src="/vendors/flot.orderbars/js/jquery.flot.orderBars.js">
+    </script>
+    <script src="/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+    <script src="/vendors/flot.curvedlines/curvedLines.js">
+    </script>
+    <!--DateJS-- >
+    <script src="/vendors/DateJS/build/date.js"></script>
+    <!--JQVMap -->
+    <script src="/vendors/jqvmap/dist/jquery.vmap.js">
+    </script>
+    <script src="/vendors/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js">
+    </script>
+
+    <!-- Custom Theme Scripts -->
+    <script src="/build/js/custom.min.js">  </script>
+
+    <script src="/Scripts/js/CommonFunctions.js"></script>
+
+    <script>
+        var userId = 0;
+
+        $(document).ready(function () {
+
+            userId = ConvertToInt($("#hfdLoggedInUserId").val());
+
+        });
+
+        function printDiv() {
+
+            var result = false;
+            try {
+
+                var divToPrint = document.getElementById('divprint');
+                var newWin = window.open('', 'Print-Window');
+                newWin.document.open();
+                newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+                newWin.document.close();
+                setTimeout(function () { newWin.close(); }, 10);
+                result = true;
+
+            } catch (e) {
+                result = false;
+            }
+            return result;
+        }
+
+    </script>
+    @RenderSection("RenderScript", required: false)
+</body>
+</html>

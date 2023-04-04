@@ -1,0 +1,162 @@
+﻿@{
+    ViewBag.Title = "Grievance Action";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.GrievanceActionModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        $(document).ready(function () {
+
+            debugger;
+            var IsSelf = ConvertToInt($("#hfdIsSelf").val());
+            if (IsSelf == 0) {
+
+                $("#hfdIsSelf").val(1);
+                $('#chkIsSelf').prop("checked", true);
+                $("#divRelation").hide();
+            }
+            if (IsSelf == 1) {
+                $("#hfdIsSelf").val(1);
+                $('#chkIsSelf').prop("checked", true);
+                $("#divRelation").hide();
+            }
+            else if (IsSelf > 1) {
+                $("#hfdIsSelf").val(2);
+                $('#chkIsSelf').prop("checked", false);
+                $("#divRelation").show();
+            }
+
+            $('#chkIsSelf').change(function () {
+
+                $("#hfdIsSelf").val(2);
+
+                $("#divRelation").show();
+                if (this.checked) {
+                    $("#hfdIsSelf").val(1);
+                    $("#divRelation").hide();
+                }
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SaveAttendenceData();
+                }
+            });
+
+            $(document).on('click', '#btnSave', function () {
+
+                SaveAttendenceData();
+            });
+
+        });
+
+        function SaveAttendenceData() {
+
+            debugger;
+            try {
+
+                var obj = {};
+                obj.grievanceActionId = ConvertToInt($("#hfdGrievanceActionId").val());
+                obj.grievanceId = ConvertToInt($("#hfdGrievanceId").val());
+                obj.isSelf = ConvertToInt($("#hfdIsSelf").val());
+                obj.attendenceNo = ConvertToInt($("#txtAttendenceNo").val());
+                obj.relationId = ConvertToInt($("#ddlRelation").val());
+
+                var resp = CallActionPost("/GrievanceAdmin/SaveGrievanceAttendence", obj);
+
+
+
+                window.location.href = "/admin/grievance-attendence?search=" + ConvertToInt($("#hfdApplicantId").val());;
+
+
+            } catch (e) {
+
+            }
+
+        }
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Grievance Attendence Action </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/grievance-attendence" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+
+                <form>
+
+                    @Html.HiddenFor(m => m.action.grievanceActionId, new { @id = "hfdGrievanceActionId" })
+                    @Html.HiddenFor(m => m.grievance.grievanceId, new { @id = "hfdGrievanceId" })
+                    @Html.HiddenFor(m => m.action.isSelf, new { @id = "hfdIsSelf" })
+
+                    @Html.HiddenFor(m => m.applicant.applicantId, new { @id = "hfdApplicantId" })
+
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-8 col-sm-8 col-xs-8">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Name *:</label>
+                                @Html.TextBoxFor(a => a.applicant.name, new { @class = "form-control", @required = "required", @id = "txtID", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">PMDC No *:</label>
+                                @Html.TextBoxFor(a => a.applicant.pmdcNo, new { @class = "form-control", @required = "required", @id = "txtCode", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Contact No *:</label>
+                                @Html.TextBoxFor(a => a.applicant.contactNumber, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Email *:</label>
+                                @Html.TextBoxFor(a => a.applicant.emailId, new { @class = "form-control", @required = "required", @id = "txtValue", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <img style="height:300px" src="@("https://prp.phf.gop.pk/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicant.pic)" />
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="heard">Subject :</label>
+                            @Html.TextBoxFor(a => a.grievance.title, new { @class = "form-control", @id = "txtShortDesc", @tabindex = "10", @readonly = "readonly" })
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <label for="heard">Attendence No *:</label>
+                            @Html.TextBoxFor(a => a.action.attendenceNo, new { @class = "form-control", @required = "required", @id = "txtAttendenceNo", @tabindex = "1" })
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <label for="heard">Self(Present) :</label>
+                            <input type="checkbox" id="chkIsSelf" class="form-control" checked="checked" tabindex="1" />
+                        </div>
+                        <div id="divRelation" style="display:none;" class="col-md-6 col-sm-6 col-xs-6">
+                            <label for="heard">Relation :</label>
+                            @Html.DropDownListFor(a => a.action.relationId, new SelectList(Model.listRelation, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlRelation", @tabindex = "2" })
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="ln_solid"></div>
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <input id="btnSave" type="button" class="btn btn-success" value="Save" tabindex="2" />
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

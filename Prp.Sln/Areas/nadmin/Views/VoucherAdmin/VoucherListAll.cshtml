@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "Voucher List";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.VoucherAdminModel
+@section RenderCss{
+
+    <style>
+
+        .imgView {
+            height: 90px;
+            width: 110px;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0;
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+
+            $("#ddlCountryTypeId").val(typeId);
+
+
+            $(document).on('click', '#ankButton', function () {
+                typeId = $(this).val();
+                window.location.href = "/admin/voucher-list?typeId=" + typeId;
+            });
+
+            $(document).on('change', '#ddlCountryTypeId', function () {
+                typeId = $(this).val();
+                window.location.href = "/admin/voucher-list?typeId=" + typeId;
+            });
+        });
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Voucher List </h2>
+            <div class="panel_toolbox" style="display:none;">
+                <a id="ankButton" class="btn btn-info"> Download</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask" style="display:none">
+            @Html.HiddenFor(m => m.countryType, new { @id = "hfdTypeId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Select One :</label>
+                    <select id="ddlCountryTypeId" name="ddlCountryTypeId" class="form-control">
+                        <option value="1" selected="selected">Pakistani </option>
+                        <option value="2">Foreigner </option>
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                @if (Model.countryType == 1)
+                {
+                    if (Model.listVoucher != null && Model.listVoucher.Count > 0)
+                    {
+                        <table class="table table-striped jambo_table bulk_action">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title">Applied For </th>
+                                    <th class="column-title">Candidate No </th>
+                                    <th class="column-title">Candidate Name </th>
+                                    <th class="column-title">Candidate CNIC </th>
+                                    <th class="column-title">Candidate PMDC </th>
+                                    <th class="column-title">Image </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.listVoucher)
+                                {
+                                    <tr>
+                                        <td>PG Level 3</td>
+                                        <td>@item.applicantNo</td>
+                                        <td>@item.name</td>
+                                        <td>@item.cnicNo</td>
+                                        <td>@item.pmdcNo</td>
+                                        <td>
+                                            <a style="display:none;" class="ank" href="@("/images/Applicant/" + item.applicantId + "/" + item.voucherImage)" target="_blank" title="Click to view">
+                                                <img class="imgView" src="@("/images/Applicant/" + item.applicantId + "/" + item.voucherImage)" alt="No Image" />
+                                            </a>
+                                            <a class="ank" href="@("/images/Applicant/" + item.applicantId + "/" + item.voucherImage)" target="_blank" title="Click to view">
+                                                <span class="ank spn-img-view">View</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

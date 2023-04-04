@@ -1,0 +1,130 @@
+﻿<table style="width: 100%;" cellspacing="0px">
+    <tbody>
+        <tr style="float: left">
+            <th>
+                <h4 style="margin: 0px; font-size: 35px; border-bottom: 2px solid #000;">{#name#}</h4>
+                <h4 style="margin: 0px; font-size: 20px; margin-top:8px; ">Form No: {#applicantId#}</h4>
+            </th>
+        </tr>
+        <tr style="float: right">
+            <th>
+                <img class="imgView" src="{#liveUlr#}/images/Applicant/{#applicantId#}/{#pic#}" style="width:90px; height:80px;" />
+            </th>
+        </tr>
+    </tbody>
+</table>
+<table style="width: 100%;" cellspacing="0px">
+    <tbody>
+        <tr>
+            <td>
+                <table class="top_detail" style="width: 49%; float: left; margin-right:1%;">
+                    <tbody>
+                        <tr>
+                            <td>Name</td>
+                            <td>{#name#}</td>
+                        </tr>
+                        <tr>
+                            <td>Email</td>
+                            <td>{#emailId#}</td>
+                        </tr>
+                        <tr>
+                            <td>PMDC Number</td>
+                            <td>{#pmdcNo#}</td>
+                        </tr>
+                        <tr>
+                            <td>Date Of Birth</td>
+                            <td>{#dob#}</td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td>{#address#}</td>
+                        </tr>
+                        <tr>
+                            <td>{#cnicType#}</td>
+                            <td>{#cnicNo#}</td>
+                        </tr>
+                        <tr>
+                            <td>Country of Passing MBBS/BDS</td>
+                            <td>{#countryDegreePassing#}</td>
+                        </tr>
+                        <tr>
+                            <td>Disability Quota Application</td>
+                            <td>{#disable#}</td>
+                        </tr>
+                        <tr>
+                            <td>{#cnicImageTypeFront#}</td>
+                            <td>
+                                <a  class="ank" href="{#liveUlr#}/images/Applicant/{#applicantId#}/{#cnicPicFront#}" target="_blank">
+                                    <img class="imgView" src="{#liveUlr#}/images/Applicant/{#applicantId#}/{#cnicPicFront#}" alt="No Image" style=" height: 40px; width: 70px; border: 2px solid #524c4c;" />
+                                </a>
+                            </td>
+                        </tr>
+                        <tr style="display:#displayDomicile#">
+                            <td>Domicile Front</td>
+                            <td>
+                                <a class="ank" href="{#liveUlr#}/images/Applicant/{#applicantId#}/{#domicilePicFront#}" target="_blank">
+                                    <img class="imgView" src="{#liveUlr#}/images/Applicant/{#applicantId#}/{#domicilePicFront#}" alt="No Image" style=" height: 40px; width: 70px; border: 2px solid #524c4c;" />
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="top_detail" style="width: 49%; float: left;">
+                    <tbody>
+                        <tr>
+                            <td>Father/Husband Name</td>
+                            <td>{#fatherName#}</td>
+                        </tr>
+                        <tr>
+                            <td>Mobile No</td>
+                            <td>{#contactNumber#}</td>
+                        </tr>
+                        <tr>
+                            <td>Domicile</td>
+                            <td>
+                                {#domicileType#}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Gender</td>
+                            <td>{#gender#}</td>
+                        </tr>
+                        <tr>
+                            <td>Last Date of PMDC</td>
+                            <td>{#pmdcExpiryDate#}</td>
+                        </tr>
+                        <tr>
+                            <td>{#cnicType#} Expiry Date</td>
+                            <td>{#cnicExpiryDate#}</td>
+                        </tr>
+                        <tr>
+                            <td>Nationality</td>
+                            <td>{#countryName#} - {#districtName#}</td>
+                        </tr>
+
+                        <tr>
+                            <td>House Job</td>
+                            <td> {#houseJobType#}</td>
+                        </tr>
+                        <tr>
+                            <td>{#cnicImageTypeBack#}</td>
+                            <td>
+                                <a class="ank" href="{#liveUlr#}/images/Applicant/{#applicantId#}/{#cnicPicBack#}" target="_blank">
+                                    <img class="imgView" src="{#liveUlr#}/images/Applicant/{#applicantId#}/{#cnicPicBack#}" alt="No Image" style=" height: 40px; width: 70px; border: 2px solid #524c4c;" />
+                                </a>
+                            </td>
+                        </tr>
+                        <tr style="display:#displayDomicile#">
+                            <td>Domicile Back</td>
+                            <td>
+                                <a class="ank" href="{#liveUlr#}/images/Applicant/{#applicantId#}/{#domicilePicBack#}" target="_blank">
+                                    <img class="imgView" src="{#liveUlr#}/images/Applicant/{#applicantId#}/{#domicilePicBack#}" alt="No Image" style=" height: 40px; width: 70px; border: 2px solid #524c4c;" />
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>

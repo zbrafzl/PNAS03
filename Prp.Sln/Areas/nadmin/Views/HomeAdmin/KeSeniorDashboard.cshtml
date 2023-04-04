@@ -1,0 +1,206 @@
+﻿@{
+    ViewBag.Title = "Dashboard Status";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.HomeModelAdmin
+@using System.Data;
+@using System.Data.Sql;
+@using System.Data.SqlClient;
+@using Prp.Data;
+@section RenderCss{
+    <style>
+
+        .tile_stats_count {
+            cursor: pointer;
+        }
+
+            .tile_stats_count:hover {
+                opacity: 0.5;
+            }
+
+        .tile_info tr {
+            cursor: pointer;
+        }
+
+            .tile_info tr:hover {
+                opacity: 0.5;
+            }
+
+        .tdddd {
+            width: 49%;
+            float: left;
+        }
+
+        .panel_toolbox {
+            margin: 3px 0px 0px 0px !important;
+        }
+
+        .ank-title {
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+
+        .x_content p {
+            margin-bottom: 0px;
+        }
+
+        .fixed_height_320 {
+            height: 215px;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        dateFormat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
+
+        $(document).ready(function () {
+
+            $(document).on('click', '.sts_account', function () {
+                var id = ConvertToInt($(this).attr("id"));
+                var url = "/admin/applicant-search-verify?statusTypeId=52&statusId=" + id;
+                window.open(url, "_blank");
+            });
+
+            //$(document).on('click', '.sts_application', function () {
+            //    var id = ConvertToInt($(this).attr("id"));
+            //    window.location = "/admin/applicant-search?statusTypeId=53&statusId=" + id;
+            //});
+
+        });
+
+    </script>
+}
+
+<!-- /top tiles -->
+
+<div class="row col-md-12 col-sm-12">
+    <div class="row x_title col-md-12 col-sm-12">
+        <div class="col-md-6">
+            <h3>PNAS <small>Punjab Nursing Admission System </small></h3>
+        </div>
+
+    </div>
+</div>
+@{
+    if (Model.listDashBoard != null && Model.listDashBoard.Count > 0)
+    {
+
+
+        <div class="row col-md-12 col-sm-12">
+            @{
+                var query = @"SELECT count(*) AS total,
+                sum(case when verificationStatus = -1 then 1 else 0 end) AS pending,
+                sum(case when verificationStatus = 0 then 1 else 0 end) AS rejected,
+                sum(case when verificationStatus = 1 then 1 else 0 end) AS approved 
+                FROM tblApplicantVerifyStatus";
+                SqlConnection con = new SqlConnection();
+                con = new SqlConnection(PrpDbConnectADO.Conn);
+                SqlCommand cmd = new SqlCommand(query, con);
+                DataTable dt = new DataTable();
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                con.Open();
+                sda.Fill(dt);
+                //var listVerification = Model.listDashBoard.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.accountType).ToList();
+                if (dt.Rows.Count > 0)
+                {
+
+                    var verifyToal = 0;
+                    var verifyPending = 0;
+                    var verifyApproved = 0;
+                    var verifyReject = 0;
+                    try
+                    {
+                        verifyToal = Convert.ToInt32(dt.Rows[0][0]);
+                    }
+                    catch (Exception)
+                    {
+                        verifyToal = 0;
+                    }
+
+                    try
+                    {
+                        verifyPending = Convert.ToInt32(dt.Rows[0][1]);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        verifyApproved = Convert.ToInt32(dt.Rows[0][3]);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    try
+                    {
+                        verifyReject = Convert.ToInt32(dt.Rows[0][2]);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    <div class="col-md-12 col-sm-12 ">
+                        <div class="x_panel tile fixed_height_320 overflow_hidden">
+                            <div class="x_title">
+                                <h2>Verification Status</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <table style="width:100%">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="" id="-1">
+                                                    <td>
+                                                        <p><i class="fa fa-square black"></i>Total </p>
+                                                    </td>
+                                                    <td>@verifyToal</td>
+                                                </tr>
+                                                <tr class="sts_account" id="-1">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Pending </p>
+                                                    </td>
+                                                    <td>@verifyPending</td>
+                                                </tr>
+                                                <tr class="sts_account" id="1">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>Approved </p>
+                                                    </td>
+                                                    <td>@verifyApproved</td>
+                                                </tr>
+                                                <tr class="sts_account" id="0">
+                                                    <td>
+                                                        <p><i class="fa fa-square  red"></i>Rejected </p>
+                                                    </td>
+                                                    <td>@verifyReject</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+}

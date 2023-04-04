@@ -1,0 +1,615 @@
+﻿
+@{
+    ViewBag.Title = "Hardship |Applicant Detail";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.HardshipAdminModel
+@section RenderCss{
+
+    <style type="text/css">
+
+        .btn {
+            padding: 2px 5px !important;
+        }
+
+        .form-group {
+            margin-bottom: 0px !important;
+        }
+
+
+
+        .spnbtn:hover {
+            background-color: #169F85 !important;
+            cursor: pointer;
+        }
+
+        fieldset {
+            margin-bottom: 0px !important;
+        }
+
+        #divprint {
+            width: 100%;
+            margin: 0 auto;
+            font-family: 'Lato', sans-serif !important;
+        }
+
+        .text-center {
+            text-align: center;
+            text-align: -webkit-center;
+            text-align: -moz-center;
+        }
+
+        .top_detail tr td:nth-child(2n) {
+            border-bottom: 1px solid #000;
+        }
+
+        .imgView {
+            height: 40px;
+            width: 70px;
+        }
+
+        .ank {
+            font-style: italic;
+            color: #007bff;
+        }
+
+        .spn-edit {
+            float: right;
+            margin-right: 5px;
+            padding: 1px 6px;
+            background: #fefefe;
+            color: #8b8686;
+        }
+
+            .spn-edit:hover {
+                background: #e9e0e0;
+            }
+
+        .rch-link {
+            max-width: 760px;
+            overflow-wrap: break-word;
+        }
+
+        .trgreen {
+            background-color: #9df47e;
+        }
+
+        .tdgreen {
+            background-color: #f2d4d4;
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        var applicantId = 0, statusApproval = 0, statusAmedment = 0, objApplicant = {}, imagesPath = "", key = "", value = "";
+
+        var pageUrl = "", statuAction = "", statusTypeId = 0;
+        $(document).ready(function () {
+
+            try {
+                applicantId = ConvertToInt($("#hfdApplicantId").val());
+            } catch (e) {
+                applicantId = 0;
+            }
+
+            pageUrl = window.location.pathname;
+
+            statuAction = "";
+            statusTypeId = 0;
+
+
+
+
+
+            key = ConvertToString($("#hfdKey").val());
+            if (key.length > 0) {
+                $("#ddlType").val(key);
+            }
+            $("#txtSearch").focus();
+
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchApplicant();
+                }
+            });
+
+            $(document).on('click', '#btnSearch', function () {
+
+                SearchApplicant();
+            });
+
+        });
+
+        function SearchApplicant() {
+
+            var key = $("#ddlType").val();
+            var value = ConvertToString($("#txtSearch").val());
+
+            var url = window.location.pathname;
+            url = url + "?key=" + key + "&value=" + value;
+            if (value.length > 0)
+                //window.location.href = url;
+                window.location.assign(url);
+            else { alert("Please enter something which you want to search"); }
+        }
+
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <div class="form-group col-lg-12">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <fieldset>
+                        <legend> Applicant Search  </legend>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <input type="hidden" id="hfdKey" value="@(Model.search.key)" />
+                            <select id="ddlType" name="ddlType" class="form-control">
+                                <option value="applicantId" selected="selected"> Applicant Id </option>
+                                <option value="pmdcNo"> PMDC No </option>
+                                <option value="emailId"> Email Id </option>
+                                <option value="contactNumber"> Contact Number </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <input id="txtSearch" name="txtSearch" class="form-control" value="@(Model.search.value)" />
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <input type="button" id="btnSearch" class="btn btn-success" value="Search" />
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                @if (Model.applicantId > 0)
+                {
+                    <input type="hidden" id="hfdApplicantId" value="@(Model.applicant.applicantId)" />
+                    if (Model.applicant.statusId == 1)
+                    {
+                        <div id="" class="container cv-f" style="font-size:14px !important; ">
+                            @{
+                                var applicant = Model.applicant;
+                                if (Model.applicantInfo != null && Model.applicantInfo.applicantDetailId > 0)
+                                {
+                                    var info = Model.applicantInfo;
+
+                                    <fieldset>
+                                        <legend> Applicant Information  </legend>
+
+                                        <table style="width: 100%;" cellspacing="0px">
+                                            <tbody>
+                                                <tr style="float: left; width:100%;">
+                                                    <td style="float: left; width:92%;">
+                                                        <div style="float: left; width:100%;">
+                                                            <span style="font-size: 35px; border-bottom: 2px solid #000; margin-right:5%;">
+                                                                @applicant.name @if (Model.applicant.facultyId == 1)
+                                                                {
+                                                                    <span class="spnbtn"> MBBS</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="spnbtn"> BDS</span>
+                                                                }
+                                                            </span>
+                                                            <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> S/O : @info.fatherName</span>
+                                                            <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Gender : @info.gender</span>
+
+                                                        </div>
+                                                        <div style="float: left; width:100%;">
+                                                            <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;">Form No. : @applicant.applicantId</span>
+                                                            <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> DOB : @info.dob.ToString("dd MMM yyyy")</span>
+                                                            <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Email : @applicant.emailId</span>
+                                                            <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Mobile No : @applicant.contactNumber</span>
+                                                        </div>
+                                                    </td>
+                                                    <td style="float: left; width:7%;">
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
+                                                            <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" style="width:90px; height:80px;" />
+                                                        </a>
+                                                    </td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                        <table style="width: 100%;" cellspacing="0px">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <table class="top_detail" style="width: 48%; float: left; margin-right:2%">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>PMDC Number</td>
+                                                                    <td> @applicant.pmdcNo <a class="ank" href="@("https://pmc.gov.pk/Doctors/Details?regNo=" + @applicant.pmdcNo)" target="_blank"> View </a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    @if (info.countryId == 132)
+                                                                    {
+                                                                        <td>CNIC</td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td>Passport</td>
+                                                                    }
+                                                                    <td>@info.cnicNo</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        Country of Passing
+
+                                                                    </td>
+                                                                    <td>@info.countryDegreePassing</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Disability Quota</td>
+                                                                    @if (!String.IsNullOrWhiteSpace(info.disableImage))
+                                                                    {
+                                                                        <td>
+                                                                            @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                                                                                <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
+                                                                            </a>
+                                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                                                                                <span class="ank spn-img-view">View</span>
+                                                                            </a>
+                                                                        </td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td> @info.disable</td>
+                                                                    }
+                                                                </tr>
+                                                                <tr>
+                                                                    @if (info.countryId == 132)
+                                                                    {
+                                                                        <td>CNIC Front Image</td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td>Passport 1st Page Image</td>
+                                                                    }
+                                                                    <td>
+                                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicFront)" target="_blank" title="Click to view">
+                                                                            <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicFront)" />
+                                                                        </a>
+                                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicFront)" target="_blank" title="Click to view">
+                                                                            <span class="ank spn-img-view">View</span>
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                                @if (info.countryId == 132)
+                                                                {
+                                                                    <tr>
+                                                                        <td>Domicile Image</td>
+                                                                        <td>
+                                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.domicilePicFront)" target="_blank" title="Click to view">
+                                                                                <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.domicilePicFront)" />
+                                                                            </a>
+                                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.domicilePicFront)" target="_blank" title="Click to view">
+                                                                                <span class="ank spn-img-view">View</span>
+                                                                            </a>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                        <table class="top_detail" style="width: 49%; float: left;">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>Last Date of PMDC</td>
+                                                                    <td>@info.pmdcExpiryDate.ToString("dd MMM yyyy")</td>
+                                                                </tr>
+
+                                                                <tr>
+                                                                    @if (info.countryId == 132)
+                                                                    {
+                                                                        <td>CNIC Expiry Date</td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td>Passport Expiry Date</td>
+                                                                    }
+                                                                    <td>@info.cnicExpiryDate.ToString("dd MMM yyyy")</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Domicile</td>
+                                                                    <td>@info.domicileProvince - @info.domicileDistrict</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Nationality</td>
+                                                                    @if (Model.applicantInfo.countryId == 132)
+                                                                    {
+                                                                        <td>Pakistan - @info.districtName</td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td>@Model.applicantInfo.countryName - @info.districtName</td>
+                                                                    }
+                                                                </tr>
+
+
+                                                                <tr>
+                                                                    @if (info.countryId == 132)
+                                                                    {
+                                                                        <td>CNIC Back Image</td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td>Passport 2nd Page Image</td>
+                                                                    }
+                                                                    <td>
+                                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicBack)" target="_blank" title="Click to view">
+                                                                            <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicBack)" />
+                                                                        </a>
+                                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicBack)" target="_blank" title="Click to view">
+                                                                            <span class="ank spn-img-view">View</span>
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td> FCPS Exemption  </td>
+                                                                    @{
+                                                                        try
+                                                                        {
+                                                                            if (Model.degree.fcpsExemptionStatus)
+                                                                            {
+                                                                                <td>
+                                                                                    True
+                                                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.degree.fcpsExemptionCertificate)" target="_blank" title="Click to view">
+                                                                                        <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.degree.fcpsExemptionCertificate)" />
+                                                                                    </a>
+                                                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.degree.fcpsExemptionCertificate)" target="_blank" title="Click to view">
+                                                                                        <span class="ank spn-img-view">View</span>
+                                                                                    </a>
+                                                                                </td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td>False</td>
+                                                                            }
+                                                                        }
+                                                                        catch (Exception)
+                                                                        {
+                                                                            <td> - </td>
+                                                                        }
+                                                                    }
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <table class="top_detail" style="width: 100%; float: left;">
+                                                            <tr>
+                                                                <td>Address</td>
+                                                                <td>@info.address</td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </fieldset>
+
+                                    <fieldset>
+                                        <legend>  Joining Inforamtion  </legend>
+                                        @if (Model.joined != null && Model.joined.joiningId > 0)
+                                        {
+                                            <table style="width: 100%;" cellspacing="0px">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <table class="top_detail" style="width: 48%; float: left; margin-right:2%">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>Induction </td>
+                                                                        <td>
+                                                                            <span class="spnbtn">
+                                                                                @{
+                                                                                    try
+                                                                                    {
+                                                                                        @Model.listInduction.FirstOrDefault(x => x.value.TooInt() == Model.joined.inductionId).key
+                                                                                    }
+                                                                                    catch (Exception)
+                                                                                    {
+                                                                                    }
+                                                                                }
+                                                                            </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Program </td>
+                                                                        <td>@Model.joined.typeName</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Institute </td>
+                                                                        <td>@Model.joined.instituteName</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Joining Date </td>
+                                                                        <td>@Model.joined.joiningDate.ToString("dd MMM yyyy")</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <table class="top_detail" style="width: 49%; float: left;">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>Quota </td>
+                                                                        <td> @Model.joined.quotaName </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Speciality </td>
+                                                                        <td>@Model.joined.specialityName</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Hospital </td>
+                                                                        <td>@Model.joined.hospitalName</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Marks </td>
+                                                                        <td>@Model.joined.marks</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            <table style="margin-top: 5px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                            <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                                                Not Joinied
+                                                            </p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        }
+                                    </fieldset>
+
+
+                                    <fieldset>
+                                        <legend>   Seats Information  </legend>
+
+                                        @if (Model.listJob != null && Model.listJob.Count > 0)
+                                        {
+                                            string clsTrName = "";
+                                            string clsTdName = "";
+                                            <table border="1" style="font-size:14px; width: 100%;" cellspacing="0" class="pnlPreference">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Quota</th>
+                                                        <th>Type</th>
+                                                        <th>Speciality</th>
+                                                        <th>Institute</th>
+                                                        <th>Hospital</th>
+                                                        <th>Total Seats</th>
+                                                        <th>Joined</th>
+                                                        <th>Vacant</th>
+                                                        <th>Merit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var spc in Model.listJob.OrderByDescending(x=> x.marks))
+                                                    {
+                                                        clsTdName = "";
+                                                        clsTrName = "";
+
+                                                        if (spc.seatsRemaniing > 0)
+                                                        { clsTdName = "tdgreen"; }
+
+                                                        if (spc.marks <= Model.joined.marks && spc.seatsRemaniing > 0)
+                                                        { clsTrName = "trgreen"; }
+
+
+                                                        <tr class="@clsTrName">
+                                                            <td>@spc.quotaName</td>
+                                                            <td>@spc.typeName</td>
+                                                            <td>@spc.specialityName</td>
+                                                            <td>@spc.instituteName</td>
+                                                            <td>@spc.hospitalName</td>
+                                                            <td>@spc.seats</td>
+                                                            <td>@spc.seatJoin</td>
+                                                            <td class="@clsTdName">@spc.seatsRemaniing</td>
+                                                            <td>@spc.marks.ToString("0.00")</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            <table style="margin-top: 5px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                            <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                                                Seats not exists
+                                                            </p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        }
+
+                                    </fieldset>
+                                }
+                            }
+                        </div>
+
+                    }
+                    else
+                    {
+                        <fieldset>
+                            <legend> Applicant Information </legend>
+                            <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
+
+                                <div>
+                                    <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                        <span> Applicant Account Status</span>
+                                        <br />
+                                        <span> Account Status : @Model.applicant.status</span>
+                                        <br />
+                                        <span> Application Name : @Model.applicant.name</span>
+                                        <br />
+                                        <span> Contact No : @Model.applicant.contactNumber</span>
+                                        <br />
+                                        <span> PMDC No : @Model.applicant.pmdcNo</span>
+                                        <br />
+                                        <span> Email Id : @Model.applicant.emailId</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    }
+                }
+                else
+                {
+                    if (Model.requestType == 1)
+                    {
+                        <fieldset>
+                            <legend> Search Result   </legend>
+                            <div>
+                                <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                    <span> Applicant not exists</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    }
+                    else if (Model.requestType == 3)
+                    {
+
+                        <fieldset>
+                            <legend> Search Result  </legend>
+                            <div>
+                                <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                    <span> Some thing went wrong</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    }
+                    else
+                    {
+                        <div>
+                            <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                <span> Applicant not exists</span>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

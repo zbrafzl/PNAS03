@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+
+    <!-- ======== -->
+    <!-- Meta Tag -->
+    <!-- ======== -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Punjab Residency Program">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>PNAS | @ViewBag.Title </title>
+    <link href="assets/public/css/bootstrap.css" rel="stylesheet">
+
+    <link href="/assets/public/css/bootstrap.css" rel="stylesheet">
+    <link href="/assets/public/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/assets/public/css/hover.css" rel="stylesheet">
+    <link href="/assets/public/css/style.css" rel="stylesheet">
+
+    <link href="/assets/public/css/responsive.css" rel="stylesheet">
+    <link href="~/assets/jquery/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="/assets/css/default.css" rel="stylesheet" />
+
+    @RenderSection("RenderCss", required: false)
+
+    <style>
+
+        body { background-image:none;
+        }
+
+    </style>
+</head>
+<body cz-shortcut-listen="true">
+
+
+    @RenderBody()
+
+
+    <script src="/assets/jquery/jquery.min.js"></script>
+    <script src="/assets/jquery/bootstrapValidator.min.js"></script>
+
+    <script src="/assets/vendor/bootstrap.min.js"></script>
+    <script src="/assets/js/index.js"></script>
+    @*<link href="/assets/global/plugins/pnotify/pnotify.custom.min.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="/assets/global/plugins/pnotify/pnotify.custom.min.js"></script>*@
+
+    <script src="/assets/jquery/bootstrap-datepicker.min.js"></script>
+    <script src="/assets/tickerme.min.js"></script>
+    <script src="/assets/jquery/CommonFunctions.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+
+        });
+
+        function printDiv() {
+
+            var result = false;
+            try {
+
+                var divToPrint = document.getElementById('divprint');
+                var newWin = window.open('', 'Print-Window');
+                newWin.document.open();
+                newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+                newWin.document.close();
+                setTimeout(function () { newWin.close(); }, 10);
+                result = true;
+
+            } catch (e) {
+                result = false;
+            }
+            return result;
+        }
+
+    </script>
+
+    @RenderSection("RenderScript", required: false)
+
+</body>
+</html>

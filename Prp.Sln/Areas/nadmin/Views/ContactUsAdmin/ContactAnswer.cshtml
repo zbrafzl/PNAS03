@@ -1,0 +1,200 @@
+﻿
+@{
+    ViewBag.Title = "Question | Answer";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ContactAdminModel
+@section RenderCss{
+
+    <style type="text/css">
+
+        .ank {
+            font-style: italic;
+            color: #007bff;
+        }
+
+        .imgView {
+            height: 40px;
+            width: 70px;
+            border: 1px solid #000;
+            margin-bottom: 5px;
+             margin-right:10px;
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        var applicantId = 0, statusApproval = 0, statusAmedment = 0, objApplicant = {}, imagesPath = "", key = "", value = "";
+
+        var pageUrl = "", statuAction = "", statusTypeId = 0;
+        $(document).ready(function () {
+
+
+            $("#txtQuestion").prop("disabled", true);
+            $(".ctrlUnq").prop("disabled", true);
+
+        });
+
+
+
+
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Answer </h2>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+            @if (Model.contact.contactId == 0)
+            {
+                <fieldset>
+                    <legend> Search Result   </legend>
+                    <div>
+                        <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                            <span> Data not exists</span>
+                        </div>
+                    </div>
+                </fieldset>
+            }
+            else
+            {
+                <div class="x_content">
+                    <div class="table-responsive">
+                        <div class="form-group col-lg-12">
+                            <div class="col-xs-9 col-sm-9 col-md-9">
+                                <div class="main-login main-center">
+                                    @using (Html.BeginForm("ReplyAnswerSave", "ContactUsAdmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+                                    {
+                                        <form class="form-horizontal form-label-left input_mask">
+                                            @Html.HiddenFor(m => m.contact.contactId, new { @id = "hfdContactId" })
+
+                                            <div class="row">
+                                                <div class="col-xs-4 col-sm-4 col-md-4">
+                                                    <div class="form-group">
+                                                        <label> Name <span class="sprq">*</span></label>
+                                                        @Html.TextBoxFor(model => model.contact.name, new { @class = "form-control ctrlUnq", @required = "required", @id = "txtName", @tabindex = "1" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4 col-sm-4 col-md-4">
+                                                    <div class="form-group">
+                                                        <label> PMDC No <span class="sprq">*</span></label>
+                                                        @Html.TextBoxFor(model => model.contact.pmdcNo, new { @class = "form-control ctrlUnq", @required = "required", @id = "txtPmdc", @tabindex = "1" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4 col-sm-4 col-md-4">
+                                                    <div class="form-group">
+                                                        <label> Email <span class="sprq">*</span></label>
+                                                        @Html.TextBoxFor(model => model.contact.emailId, new { @class = "form-control ctrlUnq", @required = "required", @id = "txtEmailId", @tabindex = "1" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                                    <div class="form-group">
+                                                        <label> Question <span class="sprq">*</span></label>
+                                                        @Html.TextAreaFor(model => model.contact.question, new { @class = "form-control ctrlUnq", @required = "required", @rows = "5", @id = "txtQuestion", @tabindex = "1" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                                    <div class="form-group">
+                                                        <label> Answer <span class="sprq">*</span></label>
+                                                        @Html.TextAreaFor(model => model.reply.answer, new { @class = "form-control", @required = "required", @rows = "5", @id = "txtAnswer", @tabindex = "1" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                                                    <div class="col-sm-4">
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <button type="submit" class="btn btn-success" style="width:100%">Send Reply</button>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="divError" class="col-sm-12" style=" display:none;">
+                                                <div id="divMsg" class="panel panel-danger">
+                                                    <div class="panel-heading">
+                                                        <label class="text-center">
+                                                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                                            <ul id="idErrorMsg" class="ul-err">
+                                                            </ul>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-xs-3 col-sm-3 col-md-3">
+                                <div class="row">
+                                    <h2>Documents</h2>
+                                </div>
+                                @if (Model != null && (Model.listDocs != null && Model.listDocs.Count > 0))
+                                {
+                                    <div class="row">
+                                        @foreach (var doc in Model.listDocs)
+                                        {
+                                            <a class="ank" href="@("/images/contact/" + doc.image)" target="_blank" title="Click to view">
+                                                <img class="imgView" src="@("/images/contact/" +doc.image)" />
+                                            </a>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="row">
+                                        <h2> Document not exists</h2>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                if (Model != null && (Model.listAnswer != null && Model.listAnswer.Count > 0))
+                {
+                    <div class="clearfix"></div>
+                    <div class="ln_solid"></div>
+
+                    var sr = 0;
+
+                    <div class="x_content">
+                        <div class="table-responsive">
+                            <table class="table table-striped jambo_table bulk_action">
+                                <thead>
+                                    <tr class="headings">
+                                        <th class="column-title">Sr. </th>
+                                        <th class="column-title">Answer </th>
+                                        <th class="column-title">Date </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.listAnswer.OrderByDescending(x => x.datedAnswer))
+                                    {
+                                        sr = sr + 1;
+                                        <tr>
+                                            <td>@sr</td>
+                                            <td>@item.answer</td>
+                                            <td>@item.datedAnswer.ToString("dd MM yyyy HH:mm:ss")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            }
+            <div class="clearfix"></div>
+        </div>
+
+
+    </div>
+</div>

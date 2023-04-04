@@ -1,0 +1,77 @@
+﻿@{
+    ViewBag.Title = "Registration Verification";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.LoginModel
+@section RenderCss{
+    <style>
+
+        .ank-lbl {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .ank {
+            cursor: pointer;
+            padding: 10px 15px;
+            background: #049e27;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+            .ank:hover {
+                background: #5bb06e;
+                color: #fff;
+                text-decoration: none;
+            }
+    </style>
+}
+@section RenderScript{
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+}
+<div class="container content ">
+    <div class="row main">
+        <div class="col-sm-1"></div>
+        @if (Model.applicationId > 0 )
+        {
+            <div id="divSucess" class="col-sm-10 form-box mn0">
+                <div class="main-login main-center">
+                    <h1 class="text-center">Congratulation </h1>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-4"><img src="/assets/public/images/verify.png" class="w100" alt=""></div>
+                    <div class="col-sm-4"></div>
+                    <p>
+                        <label class="text-center">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            Your Registration process completed, please click login button to proceed.
+                        </label>
+                        <label class="text-center ank-lbl">
+                            <a class="ank" href="/login"> Login</a>
+                        </label>
+                    </p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div id="divDanger" class="col-sm-10 form-box mn0">
+                <div class="main-login main-center">
+                    <h1 class="text-center">OOOOOOOOOPs!</h1>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-4"><img src="/assets/public/images/verify.png" class="w100" alt=""></div>
+                    <div class="col-sm-4"></div>
+                    <p>
+                        <label class="text-center">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            In-Valid request. Please call help line to proceed.
+                        </label>
+                    </p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

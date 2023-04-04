@@ -1,0 +1,140 @@
+﻿
+@{
+    ViewBag.Title = "EmailSMSBulkSendingToRemaning";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ApplicantStatusModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var statusId = 0;
+        $(document).ready(function () {
+
+
+             try {
+
+                CKFinder.setupCKEditor(null, '@Url.Content("~/ckfinder")');
+                var editor = CKEDITOR.instances['txtDetail'];
+                if (editor) { editor.destroy(true); }
+                CKEDITOR.replace('txtDetail', {
+                    enterMode: CKEDITOR.ENTER_BR,
+                });
+
+            } catch (e) {
+
+            }
+
+
+            $(document).on('click', '#btnSend', function () {
+
+                SendEmailToApplicant();
+
+            });
+
+
+
+        });
+
+
+        function SendEmailToApplicant() {
+
+            var obj = {};
+
+            obj.type = ConvertToString($("#ddlStatus").val());
+
+            obj.statusId = 141;
+            obj.subject = "PRP - Joining Induction Jan 2021 (Foreigner)";
+
+            //if (obj.type == "RemaningRejectVerfication") {
+            //    obj.statusId = 36;
+            //    obj.subject = "PRP - Verification Rejection";
+
+            //    filePath = "";
+            //}
+            //else if (obj.type == "RemaningAmendment") {
+            //    obj.statusId = 41;
+            //    obj.subject = "PRP -Amendment";
+
+            //    filePath = "";
+            //}
+
+            //else if (obj.type == "MeritListRemaningApplicant") {
+            //    obj.statusId = 121;
+            //    obj.subject = "Consent";
+            //}
+
+            //else if (obj.type == "ApplicantWrongPreferenceDeletedFCPS") {
+            //    obj.statusId = 131;
+            //    obj.subject = "PRP";
+            //}
+
+            //else if (obj.type == "ApplicantWrongPreferenceDeletedOpenQuota") {
+            //    obj.statusId = 141;
+            //    obj.subject = "PRP";
+            //}
+
+
+
+
+            //obj.message = ConvertToString($("#txtMessage").val());
+
+            var resp = CallActionPost("/CommonFunctionsAdmin/EmailSMSBulkSendingToRemaning", obj);
+            if (resp != null && resp.status == true) {
+                $("#divSmsSuccess").show();
+                $("#divSmsDanger").hide();
+            }
+            else {
+                $("#divSmsSuccess").hide();
+                $("#divSmsDanger").show();
+            }
+
+        }
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Email and SMS Bulk Remaning With Types </h2>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Types :</label>
+                    <select id="ddlStatus" name="ddlStatus" class="form-control">
+                        <option value="JoningRemaningApplicantForeigner">Joning Remaning Applicant - Foreigner  </option>
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+            <div class="form-group col-lg-12">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <label for="heard">Message *:</label>
+                    <textarea class="form-control" required="required" name="txtMessage" id="txtMessage" tabindex="13" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <div class="form-group">
+                        <label for="detail" class="form-label required">Detail </label>
+                        @Html.TextAreaFor(x => x.loggedInUser.name, new { @class = "form-control ckeditor", @id = "txtDetail", @rows = "7" })
+                    </div>
+                    @*<div id="snow-editor" style="height: 300px;">
+                </div>*@
+                </div>
+            </div>
+
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">&nbsp;</label>
+                    <input type="button" id="btnSend" value="Send SMS and Email" class="btn btn-success" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

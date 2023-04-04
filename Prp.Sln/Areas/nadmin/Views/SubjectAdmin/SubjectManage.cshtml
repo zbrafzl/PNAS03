@@ -1,0 +1,117 @@
+﻿
+@{
+    ViewBag.Title = "Speciality Manage";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.SpecialityModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var inductionId = 0;
+        $(document).ready(function () {
+
+            inductionId = $("#hfdInductionId").val();
+
+            $("#ddlInduction").val(inductionId);
+
+            $(document).on('change', '#ddlInduction', function () {
+                inductionId = $(this).val();
+                window.location.href = "/admin/speciality-manage?inductionId=" + inductionId;
+            });
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Speciality Manage </h2>
+            @if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.institute)
+            {
+                <div class="panel_toolbox">
+                    <a href="/admin/speciality-setup" class="btn btn-info"> Add New</a>
+                </div>
+            }
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Induction :</label>
+                    <select id="ddlInduction" name="ddlInduction" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                        @if (Model != null && (Model.listInduction != null && Model.listInduction.Count > 0))
+                        {
+                            foreach (var u in Model.listInduction)
+                            {
+                                <option value="@u.id"> @u.value </option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">ID </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Status </th>
+                            <th class="column-title">Sort Order </th>
+                            <th class="column-title">Jobs </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && (Model.list != null && Model.list.Count > 0))
+                        {
+                            foreach (var item in Model.list)
+                            {
+                                <tr>
+                                    <td>@item.specialityId</td>
+                                    <td>@item.name</td>
+                                    @if (item.isActive)
+                                    {
+                                        <td>Active</td>
+                                    }
+                                    else
+                                    {
+                                        <td>In-Active</td>
+                                    }
+                                    <td>@item.sortOrder</td>
+                                    <td>@item.totalJobs</td>
+                                    <td>
+                                        @if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.institute)
+                                        {
+                                            <a title="Jobs" class="ank" href="@("/admin/institute-job?specialityId=" + item.specialityId)"><i class="fa fa-cloud-upload"></i></a>
+                                        }
+                                        else
+                                        {
+                                            <a title="Edit Content" class="ank" href="@("/admin/speciality-setup?id=" + item.specialityId)"><i class="fa fa-pencil-square-o"></i> &nbsp;|&nbsp;</a>
+                                            <a title="Jobs" class="ank" href="@("/admin/speciality-job?specialityId=" + item.specialityId)"><i class="fa fa-cloud-upload"></i></a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+

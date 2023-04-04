@@ -1,0 +1,184 @@
+﻿@{
+    ViewBag.Title = "Attendence";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ContactAdminModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+        var typeId = 0;
+
+        $(document).ready(function () {
+
+            var IsSelf = ConvertToInt($("#hfdIsSelf").val());
+
+            typeId = ConvertToInt($("#hfdTypeId").val());
+
+
+            if (IsSelf == 0) {
+
+                $("#hfdIsSelf").val(1);
+                $('#chkIsSelf').prop("checked", true);
+                $("#divRelation").hide();
+            }
+            if (IsSelf == 1) {
+                $("#hfdIsSelf").val(1);
+                $('#chkIsSelf').prop("checked", true);
+                $("#divRelation").hide();
+            }
+            else if (IsSelf > 1) {
+                $("#hfdIsSelf").val(2);
+                $('#chkIsSelf').prop("checked", false);
+                $("#divRelation").show();
+            }
+
+            $('#chkIsSelf').change(function () {
+
+                $("#hfdIsSelf").val(2);
+
+                $("#divRelation").show();
+                if (this.checked) {
+                    $("#hfdIsSelf").val(1);
+                    $("#divRelation").hide();
+                }
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SaveAttendenceData();
+                }
+            });
+
+            $(document).on('click', '#btnSave', function () {
+
+                SaveAttendenceData();
+            });
+
+        });
+
+        function SaveAttendenceData() {
+
+            try {
+
+                var obj = {};
+                obj.contactIdAttendenceId = ConvertToInt($("#hfdAttendenceId").val());
+                obj.contactId = ConvertToInt($("#hfdContactId").val());
+                obj.applicantId = ConvertToInt($("#hfdApplicantId").val());
+                obj.isSelf = ConvertToInt($("#hfdIsSelf").val());
+                obj.attendenceNo = ConvertToInt($("#txtAttendenceNo").val());
+                obj.relationId = ConvertToInt($("#ddlRelation").val());
+
+                var resp = CallActionPost("/ContactUsAdmin/SaveAttendence", obj);
+
+                var url = "/admin/attendence-verification-current?search=" + obj.applicantId;
+
+                if (typeId == 21)
+                    url = "/admin/attendence-gazette-current?search=" + obj.applicantId;
+
+                window.location.href = url;
+
+
+            } catch (e) {
+
+            }
+
+        }
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Attendence Action </h2>
+                <div class="panel_toolbox">
+
+                    @if (Model.contact != null && Model.contact.typeId == 11)
+                    {
+                        <a href="/admin/attendence-verification" class="btn btn-info"> Attendence Listing</a>
+                    }
+                    else if (Model.contact != null && Model.contact.typeId == 21)
+                    {
+                        <a href="/admin/attendence-gazette" class="btn btn-info">  Attendence Listing</a>
+                    }
+
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+
+                <form>
+
+                    @Html.HiddenFor(m => m.attendence.contactIdAttendenceId, new { @id = "hfdAttendenceId" })
+                    @Html.HiddenFor(m => m.contact.contactId, new { @id = "hfdContactId" })
+                    @Html.HiddenFor(m => m.contact.applicantId, new { @id = "hfdApplicantId" })
+                    @Html.HiddenFor(m => m.attendence.isSelf, new { @id = "hfdIsSelf" })
+
+
+                    @Html.HiddenFor(m => m.contact.typeId, new { @id = "hfdTypeId" })
+
+                    @Html.HiddenFor(m => m.applicant.applicantId, new { @id = "hfdApplicantId" })
+
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-8 col-sm-8 col-xs-8">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Name *:</label>
+                                @Html.TextBoxFor(a => a.applicant.name, new { @class = "form-control", @required = "required", @id = "txtID", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">PMDC No *:</label>
+                                @Html.TextBoxFor(a => a.applicant.pmdcNo, new { @class = "form-control", @required = "required", @id = "txtCode", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Contact No *:</label>
+                                @Html.TextBoxFor(a => a.applicant.contactNumber, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Email *:</label>
+                                @Html.TextBoxFor(a => a.applicant.emailId, new { @class = "form-control", @required = "required", @id = "txtValue", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <img style="height:300px" src="@("https://prp.phf.gop.pk/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicant.pic)" />
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="heard">Subject :</label>
+                            @Html.TextBoxFor(a => a.contact.title, new { @class = "form-control", @id = "txtShortDesc", @tabindex = "10", @readonly = "readonly" })
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-3 col-sm-3 col-xs-3" style="display:none;">
+                            <label for="heard">Attendence No *:</label>
+                            @Html.TextBoxFor(a => a.attendence.attendenceNo, new { @class = "form-control", @required = "required", @id = "txtAttendenceNo", @tabindex = "1" })
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <label for="heard">Self(Present) :</label>
+                            <input type="checkbox" id="chkIsSelf" class="form-control" checked="checked" tabindex="1" />
+                        </div>
+                        <div id="divRelation" style="display:none;" class="col-md-6 col-sm-6 col-xs-6">
+                            <label for="heard">Relation :</label>
+                            @Html.DropDownListFor(a => a.attendence.relationId, new SelectList(Model.listRelation, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlRelation", @tabindex = "2" })
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="ln_solid"></div>
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <input id="btnSave" type="button" class="btn btn-success" value="Save" tabindex="2" />
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

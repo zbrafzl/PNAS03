@@ -1,0 +1,260 @@
+﻿@{
+    ViewBag.Title = "Merit FCPS Dentistry";
+    Layout = "~/Views/Shared/_GazatMerit.cshtml";
+}
+@model Prp.Sln.MeritGazatModel
+
+@section RenderCss
+{
+    <style>
+    </style>
+}
+
+@section RenderScript
+    {
+
+    <script>
+        var typeId = 5, perPageRecords = 20, pageNum = 1, totalCount = 0, totalCountSet = 0, rowHtml = "";
+
+        $(document).ready(function () {
+
+
+            rowHtml = $("#tbRowTemp").html();
+
+            SearchGazarMeritList();
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchGazarMeritList();
+                }
+
+            });
+
+            $(document).on('click', '#btnSearch', function () {
+
+                SearchGazarMeritList();
+            });
+
+            $(document).on('click', '.pg-go', function () {
+
+                var id = ConvertToInt($(this).attr("id"));//  ConvertToInt($(this).closest('li').attr("id"));
+
+                $(".pg-go").removeClass("pg-selected");
+
+                var pageNo = id;// ConvertToInt($(this).val());
+
+                if (pageNo == 0) {
+
+                    if ($(this).attr("type") == "first") {
+
+                        pageNo = 1;
+                    }
+                    else
+                        if ($(this).attr("type") == "last") {
+
+                            var lastPage = Math.ceil(totalCount / perPageRecords);
+                            pageNo = lastPage;
+                        }
+                }
+                pageNum = pageNo;
+
+                SearchGazarMeritList();
+
+            });
+
+
+        });
+
+
+        function SearchGazarMeritList() {
+
+            $("#divPagination").hide();
+            $("#divDownload").hide();
+
+            var obj = {};
+            obj.top = perPageRecords;
+            obj.pageNum = pageNum;
+            obj.typeId = typeId;
+            obj.search = ConvertToString($("#txtSearch").val());
+
+            var url = "/MeritGazat/MeritGetAllByTypeView";
+            var list = CallActionPost(url, obj);
+
+
+            var html = "";
+            var singleHtml = "", objItem = {};
+
+            if (list != null && list.length > 0) {
+
+
+                totalCount = list[0].totalCount;
+                totalCountSet = list[0].totalCountSet;
+
+                $("#divDownload").show();
+
+                for (var i = 0; i < list.length; i++) {
+
+                    objItem = list[i];
+                    singleHtml = rowHtml;
+
+                    html = html + singleHtml.replace(/{#sr#}/g, objItem.sr)
+                        .replace(/{#name#}/g, objItem.name)
+                        .replace(/{#fatherName#}/g, objItem.fatherName)
+                        .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                        .replace(/{#specialityName#}/g, objItem.specialityName)
+                        .replace(/{#hospitalName#}/g, objItem.hospitalName)
+                        .replace(/{#preferenceNo#}/g, objItem.preferenceNo)
+                        .replace(/{#quotaName#}/g, objItem.quotaName)
+                        .replace(/{#marks#}/g, objItem.marks);
+
+                }
+                if (totalCountSet > 0)
+                    CreatePaginationHtml(perPageRecords, totalCount, pageNum);
+            }
+            else {
+            }
+            $("#tbBody").html(html);
+        }
+
+        function ShowingRowsText(perPageRecords, count, pageNum) {
+
+            var rcordsNow = pageNum * perPageRecords;
+            var startRecords = rcordsNow - perPageRecords;
+            if (rcordsNow > count)
+                rcordsNow = count;
+
+            startRecords = startRecords + 1;
+            $("#divShowingResult").html("Showing " + startRecords + " to " + rcordsNow + " of " + count + " entries");
+
+
+        }
+
+        function CreatePaginationHtml(perPageRecords, count, pageNum) {
+
+
+            try {
+
+                //ShowingRowsText(perPageRecords, count, pageNum);
+                $("#divPagination").show();
+
+                var htmlPagination = $("#templatePagination").html();
+                var pageStart = 1, pageEnd = 5;
+                var lastPage = Math.ceil(count / perPageRecords);
+
+                if (pageNum > 3) {
+                    pageStart = pageNum - 2;
+                    pageEnd = pageNum + 2;
+                }
+
+                if (pageEnd > lastPage)
+                    pageEnd = lastPage;
+
+                var lisHtml = "";
+                for (var i = pageStart; i <= pageEnd; i++) {
+                    lisHtml = lisHtml + " <span id='" + i + "' class='pg-go' >" + i + "</span>";// "<li class='liPage' id='" + i + "'> " + i + "</li>";
+                }
+                htmlPagination = htmlPagination.replace(/{#lastPage#}/g, lastPage).replace(/{#Pagination#}/g, lisHtml);
+                $(".list_pagination").html(htmlPagination);
+
+                $("#" + pageNum).addClass("pg-selected");
+
+
+            } catch (e) {
+                $("#liPagination").hide();
+            }
+        }
+
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            $("#hfdFileName").val("Gazat_FCPS");
+            $("#hfdTypeId").val(typeId);
+            $("#hfdUrl").val("/gazat-fcps");
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <h2 class="title-grp">FCPS Dentistry Merit List For August 2020 Round 1 </h2>
+            <div class="clearfix"></div>
+            <div class="dataTables_filter">
+                <label>
+                    Search: &nbsp;&nbsp;&nbsp;<input type="text" id="txtSearch" placeholder="Search Here" class="form-control input-sm txt">
+                    <input type="button" id="btnSearch" class="form-control input-sm btn" value="Search">
+                </label>
+            </div>
+            <table class="dataTable paginated" style="font-size:14px; width: 100%;" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <th>Sr.#</th>
+                        <th>Speciality </th>
+                        <th>Institute </th>
+                        <th>Name</th>
+                        <th>Father Name</th>
+                        <th>PMDC Number</th>
+                        <th>Preference Number</th>
+                        <th>Quota</th>
+                        <th>Aggregate</th>
+                    </tr>
+                </tbody>
+                <tbody id="tbBody">
+                </tbody>
+            </table>
+            <div id="divPagination" style="display:none;">
+                <div id="msgPagination" class="col-md-4">
+                    <div class="dataTables_info" id="divShowingResult" style="display:none;">
+                        Showing
+                        <span id="shStart"> </span> to <span id="shEnd"> </span> of <span id="shTotal"></span>
+                        entries
+                    </div>
+                </div>
+
+                <div id="liPagination" class="col-md-8 pager">
+                    <ul class="list_pagination">
+                    </ul>
+                </div>
+
+                <div id="templatePagination" class="pager" style="padding-top: 20px;  direction:ltr; display:none;" align="center">
+                    <span class="pg-goto pg-go" id='0' type="first"> « First </span>
+                    <span style="display:none;" class="pg-goto pg-go" id='0' type="prev"> « Prev </span>
+
+                    {#Pagination#}
+
+                    @*<span id="pg0" class="pg-selected">1</span>
+                <span id="pg1" class="pg-normal">2</span>*@
+
+
+                    <span style="display:none;" class="pg-goto pg-go" id='0' type="naxt"> Next » </span>
+                    <span class="pg-goto pg-go" id='0' type="last"> Last » </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+
+    <table>
+        <tbody id="tbRowTemp">
+            <tr>
+                <td>{#sr#}</td>
+                <td>{#specialityName#}</td>
+                <td>{#hospitalName#}</td>
+                <td>{#name#}</td>
+                <td>{#fatherName#}	</td>
+                <td>{#pmdcNo#}	</td>
+                <td>{#preferenceNo#}</td>
+                <td>{#quotaName#}</td>
+                <td>{#marks#}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+

@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "Applicant Joining - Hospital wise";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantJoiningDsbModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+        var typeId = 0;
+        $(document).ready(function () {
+
+
+        });
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Hospital List </h2>
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">ID </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Total Selected </th>
+                            <th class="column-title">Total Joined </th>
+                            <th class="column-title">Total Not Joined </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && (Model.listHospInst != null && Model.listHospInst.Count > 0))
+                        {
+                            foreach (var item in Model.listHospInst)
+                            {
+                                <tr>
+                                    <td>@item.hospitalId</td>
+                                    <td>@item.hospitalName</td>
+                                    <td>@item.totalCount</td>
+                                    <td>@item.totalJoin</td>
+                                    <td>@item.totalNotJoin</td>
+                                    <td>
+                                        <a title="Applicant List" class="ank" href="@("/admin/joining-list-hospital?hospitalId="+ item.hospitalId)">Applicant List</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+

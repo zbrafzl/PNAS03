@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "Manage Email Template";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.EmailTemplateModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0;
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+
+            $("#ddlType").val(typeId);
+
+            $(document).on('change', '#ddlType', function () {
+                typeId = $(this).val();
+                window.location.href = "/admin/email-template-manage?typeId=" + typeId;
+            });
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Email Template Manage </h2>
+            <div class="panel_toolbox">
+                <a href="/admin/email-template-setup" class="btn btn-info"> Add New</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Type </th>
+                            <th class="column-title">Tite </th>
+                            <th class="column-title">Subject </th>
+                            <th class="column-title">Status </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && (Model.listTemplate != null && Model.listTemplate.Count > 0))
+                        {
+                            foreach (var item in Model.listTemplate)
+                            {
+                                <tr>
+
+                                    <td>@item.name</td>
+                                    <td>@item.typeName</td>
+                                    <td>@item.title</td>
+                                    <td>@item.subject</td>
+                                    @if (item.isActive)
+                                    {
+                                        <td>Active</td>
+                                    }
+                                    else
+                                    {
+                                        <td>In-Active</td>
+                                    }
+                                    <td>
+                                        <a title="Edit Content" class="ank" href="@("/admin/email-template-setup?typeId="+ item.typeId)"><i class="fa fa-pencil-square-o"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>

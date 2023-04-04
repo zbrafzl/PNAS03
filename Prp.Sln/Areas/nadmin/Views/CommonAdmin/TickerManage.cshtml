@@ -1,0 +1,135 @@
+﻿@{
+    ViewBag.Title = "Ticker Manage";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.TickerModelAdmin
+@section RenderCss{
+
+    <style>
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var inductionId = 0, typeId = 0;
+
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+            inductionId = $("#hfdInductionId").val();
+
+            $("#ddlType").val(typeId);
+            $("#ddlInduction").val(inductionId);
+
+            $(document).on('change', '#ddlType', function () {
+                typeId = $(this).val();
+            });
+
+            $(document).on('change', '#ddlInduction', function () {
+                inductionId = $(this).val();
+            });
+
+            $(document).on('click', '#btnSearch', function () {
+
+                window.location.href = "/admin/ticker-manage?inductionId=" + inductionId + "&typeId=" + typeId;
+            });
+        });
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Ticker List </h2>
+            <div class="panel_toolbox">
+                <a href="/admin/ticker-setup" class="btn btn-info"> Add</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            <div class="form-group col-lg-12">
+                @Html.HiddenFor(m => m.typeId, new { @id = "hfdTypeId" })
+                @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionId" })
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <label for="heard">Induction :</label>
+                    <select id="ddlInduction" name="ddlInduction" class="form-control">
+                        @if (Model != null && (Model.listInduction != null && Model.listInduction.Count > 0))
+                        {
+                            foreach (var u in Model.listInduction)
+                            {
+                                <option value="@u.value">@u.key </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <label for="heard">Type :</label>
+                    <select id="ddlType" name="ddlType" class="form-control">
+                        @if (Model != null && (Model.listType != null && Model.listType.Count > 0))
+                        {
+                            foreach (var u in Model.listType)
+                            {
+                                <option value="@u.id">@u.value </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard" style="width:100%;">&nbsp;</label>
+                    <input type="button" id="btnSearch" name="btnSearch" value="Search" class="btn btn-success" />
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+
+
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">ID </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Detail </th>
+                            <th class="column-title">Status </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && (Model.list != null && Model.list.Count > 0))
+                        {
+                            foreach (var item in Model.list)
+                            {
+                                <tr>
+                                    <td>@item.tickerId</td>
+                                    <td>@item.name</td>
+                                    <td> @Html.Raw(item.detail)</td>
+                                    @if (item.isActive)
+                                    {
+                                        <td>Active</td>
+                                    }
+                                    else
+                                    {
+                                        <td>In-Active</td>
+                                    }
+                                    <td>
+                                        <a title="Edit Content" class="ank" href="@("/admin/ticker-setup?id="+ item.tickerId)"><i class="fa fa-pencil-square-o"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+

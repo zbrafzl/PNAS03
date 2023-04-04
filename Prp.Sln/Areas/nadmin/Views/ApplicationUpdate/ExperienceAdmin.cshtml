@@ -1,0 +1,579 @@
+﻿
+@{
+    ViewBag.Title = "ApplicantViewDetail";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ExperienceModelAdmin
+@section RenderCss{
+
+    <style type="text/css">
+        #divprint {
+            width: 100%;
+            margin: 0 auto;
+            margin-top: 15px;
+            font-family: 'Lato', sans-serif !important;
+        }
+
+        .text-center {
+            text-align: center;
+            text-align: -webkit-center;
+            text-align: -moz-center;
+        }
+
+        .top_detail tr td:nth-child(2n) {
+            border-bottom: 1px solid #000;
+        }
+
+        .imgView {
+            height: 40px;
+            width: 70px;
+        }
+
+        .ank {
+            font-style: italic;
+            color: #007bff;
+        }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, objExprience = {}, imagesPath = "", key = "", value = "";
+
+        $(document).ready(function () {
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            imagesPath = "/Images/Applicant/" + applicantId + "/";
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+            $("#txtExpDateStart").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                disableTouchKeyboard: true,
+                endDate: new Date(),
+                showOnFocus: true,
+                changeYear: true
+            }).on('changeDate', function (e) {
+                $("#txtExpDateEnd").datepicker('setStartDate', $("#txtExpDateStart").val());
+            });
+
+            $("#txtExpDateEnd").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                endDate: new Date(),
+                showOnFocus: true,
+                changeYear: true
+            }).on('changeDate', function (e) {
+                $("#txtExpDateStart").datepicker('setEndDate', $("#txtExpDateEnd").val());
+            });
+
+            $(document).on('change', '#ddlLevel', function () {
+                var levelId = $(this).val();
+
+                $("#ddlLevelType").empty();
+                if (levelId > 0)
+                    BindLevelTypeDDL(levelId, 1);
+            });
+
+            $(document).on('click', '#chkIsCurrent', function () {
+
+                var status = $("#chkIsCurrent").is(':checked');
+
+                $("#divTxtExpDateEnd").show();
+                if (status == true) {
+                    $("#divTxtExpDateEnd").hide();
+
+                }
+            });
+
+            $(document).on('click', '.ankEidt', function () {
+
+                var applicantExperienceId = $(this).attr("id");
+                BindExprienceForm(applicantExperienceId);
+            });
+
+            $(document).on('click', '#btnExpSave', function () {
+                SaveExperienceDate();
+            });
+
+        });
+
+        function BindLevelTypeDDL(levelId, levelTypeId) {
+
+            $("#ddlLevelType").empty();
+
+            var list = CallActionGet("/CommonFunctionsAdmin/ConstantGetByType?typeId=" + levelId);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (levelTypeId == ddlItem.id)
+                        $("#ddlLevelType").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlLevelType").append("<option  value='" + ddlItem.id + "'>" + ddlItem.name + "</option>");
+                }
+            }
+
+        }
+
+        function SaveExperienceDate() {
+
+            if (ValidateExperienceFrom() == false) {
+
+                var resp = CallActionPost("/ApplicationUpdate/ApplicantExperienceAddUpdate", objExprience);
+                if (resp != null && resp.status == true) {
+                    location.reload();
+                }
+                else {
+                    alert(resp.message);
+                }
+            }
+
+        }
+        function ValidateExperienceFrom() {
+
+            var isError = false, ctrl = "";
+
+            objExprience = {};
+
+            debugger;
+            $(".req-fld").removeClass("req-fld");
+            objExprience.applicantExperienceId = ConvertToInt($("#txtExpHfdId").val())
+            objExprience.applicantId = applicantId;
+            objExprience.levelId = ConvertToInt($("#ddlLevel").val());
+            objExprience.levelTypeId = ConvertToInt($("#ddlLevelType").val());
+            objExprience.instituteName = ConvertToString($("#txtExpName").val());
+            objExprience.startDated = ConvertToString($("#txtExpDateStart").val());
+            objExprience.endDate = ConvertToString($("#txtExpDateEnd").val());
+
+            objExprience.provinceId = ConvertToInt($("#ddlProvince").val());
+            objExprience.typeId = ConvertToInt($("#ddlType").val());
+
+            objExprience.isCurrent = $("#chkIsCurrent").is(':checked');
+
+
+            var isCurrent = ConvertToInt($("#hfIsCurrent").val());
+
+
+            var fileName = "Experience" + "_Admin_" + objExprience.applicantExperienceId;
+           
+            if ($("#flExp").val()) {
+                objExprience.imageExperience = UploadImageAdmin("flExp", applicantId, fileName);
+                $("#hfdExp").val(objExprience.imageExperience);
+            }
+            objExprience.imageExperience = $("#hfdExp").val();
+
+
+            if (objExprience.instituteName == "") {
+                $("#txtExpName").addClass("req-fld");
+                ctrl = "txtExpName";
+                isError = true;
+            }
+
+
+            if (objExprience.levelTypeId == 0) {
+
+                $("#ddlLevelType").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlLevelType";
+            }
+
+            if (objExprience.startDated == "") {
+
+                $("#txtExpDateStart").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtExpDateStart";
+            }
+
+            if (objExprience.isCurrent == false && objExprience.endDate == "") {
+
+                $("#txtExpDateEnd").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtExpDateEnd";
+            }
+
+            if (objExprience.imageExperience == "") {
+
+                $("#flExp").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flExp";
+            }
+
+            if (isCurrent > 1 && objExprience.isCurrent) {
+
+                $("#chkIsCurrent").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "chkIsCurrent";
+
+                alert("More then 1 current experience can't allowed.")
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
+
+        function BindExprienceForm(applicantExperienceId) {
+
+            objExprience = CallActionGet("/ApplicationUpdate/GetApplicantExperienceDataSingleRow?applicantId=" + applicantId
+                + "&applicantExperienceId=" + applicantExperienceId);
+
+            if (objExprience != null && objExprience.applicantExperienceId > 0) {
+
+                $("#panelEdit").show();
+
+                $("#ddlLevel").val(objExprience.levelId);
+                BindLevelTypeDDL(objExprience.levelId, objExprience.levelTypeId);
+                $("#ddlLevelType").val(objExprience.levelTypeId);
+
+                $("#ddlProvince").val(objExprience.provinceId);
+                $("#ddlType").val(objExprience.typeId);
+
+                $("#txtExpHfdId").val(objExprience.applicantExperienceId);
+                $("#txtExpName").val(objExprience.instituteName);
+
+                $("#txtExpDateStart").datepicker('setDates', ToDateFormatDDMMYYYWithSlash(JsonToDate(objExprience.startDated)));
+
+                //$("#txtExpDateStart").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objExprience.startDated)));
+                //$("#txtExpDateEnd").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objExprience.endDate)));
+
+                if (objExprience.isCurrent) {
+
+                    $("#chkIsCurrent").attr("checked", "checked");
+                    $("#txtExpDateEnd").val("");
+                }
+                else $("#txtExpDateEnd").datepicker('setDates', ToDateFormatDDMMYYYWithSlash(JsonToDate(objExprience.endDate)));
+
+                $("#hfdExp").val("");
+                if (objExprience.imageExperience.length > 0) {
+                    $('#imgExp').attr('src', imagesPath + objExprience.imageExperience);
+                    $('#imgExp').show();
+                    $('#rmvExp').show();
+                    $("#hfdExp").val(objExprience.imageExperience);
+                }
+
+            }
+            else {
+
+
+            }
+        }
+
+        function ClearExprienceForm() {
+
+            $("#ddlLevel").val(23);
+            BindLevelTypeDDL(23, 1);
+
+            $("#txtExpHfdId").val(0);
+            $("#txtExpName").val("");
+            $("#txtExpDateStart").val("");
+            $("#txtExpDateEnd").val("");
+
+            $("#flExp").val(null);
+            $("#hfdExp").val("");
+            $('#imgExp').hide();
+            $('#rmvExp').hide();
+
+            $("#ddlProvince").val(196);
+            // Experience Type
+            $("#ddlType").val(1);
+            $("#chkIsCurrent").attr("checked", false);
+            $("#divTxtExpDateEnd").show();
+        }
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Applicant Experience </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                @if (Model.applicant.applicantId > 0)
+                {
+                    var applicant = Model.applicant;
+                    <input type="hidden" id="hfdApplicantId" value="@(applicant.applicantId)" />
+                    <fieldset>
+                        <legend> Applicant  </legend>
+                        <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
+                            <table style="width: 100%;" cellspacing="0px">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <table class="top_detail" style="width: 48%; float: left; margin-right:2%">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Name</td>
+                                                        <td>@applicant.name</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>PMDC Number</td>
+                                                        <td> @applicant.pmdcNo <a class="ank" href="@("http://pmdc.org.pk//DesktopModules/pmdcDetails/PractDetail.aspx?RegistrationNo="+@applicant.pmdcNo)" target="_blank"> View </a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>MBBS/BDS</td>
+                                                        <td> @applicant.facultyName </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <table class="top_detail" style="width: 49%; float: left;">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Email</td>
+                                                        <td>@applicant.emailId</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Father Name</td>
+                                                        <td>@applicant.contactNumber</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Status</td>
+                                                        <td>@applicant.applicationStatus</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend> Experience  List</legend>
+                        <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
+                            @{
+                                decimal marksExperience = 0;
+                                if (Model.listMarks != null && Model.listMarks.Count > 0)
+                                {
+                                    try
+                                    {
+                                        marksExperience = Model.listMarks.Where(x => x.marksType == 7).FirstOrDefault().marksExpected;
+                                    }
+                                    catch (Exception)
+                                    {
+                                    }
+                                }
+                            }
+                            @if (Model.listExperience != null && Model.listExperience.Count > 0)
+                            {
+                                var isCurrentObj = Model.listExperience.FirstOrDefault(x => x.isCurrent == true);
+                                if (isCurrentObj != null && isCurrentObj.applicantExperienceId > 0)
+                                {
+                                    <input type="hidden" id="hfIsCurrent" value="1" />
+                                }
+                                else
+                                {
+                                    <input type="hidden" id="hfIsCurrent" value="0" />
+                                }
+                                <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="background-color: #f5f5f5; -webkit-print-color-adjust: exact;">
+                                                <p style="margin: 6px;color:#73879C; font-size: 16px;">
+                                                    Work Experience  Marks :  @marksExperience.ToString("0.00")
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                var sr = 0;
+                                <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                                    <tbody>
+                                        <tr>
+                                            <th>Sr.#</th>
+                                            <th>Type</th>
+                                            <th>Category</th>
+                                            <th>Institute</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Duration</th>
+                                            <th>Is Continuous</th>
+                                            <th>Province</th>
+                                            <th>Type of Employment</th>
+                                            <th>Certificate</th>
+                                            <th>Edit</th>
+                                        </tr>
+
+
+
+
+
+
+                                        @foreach (var exp in Model.listExperience)
+                                        {
+                                            sr = sr + 1;
+                                            <tr>
+                                                <td> @sr</td>
+                                                <td>@exp.levelName</td>
+                                                <td>@exp.levelTypeName</td>
+                                                <td>@exp.instituteName</td>
+                                                <td>@exp.startDated.ToString("dd MMM yyyy")</td>
+                                                <td>@exp.endDate.ToString("dd MMM yyyy")</td>
+                                                <td>@(exp.noOfMonth + " Month")</td>
+                                                @if (exp.isCurrent)
+                                                {
+                                                    <td>Yes</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>No</td>
+                                                }
+                                                <td>@(exp.provinceName )</td>
+                                                <td>@(exp.typeName )</td>
+                                                <td>
+                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + exp.imageExperience)" target="_blank" title="Click to view">
+                                                        <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + exp.imageExperience)" alt="No Image" />
+                                                    </a>
+                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + exp.imageExperience)" target="_blank" title="Click to view">
+                                                        <span class="ank spn-img-view">View</span>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <a id="@(exp.applicantExperienceId)" class="ank ankEidt"><i class="fa fa-pencil-square-o"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <table style="margin-top: 5px; width: 100%;" cellspacing="0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                                    Expreience not exists
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    </fieldset>
+                    <fieldset id="panelEdit" style="display: none;">
+                        <legend> Edit Experience  </legend>
+                        <div class="well">
+                            <form role="form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" id="txtExpHfdId" value="0" />
+                                            <label> Institute Level <span class="sprq">*</span></label>
+                                            <select id="ddlLevel" name="ddlLevel" class="form-control">
+                                                <option value="23" selected="selected">Primary</option>
+                                                <option value="24">Secondary</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" id="txtExpHfdId" value="0" />
+                                            <label> Institute Type <span class="sprq">*</span></label>
+                                            <select id="ddlLevelType" name="ddlLevelType" class="form-control">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <input type="hidden" id="txtExpHfdId" value="0" />
+                                            <label> Name of DHQ/THQ/RHCs/Dispincery on Certificate <span class="sprq">*</span></label>
+                                            <input type="text" id="txtExpName" name="title" class="form-control lenth" len="100" placeholder="Name of DHQ/THQ/RHCs/Dispincery">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label> Is Current  </label>
+                                            <input type="checkbox" id='chkIsCurrent' name="chkIsCurrent" class="form-control" value="IsCurrent">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="height:20px; "> </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Date From  <span class="sprq">*</span></label>
+                                            <input type="text" id='txtExpDateStart' name="join_date" class="form-control datepicker" placeholder="Date From">
+                                        </div>
+                                    </div>
+                                    <div id="divTxtExpDateEnd" class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Date To <span class="sprq">*</span></label>
+                                            <input type="text" id='txtExpDateEnd' class="form-control datepicker" name="end_date" placeholder="Date To">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4">
+                                        <div class="form-group">
+                                            <label style="width:100%;" for="">Certificate <span class="sprq">*</span></label>
+                                            <input type="file" id="flExp" class="form-control flup" tabindex="1">
+                                            <input type="hidden" id="hfdExp" value="" />
+                                            <img id="imgExp" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvExp" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Province  <span class="sprq">*</span></label>
+                                            <select id="ddlProvince" name="ddlProvince" class="form-control" tabindex="1">
+                                                @foreach (var u in Model.listProvince)
+                                                {
+                                                    <option value="@u.regionId"> @u.name </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Type of Employment <span class="sprq">*</span></label>
+                                            <select id="ddlType" name="ddlType" class="form-control" tabindex="1">
+                                                <option value="1" selected="selected">Regular </option>
+                                                <option value="2">Contract </option>
+                                                <option value="3">Adhoc </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label style="width:100%;"> &nbsp;  </label>
+                                            <input type="button" id="btnExpSave" name="submit" class="btn btn-success" value="Save Exprience" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </fieldset>
+                }
+                else
+                {
+                    <fieldset>
+                        <legend> Search Result   </legend>
+                        <div>
+                            <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                <span> Applicant not exists</span>
+                            </div>
+                        </div>
+                    </fieldset>
+                }
+            </div>
+        </div>
+    </div>
+</div>

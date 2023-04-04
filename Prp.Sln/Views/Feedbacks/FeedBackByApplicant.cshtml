@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "Feedback";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.FeedBackModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+        @Html.Partial("_ApplicantLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal">
+                    <h3 class="heading">Feedback</h3>
+                    <div class="col-sm-12">
+                        <div class="panel panel-danger">
+                            <div class="panel-heading">
+                                <label class="text-center">
+                                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                    <ul id="idErrorMsg" class="ul-err">
+                                        <li>Induction July 2021</li>
+                                        <li>Important Notice: All PRP aspirants are hereby informed that the system is being updated. Please wait for next update..</li>
+                                    </ul>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                @if (Model.listFeedBack != null && Model.listFeedBack.Count > 0)
+                {
+                    <hr class="colorgraph">
+                    <div class="main-login main-center">
+                        <div class="row" style="margin: 0px 0px;">
+                            <table class="table mt10">
+                                <thead class="job-th">
+                                    <tr>
+                                        <th>PMDC No</th>
+                                        <th>Feedback/Complaint</th>
+                                        <th>Reply</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.listFeedBack)
+                                    {
+                                        <tr class="job-tb">
+                                            <td>@item.pmdcNo </td>
+                                            <td>@item.comments</td>
+                                            <td>@item.reply</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

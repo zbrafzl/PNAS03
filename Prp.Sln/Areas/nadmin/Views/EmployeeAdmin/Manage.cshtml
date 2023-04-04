@@ -1,0 +1,165 @@
+﻿
+@{
+    ViewBag.Title = "Supervisor Manage";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.EmployeeModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var hospitalId = 0, parentId = 0;
+        $(document).ready(function () {
+
+            hospitalId = ConvertToInt($("#hfdHospitalId").val());
+            if (hospitalId > 0) {
+
+                $("#ddlHospital").val(hospitalId);
+
+            }
+
+            $(document).on('click', '#btnSearch', function () {
+                hospitalId = $("#ddlHospital").val();
+                window.location.href = "/admin/employee-manage?hospitalId=" + hospitalId;
+            });
+
+            $(document).on('click', '.ankDelete', function () {
+
+                try {
+
+                    if (confirm("are you sure to delete this record ?")) {
+
+                        var obj = {};
+                        obj.employeeId = ConvertToInt($(this).attr("id"));
+                        obj.hospitalId = ConvertToInt($(this).attr("hospitalId"));
+
+                        var respMsg = CallActionPost("/EmployeeAdmin/EmployeeDelete", obj);
+
+                        if (respMsg.status) {
+                            window.location.href = "/admin/employee-manage";
+                        }
+                        else {
+                            alert(respMsg.msg);
+                        }
+
+                    } else {
+
+                    }
+                } catch (e) {
+                    isOk = true;
+                }
+
+            });
+
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Supervisor Manage </h2>
+            <div class="panel_toolbox">
+                <a href="/admin/employee-setup" class="btn btn-info"> Add New</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        @Html.HiddenFor(m => m.hospitalId, new { @id = "hfdHospitalId" })
+        @if (Model.loggedInUser.typeId != 81)
+        {
+            <form class="form-horizontal form-label-left input_mask">
+                <div class="form-group col-lg-12">
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Hospital :</label>
+                        <select id="ddlHospital" name="ddlHospital" class="form-control">
+                            @if (Model != null && (Model.listHospital != null && Model.listHospital.Count > 0))
+                            {
+                                foreach (var u in Model.listHospital)
+                                {
+                                    <option value="@u.value"> @u.key </option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label style="width:100%;" for="heard">Search :</label>
+                        <input type="button" id="btnSearch" class="btn btn-success" value="Search">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ln_solid"></div>
+            </form>
+        }
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Name </th>
+                            @*<th class="column-title">Relation </th>*@
+                            <th class="column-title">Gender </th>
+                            <th class="column-title">Qualification </th>
+                            <th class="column-title">Designation </th>
+                            <th class="column-title">Programs </th>
+                            <th class="column-title">Cell No. </th>
+                            <th class="column-title">CNIC </th>
+                            <th class="column-title">City </th>
+                            <th class="column-title">Joining Date</th>
+                            <th class="column-title">Status </th>
+                            <th class="column-title">Trainee Attached </th>
+                            <th style="width:150px;">
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && (Model.list != null && Model.list.Count > 0))
+                        {
+                            foreach (var item in Model.list)
+                            {
+                                <tr>
+                                    <td>@item.name</td>
+                                    @*<td>@item.relation @item.relationName</td>*@
+                                    <td>@item.gender</td>
+                                    <td>@item.degree</td>
+                                    <td>@item.designation</td>
+                                    <td>@item.programs</td>
+                                    <td>@item.cellNo</td>
+                                    <td>@item.cnic</td>
+                                    <td>@item.district</td>
+                                    <td>@item.joiningDate.ToString("dd MMM yyyy")</td>
+                                    @if (item.isActive)
+                                    {
+                                        <td>Active</td>
+                                    }
+                                    else
+                                    {
+                                        <td>In-Active</td>
+                                    }
+                                    <td>@item.totalTrainee</td>
+                                    <td>
+
+                                        <a title="Edit Content" class="ank" href="@("/admin/employee-setup?id="+ item.employeeId)"><i class="fa fa-pencil-square-o"></i></a>
+                                        &nbsp;| &nbsp;
+                                        <a title="Specialization" class="ank" href="@("/admin/employee-specialization?employeeId="+ item.employeeId)"><i class="fa fa-sitemap"></i></a>
+                                        &nbsp;| &nbsp;
+                                        <a title="Experience" class="ank" href="@("/admin/employee-experience-manage?employeeId="+ item.employeeId)"><i class="fa fa-sitemap"></i></a>
+                                        @if (item.totalTrainee == 0)
+                                        {
+                                            <a id="@(item.employeeId)" hospitalId="@(item.hospitalId)" title="Delete" class="ank ankDelete" href="#">&nbsp;&nbsp; | &nbsp;&nbsp;<i class="fa fa-trash-o"></i></a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+

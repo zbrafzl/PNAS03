@@ -1,0 +1,155 @@
+﻿@{
+    ViewBag.Title = "Send Auto SMS";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.SMSModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0, counter = 0, count = 0;
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+            $("#ddlType").val(typeId);
+
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SendEmail();
+                }
+            });
+
+            $(document).on('click', '#btnSendEmail', function () {
+                SendEmail();
+            });
+
+
+            $(document).on('click', '#btnClear', function () {
+                $("#ddlType").val(0);
+
+                $("#divMsg").html("");
+                $("#divMsg").hide();
+            });
+
+        });
+
+
+
+
+        function SendEmail() {
+
+            count = 0;
+
+            typeId = ConvertToInt($("#ddlType").val());
+
+            if (typeId == 0) {
+                alert("Please select type");
+                return;
+            }
+            else {
+
+                count = StartEmailSendingProcess();
+
+                var sendEmailContinuous = setInterval(function () {
+
+                    count = StartEmailSendingProcess();
+
+                    if (count == 0) {
+                        clearInterval(sendEmailContinuous);
+                    }
+                }, 30000);//5000  // 1000 milliseconds = 1 second. // 30000 =  30 sec
+
+
+            }
+
+        }
+
+        function StartEmailSendingProcess() {
+
+
+            var resp = CallActionGet("/EmailAndSmsAmin/SendEmailByType?typeId=" + typeId);
+            if (resp != null) {
+
+                $("#divMsg").show();
+                counter = counter + 1;
+                var html = "";
+
+                count = ConvertToInt(resp.id);
+
+                if (count == 0) {
+                    var mesg = "  <span>  Step No.: (Last) " + counter + "    " + resp.message + "</span><br/>";
+                    html = mesg + $("#divMsg").html();
+                }
+                else {
+                    var mesg = "  <span>  Step No.: " + counter + "    " + resp.message + "</span><br/>";
+                    html = mesg + $("#divMsg").html();
+                }
+
+                $("#divMsg").html(html);
+
+            }
+            else {
+                count = 0;
+
+                $("#divMsg").show();
+                counter = counter + 1;
+                var mesg = "  <span>  Step No.: (Last) " + counter + "    " + resp.message + "</span><br/>";
+                var html = mesg + $("#divMsg").html();
+                $("#divMsg").html(html);
+
+            }
+
+            return count;
+
+        }
+
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Send Email By Type </h2>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            @Html.HiddenFor(m => m.typeId, new { @id = "hfdTypeId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Type :</label>
+                    <select id="ddlType" name="ddlType" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                        @if (Model != null && (Model.listType != null && Model.listType.Count > 0))
+                        {
+                            foreach (var u in Model.listType)
+                            {
+                                <option value="@u.id">@u.id - @u.name </option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+            <div class="item form-group">
+                <div class="col-md-3 col-sm-3 offset-md-3">
+                    <input type="button" class="btn btn-success" value="Send Email" id="btnSendEmail" />
+                </div>
+                <div class="col-md-3 col-sm-3 offset-md-3">
+                    <input type="button" class="btn btn-success" value="Clear" id="btnClear" />
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+            <div id="">
+                <div id="divMsg" class="alert alert-success alert-dismissible show" role="alert" style="clear:both; display:none;">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

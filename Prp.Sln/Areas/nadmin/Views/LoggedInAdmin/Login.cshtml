@@ -1,0 +1,142 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | PRP Admin</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/AdminScripts/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/AdminScripts/fonts/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/AdminScripts/css/animate.min.css" rel="stylesheet">
+    <!-- Custom styling plus plugins -->
+    <link href="/AdminScripts/css/custom.css" rel="stylesheet">
+    @*<link href="/AdminScripts/css/icheck/flat/green.css" rel="stylesheet">*@
+
+    <link href="/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link href="/vendors/animate.css/animate.min.css" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link href="/build/css/custom.min.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/Scripts/js/CommonFunctions.js"></script>
+    <style>
+        .btn-default {
+            background-color: #fff;
+            border-color: #ccc;
+        }
+    </style>
+    <script>
+
+        $(document).ready(function () {
+
+            $("#errorMessege").hide();
+
+            $("#btnLogin").click(function () {
+                LoggedInUserEvent();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    LoggedInUserEvent();
+                }
+            });
+        });
+
+        function LoggedInUserEvent() {
+            var isValid = true;
+
+            var userName = $("#txtUserName").val();
+            var password = $("#txtPassword").val();
+
+            if (userName == "")
+                isValid = false;
+
+            if (password == "")
+                isValid = false;
+
+            if (isValid == false)
+                return false;
+
+
+            var objLogin =
+            {
+                userName: userName,
+                password: password
+            }
+
+            console.log(objLogin);
+
+            var resp = CallActionPost("/LoggedInAdmin/LoggedInUser", objLogin);
+
+            console.log(resp);
+
+            if (resp != null) {
+                if (resp.status == false)
+                    $("#errorMessege").show();
+                else {
+
+                    $("#errorMessege").hide();
+
+                    window.location = "/admin/index";
+
+                }
+            }
+            else {
+                $("#errorMessege").show();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="">
+        <a class="hiddenanchor" id="toregister"></a>
+        <a class="hiddenanchor" id="tologin"></a>
+        <div class="login_wrapper">
+            <div id="login" class="animate form login_form">
+                <section class="login_content">
+                    <form>
+                        <h1>Login Form</h1>
+                        <div>
+                            <input id="txtUserName" type="text" name="UserName" class="form-control" placeholder="User Name" autofocus required="" />
+                        </div>
+                        <div>
+                            <input id="txtPassword" type="password" name="Password" class="form-control" placeholder="Password" required="" />
+                        </div>
+                        <div>
+                            <input id="btnLogin" type="button" class="btn btn-default submit" value="Log in" />
+                            <p id="errorMessege" style="display:none;">User Name or password is incorrect. Please try again.</p>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="separator">
+                            <div class="clearfix"></div>
+                            <br />
+                            <div>
+                                <h1> PNAS Applicant</h1>
+                                <p>©2019 All Rights Reserved. PHF</p>
+                            </div>
+                        </div>
+
+                    </form>
+                    <!-- form -->
+                </section>
+                <!-- content -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>

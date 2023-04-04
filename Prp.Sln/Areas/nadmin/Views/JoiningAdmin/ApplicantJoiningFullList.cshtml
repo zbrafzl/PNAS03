@@ -1,0 +1,294 @@
+﻿@{
+    ViewBag.Title = "Applicant Joining";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantJoiningAdminModel
+@section RenderCss{
+
+    <style>
+        .x_title span {
+            color: #7a6e6e !important;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0, perPageRecords = 50, pageNum = 1, totalCount = 0;
+        $(document).ready(function () {
+
+            GetAllSelectedApplicant();
+
+            $(document).on('click', '#btnSearch', function () {
+                GetAllSelectedApplicant();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    GetAllSelectedApplicant();
+                }
+            });
+
+            $(document).on('click', '.liPage', function () {
+
+                var id = ConvertToInt($(this).closest('li').attr("id"));
+
+                $(".liclick").removeClass("current");
+
+                var pageNo = id;// ConvertToInt($(this).val());
+
+                if (pageNo == 0) {
+
+                    if ($(this).attr("type") == "first") {
+
+                        pageNo = 1;
+                    }
+                    else
+                        if ($(this).attr("type") == "last") {
+
+                            var lastPage = Math.ceil(totalCount / perPageRecords);
+                            pageNo = lastPage;
+                        }
+                }
+                pageNum = pageNo;
+
+                GetAllSelectedApplicant();
+
+
+            });
+
+        });
+
+        function GetAllSelectedApplicant() {
+
+
+            var search = ConvertToString($("#txtSearch").val());
+            var joinTotal = 0, notJoinTotal = 0, total = 0;
+
+            var joinStatus = ConvertToInt($("#ddlStatus").val());
+
+            $("#ankPrint").hide();
+
+            var resp = CallActionGet("/JoiningAdmin/GetJoiningAll?top=" + perPageRecords + "&pageNo=" + pageNum
+                + "&joinStatus=" + joinStatus + "&search=" + search);
+            if (resp != null && resp.length > 0) {
+
+                debugger;
+
+                joinTotal = resp[0].joined;
+                notJoinTotal = resp[0].notJoined;
+
+                totalCount = resp[0].totalCountSet;
+
+                total = joinTotal + notJoinTotal;
+
+                var objItem = {};
+
+                var htmlTemp = $("#tbTempt").html();
+
+                $("#tbList").html(htmlAll);
+
+                var isJoin = "";
+
+                var htmlAll = "", htmlSingle = "";
+
+
+                for (var i = 0; i < resp.length; i++) {
+
+                    htmlSingle = htmlTemp;
+                    objItem = resp[i];
+
+
+                    isJoin = " ";
+                    if (objItem.joinStatus == 2)
+                        isJoin = "Not Joined";
+                    else if (objItem.joinStatus == 1) {
+                        isJoin = "Joined";
+                    }
+
+
+                    htmlAll = htmlAll + htmlSingle.replace(/{#typeName#}/g, objItem.typeName)
+                        .replace(/{#specialityName#}/g, objItem.specialityName)
+                        .replace(/{#name#}/g, objItem.name).replace(/{#fatherName#}/g, objItem.fatherName)
+                        .replace(/{#quotaName#}/g, objItem.quotaName).replace(/{#applicantId#}/g, objItem.applicantId)
+                        .replace(/{#emailId#}/g, objItem.emailId).replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                        .replace(/{#contactNumber#}/g, objItem.contactNumber)
+                        .replace(/{#marks#}/g, objItem.marks).replace(/{#hospitalName#}/g, objItem.hospitalName)
+                        .replace(/{#pic#}/g, objItem.pic).replace(/{#isJoin#}/g, isJoin)
+                        .replace(/{#joiningDate#}/g, objItem.dateJoining);
+                    
+                }
+
+                $("#tbList").html(htmlAll);
+
+                if (totalCount > 0)
+                    CreatePaginationHtml(perPageRecords, totalCount, pageNum);
+            }
+
+
+            $(".spnTotal").html(total);
+            $(".spnTotalJoin").html(joinTotal);
+
+        }
+
+
+        function ShowingRowsText(perPageRecords, count, pageNum) {
+
+            var rcordsNow = pageNum * perPageRecords;
+            var startRecords = rcordsNow - perPageRecords;
+            if (rcordsNow > count)
+                rcordsNow = count;
+
+            startRecords = startRecords + 1;
+            $("#divShowingResult").html("Showing " + startRecords + " to " + rcordsNow + " of " + count + " entries");
+
+
+        }
+
+        function CreatePaginationHtml(perPageRecords, count, pageNum) {
+
+
+
+            try {
+
+                ShowingRowsText(perPageRecords, count, pageNum);
+                $("#divPagination").show();
+
+                var htmlPagination = $("#templatePagination").html();
+                var pageStart = 1, pageEnd = 5;
+                var lastPage = Math.ceil(count / perPageRecords);
+
+                if (pageNum > 3) {
+                    pageStart = pageNum - 2;
+                    pageEnd = pageNum + 2;
+                }
+
+                if (pageEnd > lastPage)
+                    pageEnd = lastPage;
+
+                var lisHtml = "";
+                for (var i = pageStart; i <= pageEnd; i++) {
+                    lisHtml = lisHtml + "<li class='liPage' id='" + i + "'> " + i + "</li>";
+                }
+                htmlPagination = htmlPagination.replace(/{#lastPage#}/g, lastPage).replace(/{#Pagination#}/g, lisHtml);
+                $(".list_pagination").html(htmlPagination);
+
+                $("#" + pageNum).addClass("current");
+
+
+
+            } catch (e) {
+                $("#liPagination").hide();
+            }
+        }
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Applicant List </h2>
+            <div class="panel_toolbox">
+                <h2>Total applicant : <span class="spnTotal"> </span>  &nbsp;&nbsp;&nbsp;</h2>
+                <h2>Give Joinig : <span class="spnTotalJoin"> </span>  &nbsp;&nbsp;&nbsp;</h2>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_title">
+            <div class="form-group col-lg-12">
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <select id="ddlStatus" class="form-control">
+                        <option selected="selected" value="0"> Both </option>
+                        <option value="1"> Joined </option>
+                        <option value="2"> Not Joined </option>
+                    </select>
+                </div>
+                <div class="col-md-5 col-sm-5 col-xs-5">
+                    <input type="text" id="txtSearch" placeholder="Search By Program/Speciality/Quota/Applicant Name, PMDC No" class="form-control input-sm txt">
+                </div>
+                <div class="col-md-1 col-sm-1 col-xs-1">
+                    <input type="button" id="btnSearch" class="btn btn-success" value="Search">
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Image </th>
+                            <th class="column-title">Form No. </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Father Name </th>
+                            <th class="column-title">PMDC No </th>
+                            <th class="column-title">EmailId </th>
+                            <th class="column-title">Contact Number </th>
+                            <th class="column-title">Marks</th>
+                            <th class="column-title">Hospital/Institute </th>
+                            <th class="column-title">Program </th>
+                            <th class="column-title">Speciality </th>
+                            <th class="column-title">Quota </th>
+                            <th class="column-title">Joining Status </th>
+                            <th class="column-title">Joining Date </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbList">
+                    </tbody>
+                </table>
+
+                <div id="divPagination" style="display:none;">
+                    <div id="msgPagination" class="col-md-4">
+                        <div class="dataTables_info" id="divShowingResult">
+                            Showing
+                            <span id="shStart"> </span> to <span id="shEnd"> </span> of <span id="shTotal"></span>
+                            entries
+                        </div>
+                    </div>
+                    <div id="liPagination" class="col-md-8">
+                        <ul class="list_pagination">
+                        </ul>
+                    </div>
+                    <ul id="templatePagination" style="display:none;">
+                        <li class='liPage' id='0' type="first"> First Page</li>
+                        {#Pagination#}
+                        <li class='liPage' id='0' type="last"> Last Page</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+    <table>
+        <tbody id="tbTempt">
+            <tr>
+                <td>
+                    <a class="ank" href="/images/Applicant/{#applicantId#}/{#pic#}" target="_blank" title="Click to view">
+                        <img class="imgView" src="/images/Applicant/{#applicantId#}/{#pic#}" style="width: 30px; height: 20px; vertical-align: middle;" />
+                    </a>
+                </td>
+                <td>{#applicantId#}</td>
+                <td>{#name#}</td>
+                <td>{#fatherName#}</td>
+                <td>{#pmdcNo#}</td>
+                <td>{#emailId#}</td>
+                <td>{#contactNumber#}</td>
+                <td>{#marks#}</td>
+                <td>{#hospitalName#}</td>
+                <td>{#typeName#}</td>
+                <td>{#specialityName#}</td>
+                <td>{#quotaName#}</td>
+                <td>{#isJoin#}</td>
+                <td>{#joiningDate#}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

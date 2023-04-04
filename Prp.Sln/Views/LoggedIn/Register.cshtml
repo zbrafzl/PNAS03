@@ -1,0 +1,672 @@
+﻿@{
+    ViewBag.Title = "Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.RegistrationModel
+@section RenderCss{
+    <link href="~/Content/ladda-themeless.min.css" rel="stylesheet" />
+}
+@section RenderScript{
+
+    <script src="~/Scripts/spin.min.js"></script>
+    <script src="~/Scripts/ladda.min.js"></script>
+    <script>
+
+        var objApplicant = {};
+
+        $(document).ready(function () {
+
+
+            $('#txtContactNumber.prefix').keyup(function () {
+                var prefix = '03';
+                if (!(this.value.match('^03'))) {
+                    this.value = prefix;
+                }
+            });
+
+            $('#txtContactNumber.prefix').blur(function () {
+                var prefix = '03';
+                if (!(this.value.match('^03'))) {
+                    this.value = prefix;
+                }
+            });
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+            //Ladda.bind('.ladda-button');
+            //Ladda.bind('input[type=submit]');
+            var i = 0;
+            $("#btnRegister").click(function (e) {
+                //$('#btnRegister').prop('disabled', true);
+                $("#divError").css("display", "none");
+                i = i + 1;
+                console.log(i);
+                //e.preventDefault();
+                //var l = Ladda.create(this);
+                //l.start();
+                RegisterApplicant();
+                return false;
+                //Ladda.stopAll();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    //$('#btnRegister').prop('disabled', true);
+                    $("#divError").css("display", "none");
+                    //i = i + 1;
+                    //console.log(i);
+                    //event.preventDefault();
+                    //var l = Ladda.create(event);
+                    //l.start();
+                    RegisterApplicant();
+                    //return false;
+                    //Ladda.stopAll();
+                }
+            });
+
+            $(document).on('change', '#ddlFaculty', function () {
+
+                FacultyChangeEvent();
+
+            });
+
+            $(document).on('change', '#ddlGender', function () {
+
+                GenderChangeEvent();
+                $('#ddlFaculty option:selected').prop("selected", false)
+
+            });
+
+            $(document).on('change', '#ddlLevel', function () {
+
+                LevelChangeEvent();
+
+            });
+            $("#ddlLevel").children("option[value^=13]").hide();
+
+        });
+
+
+        function SaveAndProceed() {
+
+            var isError = false;
+            if (isError == false) {
+
+                //var r = confirm("Please confirm that the marks entered in both Obtained Marks and Total Marks are inclusive of islamiyat and Pak Studies Marks.");
+
+                if (r == true) {
+
+                    //alert('hello');
+                }
+            }
+
+        }
+
+
+        function FacultyChangeEvent() {
+
+            var facultyId = ConvertToInt($("#ddlFaculty").val());
+            if (facultyId == 12) {
+                var selectedLevelId = ConvertToInt($("#ddlFaculty").val());
+                if (selectedLevelId != 0) {
+                    $('#ddlLevel option:selected').prop("selected", false)
+                }
+                $("#ddlLevel").children("option[value^=11]").hide();
+                $("#ddlLevel").children("option[value^=13]").hide();
+                $("#ddlLevel").children("option[value^=12]").show();
+                $("#pncNumber").show();
+            }
+            else if (facultyId == 13) {
+                var selectedLevelId = ConvertToInt($("#ddlFaculty").val());
+                if (selectedLevelId != 0) {
+                    $('#ddlLevel option:selected').prop("selected", false)
+                }
+                $("#pncNumber").hide();
+                if ($("#ddlGender").val() == 1) {
+                    $("#ddlLevel").children("option[value^=11]").hide();
+                    $("#ddlLevel").children("option[value^=12]").hide();
+                    $("#ddlLevel").children("option[value^=13]").show();
+                }
+                else {
+                    $("#ddlLevel").children("option[value^=11]").hide();
+                    $("#ddlLevel").children("option[value^=12]").hide();
+                    $("#ddlLevel").children("option[value^=13]").hide();
+                }
+
+            }
+            else if (facultyId == 11) {
+                var selectedLevelId = ConvertToInt($("#ddlFaculty").val());
+                if (selectedLevelId != 0) {
+                    $('#ddlLevel option:selected').prop("selected", false)
+                }
+                $("#ddlLevel").children("option[value^=11]").show();
+                $("#ddlLevel").children("option[value^=12]").show();
+                $("#ddlLevel").children("option[value^=13]").hide();
+                $("#pncNumber").show();
+            }
+
+        }
+
+        function GenderChangeEvent() {
+            //alert($("#ddlGender").val());
+            $('#ddlFaculty option:selected').prop("selected", false)
+            $('#ddlLevel option:selected').prop("selected", false)
+            if ($("#ddlGender").val() == 1) {
+                $("#ddlFaculty").children("option[value^=11]").show();
+                $("#ddlFaculty").children("option[value^=12]").show();
+                $("#ddlFaculty").children("option[value^=13]").show();
+                $("#ddlLevel").children("option[value^=11]").show();
+                $("#ddlLevel").children("option[value^=12]").show();
+                $("#ddlLevel").children("option[value^=13]").hide();
+                $("#ddlFaculty").children("option[value^=11]").text('Gen Nursing (03 yrs) & Specialization');
+            }
+            else {
+                $("#ddlLevel").children("option[value^=11]").show();
+                $("#ddlLevel").children("option[value^=12]").show();
+                $("#ddlLevel").children("option[value^=13]").hide();
+                $("#ddlFaculty").children("option[value^=11]").show();
+                $("#ddlFaculty").children("option[value^=12]").show();
+                $("#ddlFaculty").children("option[value^=13]").hide();
+                $("#ddlFaculty").children("option[value^=11]").text('Gen Nursing (03 yrs) & Midwifery');
+            }
+
+        }
+
+        function LevelChangeEvent() {
+            if ($("#ddlLevel").val() == 13) {
+                $("#pncNumber").hide();
+            }
+            else {
+                $("#pncNumber").show();
+            }
+
+        }
+
+        function RegisterApplicant() {
+
+            //alert('1');
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+
+                if (ValidateForm() == false) {
+
+                    //if (IsExistPMDC() == true) {
+                    //    isError = true;
+                    //    errorMsg = "<li>This PMDC No already exists. Please try another.</li>";
+                    //    $('#btnRegister').prop("disabled", false);
+                    //    $('#btnRegister').prop("data-loading", false);
+                    //    //$("#btnRegister.ladda-spinner").css("display", "none");
+                    //}
+
+                    if (IsExistEmail() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>This emaild  already exists. Please try another.</li>";
+                        $('#btnRegister').prop("disabled", false);
+                        $('#btnRegister').prop("data-loading", false);
+                        //$("#btnRegister.ladda-spinner").css("display", "none");
+                    }
+
+                    if (noPreferenceSelected() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>Please select one preference</li>";
+                        $('#btnRegister').prop("disabled", false);
+                        $('#btnRegister').prop("data-loading", false);
+                        //$("#btnRegister.ladda-spinner").css("display", "none");
+                    }
+
+                    if (isError == false) {
+
+                        var resp = CallActionPost("/LoggedIn/ApplicantRegistration", objApplicant)
+                        if (resp != null && resp.status == true) {
+                            $("#divError").hide();
+                            $("#spnMsg").html("");
+                            window.location = "/register-complete";
+                        }
+                        else {
+                            $("#divError").show();
+                            $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                            $('#btnRegister').prop("disabled", false);
+                            $('#btnRegister').prop("data-loading", false);
+                            //$("#btnRegister.ladda-spinner").css("display", "none");
+                        }
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html(errorMsg);
+                        $('#btnRegister').prop("disabled", false);
+                        $('#btnRegister').prop("data-loading", false);
+                        //$("#btnRegister.ladda-spinner").css("display", "none");
+                    }
+                }
+
+            } catch (e) {
+
+            }
+        }
+
+        function ValidateForm() {
+
+            //alert('2');
+            $(".req-fld").removeClass("req-fld");
+
+
+            $("#divError").hide();
+            $("#idErrorMsg").html("");
+
+            var isError = false, ctrl = "", errorMessage = "";
+            objApplicant = {};
+
+            objApplicant.name = $("#txtName").val();
+            objApplicant.pmdcNo = $("#txtPMDCNo").val();
+            objApplicant.emailId = $("#txtEmail").val().toLowerCase();
+            objApplicant.password = $("#txtPassword").val();
+
+            var passwordConfirm = $("#txtPasswordConfirm").val();
+
+            objApplicant.contactNumber = $("#txtContactNumber").val();
+
+            objApplicant.network = 1;
+            objApplicant.genderID = ConvertToInt($("#ddlGender").val());
+            objApplicant.levelId = ConvertToInt($("#ddlLevel").val());
+            objApplicant.facultyId = ConvertToInt($("#ddlFaculty").val());
+            objApplicant.network = 1;
+            objApplicant.pic = "";
+
+            var isAcknowledge = $("#chkAcknowledge").is(':checked');
+
+
+
+            if (objApplicant.name == "") {
+                $("#txtName").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtName";
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+            else if (objApplicant.name.length < 3) {
+
+                isError = true;
+                $("#txtName").addClass("req-fld");
+                errorMessage = errorMessage + "<li>Please enter valid name</li>"
+                if (ctrl == "")
+                    ctrl = "txtName";
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+
+
+
+            if (objApplicant.contactNumber == "") {
+                $("#txtContactNumber").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtContactNumber";
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+            else if (objApplicant.contactNumber.length < 11) {
+
+                isError = true;
+                $("#txtContactNumber").addClass("req-fld");
+                errorMessage = errorMessage + "<li>Please enter valid contact no</li>"
+                if (ctrl == "")
+                    ctrl = "txtContactNumber";
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+
+            if (objApplicant.emailId == "") {
+                $("#txtEmail").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtEmail";
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+            else {
+
+                if (ValidateEmail(objApplicant.emailId) == false) {
+                    isError = true;
+                    errorMessage = errorMessage + "<li>Invalid email id. Please enter valid email id</li>";
+                    $('#btnRegister').prop("disabled", false);
+                    $('#btnRegister').prop("data-loading", false);
+                    //$("#btnRegister.ladda-spinner").css("display", "none");
+                    //Ladda.stopAll();
+                }
+            }
+
+
+            if (objApplicant.password == "") {
+                $("#txtPassword").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPassword";
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+            if (passwordConfirm == "") {
+
+                $("#txtPasswordConfirm").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPasswordConfirm";
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+
+            if (objApplicant.password.length > 0 && passwordConfirm.length > 0) {
+
+                if (objApplicant.password != passwordConfirm) {
+                    isError = true;
+                    errorMessage = errorMessage + "<li>Password not matched.</li>"
+                }
+                else if (objApplicant.password.length < 6) {
+
+                    isError = true;
+                    $("#txtPassword").addClass("req-fld");
+                    errorMessage = errorMessage + "<li>Password must be equal or greater then 6 digits.</li>"
+                    if (ctrl == "")
+                        ctrl = "txtPassword";
+                    $('#btnRegister').prop("disabled", false);
+                    $('#btnRegister').prop("data-loading", false);
+                    //$("#btnRegister.ladda-spinner").css("display", "none");
+                    //Ladda.stopAll();
+                }
+
+            }
+
+            if (isAcknowledge == false) {
+                isError = true;
+                errorMessage = errorMessage + "<li>Please acknowledge term and condition.</li>";
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            if (errorMessage.length > 0) {
+                $("#divError").show();
+                $("#idErrorMsg").html(errorMessage);
+                $('#btnRegister').prop("disabled", false);
+                $('#btnRegister').prop("data-loading", false);
+                //$("#btnRegister.ladda-spinner").css("display", "none");
+                //Ladda.stopAll();
+            }
+
+            return isError;
+
+        }
+
+        function IsExistPMDC() {
+
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+                obj.id = 0;
+                obj.search = $("#txtPMDCNo").val();
+                obj.condition = "PMDCNO";
+
+                if ($("#ddlLevel").val() == 13) {
+                    isExist = false;
+                }
+                else {
+                    var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj.search)
+                    if (resp != null && resp.id > 0) {
+                        isExist = true;
+                    } else {
+                        isExist = false;
+                    }
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+
+        function noPreferenceSelected() {
+            var preferenceId = ConvertToInt($("#ddlLevel").val());
+            if (preferenceId == 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+
+        }
+
+        function IsExistEmail() {
+
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+                obj.id = 0;
+                obj.search = $("#txtEmail").val();
+                obj.condition = "emailId";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+    </script>
+    @*<script>
+        Ladda.bind('button', {
+            callback: function (instance) {
+                var progress = 0;
+                var interval = setInterval(function () {
+                    progress = Math.min(progress + Math.random() * 0.1, 1);
+                    instance.setProgress(progress);
+
+                    if (progress === 1) {
+                        instance.stop();
+                        clearInterval(interval);
+                    }
+                }, 200);
+            }
+        });
+    </script>*@
+}
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Terms and Conditions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                All admissions will be made strictly & purely on 100% merit base and in accordance with approved Admission Policy of the Government of the Punjab through centralized / online system.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<button class="ladda-button" data-color="mint" data-style="expand-right" data-size="xl">Submit</button>*@
+
+<div class="container content">
+    <div class="row main">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal">
+                    <h3 class="heading">Register with Punjab Nursing Admission System </h3>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 30px !important; padding-right: 30px !important;"><i class="fa fa-user fa" aria-hidden="true"></i>Full Name</span>
+                                <input type="text" class="form-control" maxlength="45" required="required" name="txtName" id="txtName" placeholder="Full Name as per CNIC">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 40px !important; padding-right: 40px !important;"><i class="fa fa-genderless fa" aria-hidden="true"></i> Gender</span>
+                                <select required="required" name="ddlGender" id="ddlGender" class="form-control" tabindex="4">
+                                    @*<option selected="selected" value="1">Male</option>*@
+                                    <option value="2">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 31px !important; padding-right: 31px !important;"><i class="fa fa-phone " aria-hidden="true"></i> Mobile No. </span>
+                                <input type="text" class="form-control numeric prefix" name="txtContactNumber" value="03" required="required" len="11" maxlength="11" id="txtContactNumber">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 20px !important; padding-right: 20px !important;"><i class="fa fa-graduation-cap fa" aria-hidden="true"></i> Qualification</span>
+                                <select id="ddlFaculty" name="ddlFaculty" class="form-control">
+                                    @*<option value="1" selected="selected"> MBBS</option>
+                                        <option value="2"> BDS</option>*@
+                                    @*<option value="11"> Gen Nursing (03 yrs) & Specialization</option>
+                                        <option value="12"> BSN Generic</option>*@
+                                    <option value="13"> FSc</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 25px !important; padding-right: 25px !important;"><i class="fa fa-line-chart fa" aria-hidden="true"></i> Applying for</span>
+                                <select id="ddlLevel" name="ddlLevel" class="form-control">
+                                    @*<option value="3" selected="selected"> Level 3 Year-1</option>*@
+                                    @*<option value="0"> Choose your preference </option>
+                                        <option value="11"> Post RN BSc Nursing (2 years Degree Program)</option>
+                                        <option value="12"> 1 year Post Basic specialization diploma</option>*@
+                                    <option value="13"> BSN Generic (4 Years Degree Program)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 16px !important; padding-right: 17px !important;"><i class="fa fa-envelope fa" aria-hidden="true"></i> Email Address</span>
+                                <input class="form-control" type="email" required="required" maxlength="100" name="txtEmail" id="txtEmail" placeholder="Email">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pncNumber" class="col-sm-12" hidden="hidden">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 30px !important; padding-right: 30px !important;"><i class="fa fa-user fa" aria-hidden="true"></i> PNC No.</span>
+                                <input type="text" class="form-control" required="required" maxlength="11" name="txtPMDCNo" id="txtPMDCNo" placeholder="A-000000">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 35px !important; padding-right: 35px !important;"><i class="fa fa-lock" aria-hidden="true"></i> Password</span>
+                                <input type="password" class="form-control" required="required" maxlength="15" name="txtPassword" id="txtPassword" placeholder="Password (min 6 character )">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 10px !important; padding-right: 10px !important;"><i class="fa fa-lock" aria-hidden="true"></i> Retype Password</span>
+                                <input type="password" class="form-control" required="required" maxlength="15" name="txtPasswordConfirm" id="txtPasswordConfirm" placeholder="Re-Password (min 6 character )">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <label class="checkbox-inline" for="chkAcknowledge">
+                                    <input type="checkbox" name="acknowledge" id="chkAcknowledge" value="1" required="required">
+                                    I agree with the Punjab Nursing Admission System <a data-toggle="modal" href="#exampleModal">Terms and Conditions</a>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 ">
+                        <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                            <div class="col-sm-3">
+                            </div>
+                            <div class="col-sm-6">
+                                <button id="btnRegister" class="btn btn-app ladda-button" data-style="expand-right" data-size="xl" style="width:100%;">Register</button>
+                                @*<input id="btnRegister" type="button" class="btn btn-app ladda-button" data-style="expand-right" value="Register" style="width:100%;" />*@
+                            </div>
+                            <div class="col-sm-3">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 ">
+
+                    </div>
+
+                    <div id="divError" class="col-sm-12" style=" display:none;">
+                        <div class="panel panel-danger">
+                            <div class="panel-heading">
+                                <label class="text-center">
+                                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                    <ul id="idErrorMsg" class="ul-err">
+                                    </ul>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

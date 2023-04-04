@@ -1,0 +1,84 @@
+﻿@{
+    ViewBag.Title = "ApplicationListView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantApprovalStatusModel
+@section RenderCss{
+
+}
+
+@section RenderScript{
+
+    <script>
+        var applicantId = 0;
+        $(document).ready(function () {
+
+        });
+
+    </script>
+}
+
+
+<div class="container content">
+    <div class="row main">
+        @Html.Partial("_ApplicantLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal">
+                    <h3 class="text-center">Application Status</h3>
+                    <hr class="colorgraph">
+                    <div class="row" style="padding:0px 20px;">
+                        <fieldset>
+                            <legend>
+                                <label class="checkbox-inline" for="chkConfirm">
+                                    Submission
+                                </label>
+                            </legend>
+                            <div class="row col-md-12  ">
+                                <div class="col-md-12">
+                                    <p>
+                                        Congratulation! your application submitted successfully.
+                                    </p>
+                                </div>
+                            </div>
+                        </fieldset>
+                        @if (Model.listStatus != null && Model.listStatus.Count > 0)
+                        {
+                            foreach (var item in Model.listStatus)
+                            {
+                                <fieldset>
+                                    <legend>
+                                        <label class="checkbox-inline" for="chkConfirm">
+                                            @item.approvalStatusType
+                                        </label>
+                                    </legend>
+                                    <div class="row col-md-12  ">
+                                        <div class="col-md-12">
+                                            <p>
+                                                @item.approvalStatus
+                                            </p>
+                                            <p>
+                                                @item.statusMessage
+                                            </p>
+                                            @if (item.approvalStatusId == 2)
+                                            {
+                                                <p> Reason's of rejection  </p>
+
+                                                <p>
+                                                    @item.comments
+                                                </p>
+                                            }
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            }
+
+                        }
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

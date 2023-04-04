@@ -1,0 +1,111 @@
+﻿@{
+    ViewBag.Title = "Grievance Gazzette";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.GrievanceModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+        @Html.Partial("_ApplicantLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <div class="col-sm-12">
+                    <h3 class="text-center">
+                        Grievance Application
+                    </h3>
+                    <div class="col-sm-12">
+                        <hr>
+                        <p>
+                            <b>Note:</b><br />  i.  Apply online to appear before the grievance committee.
+                            <br />ii. Please bring print out of online application along with you.
+                        </p><hr>
+                    </div>
+                    <hr class="colorgraph">
+                </div>
+                @if (Model.grievance.grievanceId > 0)
+                {
+                    <div class="row">
+                        <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                            <div class="col-sm-4">
+                            </div>
+                            <div class="col-sm-4">
+                                <a href="/print/grievance-gazzette" target="_blank" class="btn btn-app animated-button" style="width:100%;">Download/Print</a>
+                            </div>
+                            <div class="col-sm-4">
+                            </div>
+                        </div>
+                    </div>
+                }
+                @using (Html.BeginForm("SaveGrievanceData", "Feedbacks", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+                {
+                    <form class="form-horizontal">
+                        @Html.HiddenFor(m => m.grievance.grievanceId, new { @id = "hfdId" })
+                        @Html.HiddenFor(m => m.grievance.typeId, new { @id = "hfdTypeId" })
+                        @Html.HiddenFor(m => m.grievance.verficationTypeId, new { @id = "hfdVerficationTypeId" })
+                        @Html.HiddenFor(m => m.grievance.checkListIds, new { @id = "hfdCheckListIds" })
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label>To <span class="sprq">*</span></label>
+                                    <input type="text" id="txtTo" class="form-control" value="The Chairman Grievances Committee Punjab Residency Program" disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label>Subject <span class="sprq">*</span></label>
+                                    @Html.TextBoxFor(model => model.grievance.title, new { @class = "form-control", @required = "required", @id = "txtTitle", @tabindex = "1" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label> Application <span class="sprq">*</span></label>
+                                    @Html.TextAreaFor(model => model.grievance.detail, new { @class = "form-control", @required = "required", @rows = "15", @id = "txtDetail", @tabindex = "2" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                                <div class="col-sm-4">
+                                </div>
+                                <div class="col-sm-4">
+                                    <button type="submit" class="btn btn-app animated-button" style="width:100%">Apply</button>
+                                </div>
+                                <div class="col-sm-4">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="divError" class="col-sm-12" style=" display:none;">
+                            <div id="divMsg" class="panel panel-danger">
+                                <div class="panel-heading">
+                                    <label class="text-center">
+                                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                        <ul id="idErrorMsg" class="ul-err">
+                                        </ul>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

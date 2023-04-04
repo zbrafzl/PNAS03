@@ -1,0 +1,111 @@
+﻿@{
+    ViewBag.Title = "Journal Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.JournalModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+        var regionId = 0;
+        $(document).ready(function () {
+
+            regionId = $("#hfdRegionId").val();
+
+            $("#ddlCountry").val(regionId);
+
+            $('#ddlCountry').trigger("chosen:updated");
+
+            $(document).on('change', '#ddlCountry', function () {
+                var regionId = $(this).val();
+                $("#hfdRegionId").val(regionId);
+            });
+
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Journal Setup </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/research-journal-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                @using (Html.BeginForm("SaveJournalData", "JournalAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                        @Html.HiddenFor(m => m.journal.researchJournalId, new { @id = "hfdResearchJournalId" })
+                        @Html.HiddenFor(m => m.journal.regionId, new { @id = "hfdRegionId" })
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard"> Country *:</label>
+                                <select id="ddlCountry" name="ddlCountry" class="form-control  chosen-select" tabindex="1">
+                                    <option value="0" selected="selected">None </option>
+                                    @if (Model != null && (Model.listRegion != null && Model.listRegion.Count > 0))
+                                    {
+                                        foreach (var u in Model.listRegion)
+                                        {
+                                            <option value="@u.id"> @u.value </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Type *:</label>
+                                @Html.DropDownListFor(a => a.journal.typeId, new SelectList(Model.listType, "id", "value"), "Select One", new { @class = "form-control", @required = "required", @id = "ddlType", @tabindex = "2" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Batch *:</label>
+                                @Html.DropDownListFor(a => a.journal.batchId, new SelectList(Model.listBatch, "id", "value"), "Select One", new { @class = "form-control", @required = "required", @id = "ddlBatch", @tabindex = "3" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Discipline *:</label>
+                                @Html.DropDownListFor(a => a.journal.displineId, new SelectList(Model.listDiscipline, "id", "value"), "Select One", new { @class = "form-control", @required = "required", @id = "ddlDispline", @tabindex = "4" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-10 col-sm-10 col-xs-10">
+                                <label for="heard">Name *:</label>
+                                @Html.TextBoxFor(a => a.journal.name, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "5" })
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard">Abbr *:</label>
+                                @Html.TextBoxFor(a => a.journal.code, new { @class = "form-control", @required = "required", @id = "txtCode", @tabindex = "6" })
+                            </div>
+
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-10 col-sm-10 col-xs-10">
+                                <label for="heard">Url *:</label>
+                                @Html.TextBoxFor(a => a.journal.url, new { @class = "form-control", @required = "required", @id = "txtUrl", @tabindex = "7" })
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard">Status :</label>
+                                @Html.CheckBoxFor(a => a.journal.isActive, new { @class = "form-control", @id = "chkActive", @tabindex = "8" })
+                            </div>
+
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success" tabindex="9">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

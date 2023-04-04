@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.HomeModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+}
+<div class="container">
+    <div class="row">
+        <div id="wrapper">
+            <div class="col-md-12">
+                <div class="landingWarp">
+                    <div class="accordion-container">
+                        <div class="set">
+                            <a href="javascript:void(0)" class="active">
+                                Instructions to Apply
+                                <i class="fa fa-minus"></i>
+                            </a>
+                            <div class="content" style="display: block;">
+                                <p> <i class="fa fa-check" aria-hidden="true"></i> Please read user manual for registration. <a href="https://health.punjab.gov.pk/" target="_blank">Click Here</a> </p>
+                            </div>
+                        </div>
+                        <div class="set">
+                            <a href="javascript:void(0)">
+                                Warning
+                                <i class="fa fa-plus"></i>
+                            </a>
+                            <div class="content" style="display: none;">
+                                <p>
+                                    The information given in the application form and Scans of original documents shall be verified at three (03) stages;
+                                </p>
+                                <p>
+                                    1. &nbsp;&nbsp;During Application Processing<br />
+                                    2. &nbsp;&nbsp;Time of Acceptance by the Teaching Institution.<br />
+                                    3. &nbsp;&nbsp;During the Training<br />
+                                </p>
+                                <p><span style="color:#ff0000; font-size:14px;"><b>A disciplinary action will be initiated if any of the documents uploaded/attached/submitted found fake/incorrect forged.</b></span></p>
+                            </div>
+                        </div>
+                        <div class="set">
+                            <a href="javascript:void(0)">
+                                Eligibility/Pre-Qualifications
+                                <i class="fa fa-plus"></i>
+                            </a>
+                            <div class="content">
+                                @*<p><i class="fa fa-check" aria-hidden="true"></i> MBBS/BDS Degree.</p>
+        <p><i class="fa fa-check" aria-hidden="true"></i>Certificate of Completion of 12 months of House Job.</p>
+        <p><i class="fa fa-check" aria-hidden="true"></i>PMDC Registration for Pakistani Graduates /License to practice by relevant bodies for foreign graduates.</p>
+        <p><i class="fa fa-check" aria-hidden="true"></i>Result of passing PART-I Examination of FCPS/MD/MS within last 03 years.</p>*@
+                                <p><i class="fa fa-check" aria-hidden="true"></i> Matric With Science (Physics, Chemistry & Biology as Compulsory Subjects)</p>
+                                <p><i class="fa fa-check" aria-hidden="true"></i>F.Sc (Pre-Medical) With Minimum 50% Marks </p>
+                                <p><i class="fa fa-check" aria-hidden="true"></i>Domicile of Punjab</p>
+                                <p><i class="fa fa-check" aria-hidden="true"></i>Gender: Only Female </p>
+                                <p><i class="fa fa-check" aria-hidden="true"></i>The Maximum Age Limit is 35 Years </p>
+                                <p><i class="fa fa-check" aria-hidden="true"></i>Marital Status: Un-Married </p>
+                            </div>
+                        </div>
+                        <div class="set">
+                            <a href="javascript:void(0)">
+                                Attachments
+                                <i class="fa fa-plus"></i>
+                            </a>
+                            <div class="content">
+                                <p>
+                                    Always submit Scans(jpg) of following original documents.
+                                    <br />  <br />
+                                    1.	Both Sides of valid NID Card. <br />
+                                    2.	Domicile Certificate. <br />
+                                    3.	MBBS Degree. <br />
+                                    4.	Certificate by University/Principal showing Marks obtained, total marks andattempts of all university examinations. <br />
+                                    5.	House Job Certificate.<br />
+                                    6.	Valid PM&DC Registration Certification.<br />
+                                    7.	CPSP/University Part-I Result Card of within 03 years.<br />
+                                    8.	Job Experience Certificate in Public primary and secondary (Non-Teaching Hospitals) and tertiary Healthcare facilities. Shortage of even one day not allowed to complete a year.<br />
+                                    9.	University Certificate showing distinction in each/any subject of university examination.<br />
+                                    10.	Published Papers (up to 02 papers) in National and International Impact factor Journals will be accepted.<br />
+                                    11.	The Foreign Graduates must also summit PDF Scan of PM&DC Equivalence Examination Result Card.<br />
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 text-center">
+                        <a class="btn mybtn animated-button" href="/applicant-profile-create">Continue Your Application Process <i class="fa fa-edit"> </i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-10 col-md-offset-1">
+                <div style="margin-top:10px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

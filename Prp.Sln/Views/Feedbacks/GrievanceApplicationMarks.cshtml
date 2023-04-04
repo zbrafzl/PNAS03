@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "Grievance Application Marks";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.GrievanceModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            $("#hfdTypeId").val(6);
+            $("#hfdSubject").val("Gazat marks");
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+        @Html.Partial("_ApplicantLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <h3 class="heading">Grievance Application - Gazette Marks </h3>
+                <hr class="colorgraph">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>
+                            Important Notice: All the candidates of PRP (August-2020 Admission) are informed that meeting of Grievances Committee is going to be held w.e.f 28-09-2020 to 30-09-2020 (9:00 am to 11:00 am) at KEMU, Lahore.<br />
+                            The following will be observed:<br />
+                            1.	All the issues will be considered according to prevailing rules and policies.<br />
+                            2.	The candidates, who have genuine issues related to their marks in the Gazette, may appear before the committee with solid evidence.<br />
+                            3.	It is informed that only the amendment in applicants’ data will be allowed after due scrutiny.
+                        </h5>
+                    </div>
+                </div>
+
+                @if ((Model.grievance == null || Model.grievance.grievanceId == 0) || (Model.grievanceId > 0 && Model.isEditAble == true))
+                {
+                    using (Html.BeginForm("SaveGrievanceData", "Feedbacks", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+                    {
+                        <form class="form-horizontal" style="display:none;">
+                            @Html.HiddenFor(m => m.grievance.grievanceId, new { @id = "hfdId" })
+                            @Html.HiddenFor(m => m.grievance.grievanceTypeId, new { @id = "hfdTypeId" })
+                            @Html.HiddenFor(m => m.grievance.subject, new { @id = "hfdSubject" })
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label> Application <span class="sprq">*</span></label>
+                                        @Html.TextAreaFor(model => model.grievance.application, new { @class = "form-control", @required = "required", @rows = "15", @id = "txtComments", @tabindex = "2" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                                    <div class="col-sm-4">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button type="submit" class="btn btn-app animated-button" style="width:100%">Apply</button>
+                                    </div>
+                                    <div class="col-sm-4">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divError" class="col-sm-12" style=" display:none;">
+                                <div id="divMsg" class="panel panel-danger">
+                                    <div class="panel-heading">
+                                        <label class="text-center">
+                                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                            <ul id="idErrorMsg" class="ul-err">
+                                            </ul>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                }
+                else if (Model.grievance != null && Model.grievance.grievanceId > 0 && Model.grievanceId == 0)
+                {
+                    <hr class="colorgraph">
+                    <div class="main-login main-center">
+                        <div class="row" style="margin: 0px 0px;">
+                            <table class="table mt10">
+                                <thead class="job-th">
+                                    <tr>
+                                        <th>Application</th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="job-tb">
+                                        <td>@Model.grievance.application  </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

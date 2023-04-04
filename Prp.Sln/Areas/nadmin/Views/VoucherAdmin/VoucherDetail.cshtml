@@ -1,0 +1,275 @@
+﻿
+@{
+    ViewBag.Title = "ApplicantViewDetail";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.VoucherAdminModel
+
+@section RenderCss{
+
+    <style type="text/css">
+
+        .btn {
+            padding: 2px 5px !important;
+        }
+
+        .form-group {
+            margin-bottom: 0px !important;
+        }
+
+
+
+        .spnbtn:hover {
+            background-color: #169F85 !important;
+            cursor: pointer;
+        }
+
+        fieldset {
+            margin-bottom: 0px !important;
+        }
+
+        #divprint {
+            width: 100%;
+            margin: 0 auto;
+            font-family: 'Lato', sans-serif !important;
+        }
+
+        .text-center {
+            text-align: center;
+            text-align: -webkit-center;
+            text-align: -moz-center;
+        }
+
+        .top_detail tr td:nth-child(2n) {
+            border-bottom: 1px solid #000;
+        }
+
+        .imgView {
+            height: 560px;
+            width: 490px;
+        }
+
+        .ank {
+            font-style: italic;
+            color: #007bff;
+        }
+
+        .spn-edit {
+            float: right;
+            margin-right: 5px;
+            padding: 1px 6px;
+            background: #fefefe;
+            color: #8b8686;
+        }
+
+            .spn-edit:hover {
+                background: #e9e0e0;
+            }
+
+        .rch-link {
+            max-width: 760px;
+            overflow-wrap: break-word;
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        var applicantId = 0, statusId = 0;
+
+
+        $(document).ready(function () {
+
+
+
+
+
+
+            try {
+                applicantId = ConvertToInt($("#hfdApplicantId").val());
+            } catch (e) {
+                applicantId = 0;
+            }
+
+            try {
+                statusId = ConvertToInt($("#hfdStatusId").val());
+            } catch (e) {
+                statusId = 0;
+            }
+
+            $("#ddlStatus").val(statusId);
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    UpdateVoucherStatus();
+                }
+            });
+
+            $(document).on('click', '#btnUpdateStatus', function () {
+
+                UpdateVoucherStatus();
+            });
+
+
+        });
+
+        function UpdateVoucherStatus() {
+
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+
+                var isError = false;
+                var obj = {};
+
+                obj.applicantId = ConvertToInt($("#hfdApplicantId").val());
+                obj.statusId = ConvertToInt($("#ddlStatus").val());
+                //obj.comments = ConvertToString($("#txtComments").val());
+
+                if (isError == false) {
+
+                    var resp = CallActionPost("/VoucherAdmin/UpdateStatus", obj);
+                    if (resp != null && resp.status == true) {
+                        $("#divError").hide();
+                        $("#spnMsg").html("");
+                        location.reload();
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                    }
+                }
+                else {
+                    $("#divError").show();
+                    $("#idErrorMsg").html(errorMsg);
+                }
+
+
+            } catch (e) {
+
+            }
+        }
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Voucher Detail </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                @if (Model.applicant.applicantId > 0)
+                {
+                    <input type="hidden" id="hfdApplicantId" value="@(Model.applicant.applicantId)" />
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <fieldset>
+                                <legend> Applicant Profile  </legend>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        Applicant Id
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @Model.applicant.applicantId
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        Applicant No.
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        128 @Model.applicant.applicantId.ToString()
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        Name
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @Model.applicant.name
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        Father Name
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @Model.applicantInfo.fatherName
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        PMDC No.
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @Model.applicant.pmdcNo
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        Contact Number
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @Model.applicant.contactNumber
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        CNIC
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @Model.applicantInfo.cnicNo
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        Voucher Status
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        <b>  @Model.voucherStatus.status</b>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                            
+
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <fieldset>
+                                <legend> Voucher </legend>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <a class="ank" href="@("/Images/Applicant/" + Model.applicant.applicantId + "/" + Model.voucher.voucherImage)" target="_blank" title="Click to view">
+                                        <img class="imgView" src="@("/Images/Applicant/" + Model.applicant.applicantId + "/" + Model.voucher.voucherImage)" alt="No Image" />
+                                    </a>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                    </div>
+                }
+                @*else
+                    {
+                        <fieldset>
+                            <legend> Search Result   </legend>
+                            <div>
+                                <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                    <span> Applicant not exists</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    }*@
+            </div>
+        </div>
+    </div>
+</div>

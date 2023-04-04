@@ -1,0 +1,60 @@
+body {
+    color: #353535;
+    font-family: Roboto,sans-serif;
+    font-size: 16px;
+    line-height: 1.57143;
+    padding: 10px;
+    background-color: #cecece;
+}
+
+.page{
+    margin: 20px auto;
+    max-width: 800px;
+    padding: 0;
+    background: #ffffff;
+    position: relative;
+    min-height: -webkit-calc(100% - 44px);
+    min-height: calc(100% - 44px);
+}
+
+
+.page-header {
+    background-image: url(images/manual/header.jpg) !important;
+    background-size: cover;
+    padding: 5px 30px;
+    margin-bottom: 5px;
+     margin-top: 0;
+    position: relative;
+    border-bottom: none;
+}
+.page-header h1 {
+    color: #ffffff;
+    font-weight: 500;
+    margin: 5px 0;
+    font-size: 30px;
+}
+.inner h2 {
+    color: #45658b;
+    font-weight: 500;
+    margin: 5px 0;
+    text-align: left;
+    font-size: 24px;
+}
+.page-content {
+    padding: 30px 30px;
+}
+.page-content p {
+    margin: 0 0 10px;
+}
+.margin-vertical-10{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+.text-center{
+    text-align: center;
+    text-align: -moz-center;
+    text-align: -webkit-center;
+}

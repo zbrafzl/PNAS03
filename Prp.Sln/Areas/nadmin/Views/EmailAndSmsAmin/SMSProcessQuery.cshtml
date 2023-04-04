@@ -1,0 +1,146 @@
+﻿@{
+    ViewBag.Title = "Run Query";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.SMSModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0,  counter = 0;
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+            $("#ddlType").val(typeId);
+
+            $(document).on('change', '#ddlType', function () {
+                typeId = $(this).val();
+                BindSMSDDL(typeId);
+            });
+
+
+
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SendSMS();
+                }
+            });
+
+            $(document).on('click', '#btnSendSMS', function () {
+                SendSMS();
+            });
+
+
+        });
+
+
+        function BindSMSDDL(typeId) {
+
+            counter = 0;
+
+            DDLSetToDefault("ddlSMS", 'Select One', 0);
+
+            var list = CallActionGet("/EmailAndSmsAmin/GetSMSAllByType?typeId=" + typeId);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+                    $("#ddlSMS").append("<option  value='" + ddlItem.smsId + "'>" + ddlItem.smsId + " - " + ddlItem.name + "</option>");
+                }
+            }
+
+        }
+
+        function SendSMS() {
+
+
+           var smsId = ConvertToInt($("#ddlSMS").val());
+
+
+            typeId = ConvertToInt($("#ddlType").val());
+
+
+            if (smsId == 0) {
+                alert("Please select SMS");
+                return;
+            }
+            else {
+
+                var html = "";
+
+                $("#divMsg").show();
+                var resp = CallActionGet("/EmailAndSmsAmin/SMSProcessCreateListBySmsId?typeId=" + typeId+"&smsId=" + smsId);
+                if (resp != null) {
+
+                    if (resp.status == true) {
+                        html = "Process Executed";
+                    }
+                    else {
+                        html = resp.msg;
+                    }
+                }
+                else {
+                    html = "Some thing went wrong!";
+                }
+
+                $("#divMsg").html(html);
+
+            }
+
+        }
+
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Run SMS Query </h2>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            @Html.HiddenFor(m => m.typeId, new { @id = "hfdTypeId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Type :</label>
+                    <select id="ddlType" name="ddlType" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                        @if (Model != null && (Model.listType != null && Model.listType.Count > 0))
+                        {
+                            foreach (var u in Model.listType)
+                            {
+                                <option value="@u.id">@u.id - @u.name </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">SMS :</label>
+                    <select id="ddlSMS" name="ddlSMS" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+            <div class="item form-group">
+                <div class="col-md-3 col-sm-3 offset-md-3">
+                    <input type="button" class="btn btn-success" value="Run" id="btnSendSMS" />
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+            <div id="">
+                <div id="divMsg" class="alert alert-success alert-dismissible show" role="alert" style="clear:both; display:none;">
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

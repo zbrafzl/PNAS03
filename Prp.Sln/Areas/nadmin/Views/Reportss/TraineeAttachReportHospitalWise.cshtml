@@ -1,0 +1,151 @@
+﻿@{
+    ViewBag.Title = "Applicant Attachment Status - Hospital Wise";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ReportApplicantModel
+@section RenderCss{
+
+    <style>
+        .x_title span {
+            color: #7a6e6e !important;
+        }
+
+        .redCls {
+            background-color: #fa8585 !important;
+        }
+        .greenCls {
+            background-color: #8bf07f !important;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0, perPageRecords = 50, pageNum = 1, totalCount = 0;
+
+        var hospitalId = 0, total = 0, attach = 0, notAttach = 0;
+
+        $(document).ready(function () {
+
+            GetAndBindJoiningApplicantByHospitalSearch();
+
+            $(document).on('change', '#ddlHospital', function () {
+
+                hospitalId = ConvertToInt($(this).val());
+                $("#hfdHospitalId").val(hospitalId);
+                GetAndBindJoiningApplicantByHospitalSearch();
+
+            });
+
+        });
+
+        function GetAndBindJoiningApplicantByHospitalSearch() {
+
+            var htmlAll = "", htmlSingle = "";
+            var search = ConvertToString($("#txtSearch").val());
+
+            attach = 0, notAttach = 0;
+
+            var cls = "";
+            $("#divPagination").hide();
+
+            var obj = {};
+            //obj.top = perPageRecords;
+            //obj.pageNum = pageNum;
+            obj.search = search;
+            obj.hospitalId = ConvertToInt($("#hfdHospitalId").val());
+
+
+            var resp = CallActionPost("/Reportss/HospitalTraineeCountReport", obj);
+            if (resp != null && resp.length > 0) {
+
+                var objItem = {};
+                var htmlTemp = $("#tbTempt").html();
+
+                for (var i = 0; i < resp.length; i++) {
+
+                    htmlSingle = htmlTemp;
+                    objItem = resp[i];
+
+                    cls = "";
+                    if (objItem.totalTraineeRemaning > 0)
+                        cls = "redCls";
+                    else cls = "greenCls";
+
+                    htmlAll = htmlAll + htmlSingle.replace(/{#hospital#}/g, objItem.hospital)
+                        .replace(/{#totalTrainee#}/g, objItem.totalTrainee)
+                        .replace(/{#attach#}/g, objItem.totalTraineeAttach)
+                        .replace(/{#remaning#}/g, objItem.totalTraineeRemaning)
+                        .replace(/{#cls#}/g, cls);
+
+                }
+
+            }
+
+            $("#tbList").html(htmlAll);
+
+        }
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Trainee Attachment Report </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_title">
+            <div class="form-group col-lg-12">
+                <div class="col-md-1 col-sm-1 col-xs-1">
+                </div>
+                <input type="hidden" id="hfdHospitalId" value="@Model.hospitalId" />
+                @if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.hospital)
+                {
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label for="heard">Hospital </label>
+                        <select id="ddlHospital" name="ddlHospital" class="form-control">
+                            <option value="0"> All </option>
+                            @foreach (var item in Model.listHospital.OrderBy(x => x.key))
+                            {
+                                <option value="@item.value">@item.key</option>
+                            }
+                        </select>
+                    </div>
+                }
+                <div class="col-md-1 col-sm-1 col-xs-1">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Hospital </th>
+                            <th class="column-title">Total Trainee </th>
+                            <th class="column-title">Attached </th>
+                            <th class="column-title">Remaining </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbList">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+    <table>
+        <tbody id="tbTempt">
+            <tr>
+                <td>{#hospital#}</td>
+                <td>{#totalTrainee#}</td>
+                <td>{#attach#}</td>
+                <td class="{#cls#}">{#remaning#}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

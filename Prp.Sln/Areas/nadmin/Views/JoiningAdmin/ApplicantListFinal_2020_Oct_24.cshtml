@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "Applicant Joining";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantJoiningAdminModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0;
+        $(document).ready(function () {
+
+
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Applicant List </h2>
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Program </th>
+                            <th class="column-title">Speciality </th>
+                            <th class="column-title">Quota </th>
+                            <th class="column-title">Form No. </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">PMDC No </th>
+                            <th class="column-title">EmailId </th>
+                            <th class="column-title">Image </th>
+
+
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && (Model.listApplicant != null && Model.listApplicant.Count > 0))
+                        {
+                            foreach (var item in Model.listApplicant)
+                            {
+                                <tr>
+                                    <td>@item.typeName</td>
+                                    <td>@item.specialityName</td>
+                                    <td>@item.quotaName</td>
+                                    <td>@item.applicantId</td>
+                                    <td>@item.name</td>
+                                    <td>@item.pmdcNo</td>
+                                    <td>@item.emailId</td>
+                                    <td>
+                                        <a class="ank" href="@("/images/Applicant/" + item.applicantId + "/" + item.pic)" target="_blank" title="Click to view">
+                                            <img class="imgView" src="@("/images/Applicant/" + item.applicantId + "/" + item.pic)" style="width: 30px; height: 20px; vertical-align: middle;" />
+                                        </a>
+                                    </td>
+                                    @if (item.joiningId > 0)
+                                    {
+                                        <td>Joined</td>
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            <a title="Edit Content" class="ank" href="@("/admin/applicant-join-add?applicantId="+ item.applicantId)">Add Joning</a>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+

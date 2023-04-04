@@ -1,0 +1,587 @@
+﻿@{
+    ViewBag.Title = "Application Voucher";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ApplicantVoucherModel
+@section RenderCss{
+
+    <style>
+        .div-table {
+            width: 98%;
+            margin: 0% 1%;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, applicantVoucherId = 0, imagesPath = ""
+            , objApplicant = {}, objApplicantInfo = {}, objVoucher = {};
+        //var testingCenters = [{ "centerID": 1, "centerName": "AIMH, Sialkot" }, { "centerID": 2, "centerName": "Allied Hospital, Faisalabad" }, { "centerID": 3, "centerName": "ABS Teaching Hospital, Gujrat" }, { "centerID": 4, "centerName": "Bahawal Victoria Hospital, Bahawalpur" }, { "centerID": 5, "centerName": "Benazir Bhutto Hospital, Rawalpindi" }, { "centerID": 7, "centerName": "Children Hospital, Lahore" }, { "centerID": 9, "centerName": "Children Hospital, Multan" }, { "centerID": 10, "centerName": "Choudhary Prevez Ilahi Institute of Cardiology , Multan" }, { "centerID": 11, "centerName": "DHQ Hospital, DG Khan" }, { "centerID": 12, "centerName": "DHQ Hospital, Faisalabad" }, { "centerID": 13, "centerName": "DHQ Hospital, Gujranwala" }, { "centerID": 14, "centerName": "DHQ Rawalpindi" }, { "centerID": 15, "centerName": "Sahiwal Teaching Hospital, Sahiwal" }, { "centerID": 16, "centerName": "DHQ Teaching Hospital, Sargodha" }, { "centerID": 17, "centerName": "Faisalabad Institute of Cardiology, Faisalabad" }, { "centerID": 18, "centerName": "Govt. Teaching Hospital GM Abad, Faisalabad" }, { "centerID": 19, "centerName": "Govt.Teaching Hospital , Shahdra , Lahore" }, { "centerID": 20, "centerName": "Holy Family Hospital, Rawalpindi" }, { "centerID": 21, "centerName": "Jinnah Hospital, Lahore" }, { "centerID": 22, "centerName": "Lahore General Hospital, Lahore" }, { "centerID": 23, "centerName": "Mayo Hospital, Lahore" }, { "centerID": 24, "centerName": "Nishtar Hospital, Multan" }, { "centerID": 25, "centerName": "Punjab Institute of Cardiology, Lahore" }, { "centerID": 26, "centerName": "Punjab Institute of Neurosciences, Lahore" }, { "centerID": 27, "centerName": "Rawalpindi Institute of Cardiology , Rawalpindi" }, { "centerID": 28, "centerName": "Services Hospital, Lahore" }, { "centerID": 29, "centerName": "Sir Ganga Ram Hospital, Lahore" }, { "centerID": 30, "centerName": "SZ Hospital, Rahim Yar Khan" }, { "centerID": 31, "centerName": "Wazirabad Institute of Cardiology, Warzirabad" }, { "centerID": 32, "centerName": "Punjab Dental Hospital, Lahore" }, { "centerID": 33, "centerName": "Allied Hospital (Dentistry), Faisalabad" }, { "centerID": 34, "centerName": "Nishtar Institute of Dentistry, Multan" }, { "centerID": 35, "centerName": "Lady Aitchison Hospital" }, { "centerID": 36, "centerName": "Lady Willingdon Hospital" }, { "centerID": 37, "centerName": "Kot Khawaja Saeed Hospital, Lahore" }, { "centerID": 39, "centerName": "Institute of Child Health, Faisalabad" }, { "centerID": 40, "centerName": "Faisalabad Institute of Cardiology" }, { "centerID": 41, "centerName": "Civil Hospital Bahawalpur" }, { "centerID": 42, "centerName": "RMU Allied Hospital, Rawalpindi" }, { "centerID": 4794, "centerName": "Govt. M. Nawaz Sharif Teaching Hospital, Yakki Gate, Lahore" }, { "centerID": 4795, "centerName": "Said Mitha Hospital" }, { "centerID": 4798, "centerName": "Punjab Institute of Mental Health, Lahore" }, { "centerID": 4799, "centerName": "Govt Haji Abdul Qayyum Teaching Hospital Sahiwal" }, { "centerID": 4806, "centerName": "Government Mian Munshi Teaching Hospital Lahore" }, { "centerID": 4811, "centerName": "Sheikh Zayed Medical Complex, Lahore" }, { "centerID": 4813, "centerName": "Institute Of Public health (IPH) Lahore" }]
+        var testingCenters = [{ "centerID": 1, "centerName": "UHS, Lahore" }]
+
+        $(document).ready(function () {
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            imagesPath = "/Images/Applicant/" + applicantId + "/";
+
+            var startDate = new Date(2023, 04 - 1, 03)
+            var endDate = new Date(2023, 04 - 1, 18)
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+
+            let dropdown = $('#ddlCenter');
+
+            $.each(testingCenters, function (key, entry) {
+                dropdown.append($('<option></option>').attr('value', entry.centerID).text(entry.centerName));
+            })
+
+            $(".txtSubmittedDate").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                startDate: startDate,
+                endDate: endDate
+            });
+
+            $(document).on('click', '#chkSubmittedVoucher', function () {
+                var status = $("#chkSubmittedVoucher").is(':checked');
+
+                $("#divVoucherForm").hide();
+                $("#divPaymentForm").hide();
+
+                if (status == true) {
+                    $("#divVoucherForm").show();
+                    $("#divPaymentForm").hide();
+                }
+                else {
+
+                    $("#divVoucherForm").hide();
+                    $("#divPaymentForm").show();
+                }
+            });
+
+            $(document).on('click', '.btnSave', function () {
+                SaveAndProceed();
+            });
+
+            $(document).on('click', '#ankVoucherDownload', function () {
+                sessionStorage.setItem("applicantIdPrint", applicantId);
+                window.open('/print/voucher', '_blank');
+            });
+
+            $(document).on('click', '.ankVoucherLink', function () {
+                BindVoucherForm();
+            });
+
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SaveAndProceed();
+                }
+            });
+
+            $(document).on('click', '#ankContinue', function () {
+
+                if (applicantVoucherId > 0) {
+
+                    CallActionGet("/ApplicantProfile/UpdateApplicantStatus?applicantId=" + applicantId
+                        + "&applicationStatus=7&condition=applicationStatus");
+
+                    window.location = "/applicant-proof-reading";
+                }
+                else {
+
+                    alert("Please add payment information")
+                }
+            });
+
+            GetApplicantInfo();
+            GetApplicantVoucherInfo();
+
+        });
+
+        //
+
+        function SaveAndProceed() {
+
+            if (ValidateForm() == false) {
+
+                var resp = CallActionPost("/ApplicantProfile/ApplicantVoucherAddUpdate", objVoucher);
+                if (resp != null && resp.status == true) {
+                    GetApplicantVoucherInfo();
+                    alert("Voucher information saved sucessfully.")
+                }
+
+            }
+        }
+
+        function ValidateForm() {
+
+            var isError = false, ctrl = "";
+            objVoucher = {};
+
+            $(".req-fld").removeClass("req-fld");
+            $(".lbl-err").hide();
+
+            /* Get Values
+           *****************************************************************************/
+            objVoucher.applicantVoucherId = applicantVoucherId;
+            var amounts = "";
+            if (@Convert.ToInt32(Session["degreeAchieved"]) != 13)
+            {
+                amounts = "2000";
+            }
+            else
+            {
+                amounts = "500";
+            }
+
+            objVoucher.applicantId = applicantId;
+
+            objVoucher.amount = amounts;
+            objVoucher.branchCode = "";
+            objVoucher.voucherImage = "";
+            objVoucher.ibn = "";
+            objVoucher.accountNo = "";
+            objVoucher.accountTitle = "";
+            objVoucher.dateSubmitted = "";
+            objVoucher.testingCenter = ConvertToInt($("#ddlCenter").val());
+
+
+
+
+            var status = $("#chkSubmittedVoucher").is(':checked');
+            if (status == true) {
+
+                objVoucher.branchCode = ConvertToString($("#txtBranchCode").val());
+
+                if ($("#flVoucher").val()) {
+                    objVoucher.voucherImage = UploadImage("flVoucher", applicantId, "voucher");
+                    $("#hfdVoucher").val(objVoucher.voucherImage);
+                }
+                objVoucher.voucherImage = ConvertToString($("#hfdVoucher").val());
+
+                objVoucher.dateSubmitted = "";
+                if (ValidateDate("txtSubmittedDateVoucher")) {
+                    objVoucher.dateSubmitted = ConvertToString($("#txtSubmittedDateVoucher").val());
+                }
+
+
+
+                if (objVoucher.branchCode == "") {
+                    $("#txtBranchCode").addClass("req-fld");
+                    ctrl = "txtBranchCode";
+                    isError = true;
+                }
+                if (objVoucher.voucherImage == "") {
+
+                    $("#flVoucher").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flVoucher";
+                }
+
+
+                if (objVoucher.dateSubmitted == "") {
+                    $("#txtSubmittedDateVoucher").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtSubmittedDateVoucher";
+                }
+
+            }
+            else {
+
+
+                objVoucher.ibn = ConvertToString($("#txtIBN").val());
+                objVoucher.accountNo = ConvertToString($("#txtAccountNo").val());
+                objVoucher.accountTitle = ConvertToString($("#txtAccountTitle").val());
+
+                objVoucher.dateSubmitted = "";
+                if (ValidateDate("txtSubmittedDatePayment")) {
+                    objVoucher.dateSubmitted = ConvertToString($("#txtSubmittedDatePayment").val());
+                }
+
+                if (objVoucher.ibn == "") {
+                    $("#txtIBN").addClass("req-fld");
+                    ctrl = "txtIBN";
+                    isError = true;
+                }
+                if (objVoucher.accountNo == "") {
+                    $("#txtAccountNo").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtAccountNo";
+                }
+                if (objVoucher.accountTitle == "") {
+                    $("#txtAccountTitle").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtAccountTitle";
+                }
+
+                if (objVoucher.dateSubmitted == "") {
+                    $("#txtSubmittedDatePayment").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtSubmittedDatePayment";
+                }
+
+            }
+
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
+
+        function GetApplicantInfo() {
+            objApplicant = CallActionGet("/ApplicantProfile/GetApplicantInfo?applicantId=" + applicantId);
+            objApplicantInfo = CallActionGet("/ApplicantProfile/GetApplicantInfoDetail?applicantId=" + applicantId);
+        }
+
+        function GetApplicantVoucherInfo() {
+
+
+            applicantVoucherId = 0;
+            $("#divVoucherForm").hide();
+            $("#divPaymentForm").hide();
+            $("#divGridVoucher").hide();
+            $("#divGridPayment").hide();
+
+            objVoucher = CallActionGet("/ApplicantProfile/GetApplicantVoucher?applicantId=" + applicantId);
+            if (objVoucher != null && objVoucher.applicantVoucherId > 0) {
+
+                console.log(objVoucher);
+//                "centerID": 1, "centerName": "AIMH, Sialkot"
+                var tc = testingCenters.find(ele => ele.centerID === objVoucher.testingCenter).centerName;
+
+                applicantVoucherId = objVoucher.applicantVoucherId;
+
+                $("#chkSubmittedVoucher").prop("checked", false);
+
+                if (objVoucher.voucherImage.length > 0) {
+
+                    $("#chkSubmittedVoucher").prop("checked", true);
+
+                    $("#divGridVoucher").show();
+
+                    $("#tdBranchCode").html(objVoucher.branchCode);
+                    $("#tdSubmittedDate").html(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucher.submittedDate)));
+
+                    if (objVoucher.voucherImage.length > 0) {
+                        $('#tdImgVoucher').attr('src', imagesPath + objVoucher.voucherImage);
+                        $('.ankImgVoucher').attr('href', imagesPath + objVoucher.voucherImage);
+                    }
+                    $("#ddlCenter").val(objVoucher.centerID);
+                    $("#tdTestingCenter").html(tc);
+                }
+                else {
+
+                    $("#divGridPayment").show();
+                    $("#tdIBN").html(objVoucher.ibn);
+                    $("#tdAccountNo").html(objVoucher.accountNo);
+                    $("#tdAccountTitle").html(objVoucher.accountTitle);
+                    $("#tdSubmittedDate").html(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucher.submittedDate)));
+                    $("#ddlCenter").val(objVoucher.centerID);
+                    $("#tdTestingCenter").html(tc);
+                }
+            }
+            else {
+
+                $("#chkSubmittedVoucher").prop("checked", true);
+                $("#divVoucherForm").show();
+                $("#divPaymentForm").hide();
+
+            }
+        }
+
+        function BindVoucherForm() {
+            //alert(objVoucher.voucherImage.length);
+
+            if (objVoucher != null && objVoucher.applicantVoucherId > 0) {
+
+                applicantVoucherId = objVoucher.applicantVoucherId;
+
+                $("#chkSubmittedVoucher").prop("checked", false);
+
+                if (objVoucher.voucherImage.length > 0) {
+
+                    $("#chkSubmittedVoucher").prop("checked", true);
+
+                    $("#divVoucherForm").show();
+
+                    $("#txtBranchCode").val(objVoucher.branchCode);
+                    $("#hfdVoucher").val(objVoucher.voucherImage);
+
+                    $("#txtSubmittedDateVoucher").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucher.submittedDate)));
+
+                    if (objVoucher.voucherImage.length > 0) {
+                        $('#imgVoucher').attr('src', imagesPath + objVoucher.voucherImage);
+                        $('#imgVoucher').show();
+                        $('#rmvVoucher').show();
+                        $("#hfdVoucher").val(objVoucher.voucherImage);
+                    }
+
+                    $("#ddlCenter").val(objVoucher.testingCenter);
+
+                }
+                else {
+
+                    $("#divPaymentForm").show();
+                    $("#txtIBN").val(objVoucher.ibn);
+                    $("#txtAccountTitle").val(objVoucher.accountTitle);
+                    $("#txtAccountNo").val(objVoucher.accountNo);
+                    $("#txtSubmittedDatePayment").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucher.submittedDate)));
+
+                }
+
+            }
+        }
+
+    </script>
+
+}
+
+<div class="container" style=" margin-bottom:60px;">
+    <div class="row main">
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="progress mt15">
+                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+                                100%
+                            </div>
+                        </div> <div class="mt-action-icon ">
+                            <i class=" icon-bubbles"></i>
+                        </div>
+                        @if (1>0)
+                        {
+                            <h3 class="text-center">Payment : Step 4 of 4</h3>
+                        }
+                        else
+                        { 
+                            <h3 class="text-center">Payment : Step 5 of 5</h3>
+                        }
+
+                        <input type="hidden" id="hfdSpecilityId" value="0">
+                        <hr class="colorgraph">
+                        <h3>Payment  Information</h3>
+                        <h3>Upload Orignal Bank Deposit Receipt Picture</h3>
+                        <hr class="colorgraph">
+                        <div id="divGridVoucher" class="row" style="display:none;">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <table class="table mt10">
+                                    <thead class="job-th">
+                                        <tr>
+                                            <th style="width:15.5%">Brach Code</th>
+                                            <th style="width:15.5%">Submitted Date</th>
+                                            <th style="width:15.5%">Voucher</th>
+                                            @if (Convert.ToInt32(Session["appliedFor"]) == 11)
+                                            {
+                                                <th style="width:36%">Testing Center</th>
+                                            }
+                                            <th style="width:15.5%">Edit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="job-tb">
+                                            <td id="tdBranchCode"></td>
+                                            <td id="tdSubmittedDate">  </td>
+                                            <td> <img id="tdImgVoucher" class="flup-img" src="" alt="" />  </td>
+                                            @if (Convert.ToInt32(Session["appliedFor"]) == 11)
+                                            {
+                                                <td id="tdTestingCenter">  </td>
+                                            }
+                                            <td>  <a id="ankVoucher" class="ank ankVoucherLink"><i class="fa fa-edit "></i></a> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="divGridPayment" class="row" style="display:none;">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <table class="table mt10">
+                                    <thead class="job-th">
+                                        <tr>
+                                            <th style="width:19.5%">IBN</th>
+                                            <th style="width:19.5%">Account No</th>
+                                            <th style="width:19.5%">Account Title</th>
+                                            <th style="width:19.5%">Submitted Date</th>
+                                            <th style="width:19.5%">Edit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="job-tb">
+                                            <td id="tdIBN"></td>
+                                            <td id="tdAccountNo"></td>
+                                            <td id="tdAccountTitle"></td>
+                                            <td id="tdSubmittedDate">   </td>
+                                            <td>  <a id="ankVoucher" class="ank ankVoucherLink"><i class="fa fa-edit "></i></a> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="well">
+
+
+                        </div>
+                        <div class="well">
+                            <form role="form">
+                                <div id="divDownload" class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="form-group">
+                                            <a class="ank" id="ankVoucherDownload"> <i class="fa fa-download "></i> Generate &amp; Download Challan Form </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="display:none">
+                                    <div class="col-md-12" style="padding: 20px 15px; ">
+                                        <label style="word-wrap: break-word; line-height: 16px; float: left;" for="chkForeignNational">
+                                            <input type="checkbox" name="checkbox" id="chkSubmittedVoucher" value="Foriegn_National" style="float: left;margin: 0px 5px;height: 18px;width: 20px;">
+                                            In Case you deposited(voucher) fee in Bank of punjab.
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12" style="padding: 20px 15px; ">
+                                        <label style="word-wrap: break-word; line-height: 16px; float: left;">
+                                            Fee should be submitted in Bank of the Punjab only
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="divVoucherForm" class="row" style="display:none;">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <span style="color:red">*</span>
+                                            <label> Branch Code</label>
+                                            <input required="required" type="text" name="txtBranchCode" id="txtBranchCode" class="form-control numeric " len="4" tabindex="1">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <span style="color:red">*</span>
+                                            <label for=""> Submit Date </label>
+                                            <input required="required" type="text" name="txtSubmittedDateVoucher" id="txtSubmittedDateVoucher" class="form-control datepicker txtSubmittedDate" tabindex="1">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <span style="color:red">*</span>
+                                            <label for="flVoucher"> Voucher Image </label>
+                                            <input type="file" class="form-control flup" name="flVoucher" id="flVoucher" tabindex="18" />
+                                            <input type="hidden" id="hfdVoucher" value="" />
+                                            <img id="imgVoucher" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvVoucher" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>
+                                    @if (Convert.ToString(Session["degreeAchieved"]) == "11" && Convert.ToInt32(Session["appliedFor"]) == 11)
+                                    {
+                                        <div class="col-xs-12 col-sm-8 col-md-8">
+                                            <div class="form-group">
+                                                <label> Testing Center  <span class="sprq">*</span></label>
+                                                <select class="form-control" id="ddlCenter" name="ddlCenter">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-xs-12 col-sm-8 col-md-8" style="display:none">
+                                            <div class="form-group">
+                                                <label> Testing Center  <span class="sprq">*</span></label>
+                                                <select class="form-control" id="ddlCenter" name="ddlCenter">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label>&nbsp;</label>
+                                            <input type="button" id="btnSaveVoucher" name="submit" class="btn mybtn animated-button form-control btnSave" value="Save" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="divPaymentForm" class="row" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <span style="color:red">*</span>
+                                                <label for=""> IBN </label>
+                                                <input required="required" type="text" name="txtIBN" id="txtIBN" class="form-control lenth" len="25" tabindex="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <span style="color:red">*</span>
+                                                <label for=""> Applicant Account No. </label>
+                                                <input required="required" type="text" name="txtAccountNo" id="txtAccountNo" class="form-control lenth" len="20" tabindex="1">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <span style="color:red">*</span>
+                                                <label for=""> Applicant Account Title </label>
+                                                <input required="required" type="text" name="txtAccountTitle" id="txtAccountTitle" class="form-control alpha" len="100" tabindex="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                <span style="color:red">*</span>
+                                                <label for=""> Submit Date </label>
+                                                <input required="required" type="text" name="txtSubmittedDatePayment" id="txtSubmittedDatePayment" class="form-control datepicker txtSubmittedDate" tabindex="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <div class="form-group">
+                                                <label>&nbsp;</label>
+                                                <input type="button" id="btnSavePayment" name="submit" class="btn mybtn animated-button form-control btnSave" value="Save" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-4">
+            </div>
+            @if (1>0)
+            {
+                <div class="col-sm-6">
+                    <a id="ankContinue" class="btn btn-lg mb10 mt5 pull-right btn-red" value=""> Continue &nbsp;&nbsp;<i class="fa fa-arrow-right"></i></a>
+                    &nbsp;&nbsp;
+                    <a href="/applicant-speciality" class="btn btn-lg mb10 mt5 pull-right btn-blue" style="margin-right:10px; margin-top: 2px;"> <i class="fa fa-arrow-left"></i> &nbsp;&nbsp;Previous &nbsp;&nbsp;</a>
+                </div>
+            }
+            else
+            {
+                <div class="col-sm-6">
+                    <a id="ankContinue" class="btn btn-lg mb10 mt5 pull-right btn-red" value=""> Continue &nbsp;&nbsp;<i class="fa fa-arrow-right"></i></a>
+                    &nbsp;&nbsp;
+                    <a href="/applicant-education" class="btn btn-lg mb10 mt5 pull-right btn-blue" style="margin-right:10px; margin-top: 2px;"> <i class="fa fa-arrow-left"></i> &nbsp;&nbsp;Previous &nbsp;&nbsp;</a>
+                </div>
+            }
+
+            @Html.Partial("_NotePageBottom")
+        </div>
+    </div>
+</div>

@@ -1,0 +1,394 @@
+﻿@{
+    ViewBag.Title = "Applicant Listing";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantActionAdminModel
+@section RenderCss{
+
+    <style>
+        .x_title span {
+            color: #7a6e6e !important;
+        }
+
+        .cssRedish {
+            background: #f67575 !important;
+        }
+
+        .cssBlueish {
+            background: #95abcc !important;
+        }
+
+        .cssGreenish {
+            background: #afda75 !important;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0, instituteId = 0, htmlNoRecord = "", typeId = 0, actionId = 0, objStatus = {};
+
+        searchFunction = "ActionSearch";
+
+
+
+        $(document).ready(function () {
+
+
+            htmlNoRecord = $("#tbNoRecord").html();
+
+            ActionSearch();
+
+            $(document).on('click', '#ddlType', function () {
+                typeId = $(this).val();
+                $("#hfdTypeId").val(typeId);
+            });
+
+            $(document).on('click', '#btnSearch', function () {
+
+                $("#pnlSearch").hide();
+                ActionSearch();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+
+                    ActionSearch();
+                }
+            });
+
+        });
+
+        function ActionSearch() {
+
+            var htmlAll = htmlNoRecord;
+
+
+            $("#divPagination").hide();
+
+            var obj = {};
+            obj.top = perPageRecords;
+            obj.pageNum = pageNo;
+            obj.typeId = ConvertToInt($("#hfdTypeId").val());
+            obj.inductionId = ConvertToInt($("#ddlInduction").val());
+            obj.instituteId = ConvertToInt($("#ddlInstitute").val());
+            obj.search = ConvertToString($("#txtSearch").val());
+
+            var resp = CallActionPost("/ApplicantAction/ActionSearch", obj);
+
+            if (resp != null && resp.length > 0) {
+
+                htmlAll = "";
+                totalCount = resp[0].totalCount;
+                var objItem = {};
+
+                var htmlTemp = $("#tbTempt").html();
+
+                $("#tbList").html(htmlAll);
+
+                var htmlSingle = "", cssRedish = "", edit = "", actionTd = "";
+
+                for (var i = 0; i < resp.length; i++) {
+
+                    edit = "";
+
+                    htmlSingle = htmlTemp;
+                    objItem = resp[i];
+
+                    cssRedish = "";
+                    actionTd = "";
+
+
+                    if (objItem.actionStatusId == 1) {
+                        cssRedish = "cssBlueish";
+
+                    }
+                    else if (objItem.actionStatusId == 11) {
+                        cssRedish = "cssGreenish";
+                    }
+                    else if (objItem.actionStatusId == 21) {
+                        cssRedish = "cssRedish";
+                    }
+
+                    if (objItem.actionId == 0 && userTypeId == 86) {
+                        actionTd = "<a  title='Edit' class='ank' href='/admin/reg-term-setup?applicantId=" + objItem.applicantId
+                            + "'" + "><i class='fa fa-pencil-square-o'></i></a >";
+                    }
+
+                    if (userTypeId == 1 || userTypeId == 16 || userTypeId == 71) {
+
+                        if (objItem.actionStatusId == 1) {
+                            cssRedish = "cssBlueish";
+                            actionTd = "<a id='" + objItem.actionId + "' title='Edit' class='ank' data-toggle='modal' data-target='#PopUpAction' onclick='PopupEvent(this);'><i class='fa fa-pencil-square-o'></i></a >";
+                        }
+                        else if (objItem.actionStatusId == 11) {
+                            cssRedish = "cssGreenish";
+                        }
+                        else if (objItem.actionStatusId == 21) {
+                            cssRedish = "cssRedish";
+                        }
+                    }
+
+
+
+                    htmlAll = htmlAll + htmlSingle.replace(/{#typeName#}/g, objItem.typeName)
+                        .replace(/{#specialityName#}/g, objItem.specialityName)
+                        .replace(/{#hospitalName#}/g, objItem.hospitalName)
+                        .replace(/{#quotaName#}/g, objItem.quotaName)
+                        .replace(/{#applicantId#}/g, objItem.applicantId)
+                        .replace(/{#name#}/g, objItem.name)
+                        .replace(/{#fatherName#}/g, objItem.fatherName)
+                        .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                        .replace(/{#marks#}/g, objItem.marks)
+                        .replace(/{#pic#}/g, objItem.pic)
+                        .replace(/{#actionType#}/g, objItem.actionType)
+                        .replace(/{#inductionName#}/g, objItem.inductionName)
+                        .replace(/{#status#}/g, objItem.actionStatus)
+                        .replace(/{#actionTd#}/g, actionTd)
+                        .replace(/#cssRedish#/g, cssRedish);
+                }
+
+                if (totalCount > 0)
+                    CreatePaginationHtml(perPageRecords, totalCount, pageNo);
+
+                $("#pnlSearch").show();
+
+            }
+
+            $("#tbList").html(htmlAll);
+
+
+        }
+
+        function PopupEvent(ctr) {
+
+            actionId = ConvertToInt($(ctr).attr("id"));
+
+        }
+
+        function UpdateStatus() {
+
+            if (ValidateFormJoining() == false) {
+
+                var resp = CallActionPost("/ApplicantAction/ActionUpdateStatus", objStatus);
+
+                if (resp != null && resp.status == true) {
+                    alert("Data saved successfully")
+                    $('.btnClosePopup').click();
+                    ActionSearch();
+                }
+                else {
+
+
+                }
+            }
+        }
+
+        function ValidateFormJoining() {
+
+            var isError = false, ctrl = "";
+
+            objStatus = {};
+            objStatus.image = "";
+            objStatus.statusId = ConvertToInt($("#ddlStatusPopup").val());
+            objStatus.actionId = actionId;
+            objStatus.remarks = ConvertToString($("#txtRemarksPopup").val());
+
+
+
+            if (objStatus.remaks == "") {
+
+                $("#txtRemarks").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtRemarks";
+            }
+
+
+            return isError;
+        }
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Applicant List  </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_title">
+            <div class="form-group col-lg-12">
+                <div class="col-md-1 col-sm-1 col-xs-1">
+                </div>
+                @Html.HiddenFor(m => m.typeId, new { @id = "hfdTypeId" })
+                @if (Model.typeId == 0)
+                {
+
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard">Type :</label>
+                        <select id="ddlType" name="ddlType" class="form-control">
+                            <option value="0">Both</option>
+                            <option value="1">Resignation</option>
+                            <option value="6">Termination</option>
+                        </select>
+                    </div>
+                }
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard">Induction :</label>
+                    <select id="ddlInduction" name="ddlInduction" class="form-control">
+                        @if (Model != null && (Model.listInduction != null && Model.listInduction.Count > 0))
+                        {
+                            <option value="0">All Induction</option>
+                            foreach (var u in Model.listInduction)
+                            {
+                                <option value="@u.id">@u.value </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <label for="heard">Search :</label>
+                    <input type="text" id="txtSearch" placeholder="Search" class="form-control input-sm txt">
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard" style="width:100%;">Action :</label>
+                    <input type="button" id="btnSearch" class="btn btn-success" value="Search">
+                </div>
+                <div class="col-md-5 col-sm-5 col-xs-5" style="display:none;">
+                    <label for="heard">Institute :</label>
+                    @if (Model.loggedInUser.typeId == 1 || Model.loggedInUser.typeId == 11)
+                    {
+                        <select id="ddlInstitute" name="ddlInstitute" class="form-control">
+                            @if (Model != null && (Model.listInstitute != null && Model.listInstitute.Count > 0))
+                            {
+                                <option value="0">Select One</option>
+                                foreach (var u in Model.listInstitute)
+                                {
+                                    <option value="@u.id">@u.value </option>
+                                }
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <label for="heard">Institute</label>
+                    }
+                </div>
+                <div class="col-md-1 col-sm-1 col-xs-1">
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+        <div id="pnlSearch" class="x_content" style="display:none;">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Image </th>
+                            <th class="column-title">Induction </th>
+                            <th class="column-title">Form No. </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Father Name </th>
+                            <th class="column-title">PMDC No </th>
+                            <th class="column-title">Marks</th>
+                            <th class="column-title">Program </th>
+                            <th class="column-title">Quota </th>
+                            <th class="column-title">Speciality </th>
+                            <th class="column-title">Hospital</th>
+                            <th class="column-title">Type </th>
+                            <th class="column-title">Status </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbList">
+                    </tbody>
+                </table>
+                @Html.Partial("_Pagination")
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal BookInvestigation PathalogyModal fade" id="PopUpAction">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header align-items-center">
+                <h4 class="BookTxt"><img src="/Imgs/Examination.png" alt="">Update Status</h4>
+                <button type="button" data-dismiss="modal">X</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-12 mt-20">
+                        <div class="input-group Input_Field Info_Fields mb-20">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Status</span>
+                            </div>
+                            <select id="ddlStatusPopup" name="ddlStatusPopup" class="form-control">
+                                <option value="11"> Accept </option>
+                                <option value="21"> Reject </option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-12 mt-20">
+                        <div class="input-group Input_Field Info_Fields mb-20">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Remarks</span>
+                            </div>
+                            <input type="text" id="txtRemarksPopup" class="form-control" placeholder="Enter">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button class="btn btn-secondary SaveBtn mr-4" onclick="UpdateStatus(this)">Save Now</button>
+                <button type="button" class="btn btn-secondary CancelBtn btnClosePopup" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+    <table>
+        <tbody id="tbTempt">
+            <tr class="#cssRedish#">
+                <td>
+                    <a class="ank" href="/images/Applicant/{#applicantId#}/{#pic#}" target="_blank" title="Click to view">
+                        <img class="imgView" src="/images/Applicant/{#applicantId#}/{#pic#}" style="width: 30px; height: 20px; vertical-align: middle;" />
+                    </a>
+                </td>
+                <td>{#inductionName#}</td>
+                <td>{#applicantId#}</td>
+                <td>{#name#}</td>
+                <td>{#fatherName#}</td>
+                <td>{#pmdcNo#}</td>
+                <td>{#marks#}</td>
+                <td>{#typeName#}</td>
+                <td>{#quotaName#}</td>
+                <td>{#specialityName#}</td>
+                <td>{#hospitalName#}</td>
+                <td>{#actionType#}</td>
+                <td>{#status#}</td>
+                <td>
+                    {#actionTd#}
+                </td>
+            </tr>
+        </tbody>
+        <tbody id="tbNoRecord">
+            <tr>
+                <td colspan="13" style="text-align:center;">No record found</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

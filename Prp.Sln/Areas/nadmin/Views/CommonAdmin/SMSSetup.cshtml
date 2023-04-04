@@ -1,0 +1,87 @@
+﻿
+@{
+    ViewBag.Title = "SMS Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.SMSModelAdmin
+@section RenderCss{
+
+    <style>
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+
+        function ValidateForm(event) {
+            var isOk = true;
+            try {
+
+
+            } catch (e) {
+                isOk = false;
+            }
+
+            if (isOk == false)
+                event.preventDefault();
+
+
+        }
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Hospital Setup </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/sms-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                @using (Html.BeginForm("SaveSMSData", "CommonAdmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " ValidateForm(event)" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                        @Html.HiddenFor(m => m.sms.smsId, new { @id = "hfdId" })
+
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Type *:</label>
+                                @Html.DropDownListFor(a => a.sms.typeId, new SelectList(Model.listType, "id", "name"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Name *:</label>
+                                @Html.TextBoxFor(a => a.sms.name, new { @class = "form-control", @required = "required", @id = "abbr", @tabindex = "2" })
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard">Status *:</label>
+                                @Html.CheckBoxFor(a => a.sms.isActive, new { @class = "form-control", @id = "chkActive", @tabindex = "2" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Detail *:</label>
+                                @Html.TextAreaFor(a => a.sms.detail, new { @class = "form-control", @required = "required", @id = "address", @tabindex = "3", @rows = 10 })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

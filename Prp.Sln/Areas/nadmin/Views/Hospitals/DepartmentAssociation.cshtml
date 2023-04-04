@@ -1,0 +1,238 @@
+﻿@{
+    ViewBag.Title = "Department Association";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.HospitalModelAdmin
+@section RenderCss{
+    <style>
+        .ul_chk {
+            width: 100%;
+            float: left;
+            padding-left: 0px;
+        }
+
+        .ul_hd li {
+            background-color: rgba(52, 73, 94, 0.94);
+            color: #fff;
+        }
+
+        .ul_chk li {
+            width: 33%;
+            float: left;
+            list-style: none;
+            margin-bottom: 5px;
+        }
+
+            .ul_chk li .lbl_chk {
+                width: 70%;
+                float: left;
+            }
+
+            .ul_chk li .lbl_had {
+                width: 70%;
+                float: left;
+                font-weight: bold;
+            }
+
+            .ul_chk li span {
+                width: 29%;
+                height: 25px;
+                float: left;
+                font-weight: bold;
+            }
+
+
+            .ul_chk li .txt {
+                width: 29%;
+                height: 25px;
+                float: left;
+            }
+
+            .ul_chk li .chk {
+                margin-right: 5px;
+            }
+
+        .div-chk-list {
+            width: 100%;
+            float: left;
+            border: 1px solid #ced4da;
+            padding: 5px;
+        }
+    </style>
+}
+
+@section RenderScript{
+
+    <script>
+
+        var hospitalId = 0, departmentIds = "";
+
+        $(document).ready(function () {
+
+            hospitalId = ConvertToInt($("#hfdHospitalId").val());
+            if (hospitalId > 0) {
+                $("#ddlHospital").val(hospitalId);
+                $('#ddlHospital').trigger("chosen:updated");
+
+                GetAndBindDepartment();
+            }
+
+
+            $(document).on('change', '#ddlHospital', function () {
+                hospitalId = $(this).val();
+
+                $("#hfdHospitalId").val(hospitalId);
+
+                if (hospitalId > 0)
+                    GetAndBindDepartment();
+            });
+
+            $(document).on('click', '#btnSave', function () {
+
+
+                if (ValidateForm()) {
+
+                    var url = "/Hospitals/DepartmentHospitalAddUpdate?hospitalId=" + hospitalId + "&ids=" + departmentIds;
+
+                    debugger;
+
+                    var resp = CallActionGet(url);
+
+                    if (resp.status) {
+
+                        $("#divliList").html("");
+                        $("#ddlHospital").val(0);
+                        $('#ddlHospital').trigger("chosen:updated");
+                        $(".kk").hide();
+                        alert(resp.msg);
+                    }
+
+                }
+
+
+            });
+
+        });
+
+
+        function GetAndBindDepartment() {
+
+            var html = "";
+
+            $("#divliList").html(html);
+
+            var listAll = CallActionGet("/Hospitals/GetDepartmentForHospital?hospitalId=" + hospitalId);
+            if (listAll != null && listAll.length > 0) {
+
+                var checked = "";
+
+                var ddlItem = {};
+                for (var i = 0; i < listAll.length; i++) {
+                    ddlItem = listAll[i];
+
+                    instituteIdSelected = 0;
+                    checked = "";
+
+                    if (ddlItem.isActive)
+                        checked = "checked";
+
+                    html = html + "<li>"
+                        + "<label class='lbl_chk'> <input class='chk' type='checkbox' name=''  id='chk_" + ddlItem.value + "' " + checked + " >" + ddlItem.key + " </label>"
+                        + "</li>";
+                }
+
+                $(".kk").show();
+                html = "<ul id='ulList' class='ul_chk' style='max-height:415px; overflow:hidden; overflow-y: visible;'>" + html + "</ul>";
+                $("#divliList").html(html);
+            }
+            else {
+                $(".kk").hide();
+                $("#divliList").html("");
+            }
+
+        }
+
+        function ValidateForm() {
+
+            var isOk = true;
+            try {
+
+                if (hospitalId == 0) {
+                    alert("Please select hospital.");
+                    isOk = false;
+                }
+
+                var departmentId = 0, totalCount = 0;
+                departmentIds = "";
+
+                $('.chk').filter(':checked').each(function () {
+                    departmentId = ConvertToInt($(this).attr("id").replace("chk_", ""));
+                    if (departmentId > 0) {
+                        departmentIds = departmentIds + "," + departmentId;
+                        totalCount = totalCount + 1;
+                    }
+                });
+
+                if (totalCount == 0) {
+                    alert("Please select minimum one department.");
+                    isOk = false;
+                }
+
+            } catch (e) {
+                isOk = false;
+            }
+            return isOk;
+        }
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Department Association </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/hospital-manage" class="btn btn-info"> Manage Hospital</a>
+                </div>
+                <div class="panel_toolbox">
+                    <a href="/admin/department-manage" class="btn btn-info"> Manage Department</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="form-group col-lg-12">
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        @Html.HiddenFor(m => m.hospitalId, new { @id = "hfdHospitalId" })
+                        <label for="heard">Hospital :</label>
+                        <select id="ddlHospital" class="form-control chosen-select">
+                            <option value="0">Select One </option>
+                            @foreach (var item in Model.listHospital)
+                            {
+                                <option value="@(item.value)"> @item.key </option>
+                            }
+
+                        </select>
+                    </div>
+                </div>
+                <div id="kk" class="form-group col-lg-12 kk" style="display:none;">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label for="heard">Hospital :</label>
+                        <div id="divliList" class="div-chk-list">
+                            <ul id="ulList" class="ul_chk" style="max-height:415px; overflow:hidden; overflow-y: visible;">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ln_solid"></div>
+                <div class="form-group  col-lg-12 kk" style="display:none;">
+                    <div class="col-md-9 col-sm-9 col-xs-12" style="margin-left:2%;">
+                        <button id="btnSave" type="button" class="btn btn-success" tabindex="4">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

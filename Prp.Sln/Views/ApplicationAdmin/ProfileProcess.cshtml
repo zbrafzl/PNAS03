@@ -1,0 +1,960 @@
+﻿
+@{
+    ViewBag.Title = "Applicant Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ProfileModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, applicantDetailId = 0, objApplicant = {}, objApplicantInfo = {},
+            imagesPath = "", districtListAll = [];
+
+        $(document).ready(function () {
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            imagesPath = "/Images/Applicant/" + applicantId + "/";
+
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+
+            $("#txtDob").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                startDate: '-90y',
+                endDate: '-20y'
+            }
+            );
+
+            $("#txtExpiryDatePMDC").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true,
+                    startDate: '-2m'
+                }
+            );
+
+            $("#txtDateOfPassingMBBS").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true,
+                    endDate: new Date()
+                }
+            );
+
+            $("#txtCNICExpiryDate").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true,
+                    startDate: '-2m'
+                }
+            );
+
+
+
+            $("#txtPassingDateMSMD").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true,
+                    endDate: new Date()
+                }
+            );
+
+            $(document).on('change', 'input:radio[name="rbtndisable"]', function () {
+
+                var attrId = $(this).attr("id");
+                if (attrId == "rbtnDisableYes") {
+
+                    $("#divDisable").show();
+                }
+                else if (attrId == "rbtnDisableNo") {
+
+                    $("#divDisable").hide();
+                }
+            });
+
+            $(document).on('change', '#ddlCountry', function () {
+                var countryId = ConvertToInt($(this).val());
+
+                if (countryId > 0) {
+
+                    $("#divDDLDistrict").hide();
+                    $("#divTxtDistrict").hide();
+                    $(".divDomicile").hide();
+
+                    $("#txtCNIC").removeClass("numeric");
+
+                    $("#txtCNIC").val("");
+                    $("#txtCNICExpiryDate").val("");
+
+
+                    $("#txtCNIC").removeAttr("placeholder");
+
+                    if (countryId == 132) {
+
+                        $("#txtCNIC").attr("placeholder", "CNIC");
+
+                        // For Pakistan
+                        $("#divDDLDistrict").show();
+                        $(".divDomicile").show();
+
+                        $(".spnCnic").html("CNIC");
+                        $("#spnCnicUpload1").html("CNIC Front Picture");
+                        $("#spnCnicUpload2").html("CNIC Back Picture");
+
+                        $("#txtCNIC").addClass("numeric");
+                        $("#txtCNIC").attr("len", "13");
+
+
+                        var provinceId = ConvertToInt($("#ddlDomicileProvince").val());
+                        DDLSetToDefault("ddlDomicileDistrict", 'Select One', 0);
+                        if (provinceId > 0)
+                            BindDistrictDDLDomicile(provinceId, 0);
+                    }
+                    else {
+
+                        $("#txtCNIC").attr("placeholder", "Passport");
+                        $("#divTxtDistrict").show();
+                        $(".spnCnic").html("Passport");
+                        $("#txtCNIC").attr("len", "20");
+                        $("#spnCnicUpload1").html("Passport 1st Page");
+                        $("#spnCnicUpload2").html("Passport 2nd Page");
+                    }
+                }
+
+            });
+
+            $(document).on('change', '#ddlDomicileProvince', function () {
+                var provinceId = $(this).val();
+
+
+                $("#divDisableRadio").hide();
+
+                DDLSetToDefault("ddlDomicileDistrict", 'Select One', 0);
+
+                if (provinceId == 196)
+                    $("#divDisableRadio").show();
+
+                if (provinceId > 0)
+                    BindDistrictDDLDomicile(provinceId, 0);
+            });
+
+            $(document).on('click', '#btnProfileSave', function () {
+                SaveAndProceed();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SaveAndProceed();
+                }
+            });
+
+            GetApplicantInfo();
+            BindApplicantProfileInfo();
+
+        });
+
+        function BindDistrictDDL(provinceId, districtId) {
+
+            var list = CallActionGet("/Common/RegionGetByCondition?typeId=4" + "&parentId=" + provinceId + "&condition=GetDistrictAll");
+
+            if (list != null && list.length > 0) {
+
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (districtId == ddlItem.regionId)
+                        $("#ddlDistrict").append("<option  value='" + ddlItem.regionId + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlDistrict").append("<option  value='" + ddlItem.regionId + "'>" + ddlItem.name + "</option>");
+                }
+            }
+        }
+
+        function BindDistrictDDLDomicile(provinceId, districtId) {
+
+            var list = CallActionGet("/Common/RegionGetByCondition?typeId=4" + "&parentId=" + provinceId + "&condition=GetDistrictByParent");
+
+            if (list != null && list.length > 0) {
+
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (districtId == ddlItem.regionId)
+                        $("#ddlDomicileDistrict").append("<option  value='" + ddlItem.regionId + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlDomicileDistrict").append("<option  value='" + ddlItem.regionId + "'>" + ddlItem.name + "</option>");
+                }
+            }
+        }
+
+        function SaveAndProceed() {
+
+            objApplicantInfo = ValidateFormInfo();
+
+            if (objApplicantInfo.isError == false) {
+
+                var resp = CallActionPost("/ApplicationAdmin/ApplicantInfoAddUpdate", objApplicantInfo);
+                location.reload();
+            }
+
+        }
+
+        function ValidateFormInfo() {
+
+
+            var isError = false, disableId = 1, ctrl = "";
+            objApplicantInfo = {};
+
+            $(".req-fld").removeClass("req-fld");
+
+
+            /* Get Values
+           *****************************************************************************/
+
+
+
+            objApplicantInfo.fatherName = ConvertToString($("#txtFatherName").val());
+            objApplicantInfo.genderId = ConvertToInt($("#ddlGender").val());
+
+            objApplicantInfo.dob = ConvertToString($("#txtDob").val());
+            objApplicantInfo.pmdcExpiryDate = ConvertToString($("#txtExpiryDatePMDC").val());
+            objApplicantInfo.mbbsPassingDate = ConvertToString($("#txtDateOfPassingMBBS").val());
+            objApplicantInfo.countryIdDegreePassing = ConvertToInt($("#ddlCountryDegree").val());
+
+            objApplicantInfo.countryId = ConvertToInt($("#ddlCountry").val());
+
+            objApplicantInfo.districtId = 0;
+            objApplicantInfo.districtName = "";
+            objApplicantInfo.domicileProvinceId = 0;
+            objApplicantInfo.domicileDistrictId = 0;
+            objApplicantInfo.domicilePicFront = "";
+            objApplicantInfo.domicilePicBack = "";
+
+            if (objApplicantInfo.countryId == 132) {
+                // Pakistan
+                objApplicantInfo.districtId = ConvertToInt($("#ddlDistrict").val());
+                objApplicantInfo.districtName = "";
+                objApplicantInfo.domicileProvinceId = $("#ddlDomicileProvince").val();
+                objApplicantInfo.domicileDistrictId = $("#ddlDomicileDistrict").val();
+
+                if ($("#flDomicileFront").val()) {
+                    objApplicantInfo.domicilePicFront = UploadImage("flDomicileFront", applicantId, "DomicileFront");
+                    $("#hfdDomicileFront").val(objApplicantInfo.domicilePicFront);
+                }
+                objApplicantInfo.domicilePicFront = ConvertToString($("#hfdDomicileFront").val());
+
+                //if ($("#flDomicileBack").val()) {
+                //    objApplicantInfo.domicilePicBack = UploadImage("flDomicileBack", applicantId, "DomicileBack");
+                //    $("#hfdDomicileBack").val(objApplicantInfo.domicilePicBack);
+                //}
+                //objApplicantInfo.domicilePicBack = ConvertToString($("#hfdDomicileBack").val());
+                objApplicantInfo.domicilePicBack = "";
+            }
+            else {
+
+                objApplicantInfo.districtId = 0;
+                objApplicantInfo.districtName = ConvertToString($("#txtDistrict").val());
+                objApplicantInfo.domicileProvinceId = 0;
+                objApplicantInfo.domicileDistrictId = 0;
+            }
+
+            objApplicantInfo.address = ConvertToString($("#txtAddress").val());
+            objApplicantInfo.cnicNo = ConvertToString($("#txtCNIC").val());
+            objApplicantInfo.cnicExpiryDate = ConvertToString($("#txtCNICExpiryDate").val());
+
+            if ($("#flCnicFront").val()) {
+                objApplicantInfo.cnicPicFront = UploadImage("flCnicFront", applicantId, "CnicFront");
+                $("#hfdCnicFront").val(objApplicantInfo.cnicPicFront);
+            }
+            objApplicantInfo.cnicPicFront = ConvertToString($("#hfdCnicFront").val());
+
+            if ($("#flCnicBack").val()) {
+                objApplicantInfo.cnicPicBack = UploadImage("flCnicBack", applicantId, "CnicBack");
+                $("#hfdCnicBack").val(objApplicantInfo.cnicPicBack);
+            }
+            objApplicantInfo.cnicPicBack = ConvertToString($("#hfdCnicBack").val());
+
+            if ($("#flPic").val()) {
+                objApplicantInfo.pic = UploadImage("flPic", applicantId, "pic");
+                $("#hfdPic").val(objApplicantInfo.pic);
+            }
+            objApplicantInfo.pic = ConvertToString($("#hfdPic").val());
+
+            objApplicant.pic = ConvertToString($("#hfdPic").val());
+
+            disableId = 1;
+            if (objApplicantInfo.domicileProvinceId == 196) {
+
+
+                if ($("#rbtnDisableYes").is(':checked'))
+                    disableId = 2;
+                else if ($("#rbtnDisableNo").is(':checked'))
+                    disableId = 1;
+
+                objApplicantInfo.disableImage = "";
+                if (disableId == 2) {
+
+                    if ($("#flDisable").val()) {
+                        objApplicantInfo.disableImage = UploadImage("flDisable", applicantId, "Disable");
+                        $("#hfdDisable").val(objApplicantInfo.disableImage);
+                    }
+                    objApplicantInfo.disableImage = ConvertToString($("#hfdDisable").val());
+                }
+
+            }
+            else {
+                objApplicantInfo.disableImage = "";
+            }
+
+            objApplicantInfo.disableId = disableId;
+
+            /* Verifing
+             *****************************************************************************/
+
+            if (objApplicantInfo.fatherName == "") {
+                $("#txtFatherName").addClass("req-fld");
+                ctrl = "txtFatherName";
+                isError = true;
+            }
+            if (objApplicantInfo.dob == "") {
+
+                $("#txtDob").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtDob";
+            }
+
+            if (objApplicantInfo.pmdcExpiryDate == "") {
+
+                $("#txtExpiryDatePMDC").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtExpiryDatePMDC";
+            }
+
+            if (objApplicantInfo.mbbsPassingDate == "") {
+
+                $("#txtDateOfPassingMBBS").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtDateOfPassingMBBS";
+            }
+
+            if (objApplicantInfo.countryIdDegreePassing == 0) {
+
+                $("#ddlCountryDegree").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlCountryDegree";
+            }
+
+            if (objApplicantInfo.countryId == 0) {
+
+                $("#ddlCountry").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlCountry";
+            }
+
+
+            if (objApplicantInfo.countryId == 132) {
+                // Pakistan
+                if (objApplicantInfo.districtId == 0) {
+
+                    $("#ddlDistrict").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "ddlDistrict";
+                }
+
+                if (objApplicantInfo.domicileProvinceId == 0) {
+
+                    $("#ddlDomicileProvince").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "ddlDomicileProvince";
+                }
+
+                if (objApplicantInfo.domicileDistrictId == 0) {
+
+                    $("#ddlDomicileDistrict").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "ddlDomicileDistrict";
+                }
+
+                if (objApplicantInfo.domicilePicFront == "") {
+
+                    $("#flDomicileFront").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flDomicileFront";
+                }
+
+                //if (objApplicantInfo.domicilePicBack == "") {
+
+                //    $("#flDomicileBack").addClass("req-fld");
+                //    isError = true;
+                //    if (ctrl == "")
+                //        ctrl = "flDomicileBack";
+                //}
+
+
+            }
+            else {
+
+                if (objApplicantInfo.districtName == "") {
+
+                    $("#txtDistrict").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtDistrict";
+                }
+            }
+
+            if (objApplicantInfo.address == "") {
+
+                $("#txtAddress").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtAddress";
+            }
+
+            if (objApplicantInfo.cnicNo == "") {
+
+                $("#txtCNIC").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtCNIC";
+            }
+            else {
+                if (objApplicantInfo.countryId == 132) {
+
+                    if (objApplicantInfo.cnicNo.length < 13) {
+                        $("#txtCNIC").addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = "txtCNIC";
+
+                        alert("Please enter complete 13 digits");
+                    }
+
+                }
+                else {
+
+                    if (objApplicantInfo.cnicNo.length < 7) {
+
+
+                        $("#txtCNIC").addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = "txtCNIC";
+
+                        alert("Please enter complete passport no");
+                    }
+                }
+
+            }
+
+
+
+            if (objApplicantInfo.cnicExpiryDate == "") {
+
+                $("#txtCNICExpiryDate").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtCNICExpiryDate";
+            }
+
+
+            if (objApplicantInfo.cnicPicFront == "") {
+
+                $("#flCnicFront").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flCnicFront";
+            }
+
+            if (objApplicantInfo.cnicPicBack == "") {
+
+                $("#flCnicBack").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flCnicBack";
+            }
+
+            if (objApplicantInfo.pic == "") {
+
+                $("#flPic").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flPic";
+            }
+
+            if (disableId == 2) {
+                if (objApplicantInfo.disableImage == "") {
+
+                    $("#flDisable").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flDisable";
+                }
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            objApplicantInfo.isError = isError;
+
+            return objApplicantInfo;
+        }
+
+        function GetApplicantInfo() {
+
+            var resp = CallActionGet("/ApplicantProfile/GetApplicantInfo?applicantId=" + applicantId);
+
+            if (resp != null && resp.applicantId > 0) {
+                objApplicant = resp;
+                BindApplicantInfo();
+            }
+        }
+
+        function BindApplicantProfileInfo() {
+
+            var resp = CallActionGet("/ApplicantProfile/GetApplicantProfileData?applicantId=" + applicantId);
+            if (resp != null) {
+
+                if (resp != null && resp.applicantDetailId > 0) {
+
+                    objApplicantInfo = resp;
+                    BindProfileInfo(true);
+                }
+            }
+        }
+
+        function BindApplicantInfo() {
+
+
+            $("#txtName").val(objApplicant.name);
+            $("#txtEmail").val(objApplicant.emailId);
+            $("#txtPMDCNo").val(objApplicant.pmdcNo);
+            $("#txtContactNo").val(objApplicant.contactNumber);
+        }
+
+        function BindProfileInfo(IsRefresh) {
+
+            applicantDetailId = objApplicantInfo.applicantDetailId;
+
+
+
+            $("#txtFatherName").val(objApplicantInfo.fatherName);
+            $("#ddlGender").val(objApplicantInfo.genderId);
+            $("#txtDob").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objApplicantInfo.dob)));
+            $("#txtExpiryDatePMDC").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objApplicantInfo.pmdcExpiryDate)));
+            $("#txtDateOfPassingMBBS").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objApplicantInfo.mbbsPassingDate)));
+            $("#ddlCountryDegree").val(objApplicantInfo.countryIdDegreePassing);
+
+            $("#ddlCountry").val(objApplicantInfo.countryId);
+            BindDistrictDDL(0, objApplicantInfo.districtId);
+
+            $("#divDDLDistrict").hide();
+            $("#divTxtDistrict").hide();
+            $(".divDomicile").hide();
+            $(".spnCnic").html("CNIC");
+            $("#spnCnicUpload1").html("CNIC Front Picture");
+            $("#spnCnicUpload2").html("CNIC Back Picture");
+
+
+
+            if (objApplicantInfo.countryId == 132) {
+                // For Pakistan
+                $("#divDDLDistrict").show();
+                $(".divDomicile").show();
+                $(".spnCnic").html("CNIC");
+
+                $("#spnCnicUpload1").html("CNIC Front Picture");
+                $("#spnCnicUpload2").html("CNIC Back Picture");
+
+
+                if (objApplicantInfo.domicileProvinceId == 0)
+                    objApplicantInfo.domicileProvinceId = 196; // punjab
+
+
+
+                $("#ddlDomicileProvince").val(objApplicantInfo.domicileProvinceId);
+
+                DDLSetToDefault("ddlDomicileDistrict", 'Select One', 0);
+                BindDistrictDDLDomicile(objApplicantInfo.domicileProvinceId, objApplicantInfo.domicileDistrictId);
+                $("#ddlDomicileDistrict").val(objApplicantInfo.domicileDistrictId);
+            }
+            else {
+
+                $("#spnCnicUpload1").html("Passport 1st Page");
+                $("#spnCnicUpload2").html("Passport 2nd Page");
+
+                $(".spnCnic").html("Passport");
+                $("#divTxtDistrict").show();
+                $("#txtDistrict").val(objApplicantInfo.districtName);
+            }
+
+            $("#txtAddress").val(objApplicantInfo.address);
+            $("#txtCNIC").val(objApplicantInfo.cnicNo);
+            $("#txtCNICExpiryDate").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objApplicantInfo.cnicExpiryDate)));
+
+
+            $("#hfdCnicFront").val("");
+            if (objApplicantInfo.cnicPicFront.length > 0) {
+
+                $('#imgCnicFront').attr('src', imagesPath + objApplicantInfo.cnicPicFront);
+                $('#imgCnicFront').show();
+                $('#rmvCnicFront').show();
+                $("#hfdCnicFront").val(objApplicantInfo.cnicPicFront);
+            }
+
+            $("#hfdCnicBack").val("");
+            if (objApplicantInfo.cnicPicFront.length > 0) {
+
+                $('#imgCnicBack').attr('src', imagesPath + objApplicantInfo.cnicPicBack);
+                $('#imgCnicBack').show();
+                $('#rmvCnicBack').show();
+                $("#hfdCnicBack").val(objApplicantInfo.cnicPicBack);
+            }
+
+            $("#hfdDomicileFront").val("");
+            if (objApplicantInfo.domicilePicFront.length > 0) {
+                $('#imgDomicileFront').attr('src', imagesPath + objApplicantInfo.domicilePicFront);
+                $('#imgDomicileFront').show();
+                $('#rmvDomicileFront').show();
+                $("#hfdDomicileFront").val(objApplicantInfo.domicilePicFront);
+            }
+
+            $("#hfdDomicileBack").val("");
+            if (objApplicantInfo.domicilePicBack.length > 0) {
+                $('#imgDomicileBack').attr('src', imagesPath + objApplicantInfo.domicilePicBack);
+                $('#imgDomicileBack').show();
+                $('#rmvDomicileBack').show();
+                $("#hfdDomicileBack").val(objApplicantInfo.domicilePicBack);
+            }
+
+
+            $("#hfdPic").val("");
+            if (objApplicant.pic.length > 0) {
+                $('#imgPic').attr('src', imagesPath + objApplicant.pic);
+                $('#imgPic').show();
+                $('#rmvPic').show();
+                $("#hfdPic").val(objApplicant.pic);
+            }
+
+
+            $("#divDisable").hide();
+            $("#divDisableRadio").hide();
+            if (objApplicantInfo.domicileProvinceId == 196) {
+
+
+                $("#divDisableRadio").show();
+
+                if (objApplicantInfo.disableId == 2) {
+
+                    $("#divDisable").show();
+                    $("#rbtnDisableYes").attr("checked", "checked");
+
+
+                    $("#hfdDisable").val("");
+                    if (objApplicantInfo.disableImage.length > 0) {
+                        $('#imgDisable').attr('src', imagesPath + objApplicantInfo.disableImage);
+                        $('#imgDisable').show();
+                        $('#rmvDisable').show();
+                        $("#hfdDisable").val(objApplicantInfo.disableImage);
+                    }
+
+                }
+
+                else
+                    $("#rbtnDisableNo").attr("checked", "checked");
+            }
+
+
+
+        }
+
+    </script>
+
+}
+<div class="container" style="margin-bottom:60px;">
+    <div class="row main">
+        @Html.Partial("_ApplicationUpdateLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <form role="form" enctype="multipart/form-data" action="#" method="POST" id="reg_form">
+                            <h3 class="text-center">Personal Information : Step 1 of 6 </h3>
+                            <hr class="colorgraph">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for=""> Full Name <span style="color:red">*</span></label>
+                                        <input type="text" name="txtName" maxlength="70" id="txtName" class="form-control" placeholder="First Name" tabindex="2" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""> Father/Husband Name <span style="color:red">*</span></label>
+                                        <input type="text" name="txtFatherName" id="txtFatherName" maxlength="70" class="form-control" placeholder="Father/Husband Name" tabindex="3">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""> Gender   <span style="color:red">*</span></label>
+                                        <select required="required" name="ddlGender" id="ddlGender" class="form-control" tabindex="4">
+                                            <option selected="selected" value="1">Male</option>
+                                            <option value="2">Female</option>
+                                            <option value="3">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""> Date of Birth <span style="color:red">*</span></label>
+                                        <input type="text" name="dob" id="txtDob" class="form-control datepicker" tabindex="5">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""> Date of Passing MBBS/BDS <span style="color:red">*</span></label>
+                                        <input type="text" maxlength="11" name="txtDateOfPassingMBBS" id="txtDateOfPassingMBBS" class="datepicker form-control" tabindex="6">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""> Country of Passing MBBS/BDS <span style="color:red">*</span></label>
+                                        <select class="form-control" name="ddlCountryDegree" id="ddlCountryDegree" required="required" tabindex="7"  readonly="readonly">
+                                            @foreach (var u in Model.listCountry)
+                                            {
+                                                <option value="@u.regionId"> @u.name </option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for=""> Email <span style="color:red">*</span></label>
+                                        <input readonly="readonly" type="text" maxlength="200" name="txtEmail" id="txtEmail" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for="">Contact <span style="color:red">*</span></label>
+                                        <input required="required" type="text" name="txtContactNo" id="txtContactNo" maxlength="11" class="form-control" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for="">PMDC Number <span style="color:red">*</span></label>
+                                        <input required="required" type="text" id="txtPMDCNo" name="txtPMDCNo" class="form-control" placeholder="PMDC Number" readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for=""> PMDC Expiry Date <span style="color:red">*</span></label>
+                                        <input type="text" class="form-control datepicker" name="txtExpiryDatePMDC" id="txtExpiryDatePMDC" tabindex="8">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for=""> Nationality <span style="color:red">*</span></label>
+                                        <select class="form-control" name="ddlCountry" id="ddlCountry" required="required" tabindex="7"  readonly="readonly">
+                                            <option value="">Select Country</option>
+                                            @foreach (var u in Model.listCountry)
+                                            {
+                                                <option value="@u.regionId"> @u.name </option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="divDDLDistrict" class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for=""> District of Residence <span style="color:red">*</span></label>
+                                        <select id="ddlDistrict" name="ddlDistrict" class="form-control" tabindex="12"  readonly="readonly">
+                                            <option value="0" selected="selected"> Select One </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="divTxtDistrict" class="col-xs-12 col-sm-4 col-md-4" style="display:none">
+                                    <div class="form-group">
+                                        <label for=""> District of Resident <span style="color:red">*</span></label>
+                                        <input required="required" type="text" name="txtDistrict" id="txtDistrict" class="form-control lenth" len="100" placeholder="District" tabindex="9" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""><span class="spnCnic"> CNIC </span> <span style="color:red">*</span>  <small>(Without dashes) </small></label>
+                                        <!--  <input readonly="readonly" type = "text" name = "cnic" id = "cnic" value = "" class="form-control col-sm-4" placeholder = "" > -->
+                                        <input required="required" type="text" name="txtCNIC" id="txtCNIC" class="form-control lenth numeric" len="13" placeholder="CNIC" tabindex="9" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""> Expiry on <span class="spnCnic"> CNIC </span> <span style="color:red">*</span></label>
+                                        <input required="required" type="text" name="txtCNICExpiryDate" id="txtCNICExpiryDate" class="form-control datepicker" tabindex="10">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row divDomicile">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""> Province of Domicile <span style="color:red">*</span></label>
+                                        <select id="ddlDomicileProvince" name="ddlDomicileProvince" class="form-control" tabindex="12"  readonly="readonly">
+                                            @foreach (var u in Model.listProvince)
+                                            {
+                                                <option value="@u.regionId"> @u.name </option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for=""> District of Domicile <span style="color:red">*</span></label>
+                                        <select id="ddlDomicileDistrict" name="ddlDomicileDistrict" class="form-control" tabindex="12">
+                                            <option value="0" selected="selected"> Select One </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="divDisableRadio" class="col-xs-12 col-sm-4 col-md-4" style="display:none;">
+                                    <div class="form-group">
+                                        <label for=""> Do you want to apply for disability quota?  <span style="color:red">*</span></label> <br>
+                                        <label><input type="radio" name="rbtndisable" id="rbtnDisableYes" value="Y"  disabled> Yes &nbsp;&nbsp;</label>
+                                        <label><input type="radio" name="rbtndisable" id="rbtnDisableNo" value="N" checked=""  disabled> No  &nbsp;&nbsp;</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label for=""> Address  <span style="color:red">*</span></label>
+                                        <textarea class="form-control" required="required" name="txtAddress" id="txtAddress" tabindex="13"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;">  Allowed Upload Image types are jpg or png only with size less then 500 KB each.</p> <hr>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for=""> Profile Picture  <span style="color:red">*</span></label>
+                                        <input type="file" class="form-control flup" name="flPic" id="flPic" tabindex="14" />
+                                        <input type="hidden" id="hfdPic" value="" />
+                                        <img id="imgPic" class="flup-img" src="" alt="" style="display:none;" />
+                                        <a id="rmvPic" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for=""> <span id="spnCnicUpload1"> CNIC Front Picture</span> <span style="color:red">*</span>  </label>
+                                        <input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="15" />
+                                        <input type="hidden" id="hfdCnicFront" value="" />
+                                        <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
+                                        <a id="rmvCnicFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for=""> <span id="spnCnicUpload2"> CNIC Back Picture</span> <span style="color:red">*</span>  </label>
+                                        <input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="16" />
+                                        <input type="hidden" id="hfdCnicBack" value="" />
+                                        <img id="imgCnicBack" class="flup-img" src="" alt="" style="display:none;" />
+                                        <a id="rmvCnicBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row divDomicile">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for=""> Domicile Front Picture <span style="color:red">*</span> </label>
+                                        <input type="file" class="form-control flup" name="flDomicileFront" id="flDomicileFront" tabindex="17" />
+                                        <input type="hidden" id="hfdDomicileFront" value="" />
+                                        <img id="imgDomicileFront" class="flup-img" src="" alt="" style="display:none;" />
+                                        <a id="rmvDomicileFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4" style="display:none;">
+                                    <div class="form-group">
+                                        <label for=""> Domicile Back Picture <span style="color:red">*</span> </label>
+                                        <input type="file" class="form-control flup" name="flDomicileBack" id="flDomicileBack" tabindex="18" />
+                                        <input type="hidden" id="hfdDomicileBack" value="" />
+                                        <img id="imgDomicileBack" class="flup-img" src="" alt="" style="display:none;" />
+                                        <a id="rmvDomicileBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    </div>
+                                </div>
+                                <div id="divDisable" class="col-sm-4" style="display:none;">
+                                    <div class="form-group">
+                                        <label for=""> Disable Certificate <span style="color:red">*</span> </label>
+                                        <input type="file" class="form-control flup" name="flDisable" id="flDisable" tabindex="18" />
+                                        <input type="hidden" id="hfdDisable" value="" />
+                                        <img id="imgDisable" class="flup-img" src="" alt="" style="display:none;" />
+                                        <a id="rmvDisable" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <span id="btnProfileSave" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="19">Update</span>
+                            </div>
+                        </form>
+                    </div>
+                  
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

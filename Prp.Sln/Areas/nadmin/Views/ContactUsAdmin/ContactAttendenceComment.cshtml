@@ -1,0 +1,145 @@
+﻿@{
+    ViewBag.Title = "Status - Comments";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ContactAdminModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+        var typeId = 0;
+
+        $(document).ready(function () {
+
+
+
+            typeId = ConvertToInt($("#hfdTypeId").val());
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SaveGCStatusData();
+                }
+            });
+
+            $(document).on('click', '#btnSave', function () {
+
+                SaveGCStatusData();
+            });
+
+        });
+
+        function SaveGCStatusData() {
+
+            try {
+
+                var obj = {};
+                obj.id = ConvertToInt($("#hfdID").val());
+                obj.contactId = ConvertToInt($("#hfdContactId").val());
+                obj.comments = ConvertToString($("#txtComments").val());
+                obj.statusId = ConvertToInt($("#ddlStatus").val());
+
+                var resp = CallActionPost("/ContactUsAdmin/SaveAttendenceStatus", obj);
+
+                var url = "/admin/attendence-list-verification";
+
+                if (typeId == 21)
+                    url = "/admin/attendence-list-gazette";
+
+                window.location.href = url;
+
+
+            } catch (e) {
+
+            }
+
+        }
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Grievance Action </h2>
+                <div class="panel_toolbox">
+
+                    @if (Model.contact != null && Model.contact.typeId == 11)
+                    {
+                        <a href="/admin/attendence-verification" class="btn btn-info"> Attendence Listing</a>
+                    }
+                    else if (Model.contact != null && Model.contact.typeId == 21)
+                    {
+                        <a href="/admin/attendence-gazette" class="btn btn-info">  Attendence Listing</a>
+                    }
+
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+
+                <form>
+
+                    @Html.HiddenFor(m => m.attendence.contactIdAttendenceId, new { @id = "hfdID" })
+                    @Html.HiddenFor(m => m.contact.contactId, new { @id = "hfdContactId" })
+                    @Html.HiddenFor(m => m.attendence.isSelf, new { @id = "hfdIsSelf" })
+
+
+                    @Html.HiddenFor(m => m.contact.typeId, new { @id = "hfdTypeId" })
+
+                    @Html.HiddenFor(m => m.applicant.applicantId, new { @id = "hfdApplicantId" })
+
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-9 col-sm-9 col-xs-9">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Name *:</label>
+                                @Html.TextBoxFor(a => a.applicant.name, new { @class = "form-control", @required = "required", @id = "txtID", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">PMDC No *:</label>
+                                @Html.TextBoxFor(a => a.applicant.pmdcNo, new { @class = "form-control", @required = "required", @id = "txtCode", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Contact No *:</label>
+                                @Html.TextBoxFor(a => a.applicant.contactNumber, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Subject :</label>
+                                @Html.TextBoxFor(a => a.contact.title, new { @class = "form-control", @id = "txtShortDesc", @tabindex = "10", @readonly = "readonly" })
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Status :</label>
+                                    @Html.DropDownListFor(a => a.status.statusId, new SelectList(Model.listStatus, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlStatus", @tabindex = "1" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <img style="height:220px;" src="@("https://prp.phf.gop.pk/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicant.pic)" />
+                        </div>
+                    </div>
+
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="heard">Remarks *:</label>
+                            @Html.TextAreaFor(a => a.status.comments, new { @class = "form-control", @required = "required", @id = "txtComments", @tabindex = "2", @cols = 80, @rows = 5 })
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="ln_solid"></div>
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <input id="btnSave" type="button" class="btn btn-success" value="Save" tabindex="3" />
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

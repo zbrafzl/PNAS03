@@ -1,0 +1,186 @@
+﻿
+@{
+    ViewBag.Title = "Constant Manage";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.MenuManageModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var appId = 0, parentId = 0;
+        $(document).ready(function () {
+
+            appId = $("#hfdAppId").val();
+            parentId = $("#hfdParentId").val();
+
+            $("#ddlApp").val(appId);
+            $("#ddlParent").val(parentId);
+
+
+            $(document).on('click', '#btnSearch', function () {
+
+                parentId = $("#ddlParent").val();
+                appId = $("#ddlApp").val();
+
+                window.location.href = "/admin/menu-manage?appId=" + appId + "&parentId=" + parentId;
+            });
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Menu Manage </h2>
+            <div class="panel_toolbox">
+                <a href="/admin/menu-setup" class="btn btn-info"> Add New</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            @Html.HiddenFor(m => m.appId, new { @id = "hfdAppId" })
+            @Html.HiddenFor(m => m.parentId, new { @id = "hfdParentId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <label for="heard">Application :</label>
+                    <select id="ddlApp" name="ddlApp" class="form-control">
+                        @if (Model != null && (Model.listType != null && Model.listType.Count > 0))
+                        {
+                            foreach (var u in Model.listType)
+                            {
+                                <option value="@u.id"> @u.value </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <label for="heard">Parent :</label>
+                    <select id="ddlParent" name="ddlParent" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                        @if (Model != null && (Model.listParent != null && Model.listParent.Count > 0))
+                        {
+                            foreach (var u in Model.listParent)
+                            {
+                                <option value="@u.menuId"> @u.name </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <label style="width:100%;" for="heard">Search :</label>
+                    <input type="button" id="btnSearch" class="btn btn-success" value="Search">
+
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">ID </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Name Display </th>
+                            <th class="column-title">Parent </th>
+                            <th class="column-title">Url </th>
+                            <th class="column-title">Order </th>
+                            <th class="column-title">Status </th>
+                            <th class="column-title">Menu </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && (Model.listMenu != null && Model.listMenu.Count > 0))
+                        {
+                            var listParent = Model.listMenu.Where(x => x.parentId == 0).ToList().OrderBy(x => x.sortOrder);
+                            if (listParent != null && listParent.Count() > 0)
+                            {
+                                foreach (var pitem in listParent)
+                                {
+                                    <tr>
+                                        <td>@pitem.menuId</td>
+                                        <td>@pitem.name  </td>
+                                        <td>@pitem.nameDisplay  </td>
+                                        <td>@pitem.parentName</td>
+                                        <td>@pitem.url</td>
+                                        <td>@pitem.sortOrder</td>
+                                        @if (pitem.isActive)
+                                        {
+                                            <td>Active</td>
+                                        }
+                                        else
+                                        {
+                                            <td>In-Active</td>
+                                        }
+                                        @if (pitem.isMenu)
+                                        {
+                                            <td>Yes</td>
+                                        }
+                                        else
+                                        {
+                                            <td>No</td>
+                                        }
+                                        <td>
+                                            <a title="Edit Content" class="ank" href="@("/admin/menu-setup?id="+ pitem.menuId)"><i class="fa fa-pencil-square-o"></i></a>
+                                        </td>
+                                    </tr>
+
+
+                                    var listChild = Model.listMenu.Where(x => x.parentId == pitem.menuId).ToList().OrderBy(x => x.sortOrder);
+
+                                    if (listChild != null && listChild.Count() > 0)
+                                    {
+
+                                        foreach (var item in listChild)
+                                        {
+                                            <tr>
+                                                <td>@item.menuId</td>
+                                                <td>@item.name  </td>
+                                                <td>@item.nameDisplay  </td>
+                                                <td>@item.parentName</td>
+                                                <td>@item.url</td>
+                                                <td>@item.sortOrder</td>
+                                                @if (item.isActive)
+                                                {
+                                                    <td>Active</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>In-Active</td>
+                                                }
+                                                @if (item.isMenu)
+                                                {
+                                                    <td>Yes</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>No</td>
+                                                }
+                                                <td>
+                                                    <a title="Edit Content" class="ank" href="@("/admin/menu-setup?id=" + item.menuId)"><i class="fa fa-pencil-square-o"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            }
+
+
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+

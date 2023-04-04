@@ -1,0 +1,335 @@
+﻿@{
+    ViewBag.Title = "Grievance Attendence";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.GrievanceAdminModel
+@section RenderCss{
+
+    <style>
+        .imgView {
+            height: 50px;
+            width: 45px;
+        }
+
+        .chosen-container {
+            width: 100% !important;
+        }
+
+        .chosen-single {
+            height: 39px !important;
+        }
+
+            .chosen-single span {
+                margin-top: 5px !important;
+            }
+
+            .chosen-single div {
+                margin-top: 5px !important;
+            }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var countryTypeId = 0, perPageRecords = 20, statusId = 0
+            , pageNum = 1, totalCount = 0, obj = {};
+        $(document).ready(function () {
+
+
+
+            $("#txtSearch").val($("#hfdSearchTxt").val());
+
+
+
+            SearchGrievance();
+
+
+            $(document).on('click', '#btnSearch', function () {
+                SearchGrievance();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchGrievance();
+                }
+            });
+
+            $(document).on('click', '.liPage', function () {
+
+                var id = ConvertToInt($(this).closest('li').attr("id"));
+
+                $(".liclick").removeClass("current");
+
+                var pageNo = id;// ConvertToInt($(this).val());
+
+                if (pageNo == 0) {
+
+                    if ($(this).attr("type") == "first") {
+
+                        pageNo = 1;
+                    }
+                    else
+                        if ($(this).attr("type") == "last") {
+
+                            var lastPage = Math.ceil(totalCount / perPageRecords);
+                            pageNo = lastPage;
+                        }
+                }
+                pageNum = pageNo;
+
+                SearchGrievance();
+
+            });
+
+        });
+
+        function SearchGrievance() {
+
+
+            debugger;
+
+            var rowHtml = "";
+
+            $("#tbPanel").html("");
+
+            obj = {};
+            obj.top = perPageRecords;
+            obj.pageNum = pageNum;
+            obj.typeId = 6;
+            obj.verficationTypeId = 0;
+            obj.checkListIds = "";
+            obj.search = ConvertToString($("#txtSearch").val());
+
+            var url = "/GrievanceAdmin/GrievanceSearchAttendence";
+
+            var list = CallActionPost(url, obj);
+
+            var html = "", status = "", isSelf = "", datedAttendece = "", attendence = "", display = "";;
+
+            var singleHtml = "", objItem = {};
+            if (list != null && list.length > 0) {
+
+                totalCount = list[0].totalCount;
+                rowHtml = $("#tbTempHtml").html();
+
+                for (var i = 0; i < list.length; i++) {
+
+                    objItem = list[i];
+                    singleHtml = rowHtml;
+
+                    datedAttendece = "";
+                    attendence = "";
+
+                    isSelf = "Self";
+                    status = "In-Active";
+                    if (objItem.isActive == true)
+                        status = "Active";
+
+                    display = "none";
+                    if (objItem.isSelf == 0) {
+                        isSelf = "";
+                        display = "block"
+
+                    }
+                    else if (objItem.isSelf > 1) {
+                        isSelf = "Relative";
+                    }
+
+                    if (objItem.isSelf == 0) {
+                        datedAttendece = "";
+                    }
+                    else {
+                        datedAttendece = objItem.datedAttendece;
+                    }
+
+                    if (objItem.attendenceNo > 0) {
+                        attendence = objItem.attendenceNo;
+                    }
+
+                    html = html + singleHtml.replace(/{#rowNum#}/g, objItem.rowNum)
+                        .replace(/{#name#}/g, objItem.name)
+                        .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                        .replace(/{#contactNumber#}/g, objItem.contactNumber)
+                        .replace(/{#title#}/g, objItem.title)
+                        .replace(/{#isSelf#}/g, isSelf)
+                        .replace(/{#datedAttendece#}/g, datedAttendece)
+                        .replace(/{#grievanceId#}/g, objItem.grievanceId)
+                        .replace(/{#attendenceNo#}/g, attendence)
+                        .replace(/#display#/g, display);
+                }
+
+                $("#tblPanel").show();
+                $("#tbPanel").html(html);
+
+                if (totalCount > 0)
+                    CreatePaginationHtml(perPageRecords, totalCount, pageNum);
+            }
+            else {
+
+                $("#tblPanel").hide();
+                $("#tbPanel").html("");
+            }
+
+        }
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+        function ShowingRowsText(perPageRecords, count, pageNum) {
+
+            var rcordsNow = pageNum * perPageRecords;
+            var startRecords = rcordsNow - perPageRecords;
+            if (rcordsNow > count)
+                rcordsNow = count;
+
+            startRecords = startRecords + 1;
+            $("#divShowingResult").html("Showing " + startRecords + " to " + rcordsNow + " of " + count + " entries");
+
+
+        }
+
+        function CreatePaginationHtml(perPageRecords, count, pageNum) {
+
+            try {
+
+                ShowingRowsText(perPageRecords, count, pageNum);
+                $("#divPagination").show();
+
+                var htmlPagination = $("#templatePagination").html();
+                var pageStart = 1, pageEnd = 5;
+                var lastPage = Math.ceil(count / perPageRecords);
+
+                if (pageNum > 3) {
+                    pageStart = pageNum - 2;
+                    pageEnd = pageNum + 2;
+                }
+
+                if (pageEnd > lastPage)
+                    pageEnd = lastPage;
+
+                var lisHtml = "";
+                for (var i = pageStart; i <= pageEnd; i++) {
+                    lisHtml = lisHtml + "<li class='liPage' id='" + i + "'> " + i + "</li>";
+                }
+                htmlPagination = htmlPagination.replace(/{#lastPage#}/g, lastPage).replace(/{#Pagination#}/g, lisHtml);
+                $(".list_pagination").html(htmlPagination);
+
+                $("#" + pageNum).addClass("current");
+
+
+
+            } catch (e) {
+                $("#liPagination").hide();
+            }
+        }
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+
+
+        @Html.HiddenFor(m => m.searchTxt, new { @id = "hfdSearchTxt" })
+        <div class="x_title">
+            <h2>Grievance List </h2>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            <div class="form-group col-lg-12">
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <label for="heard">Search :</label>
+                    <input type="text" id="txtSearch" name="txtSearch" placeholder="Search By Name, Abbr, Url, Country, Displine" class="form-control" />
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard" style="width:100%;">&nbsp;</label>
+                    <input type="button" id="btnSearch" name="btnSearch" value="Search" class="btn btn-success" />
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+
+
+        <div class="x_content">
+            <div class="table-responsive">
+                <table id="tblPanel" class="table table-striped jambo_table bulk_action" style="display:none;">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Sr. </th>
+
+                            <th class="column-title">Name </th>
+                            <th class="column-title">PMDC </th>
+                            <th class="column-title">Conact No </th>
+                            <th class="column-title">Subject</th>
+                            <th class="column-title">Attendence Type</th>
+                            <th class="column-title">Attendence No</th>
+
+                            <th class="column-title">Attendence Date</th>
+                            @*<th class="column-title">Remarks</th>
+                                <th class="column-title">Dated </th>*@
+
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbPanel">
+                    </tbody>
+                </table>
+                <div id="divPagination" style="display:none;">
+                    <div id="msgPagination" class="col-md-4">
+                        <div class="dataTables_info" id="divShowingResult">
+                            Showing
+                            <span id="shStart"> </span> to <span id="shEnd"> </span> of <span id="shTotal"></span>
+                            entries
+                        </div>
+                    </div>
+                    <div id="liPagination" class="col-md-8">
+                        <ul class="list_pagination">
+                        </ul>
+                    </div>
+                    <ul id="templatePagination" style="display:none;">
+                        <li class='liPage' id='0' type="first"> First Page</li>
+                        {#Pagination#}
+                        <li class='liPage' id='0' type="last"> Last Page</li>
+                    </ul>
+                </div>
+                <div style="display:none;">
+                    <table>
+                        <tbody id="tbTempHtml">
+                            <tr class="tbRow" id="{#applicantId#}">
+                                <td>{#rowNum#}</td>
+                                <td>{#name#}</td>
+                                <td>{#pmdcNo#}</td>
+                                <td>{#contactNumber#}</td>
+                                <td>{#title#}</td>
+                                <td>{#isSelf#}  </td>
+                                <td>{#attendenceNo#}  </td>
+
+                                <td>{#datedAttendece#}  </td>
+                                @*<td>{#remarks#}</td>
+                                    <td>{#datedRemarks#}</td>*@
+                                <td>
+                                    <a title="Attendence" style="display:#display#" class="ank" href="/admin/grievance-attendence-mark?id={#grievanceId#}"><i class="fa fa-pencil-square-o"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

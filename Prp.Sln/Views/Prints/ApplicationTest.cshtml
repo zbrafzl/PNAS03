@@ -1,0 +1,312 @@
+﻿@{
+    ViewBag.Title = "Application";
+    Layout = "~/Views/Shared/_LayoutPrint.cshtml";
+}
+
+@section RenderCss{
+    <style>
+        td span {
+            line-height: 18px;
+        }
+
+        .div_print {
+            clear: both;
+            float: left;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        .btn_print {
+            padding: 10px 40px;
+            background-color: #48a0d7;
+            border-radius: 5px
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        $(document).ready(function () {
+
+            $(document).on('click', '#btnPrint', function (event) {
+                printDiv();
+            });
+
+            PageInit();
+
+        });
+
+       
+    </script>
+}
+<div>
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <span id="btnPrint" class="btn_print"> Print</span>
+
+    </div>
+    <div class="clearfix"></div>
+    <div class="ln_solid"></div>
+    <div id="divprint" class="col-md-12 col-sm-12 col-xs-12">
+        <style type="text/css">
+            body {
+                width: 1100px;
+                margin: 0 auto;
+                margin-top: 15px;
+                font-family: 'Lato', sans-serif !important;
+            }
+            .text-center {
+                text-align: center;
+                text-align: -webkit-center;
+                text-align: -moz-center;
+            }
+            .top_detail tr td:nth-child(2n) {
+                border-bottom: 1px solid #000;
+            }
+        </style>
+        <table style="width: 100%;" cellspacing="0px">
+            <tbody>
+                <tr style="float: left">
+                    <th>
+                        <h4 style="margin: 0px; font-size: 35px; border-bottom: 2px solid #000;">Sibtain Ali Hashmi</h4>
+                    </th>
+                </tr>
+                <tr style="float: right">
+                    <th><img src="/images/test/profile_pic.jpg" width="60px;" /></th>
+                </tr>
+            </tbody>
+        </table>
+        <table style="width: 100%;" cellspacing="0px">
+            <tbody>
+                <tr>
+                    <td>
+                        <table class="top_detail" style="width: 57%; float: left;">
+                            <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Sibtain Ali Hashmi</td>
+                                </tr>
+                                <tr>
+                                    <td>Email</td>
+                                    <td>Sibtain@gmail.com</td>
+                                </tr>
+                                <tr>
+                                    <td>PMDC Number</td>
+                                    <td>76297-P</td>
+                                </tr>
+                                <tr>
+                                    <td>Date Of Birth</td>
+                                    <td>1997-11-23</td>
+                                </tr>
+                                <tr>
+                                    <td>Address</td>
+                                    <td>Al Rehman Garden Near Manawan Police Training Center Lahore</td>
+                                </tr>
+                                <tr>
+                                    <td>CNIC</td>
+                                    <td>3520103041281</td>
+                                </tr>
+                                <tr>
+                                    <td>Country of Passing MBBS/BDS</td>
+                                    <td>Pakistan</td>
+                                </tr>
+                                <tr>
+                                    <td>Disability Quota Application</td>
+                                    <td>No</td>
+                                </tr>
+                                <tr>
+                                    <td>CNIC Front Image</td>
+                                    <td><img src="/images/test/certificate.jpg" style="width: 30px; height: 20px;" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Domicile Front Image</td>
+                                    <td><img src="/images/test/certificate.jpg" style="width: 30px; height: 20px;" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="top_detail" style="width: 40%; float: right;">
+                            <tbody>
+                                <tr>
+                                    <td>Father Name</td>
+                                    <td>Abu Tahir Hashmi</td>
+                                </tr>
+                                <tr>
+                                    <td>Mobile No</td>
+                                    <td>03064709648</td>
+                                </tr>
+                                <tr>
+                                    <td>Domicile</td>
+                                    <td>Punjab</td>
+                                </tr>
+                                <tr>
+                                    <td>Gender</td>
+                                    <td>Male</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Date of PMDC</td>
+                                    <td>2019-12-11</td>
+                                </tr>
+                                <tr>
+                                    <td>CNIC Expiry Date</td>
+                                    <td>2019-12-11</td>
+                                </tr>
+                                <tr>
+                                    <td>Nationality</td>
+                                    <td>Pakistan</td>
+                                </tr>
+                                <tr>
+                                    <td>House Job</td>
+                                    <td>Public</td>
+                                </tr>
+                                <tr>
+                                    <td>CNIC Back Image</td>
+                                    <td><img src="/images/test/certificate.jpg" style="width: 30px; height: 20px;" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Domicile Back Image</td>
+                                    <td><img src="/images/test/certificate.jpg" style="width: 30px; height: 20px;" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table style="margin-top: 5px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="background-color: #000;">
+                        <p style="margin: 6px;color: #fff; font-size: 16px;">
+                            Education (Degree Aggregate: 13.813987, Attempts Aggregate: 5.0 House Job From Public Teaching Institutions)
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center" style="padding: 5px 0px;">
+                        <p style="color: #000; font-size: 14px; margin: 0px;">
+                            Punjab Medical College, Faisalabad (MBBS)
+                        </p>
+                        <p style="color: #000; font-size: 14px; margin: 0px;">
+                            Attempt Certified Not Attached
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <th>Year</th>
+                    <th>Obtained Marks</th>
+                    <th>Total Marks</th>
+                    <th>Attempts</th>
+                    <th>Certificates</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>368.0</td>
+                    <td>550.0</td>
+                    <td>1</td>
+                    <td>
+                        Yes<span><img src="/images/test/certificate.jpg" width="30px" style="vertical-align: middle;" /></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>368.0</td>
+                    <td>550.0</td>
+                    <td>1</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>368.0</td>
+                    <td>550.0</td>
+                    <td>1</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>368.0</td>
+                    <td>550.0</td>
+                    <td>1</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>368.0</td>
+                    <td>550.0</td>
+                    <td>1</td>
+                    <td>Yes</td>
+                </tr>
+            </tbody>
+        </table>
+        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="background-color: #000;">
+                        <p style="margin: 6px;color: #fff; font-size: 16px;">
+                            Work Experience (Aggregate Including Distinction 3.333333)
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <th>Sr.#</th>
+                    <th>Institute</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Duration</th>
+                    <th>Province</th>
+                    <th>Is Continuous</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>DHQ</td>
+                    <td>October 19th,2017</td>
+                    <td>July 2nd,2018</td>
+                    <td>8th Months</td>
+                    <td>Not Present</td>
+                    <td>No</td>
+                </tr>
+            </tbody>
+        </table>
+        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="background-color: #000;">
+                        <p style="margin: 6px;color: #fff; font-size: 16px;">
+                            ReSEARCh PAPERS (Aggregate 5.0)
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <th>Sr.#</th>
+                    <th>Title</th>
+                    <th>Auyhor</th>
+                    <th>Status</th>
+                    <th>Reference Link</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>The Life of Medical Staff of Hospitals, Effects of Atmosphere And Life in Tertiary Care Hospital in Sir Ganga Ram Hospital In Lahore</td>
+                    <td>1st 2nd or 3rd</td>
+                    <td>Published</td>
+                    <td>http://prp.phf.gop.pk/applicant-profile-create</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+
+

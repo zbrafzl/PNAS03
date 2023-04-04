@@ -1,0 +1,97 @@
+﻿@{
+    ViewBag.Title = "ApplicantViewDetail";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ProofReadingAdminModel
+@section RenderCss{
+
+    <style>
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, objApplicant = {}, imagesPath = "";
+        $(document).ready(function () {
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+        });
+
+    </script>
+}
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Application Detail View </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/speciality-manage" class="btn btn-info"> Manage Speciality</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                    @{
+                        var applicant = Model.applicant;
+                        var info = Model.applicantInfo;
+
+                        var degree = Model.degree;
+
+                        decimal marksDegree = 0;
+                        decimal marksDMC = 0;
+                        decimal marksHouseJob = 0;
+
+                        decimal marksExperience = 0;
+                        decimal marksDistinction = 0;
+
+                        decimal marksResearchPaper = 0;
+
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Name *:</label>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label class="form-control"> @Model.applicant.name</label>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <select id="ddlHospital" name="ddlHospital" class="form-control" tabindex="2">
+                                    <option value="1" selected="selected"> Correct </option>
+                                    <option value="2"> Wrong </option>
+                                </select>
+                            </div> <div class="col-md-3 col-sm-3 col-xs-3">
+                                <input type="text" id="txtRemarks" />
+                            </div>
+
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Dob *:</label>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label class="form-control"> @Model.applicantInfo.dob.ToString("dd MMM yyyy")</label>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <select id="ddlHospital" name="ddlHospital" class="form-control" tabindex="2">
+                                    <option value="1" selected="selected"> Correct </option>
+                                    <option value="2"> Wrong </option>
+                                </select>
+                            </div> <div class="col-md-3 col-sm-3 col-xs-3">
+                                <input type="text" id="txtRemarks" />
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success" tabindex="5">Submit</button>
+                            </div>
+                        </div>
+
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

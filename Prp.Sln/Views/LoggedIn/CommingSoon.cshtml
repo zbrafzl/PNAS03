@@ -1,0 +1,393 @@
+﻿@{
+    ViewBag.Title = "Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.RegistrationModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+        var objApplicant = {};
+
+        $(document).ready(function () {
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            $("#btnRegister").click(function () {
+                RegisterApplicant();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    RegisterApplicant();
+                }
+            });
+        });
+
+        function RegisterApplicant() {
+
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+
+                if (ValidateForm() == false) {
+
+                    if (IsExistPMDC() == true) {
+                        isError = true;
+                        errorMsg = "<li>This PMDC No already exists. Please try another.</li>"
+                    }
+
+                    if (IsExistEmail() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>This emaild  already exists. Please try another.</li>"
+                    }
+
+                    if (isError == false) {
+
+                        var resp = CallActionPost("/LoggedIn/ApplicantRegistration", objApplicant)
+                        if (resp != null && resp.status == true) {
+                            $("#divError").hide();
+                            $("#spnMsg").html("");
+                            window.location = "/register-complete";
+                        }
+                        else {
+                            $("#divError").show();
+                            $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                        }
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html(errorMsg);
+                    }
+                }
+
+            } catch (e) {
+
+            }
+        }
+
+        function ValidateForm() {
+
+
+            $(".req-fld").removeClass("req-fld");
+
+
+            $("#divError").hide();
+            $("#idErrorMsg").html("");
+
+            var isError = false, ctrl = "", errorMessage = "";
+            objApplicant = {};
+
+            objApplicant.name = $("#txtName").val();
+            objApplicant.pmdcNo = $("#txtPMDCNo").val();
+            objApplicant.emailId = $("#txtEmail").val();
+            objApplicant.password = $("#txtPassword").val();
+
+            var passwordConfirm = $("#txtPasswordConfirm").val();
+
+            objApplicant.contactNumber = $("#txtContactNumber").val();
+
+            objApplicant.network = 1;
+            objApplicant.levelId = ConvertToInt($("#ddlLevel").val());
+            objApplicant.facultyId = ConvertToInt($("#ddlFaculty").val());
+            objApplicant.network = 1;
+            objApplicant.pic = "";
+
+            var isAcknowledge = $("#chkAcknowledge").is(':checked');
+
+
+
+            if (objApplicant.name == "") {
+                $("#txtName").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtName";
+            }
+            else if (objApplicant.name.length < 3) {
+
+                isError = true;
+                $("#txtName").addClass("req-fld");
+                errorMessage = errorMessage + "<li>Please enter valid name</li>"
+                if (ctrl == "")
+                    ctrl = "txtName";
+            }
+
+            if (objApplicant.pmdcNo == "") {
+                $("#txtPMDCNo").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPMDCNo";
+            }
+            else if (objApplicant.pmdcNo.length < 5) {
+
+                isError = true;
+                $("#txtPMDCNo").addClass("req-fld");
+                errorMessage = errorMessage + "<li>Please enter valid pmdc No</li>"
+                if (ctrl == "")
+                    ctrl = "txtPMDCNo";
+            }
+
+
+            if (objApplicant.contactNumber == "") {
+                $("#txtContactNumber").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtContactNumber";
+            }
+            else if (objApplicant.contactNumber.length < 11) {
+
+                isError = true;
+                $("#txtContactNumber").addClass("req-fld");
+                errorMessage = errorMessage + "<li>Please enter valid contact no</li>"
+                if (ctrl == "")
+                    ctrl = "txtContactNumber";
+            }
+
+
+            if (objApplicant.emailId == "") {
+                $("#txtEmail").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtEmail";
+            }
+            else {
+
+                if (ValidateEmail(objApplicant.emailId) == false) {
+                    isError = true;
+                    errorMessage = errorMessage + "<li>Invalid email id. Please enter valid email id</li>"
+                }
+            }
+
+
+            if (objApplicant.password == "") {
+                $("#txtPassword").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPassword";
+            }
+            if (passwordConfirm == "") {
+
+                $("#txtPasswordConfirm").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPasswordConfirm";
+            }
+
+            if (objApplicant.password.length > 0 && passwordConfirm.length > 0) {
+
+                if (objApplicant.password != passwordConfirm) {
+                    isError = true;
+                    errorMessage = errorMessage + "<li>Password not matched.</li>"
+                }
+                else if (objApplicant.password.length < 6) {
+
+                    isError = true;
+                    $("#txtPassword").addClass("req-fld");
+                    errorMessage = errorMessage + "<li>Password must be equal or greater then 6 digits.</li>"
+                    if (ctrl == "")
+                        ctrl = "txtPassword";
+                }
+
+            }
+
+            if (isAcknowledge == false) {
+                isError = true;
+                errorMessage = errorMessage + "<li>Please acknowledge term and condition.</li>"
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            if (errorMessage.length > 0) {
+                $("#divError").show();
+                $("#idErrorMsg").html(errorMessage);
+            }
+
+            return isError;
+
+        }
+
+        function IsExistPMDC() {
+
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+                obj.id = 0;
+                obj.search = $("#txtPMDCNo").val();
+                obj.condition = "PMDCNO";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+
+        function IsExistEmail() {
+
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+                obj.id = 0;
+                obj.search = $("#txtEmail").val();
+                obj.condition = "emailId";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+    </script>
+}
+<div class="container content">
+    <div class="row main">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal">
+                    <h3 class="heading">Register with Punjab Residency Portal</h3>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control" maxlength="20" required="required" name="txtName" id="txtName" placeholder="Full Name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control" required="required" maxlength="20" name="txtPMDCNo" id="txtPMDCNo" placeholder="PMDC Number">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control numeric" name="txtContactNumber" required="required" len="11" maxlength="11" id="txtContactNumber" placeholder="Contact 03xxxxxxxxx">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-line-chart fa" aria-hidden="true"></i></span>
+                                <select id="ddlLevel" name="ddlLevel" class="form-control">
+                                    <option value="3" selected="selected"> Level 3 Year-1</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-graduation-cap fa" aria-hidden="true"></i></span>
+                                <select id="ddlFaculty" name="ddlFaculty" class="form-control">
+                                    <option value="1" selected="selected"> MBBS</option>
+                                    <option value="2"> BDS</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+                                <input class="form-control" type="email" required="required" maxlength="100" name="txtEmail" id="txtEmail" placeholder="Email">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input type="password" class="form-control" required="required" maxlength="15" name="txtPassword" id="txtPassword" placeholder="Password (min 6 character )">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input type="password" class="form-control" required="required" maxlength="15" name="txtPasswordConfirm" id="txtPasswordConfirm" placeholder="Re-Password (min 6 character )">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <label class="checkbox-inline" for="chkAcknowledge">
+                                    <input type="checkbox" name="acknowledge" id="chkAcknowledge" value="1" required="required">
+                                    I agree with the Punjab Residency Program <a href="/term-and-condition" target="_blank"> Terms &amp; Condition</a>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 ">
+                        <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                            <div class="col-sm-3">
+                            </div>
+                            <div class="col-sm-6">
+                                <input id="btnRegister" type="button" class="btn btn-app animated-button" value="Register" style="width:100%;" />
+                            </div>
+                            <div class="col-sm-3">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 ">
+
+                    </div>
+
+                    <div id="divError" class="col-sm-12" style=" display:none;">
+                        <div class="panel panel-danger">
+                            <div class="panel-heading">
+                                <label class="text-center">
+                                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                    <ul id="idErrorMsg" class="ul-err">
+                                    </ul>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

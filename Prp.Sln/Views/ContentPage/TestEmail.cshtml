@@ -1,0 +1,42 @@
+﻿@{
+    ViewBag.Title = "Private Policy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ContentPageModel
+@section RenderCss{
+
+    <style>
+        .form-box {
+            margin-bottom: 60px;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+
+        $(document).ready(function () {
+            $("#divBgImage").removeClass("bg-img");
+        });
+
+    </script>
+}
+<div class="container">
+    <div class="row main">
+        <div class="col-xs-12 col-md-12 form-box">
+            <div class="entry-content">
+                <h3 class="text-red">Result</h3>
+                <br />
+                <p> Key :  @Model.key</p>
+                <p>
+                    Message:  @Model.msg
+                </p>
+                <p>
+                   
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,349 @@
+﻿@{
+    ViewBag.Title = "Supervisor Report";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.EmployeeModelAdmin
+@section RenderCss{
+
+    <style>
+        .x_title span {
+            color: #7a6e6e !important;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0, perPageRecords = 20, pageNum = 1, totalCount = 0, obj = {};
+        $(document).ready(function () {
+
+
+            $(document).on('change', '#ddlHospital', function () {
+
+                var hospitalId = ConvertToInt($(this).val());
+                $("#hfdHospitalId").val(hospitalId);
+            });
+
+
+            $(document).on('click', '#btnSearch', function () {
+                GetAndBindJoiningApplicantByHospitalSearch();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    GetAndBindJoiningApplicantByHospitalSearch();
+                }
+            });
+
+            $(document).on('click', '.liPage', function () {
+
+                var id = ConvertToInt($(this).closest('li').attr("id"));
+
+                $(".liclick").removeClass("current");
+
+                var pageNo = id;// ConvertToInt($(this).val());
+
+                if (pageNo == 0) {
+
+                    if ($(this).attr("type") == "first") {
+
+                        pageNo = 1;
+                    }
+                    else
+                        if ($(this).attr("type") == "last") {
+
+                            var lastPage = Math.ceil(totalCount / perPageRecords);
+                            pageNo = lastPage;
+                        }
+                }
+                pageNum = pageNo;
+
+                GetAndBindJoiningApplicantByHospitalSearch();
+
+
+            });
+
+            //ddlHospital
+        });
+
+        function GetAndBindJoiningApplicantByHospitalSearch() {
+
+            var htmlAll = "", htmlSingle = "";
+            var search = ConvertToString($("#txtSearch").val());
+            var joinTotal = 0, notJoinTotal = 0, total = 0;
+
+            var joinStatus = ConvertToInt($("#ddlStatus").val());
+
+            $("#ankPrint").hide();
+
+            if (ValidateForm()) {
+
+                var resp = CallActionPost("/Reportss/JoiningApplicantByHospitalSearch", obj);
+                if (resp != null && resp.length > 0) {
+
+                    totalCount = resp[0].totalCount;
+
+                    var objItem = {};
+                    var htmlTemp = $("#tbTempt").html();
+
+                    for (var i = 0; i < resp.length; i++) {
+
+                        htmlSingle = htmlTemp;
+                        objItem = resp[i];
+
+
+                        isJoin = " ";
+                        if (objItem.joinStatus == 2)
+                            isJoin = "Not Joined";
+                        else if (objItem.joinStatus == 1) {
+                            isJoin = "Joined";
+                        }
+
+
+                        htmlAll = htmlAll + htmlSingle.replace(/{#induction#}/g, objItem.induction)
+                            .replace(/{#hospital#}/g, objItem.hospital)
+                            .replace(/{#name#}/g, objItem.name)
+                            .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                            .replace(/{#fatherName#}/g, objItem.fatherName)
+                            .replace(/{#applicantId#}/g, objItem.applicantId);
+
+                    }
+
+                    if (totalCount > 0)
+                        CreatePaginationHtml(perPageRecords, totalCount, pageNum);
+                }
+
+            }
+
+            $("#tbList").html(htmlAll);
+
+
+        }
+
+
+        function ShowingRowsText(perPageRecords, count, pageNum) {
+
+            var rcordsNow = pageNum * perPageRecords;
+            var startRecords = rcordsNow - perPageRecords;
+            if (rcordsNow > count)
+                rcordsNow = count;
+
+            startRecords = startRecords + 1;
+            $("#divShowingResult").html("Showing " + startRecords + " to " + rcordsNow + " of " + count + " entries");
+
+
+        }
+
+        function CreatePaginationHtml(perPageRecords, count, pageNum) {
+
+
+
+            try {
+
+                ShowingRowsText(perPageRecords, count, pageNum);
+                $("#divPagination").show();
+
+                var htmlPagination = $("#templatePagination").html();
+                var pageStart = 1, pageEnd = 5;
+                var lastPage = Math.ceil(count / perPageRecords);
+
+                if (pageNum > 3) {
+                    pageStart = pageNum - 2;
+                    pageEnd = pageNum + 2;
+                }
+
+                if (pageEnd > lastPage)
+                    pageEnd = lastPage;
+
+                var lisHtml = "";
+                for (var i = pageStart; i <= pageEnd; i++) {
+                    lisHtml = lisHtml + "<li class='liPage' id='" + i + "'> " + i + "</li>";
+                }
+                htmlPagination = htmlPagination.replace(/{#lastPage#}/g, lastPage).replace(/{#Pagination#}/g, lisHtml);
+                $(".list_pagination").html(htmlPagination);
+
+                $("#" + pageNum).addClass("current");
+
+
+
+            } catch (e) {
+                $("#liPagination").hide();
+            }
+        }
+
+        function ValidateForm() {
+
+            var isOK = true;
+
+            var ctrl = "";
+            $(".lbl-err").hide();
+            $(".req-fld").removeClass("req-fld");
+
+            obj = {};
+
+            obj.hospitalId = ConvertToInt($("#hfdHospitalId").val());
+            obj.specialityId = ConvertToInt($("#ddlSpeciality").val());
+            obj.genderId = ConvertToInt($("#ddlGender").val());
+            obj.degreeId = ConvertToInt($("#ddlDegree").val());
+            obj.designationId = ConvertToInt($("#ddlDesignation").val());
+            obj.reportTypeId = 0;
+            obj.search = "";
+
+
+            if (obj.specialityId == 0) {
+
+                $("#ddlSpeciality").addClass("req-fld");
+                isOk = false;
+                if (ctrl == "")
+                    ctrl = "ddlSpeciality";
+
+                alert("Please select speciality");
+
+
+            }
+
+
+            return isOK;
+
+        }
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Supervisor Report (Specility Wise) </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_title">
+            <div class="form-group col-lg-12">
+                <div class="col-md-1 col-sm-1 col-xs-1">
+                </div>
+                <input type="hidden" id="hfdHospitalId" value="@(Model.hospitalId)" />
+                @if (Model.listHospital.Count > 1)
+                {
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        <label for="heard">Hospital :</label>
+                        <select id="ddlHospital" name="ddlHospital" class="form-control">
+                            <option value="0"> All</option>
+                            @foreach (var item in Model.listHospital)
+                            {
+                                <option value="@item.value">@item.key</option>
+                            }
+                        </select>
+                    </div>
+                }
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <label for="heard">Speciality * :</label>
+                    <select id="ddlSpeciality" name="ddlSpeciality" class="form-control">
+                        <option value="0"> Select One</option>
+                        @foreach (var item in Model.listSpeciality)
+                        {
+                            <option value="@item.value">@item.key</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <label for="heard">Gender :</label>
+                    <select id="ddlGender" name="ddlGender" class="form-control">
+                        <option value="0"> All</option>
+                        @foreach (var item in Model.listGender)
+                        {
+                            <option value="@item.value">@item.key</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <label for="heard">Degree :</label>
+                    <select id="ddlDegree" name="ddlDegree" class="form-control">
+                        <option value="0"> All</option>
+                        @foreach (var item in Model.listDegree)
+                        {
+                            <option value="@item.value">@item.key</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <label for="heard">Designation :</label>
+                    <select id="ddlDesignation" name="ddlDesignation" class="form-control">
+                        <option value="0"> All</option>
+                        @foreach (var item in Model.listDesignation)
+                        {
+                            <option value="@item.value">@item.key</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <label for="heard">Degree :</label>
+                    <select id="ddlDegree" name="ddlDegree" class="form-control">
+                        <option value="0"> All</option>
+                        @foreach (var item in Model.listDegree)
+                        {
+                            <option value="@item.value">@item.key</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-1 col-sm-1 col-xs-1" style="float:right;">
+                    <label for="heard" style="width:100%;">&nbsp; :</label>
+                    <input type="button" id="btnSearch" class="btn btn-success" value="Search">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+
+                            <th class="column-title">Hospital </th>
+                            <th class="column-title">Induction </th>
+                            <th class="column-title">Form No. </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Father Name </th>
+                            <th class="column-title">PMDC No </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbList">
+                    </tbody>
+                </table>
+
+                <div id="divPagination" style="display:none;">
+                    <div id="msgPagination" class="col-md-4">
+                        <div class="dataTables_info" id="divShowingResult">
+                            Showing
+                            <span id="shStart"> </span> to <span id="shEnd"> </span> of <span id="shTotal"></span>
+                            entries
+                        </div>
+                    </div>
+                    <div id="liPagination" class="col-md-8">
+                        <ul class="list_pagination">
+                        </ul>
+                    </div>
+                    <ul id="templatePagination" style="display:none;">
+                        <li class='liPage' id='0' type="first"> First Page</li>
+                        {#Pagination#}
+                        <li class='liPage' id='0' type="last"> Last Page</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+    <table>
+        <tbody id="tbTempt">
+            <tr>
+                <td>{#hospital#}</td>
+                <td>{#induction#}</td>
+                <td>{#applicantId#}</td>
+                <td>{#name#}</td>
+                <td>{#fatherName#}</td>
+                <td>{#pmdcNo#}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

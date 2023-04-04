@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "Applicant Joining - Institute wise";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantJoiningDsbModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0;
+        $(document).ready(function () {
+
+            debugger;
+
+            var resp = CallActionGet("/HomeAdmin/GetCountInstituteWise");
+
+            $("#spnTotal").html($("#hfdTotal").val());
+            $("#spnJoin").html($("#hfdJoin").val());
+            $("#spnNotJoin").html($("#hfdNotJoin").val());
+
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Institute List </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                @{
+                    var total = 0; var join = 0; var notJoin = 0;
+                    <table class="table table-striped jambo_table bulk_action">
+                        <thead>
+                            <tr class="headings">
+                                <th class="column-title">ID </th>
+                                <th class="column-title">Name </th>
+                                <th class="column-title">Total Hospital </th>
+                                <th class="column-title">Selected &nbsp;(<span id="spnTotal"></span>)</th>
+                                <th class="column-title">Joined &nbsp;(<span id="spnJoin"></span>)</th>
+                                <th class="column-title">Not Joined &nbsp;(<span id="spnNotJoin"></span>)</th>
+                                <th>
+                                    <span class="nobr">Action</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (Model.listHospInst != null && Model.listHospInst.Count > 0)
+                            {
+                                foreach (var item in Model.listHospInst)
+                                {
+                                    total = total + item.totalCount;
+                                    join = join + item.totalJoin;
+                                    notJoin = notJoin + item.totalNotJoin;
+                                    <tr>
+                                        <td>@item.instituteId</td>
+                                        <td>@item.instituteName</td>
+                                        <td>@item.hospitalCount</td>
+                                        <td>@item.totalCount</td>
+                                        <td>@item.totalJoin</td>
+                                        <td>@item.totalNotJoin</td>
+                                        <td>
+
+                                            <a title="Applicant List" class="ank" href="@("/admin/joining-list-institute?instituteId=" + item.instituteId)">Applicant List</a>
+
+                                            @if (item.hospitalCount > 1)
+                                            {
+                                                <a title="Hospital Wise" class="ank" href="@("/admin/dsb/joining-hospital?instituteId=" + item.instituteId)"> &nbsp; | &nbsp; Hospital Wise</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <input id="hfdTotal" type="hidden" value="@(total)" />
+                    <input id="hfdJoin" type="hidden" value="@(join)" />
+                    <input id="hfdNotJoin" type="hidden" value="@(notJoin)" />
+                }
+            </div>
+        </div>
+    </div>
+</div>

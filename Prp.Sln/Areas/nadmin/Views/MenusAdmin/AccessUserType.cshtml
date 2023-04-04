@@ -1,0 +1,222 @@
+﻿@{
+    ViewBag.Title = "User Type Access";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.MenuAccessModel
+@section RenderCss{
+
+    <style>
+        .ul_chk_menu li {
+            width: 100%;
+            list-style: none;
+        }
+    </style>
+}
+
+
+@section RenderScript{
+
+    <script>
+        var menuIds = "", typeId = 0, totalCheckMenu = 0, menuList = [];
+
+        $(document).ready(function () {
+
+            menuIds = "";
+            $("#btnSave").hide();
+
+            $(document).on('change', '#ddlType', function () {
+
+                var html = "";
+                $(".ul_chk_menu").html(html);
+                $("#btnSave").hide();
+                menuIds = "";
+                totalCheckMenu = 0;
+                $("#divAlert").html("");
+                typeId = $(this).val();
+                if (typeId > 0) {
+
+                    var url = "/MenusAdmin/GetMenuAccessListForUserType?typeId=" + typeId;
+                    menuList = CallActionGet(url);
+
+                    html = html + CreateMenuHtml();
+                   
+                    $(".ul_chk_menu").html(html);
+                    $("#btnSave").show();
+                }
+
+            });
+
+            function CreateMenuHtml() {
+                var html = "", parent = {}, child = {}, totalChild = 0, totalChildChecked = 0, checked = "", disabled = "", appName = "";
+
+
+                var listParent = $.grep(menuList, function (n, i) {
+                    return n.parentId == 0;
+                });
+
+                if (listParent != null && listParent.length > 0) {
+
+                    for (var i = 0; i < listParent.length; i++) {
+                        parent = listParent[i];
+
+                        var listChild = $.grep(menuList, function (n, i) {
+                            return n.parentId == parent.menuId;
+                        });
+                        totalChild = listChild.length;
+
+                        checked = "";
+                        if (parent.hasRight)
+                            checked = "checked";
+
+                        appName = "UI - ";
+                        if (parent.appId == 2)
+                            appName = "Admin - ";
+
+                        disabled = "";
+                        if (parent.typeId == 2) {
+                            disabled = "disabled";
+                            checked = "checked";
+                        }
+
+                        html = html + "<li>"
+
+                        html = html + "<label><input type='checkbox' name='' value='' " + checked + " " + disabled + " id='" + parent.menuId
+                            + "' parentId='" + parent.parentId + "' child='" + totalChild
+                            + "' class='chk_menu chk_parent'>"  + parent.name + " &nbsp;&nbsp;&nbsp;" + parent.url + "  </label>";
+                        if (totalChild > 0) {
+
+                            html = html + "<ul>"
+
+                            for (var k = 0; k < listChild.length; k++) {
+
+                                child = listChild[k];
+
+                                checked = "";
+
+                                if (child.hasRight)
+                                    checked = "checked";
+
+                                disabled = "";
+                                if (child.typeId == 2) {
+                                    disabled = "disabled";
+                                    checked = "checked";
+                                }
+
+
+
+                                html = html + " <li> <label> <input type='checkbox' name='' value='' id='" + child.menuId + "'  " + checked + " " + disabled + "  parentId='" + child.parentId
+                                    + "' class='chk_menu chk_child chk_" + child.parentId
+                                    + "'> " + child.name + "&nbsp;&nbsp;&nbsp;" + child.url + "</label>  </li>";
+                            }
+                            html = html + "</ul>"
+                        }
+                        html = html + "</li>"
+                    }
+                }
+
+                return html;
+
+            }
+
+            $(document).on('click', '.chk_menu', function () {
+
+                var id = $(this).attr("id");
+                var status = $(this).is(':checked');
+                var parentId = $(this).attr("parentId");
+
+                if (parentId > 0) {
+
+                    // this mean clicked on child
+                    var totalCheckChilds = $(".chk_" + parentId).filter(':checked').length;
+                    var totalChilds = $("#" + parentId).attr("child");
+                    if (totalCheckChilds == 0)
+                        $("#" + parentId).prop("checked", false);
+                    else
+                        $("#" + parentId).prop("checked", true);
+                }
+                else if (parentId == 0) {
+                    // this mean clicked on parent
+                    $(".chk_" + id).prop("checked", status);
+                }
+                totalCheckMenu = $('.chk_menu').filter(':checked').length;
+                if (userId > 0 && totalCheckMenu > 0)
+                    $("#btnSave").show();
+                else
+                    $("#btnSave").hide();
+            });
+
+            $(document).on('click', '#btnSave', function () {
+
+                var menuId = 0, menuIds = "";
+                $('.chk_menu').filter(':checked').each(function () {
+
+                    menuId = $(this).attr("id");
+                    menuIds = menuIds + menuId + ",";
+                });
+
+                var htmlAlert = $("#divAlertMaster").html();
+                var url = "/MenusAdmin/UserTypeAccessAddUpdate?typeId=" + typeId + "&menuIds=" + menuIds;
+
+                var resp = CallActionGet(url);
+                if (resp.status == false) {
+                    htmlAlert = htmlAlert.replace("{#type#}", "danger").replace("{#status#}", "show").replace("{#msg#}", resp.msg);
+                }
+                else {
+                    $("#btnSave").hide();
+                    $(".chk_menu").prop("checked", false);
+                    $("#ddlType").val(0);
+                    menuIds = "";
+                    $(".ul_chk_menu").html("");
+                    htmlAlert = htmlAlert.replace("{#type#}", "success").replace("{#status#}", "show").replace("{#msg#}", "User type access saved.");
+                    
+                }
+                $("#divAlert").html(htmlAlert);
+            });
+        });
+
+        function ValidateAndSetValues() {
+            debugger;
+        }
+    </script>
+}
+<div class="dashboard_graph">
+    <div class="row x_title">
+        <div class="col-md-12">
+            <h3>User Type Access Menu </h3>
+        </div>
+    </div>
+    <form class="form-horizontal form-label-left input_mask">
+        <div class="form-group col-lg-12">
+            <div class="col-md-6 col-sm-6 col-xs-6">
+                <label for="heard">Select Type *:</label>
+                <select id="ddlType" name="ddlType" class="form-control">
+                    <option value="0" selected="selected"> Select One </option>
+                    @foreach (var u in Model.listType)
+                    {
+                        <option value="@u.id"> @u.value </option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <label for="heard"> Page Rights :</label>
+                <div></div>
+                <ul class="ul_chk_menu">
+                </ul>
+
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="ln_solid"></div>
+        <div class="form-group  col-lg-12">
+            <div class="col-md-9 col-sm-9 col-xs-12" style="margin-left:2%;">
+                <button id="btnSave" type="button" class="btn btn-success" tabindex="4" style="display:none;">Save</button>
+            </div>
+        </div>
+        <div id="divAlert">
+        </div>
+    </form>
+    <div class="clearfix"></div>
+</div>

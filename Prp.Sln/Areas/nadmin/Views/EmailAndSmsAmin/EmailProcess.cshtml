@@ -1,0 +1,146 @@
+﻿@{
+    ViewBag.Title = "Applicant Application Status";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantStatusModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var statusId = 0;
+        $(document).ready(function () {
+
+
+            statusId = $("#hfdStatusId").val();
+
+            $("#ddlStatus").val(statusId);
+
+            $(document).on('change', '#ddlStatus', function () {
+                statusId = $(this).val();
+                window.location.href = "/admin/applicant-send-sms?statusId=" + statusId;
+            });
+
+
+            $(document).on('click', '#btnSendSMS', function () {
+
+                var sms = ConvertToString($("#txtMessage").val());
+
+                if (sms.length > 0)
+                    SendSmsToApplicant();
+
+            });
+
+        });
+
+
+        function SendSmsToApplicant() {
+
+            var obj = {};
+            obj.statusId = statusId;
+            obj.message = ConvertToString($("#txtMessage").val());
+
+            var resp = CallActionPost("/CommonFunctionsAdmin/SendSmsAdminByStatus", obj);
+            if (resp != null && resp.status == true) {
+                $("#divSmsSuccess").show();
+                $("#divSmsDanger").hide();
+            }
+            else {
+                $("#divSmsSuccess").hide();
+                $("#divSmsDanger").show();
+            }
+
+        }
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Applicant List </h2>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            @Html.HiddenFor(m => m.search.applicationStatusId, new { @id = "hfdStatusId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Status :</label>
+                    <select id="ddlStatus" name="ddlStatus" class="form-control">
+                        <option value="8" selected="selected"> Completed </option>
+                        <option value="7"> Proof Reading </option>
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+            <div class="form-group col-lg-12">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <label for="heard">Message *:</label>
+                    <textarea class="form-control" required="required" name="txtMessage" id="txtMessage" tabindex="13" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">&nbsp;</label>
+                    <input type="button" id="btnSendSMS" value="Send SMS" class="btn btn-success" />
+                </div>
+            </div>
+        </form>
+
+
+        <div>
+            <div id="divSmsSuccess" class="alert alert-success alert-dismissible show" role="alert" style="clear:both; display:none">
+                <span> Message Sent</span>
+                <a href="#" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </a>
+            </div>
+            <div id="divSmsDanger" class="alert alert-danger alert-dismissible show" role="alert" style="clear:both; display:none">
+                <span> Some thing went wrong!</span>
+                <a href="#" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </a>
+            </div>
+        </div>
+
+
+        @*<div class="x_content" style=" display:none">
+                <div class="table-responsive">
+                    <table class="table table-striped jambo_table bulk_action">
+                        <thead>
+                            <tr class="headings">
+                                <th class="column-title">ID </th>
+                                <th class="column-title">Name </th>
+                                <th class="column-title">PMDC </th>
+                                <th class="column-title">Contact No </th>
+                                <th class="column-title">Level </th>
+                                <th class="column-title">Faculty </th>
+                                <th class="column-title">Status </th>
+                                <th class="column-title">SMS Status </th>
+                                <th class="column-title">Action </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && (Model.listApplicant != null && Model.listApplicant.Count > 0))
+                            {
+                                foreach (var item in Model.listApplicant)
+                                {
+                                    <tr>
+                                        <td>@item.applicantId</td>
+                                        <td>@item.name</td>
+                                        <td>@item.pmdcNo</td>
+                                        <td>@item.contactNumber</td>
+                                        <td>@item.levelName</td>
+                                        <td>@item.facultyName</td>
+                                        <td>@item.applicationStatus</td>
+                                        <td id="tdSMSstatus">-</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>*@
+    </div>
+</div>

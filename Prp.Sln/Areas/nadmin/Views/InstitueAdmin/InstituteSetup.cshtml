@@ -1,0 +1,307 @@
+﻿
+@{
+    ViewBag.Title = "Institute Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.InstituteModelAdmin
+@section RenderCss{
+    <style>
+        .ul_chk {
+            width: 100%;
+            float: left;
+            padding-left: 0px;
+        }
+
+        .ul_hd li {
+            background-color: rgba(52, 73, 94, 0.94);
+            color: #fff;
+        }
+
+        .ul_chk li {
+            width: 33%;
+            float: left;
+            list-style: none;
+            margin-bottom: 5px;
+        }
+
+            .ul_chk li .lbl_chk {
+                width: 70%;
+                float: left;
+            }
+
+            .ul_chk li .lbl_had {
+                width: 70%;
+                float: left;
+                font-weight: bold;
+            }
+
+            .ul_chk li span {
+                width: 29%;
+                height: 25px;
+                float: left;
+                font-weight: bold;
+            }
+
+
+            .ul_chk li .txt {
+                width: 29%;
+                height: 25px;
+                float: left;
+            }
+
+            .ul_chk li .chk {
+                margin-right: 5px;
+            }
+
+        .div-chk-list {
+            width: 100%;
+            float: left;
+            border: 1px solid #ced4da;
+            padding: 5px;
+        }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var instituteId = 0, hospitalIds = "", provinceId = 0, districtId = 0;
+
+        $(document).ready(function () {
+
+            $("#divHospital").hide();
+            instituteId = ConvertToInt($("#hfdId").val());
+            //BindHospital();
+
+            //$("#divliList").html("");
+
+
+            if (instituteId > 0) {
+
+                provinceId = ConvertToInt($("#ddlProvince").val());
+                districtId = ConvertToInt($("#hfdDistrictId").val());
+                BindDistrictDDL();
+            }
+
+            $(document).on('change', '#ddlProvince', function () {
+                provinceId = $(this).val();
+
+                DDLSetToDefault("ddlDistrict", 'Select One', 0);
+
+                districtId = 0;
+                $("#hfdDistrictId").val(districtId);
+
+                if (provinceId > 0)
+                    BindDistrictDDL();
+            });
+
+            $(document).on('change', '#ddlDistrict', function () {
+
+                districtId = $(this).val();
+                $("#hfdDistrictId").val(districtId);
+
+            });
+
+        });
+
+        function BindDistrictDDL() {
+
+            var list = CallActionGet("/Common/RegionGetByCondition?typeId=4" + "&parentId=" + provinceId + "&condition=");
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (districtId == ddlItem.regionId)
+                        $("#ddlDistrict").append("<option  value='" + ddlItem.regionId + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlDistrict").append("<option  value='" + ddlItem.regionId + "'>" + ddlItem.name + "</option>");
+                }
+            }
+
+        }
+
+
+        function BindHospital() {
+
+
+            var obj = {};
+            obj.instituteId = instituteId;
+            obj.condition = "RemaningInstitute";
+            $("#divHospital").hide();
+
+
+            var html = "";
+
+            var listRemaning = CallActionPost("/Hospitals/GetHospitalDDL", obj);
+            if (listRemaning != null && listRemaning.length > 0) {
+
+                var instituteIdSelected = 0, checked = "";
+
+                var objHos = {};
+                objHos.instituteId = instituteId;
+                objHos.condition = "ByHospital";
+                var listInstHospital = CallActionPost("/Hospitals/GetHospitalDDL", objHos);
+
+
+                var ddlItem = {};
+                for (var i = 0; i < listRemaning.length; i++) {
+                    ddlItem = listRemaning[i];
+
+                    instituteIdSelected = 0;
+                    checked = "";
+
+                    if (listInstHospital != null && listInstHospital.length > 0) {
+                        try {
+                            instituteIdSelected = $.grep(listInstHospital, function (n, i) {
+                                return n.id == ddlItem.id;
+                            })[0].id;
+                        } catch (e) {
+                            instituteIdSelected = 0;
+                        }
+                    }
+
+                    if (instituteIdSelected == ddlItem.id)
+                        checked = "checked";
+
+
+                    html = html + "<li>"
+                        + "<label class='lbl_chk'> <input class='chk_dept' type='checkbox' name=''  id='chk_" + ddlItem.id + "' " + checked + " >" + ddlItem.value + " </label>"
+                        + "</li>";
+                }
+
+                $("#divHospital").show();
+                html = "<ul id='ulList' class='ul_chk' style='max-height:415px; overflow:hidden; overflow-y: visible;'>" + html + "</ul>";
+                $("#divliList").append(html);
+            }
+            else {
+                $("#divHospital").hide();
+                $("#divliList").html("");
+            }
+
+        }
+
+        function ValidateForm(event) {
+
+            var isOk = true;
+            try {
+
+                if (districtId == 0) {
+                    alert("Please select district.");
+                    isOk = false;
+                }
+
+                var hospitalId = 0, hospitalCount = 0;
+
+                hospitalIds = "";
+                $('.chk').filter(':checked').each(function () {
+                    hospitalId = ConvertToInt($(this).attr("id").replace("chk_", ""));
+                    if (hospitalId > 0) {
+                        hospitalIds = hospitalIds + "," + hospitalId;
+                        hospitalCount = hospitalCount + 1;
+                    }
+                });
+
+                $("#hfdHospitalIds").val(hospitalIds);
+
+            } catch (e) {
+                isOk = false;
+            }
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Institute Setup </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/institute-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                @using (Html.BeginForm("SaveInstituteData", "InstitueAdmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " ValidateForm(event)" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                        @Html.HiddenFor(m => m.institute.instituteId, new { @id = "hfdId" })
+                        @Html.HiddenFor(m => m.institute.districtId, new { @id = "hfdDistrictId" })
+                        @Html.HiddenFor(m => m.institute.hospitalIds, new { @id = "hfdHospitalIds" })
+
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Type :</label>
+                                @Html.DropDownListFor(a => a.institute.instituteTypeId, new SelectList(Model.listType, "id", "name"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Name *:</label>
+                                @Html.TextBoxFor(a => a.institute.name, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "2" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Province :</label>
+                                @Html.DropDownListFor(a => a.institute.provinceId, new SelectList(Model.listProvince, "regionId", "name"), "Select One", new { @class = "form-control", @id = "ddlProvince", @tabindex = "3" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">District :</label>
+                                <select id="ddlDistrict" name="ddlDistrict" class="form-control" tabindex="4">
+                                    <option value="0" selected="selected"> Select One </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Sort Order :</label>
+                                @Html.TextBoxFor(a => a.institute.sortOrder, new { @class = "form-control", @required = "required", @id = "sortOrder", @tabindex = "5" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Status :</label>
+                                @Html.CheckBoxFor(a => a.institute.isActive, new { @class = "form-control", @id = "chkActive", @tabindex = "6" })
+                            </div>
+
+                        </div>
+                        @if (Model.listHospital != null && Model.listHospital.Count > 0)
+                        {
+                            <div id="kk" class="form-group col-lg-12">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <label for="heard">Hospital :</label>
+                                    <div id="divliList" class="div-chk-list">
+                                        <ul id="ulList" class="ul_chk" style="max-height:415px; overflow:hidden; overflow-y: visible;">
+                                            @foreach (var item in Model.listHospital)
+                                            {
+                                                if (item.hasRight > 0)
+                                                {
+                                                    <li><label class='lbl_chk'> <input class='chk' type='checkbox' name='' id="@("chk_"+ item.hospitalId)" checked>@item.name </label></li>
+                                                }
+                                                else
+                                                {
+                                                    <li><label class='lbl_chk'> <input class='chk' type='checkbox' name='' id="@("chk_"+ item.hospitalId)">@item.name </label></li>
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

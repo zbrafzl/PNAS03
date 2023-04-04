@@ -1,0 +1,86 @@
+﻿
+@{
+    ViewBag.Title = "Constant Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ConstantModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        $(document).ready(function () {
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Constant Setup </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/constant-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                @using (Html.BeginForm("SaveConstantData", "CommonAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                        @Html.HiddenFor(m => m.constant.constantId, new { @id = "hfdId" })
+
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">ID *:</label>
+                                @Html.TextBoxFor(a => a.constant.id, new { @class = "form-control", @required = "required", @id = "txtID", @tabindex = "1" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Code *:</label>
+                                @Html.TextBoxFor(a => a.constant.code, new { @class = "form-control", @required = "required", @id = "txtCode", @tabindex = "2" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Name *:</label>
+                                @Html.TextBoxFor(a => a.constant.name, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "3" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Value *:</label>
+                                @Html.TextBoxFor(a => a.constant.value, new { @class = "form-control", @required = "required", @id = "txtValue", @tabindex = "4" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Type :</label>
+                                @Html.DropDownListFor(a => a.constant.typeId, new SelectList(Model.listType, "id", "name"), "Select One", new { @class = "form-control chosen-select", @id = "ddlType", @tabindex = "5" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Status :</label>
+                                @Html.CheckBoxFor(a => a.constant.isActive, new { @class = "form-control", @id = "chkActive", @tabindex = "6" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3" style="display:none;">
+                                @Html.CheckBoxFor(a => a.constant.isDeleted, new { @class = "form-control", @id = "chkDeleted", @tabindex = "6" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Short Discription :</label>
+                                @Html.TextBoxFor(a => a.constant.shortDesc, new { @class = "form-control",  @id = "txtShortDesc", @tabindex = "7" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

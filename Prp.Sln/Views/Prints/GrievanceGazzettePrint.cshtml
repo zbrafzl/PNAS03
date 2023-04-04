@@ -1,0 +1,267 @@
+﻿@{
+    ViewBag.Title = "Print | Grievance Gazzette";
+    Layout = "~/Views/Shared/_LayoutPrint.cshtml";
+}
+
+@model Prp.Sln.ContactModel
+@section RenderCss{
+    <style>
+        td span {
+            line-height: 18px;
+        }
+
+        .div_print {
+            clear: both;
+            float: left;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        .btn_print {
+            padding: 10px 40px;
+            background-color: #48a0d7;
+            border-radius: 5px
+        }
+
+            .btn_print:hover {
+                cursor: pointer
+            }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        $(document).ready(function () {
+
+            printDiv();
+
+            $(document).on('click', '#btnPrint', function (event) {
+                printDiv();
+            });
+
+            //PageInit();
+        });
+
+
+    </script>
+}
+
+<div>
+
+    @if (Model != null && Model.contact != null && Model.contact.contactId > 0)
+    {
+
+        <div class="col-md-12 col-sm-12 col-xs-12 div_print">
+            <span id="btnPrint" class="btn_print ank"> Print</span>
+        </div>
+        <div class="clearfix"></div>
+        <div class="ln_solid"></div>
+        <div id="divprint" class="col-md-12 col-sm-12 col-xs-12">
+            <style>
+                td span {
+                    line-height: 18px !important;
+                }
+
+                .spnhead {
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+
+                .spnhead1 {
+                    font-size: 15px;
+                    font-weight: bold;
+                    width: 15%;
+                    margin-right: 2%;
+                    float: left;
+                }
+
+                .spntxt {
+                    font-size: 17px;
+                }
+
+                .spntxt1 {
+                    font-size: 17px;
+                    width: 30%;
+                    margin-right: 2%;
+                    float: left;
+                    margin-bottom: 10px;
+                }
+
+                .tdRow {
+                    width: 100%;
+                    float: left;
+                    margin-bottom: 8px;
+                }
+
+                .spnTitle {
+                    width: 40%;
+                    float: left;
+                }
+            </style>
+            <div style="float:left; width:100%;">
+                <table style="width:900px;float:left;margin-right: 10px; ">
+                    <tbody style="">
+                        <tr>
+                            <td style=" padding: 10px;">
+                                <table style="margin: 0px 0px 0px 0px;">
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <table style="width:100%;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="float:left; "><img src="/Images/slip_phf.png" alt="Logo" style="width: 70px;height: 60px;"></td>
+                                                            <td style="width:100%;">
+                                                                <table style="width:100%;">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td style="text-align:center;font-size:25px;">
+                                                                                <span class="">
+                                                                                    The Chairman Grievances Committee
+                                                                                    Punjab Residency Program
+                                                                                </span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </td>
+                                                            <td style="float:right; "><img class="imgQR" src="/Images/slip_punjab.png" alt="Logo" style="width: 70px;height: 61px;"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="height:1000px; vertical-align:text-top">
+                                                <table style="width:100%">
+                                                    <tbody>
+                                                        <tr style="width:100%; ">
+                                                            <td style="width: 75%; padding: 10px 0px; float: left; padding-top: 17px;">
+                                                                <table style="width:100%;">
+                                                                    <tr>
+                                                                        <td class="tdRow">
+                                                                            <span class="spnhead1"> Applicant Id : </span> <span class="spntxt1">  @Model.loggedInUser.applicantId </span>
+                                                                            <span class="spnhead1"> PMDC No. : </span> <span class="spntxt1">  @Model.loggedInUser.pmdcNo </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="tdRow">
+                                                                            <span class="spnhead1"> Name : </span> <span class="spntxt1">  @Model.loggedInUser.name </span>
+                                                                            <span class="spnhead1"> Contact No. : </span> <span class="spntxt1">  @Model.applicant.contactNumber </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="tdRow">
+                                                                            <span class="spnhead1"> Email : </span> <span class="spntxt1">  @Model.loggedInUser.emailId </span>
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    @if (Model.listStatusApproval != null && Model.listStatusApproval.Count > 0)
+                                                                    {
+                                                                        <tr>
+                                                                            @{
+                                                                                var objStatusVerify = Model.listStatusApproval.FirstOrDefault(x => x.approvalStatusTypeId == 131 && x.approvalStatusId == 2);
+                                                                                {
+                                                                                    if (objStatusVerify != null && objStatusVerify.approvalStatusId == 2)
+                                                                                    {
+                                                                                        <td class="tdRow">
+                                                                                            <span class="spnhead1"> Verification Status : </span> <span class="spntxt1">  Rejected </span>
+
+                                                                                            <span class="spnhead1"> Grievances Date : </span> <span class="spntxt1">  @objStatusVerify.dateMessage </span>
+                                                                                        </td>
+                                                                                    }
+                                                                                    else if (objStatusVerify != null && objStatusVerify.approvalStatusId == 1)
+                                                                                    {
+
+                                                                                        <td class="tdRow">
+                                                                                            <span class="spnhead1"> Verification Status : </span> <span class="spntxt1">  Accepted </span>
+
+                                                                                            <span class="spnhead1"> Grievances Date : </span> <span class="spntxt1">  ----------- </span>
+                                                                                        </td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td class="tdRow">
+                                                                                            <span class="spnhead1"> Verification Status : </span> <span class="spntxt1">  Pending </span>
+
+                                                                                            <span class="spnhead1"> Grievances Date : </span> <span class="spntxt1"> ----------- </span>
+                                                                                        </td>
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                        </tr>
+                                                                    }
+
+                                                                    <tr>
+                                                                        <td class="tdRow">
+                                                                            <span class="spnhead"> Subject : </span> <span class="spntxt">  @Model.contact.title </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <td style="width: 23%; padding: 10px 0px; float: left; padding-top: 17px;">
+                                                                <table>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <img style="width:200px; height:240px;" src="@("/Images/Applicant/" + Model.loggedInUser.applicantId + "/" + Model.loggedInUser.pic)" />
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td class="tdRow" style="height: 620px;">
+                                                                <span class="spnhead"> Application : </span> <br /> <br />
+                                                                <span class="spntxt">  @Model.contact.question </span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="2" class="tdRow" style="border:1px solid;">
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="2" class="tdRow">
+                                                                <table style="width:100%;">
+                                                                    <tr>
+                                                                        <td style="width:70%; float:left">
+                                                                            <span class="spnhead">
+                                                                                Comments/Remarks
+                                                                            </span>
+                                                                        </td>
+                                                                        <td style=" height:250px; float:left; border-right:1px solid">
+                                                                        </td>
+                                                                        <td style="width:24%; float:left; margin-left:2%;">
+                                                                            <span class="spnhead">
+                                                                                Stamp & Signature
+                                                                            </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+
+        <div class="col-md-12 col-sm-12 col-xs-12 div_print">
+            Data not exists
+        </div>
+        <div class="clearfix"></div>
+        <div class="ln_solid"></div>
+    }
+</div>

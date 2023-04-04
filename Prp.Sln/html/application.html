@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <style>
+        td span {
+            line-height: 18px;
+        }
+
+        #divprint {
+            width: 100%;
+            margin: 0 auto;
+            margin-top: 15px;
+            font-family: 'Lato', sans-serif !important;
+        }
+
+        .center-div {
+            margin: auto;
+            width: 20%;
+            padding: 10px;
+            height: 60px;
+        }
+
+        .btn_print {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .ank {
+            cursor: pointer;
+        }
+
+        .spn-img-view {
+            font-style: italic;
+        }
+
+
+        .text-center {
+            text-align: center;
+            text-align: -webkit-center;
+            text-align: -moz-center;
+        }
+
+        .top_detail tr td:nth-child(2n) {
+            border-bottom: 1px solid #000;
+        }
+
+        .imgView {
+            height: 40px; width: 70px; border: 2px solid #524c4c;
+        }
+
+        fieldset {
+            display: block;
+            margin-inline-start: 2px;
+            margin-inline-end: 2px;
+            padding-block-start: 0.35em;
+            padding-inline-start: 0.75em;
+            padding-inline-end: 0.75em;
+            padding-block-end: 0.625em;
+            min-inline-size: min-content;
+            border-width: 1.4px;
+            border-style: groove;
+            border-color: #c0c0c0;
+            border-image: initial;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        legend {
+            display: block;
+            padding-inline-start: 7px;
+            padding-inline-end: 7px;
+            border-width: initial;
+            border-style: none;
+            border-color: initial;
+            border-image: initial;
+            width: auto;
+            font-size: 20px;
+            margin-bottom: 0px;
+        }
+    </style>
+    <div style=" width:1000px; margin:auto; border:1px solid #524f4f; padding:0 10px;">
+        <table width="1000px" style="margin:auto; border:1px solid #524f4f" cellpadding="0" cellspacing="0">
+            <thead>
+                <tr align="center">
+                    <td><img src="https://prp.phf.gop.pk/images/emailHeader.jpeg" style="width:100%; height:135px;" /></td>
+                </tr>
+            </thead>
+        </table>
+        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td>
+                        {#bodyProfile#}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table style="margin-top: 5px; width: 100%; border:1px solid;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td>
+                        {#bodyDegree#}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table style="margin-top: 5px; width: 100%;" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                        <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                            Certification Information
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Obtain Marks</th>
+                                    <th>Total Marks</th>
+                                    <th>Passing Date</th>
+                                    <th>Certificates</th>
+                                </tr>
+
+                                {#bodyCertificate#}
+
+                            </tbody>
+                        </table>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table border="1" style="font-size:14px; width: 100%; margin-top:5px; display:#displayAttemptYear#" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;" colspan="5">
+                                        <p style="margin: 6px; color: #fff; font-size: 16px;">
+                                            Attempt Certified
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Obtained Marks</th>
+                                    <th>Total Marks</th>
+                                    <th>Attempts</th>
+                                    <th>Certificates</th>
+                                </tr>
+                                {#bodyAttemptYear#}
+                            </tbody>
+                        </table>
+                        <table border="1" style="font-size:14px; width: 98%; display:#displayAttemptNeb#" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;" colspan="5">
+                                        <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                            Attempt Certified
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Attempts</th>
+                                    <th>Certificates</th>
+                                </tr>
+                                {#bodyAttemptYear#}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                        <p style="margin: 6px;color: #fff; font-size: 16px;">
+                            Work Experience {#experienceResult#}
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table border="1" style="font-size:14px; width: 99%; display:#displayExperience#" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Sr.#</th>
+                    <th>Level</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Duration</th>
+                    <th>Is Continuous</th>
+                    <th>Province</th>
+                    <th>Job Type</th>
+                    <th>Certificate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#bodyExperience#}
+            </tbody>
+        </table>
+        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                        <p style="margin: 6px;color: #fff; font-size: 16px;">
+                            Distinction {#distinctionResult#}
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table border="1" style="font-size:14px; width: 99%; display:#displayDistinction#" cellspacing="0">
+            <thead> <tr><th>Sr.#</th> <th> Subject </th><th> Year </th> <th> Certificate </th>  </tr></thead>
+            <tbody>
+                {#bodyDistinction#}
+            </tbody>
+        </table>
+        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                        <p style="margin: 6px;color: #fff; font-size: 16px;">
+                            Research Paper {#researchPaperMarks#}
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table border="1" style="font-size:14px; width: 100%; display:#displayResearchPaper#" cellspacing="0">
+            <thead> <tr><th>Sr.#</th> <th> Title </th><th> Author </th> <th> Status </th><th> Link </th> <th> Certificate </th>  </tr></thead>
+            <tbody>
+                {#bodyResearchPaper#}
+            </tbody>
+        </table>
+        <div>
+            {#bodyspeciality#}
+        </div>
+        <div>
+            <fieldset>
+                <legend> Weightage  </legend>
+                <table style="width: 100%; margin-top:10px;" cellspacing="0px">
+                    <tbody>
+                        {#bodyWeightage#}
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                        <p style="margin: 6px;color: #fff; font-size: 16px;">
+                            Voucher Information
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div>
+            {#bodyVoucher#}
+        </div>
+        <table style="width: 100%;" cellspacing="0px">
+            <tbody>
+                <tr style="float: left">
+                    <fieldset>
+                        <legend>
+                            <label class="checkbox-inline" for="chkConfirm">
+                                Imortant Notes
+                            </label>
+                        </legend>
+                        <div class="row col-md-12  ">
+                            <div class="col-md-12">
+                                <p>
+                                    1. If information submitted found wrong, mismatched or forged the application will be rejected and training if started will be discontinued with no right of appeal at institution / government level.<br />
+                                    2.<span style="color:#ff0000; font-size:14px;"><b> I will be liable to a disciplinary action may be initiated against me if any of the documents uploaded/attached/submitted found fake/ forged.</b></span><br />
+                                    3.<span style="color:#ff0000; font-size:14px;"><b> Marks calcualted are calimed marks. Final marks will be according to Plolicy and after verification you application. </b></span>
+                                </p>
+                            </div>
+                        </div>
+                    </fieldset>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <p style="color: #000; font-size: 14px; font-family: Arial; padding-left: 40px;">
+                            <b>Regards, <br>Admin</b>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <hr style="border-style: dashed; border-width: 2px; margin: 10px 40px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="color: #000; font-size: 14px; font-family: Arial; padding-left: 40px;">
+                            <b>This is an automated email. Please do not reply.</b>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="color: #000; font-size: 14px; font-family: Arial; padding-left: 40px;">
+                            <b>This mailbox is not monitored and you will not receive response.</b>
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>

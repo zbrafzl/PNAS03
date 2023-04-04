@@ -1,0 +1,417 @@
+﻿@{
+    ViewBag.Title = "Supervisor Trainee's";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.EmployeeApplicantAdmin
+
+
+@section RenderCss{
+    <style>
+        .flup-img {
+            margin: 10px;
+        }
+
+        .pd-l0 {
+            padding-left: 0px;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var hospitalId = 0, employeeId = 0, applicantId = 0, isActive = true, objApp = {}, objTrain = {}, listTrainee = [];
+        var htmlNoRecord = "";
+
+        $(document).ready(function () {
+
+            htmlNoRecord = $("#tbNoRecord").html();
+
+            hospitalId = ConvertToInt($("#hfdhospitalId").val());
+            try {
+
+                $("#ddlHospital").val(hospitalId);
+
+            } catch (e) {
+
+            }
+
+            $('#ddlEmployee').trigger("chosen:updated");
+
+            $(document).on('change', '#ddlHospital', function () {
+                hospitalId = $(this).val();
+                window.location.href = "/admin/employee-applicant-association?hospitalId" + hospitalId;
+            });
+
+            $(document).on('change', '#ddlEmployee', function () {
+                employeeId = $(this).val();
+
+                $("#divApplicantSearch").hide();
+
+                if (employeeId > 0)
+                    $("#divApplicantSearch").show();
+
+
+                GetAndBindTrainee();
+
+            });
+
+
+            $(document).on('click', '#btnSearchApplicant', function () {
+
+
+                $("#divApplicantInfo").hide();
+                $("#divApplicantNoResult").hide();
+
+                var obj = {};
+
+                obj.hospitalId = hospitalId;
+                obj.employeeId = employeeId;
+                obj.search = ConvertToString($("#txtSearchApplicant").val());
+
+                try {
+
+                    var resp = CallActionPost("/EmployeeAdmin/ApplicantForTraineeYear", obj);
+                    objApp = resp[0];
+                    if (objApp.status == false) {
+
+                        $("#divApplicantNoResult").show();
+                        $("#lblMsg").html(objApp.message);
+
+                    } else {
+                        $("#divApplicantInfo").show();
+
+                        applicantId = objApp.applicantId;
+
+
+                        $("#txtApplicantName").val(objApp.name);
+                        $("#txtApplicantFather").val(objApp.fatherName);
+                        $("#txtApplicantPmdcNo").val(objApp.pmdcNo);
+                        $("#txtApplcantCNIC").val(objApp.cnicNo);
+                        $("#txtApplicantYear").val(objApp.yearName);
+                        $("#txtApplicantProgram").val(objApp.program);
+                        $("#txtApplicantSpeciality").val(objApp.speciality);
+                        $("#txtHospitalCurrent").val(objApp.hospitalCurrent);
+                        $("#txtHospital").val(objApp.hospital);
+                        $("#txtinductionName").val(objApp.induction);
+                    }
+
+                } catch (e) {
+
+                }
+
+            });
+
+
+            $(document).on('click', '#btnAttachApplicant', function () {
+
+                isActive = true;
+                if (ValidateForm() == false) {
+
+                    var resp = CallActionPost("/EmployeeAdmin/EmployeeTraineeAddUpdate", objTrain);
+                    if (resp.status) {
+                        applicantId = 0;
+                        $("#divApplicantInfo").hide();
+                        $("#divApplicantNoResult").hide();
+                        $("#txtSearchApplicant").val("");
+
+                        GetAndBindTrainee();
+                    }
+
+                    alert(resp.msg);
+
+                }
+
+            });
+
+            $(document).on('click', '.ankDelete', function () {
+
+
+                debugger;
+
+                applicantId = ConvertToInt($(this).attr("id"));
+                isActive = false;
+
+                if (ValidateForm() == false) {
+
+                    var resp = CallActionPost("/EmployeeAdmin/EmployeeTraineeAddUpdate", objTrain);
+                    if (resp.status) {
+                        applicantId = 0;
+                        $("#divApplicantInfo").hide();
+                        $("#divApplicantNoResult").hide();
+                        $("#txtSearchApplicant").val("");
+
+                        GetAndBindTrainee();
+                    }
+
+                    alert(resp.msg);
+
+                }
+
+            });
+
+        });
+
+        function GetAndBindTrainee() {
+
+            var htmlAll = htmlNoRecord;
+
+            listTrainee = [];
+
+            var totalCount = 0;
+
+            if (employeeId > 0) {
+                var obj = {};
+
+                obj.hospitalId = hospitalId;
+                obj.employeeId = employeeId;
+                listTrainee = CallActionPost("/EmployeeAdmin/TraineeAttachedGetByEmployee", obj);
+                if (listTrainee != null && listTrainee.length > 0) {
+
+                    htmlAll = "";
+                    var objItem = {}, htmlSingle = "";
+                    var htmlTemp = $("#tbTempt").html();
+                    totalCount = listTrainee.length;
+
+                    for (var i = 0; i < listTrainee.length; i++) {
+
+                        htmlSingle = htmlTemp;
+                        objItem = listTrainee[i];
+
+                        htmlAll = htmlAll + htmlSingle.replace(/{#applicantId#}/g, objItem.applicantId)
+                            .replace(/{#hospital#}/g, objItem.hospital)
+                            .replace(/{#yearName#}/g, objItem.yearName)
+                            .replace(/{#name#}/g, objItem.name)
+                            .replace(/{#fatherName#}/g, objItem.fatherName)
+                            .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                            .replace(/{#cnicNo#}/g, objItem.cnicNo)
+                            .replace(/{#program#}/g, objItem.program)
+                            .replace(/{#speciality#}/g, objItem.speciality);
+                    }
+
+                }
+
+            }
+             
+            $("#spnTotal").html(totalCount);
+
+            $("#tbList").html(htmlAll);
+        }
+
+        function ValidateForm() {
+
+            var isError = false, ctrl = "";
+            $(".lbl-err").hide();
+            $(".req-fld").removeClass("req-fld");
+
+            objTrain = {};
+            objTrain.hospitalId = hospitalId;
+            objTrain.employeeId = employeeId;
+            objTrain.applicantId = applicantId;
+            objTrain.isActive = isActive;
+
+
+
+            if (objTrain.employeeId == 0) {
+
+                $("#ddlEmployee").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlEmployee";
+            }
+
+            if (objTrain.applicantId == 0) {
+
+                $("#txtSearchApplicant").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtSearchApplicant";
+            }
+
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+
+        }
+
+    </script>
+}
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Trainees Association  </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/employee-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                    @Html.HiddenFor(m => m.hospitalId, new { @id = "hfdhospitalId" })
+                    <div class="form-group col-lg-12">
+                        @if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.hospital)
+                        {
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Hospital *:</label>
+                                <select id="ddlHospital" class="form-control" tabindex="1">
+                                    <option value="0">Select One</option>
+                                    @foreach (var item in Model.listHospital)
+                                    {
+                                        <option value="@(item.value)"> @item.key </option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <label for="heard">Supervisor *:</label>
+                            <select id="ddlEmployee" class="form-control chosen-select" tabindex="1">
+                                <option value="0">Select One</option>
+                                @foreach (var item in Model.listEmployee)
+                                {
+                                    <option value="@(item.value)"> @item.key </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div id="divApplicantSearch" class="form-group col-lg-12" style="display:none;">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <fieldset>
+                                <legend> Applicant </legend>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <input id="txtSearchApplicant" name="txtSearch" class="form-control" placeholder="PMDC No." />
+                                    </div>
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <span id="btnSearchApplicant" class="btn btn-success">Search</span>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="ln_solid"></div>
+                                <div id="divApplicantInfo" class="col-md-12 col-sm-12 col-xs-12" style="display:none">
+                                    <div class="col-md-6 col-sm-6 col-xs-6">
+                                        <label for="heard">Hospital :</label>
+                                        <input id="txtHospital" name="txtHospital" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-6">
+                                        <label for="heard">Current Hospital :</label>
+                                        <input id="txtHospitalCurrent" name="txtHospitalCurrent" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">Name :</label>
+                                        <input id="txtApplicantName" name="txtApplicantName" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">Father Name :</label>
+                                        <input id="txtApplicantFather" name="txtApplicantFather" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">PMDC No:</label>
+                                        <input id="txtApplicantPmdcNo" name="txtApplicantPmdcNo" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">CNIC:</label>
+                                        <input id="txtApplcantCNIC" name="txtApplcantCNIC" disabled class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">Program:</label>
+                                        <input id="txtApplicantProgram" name="txtApplicantProgram" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">Specility:</label>
+                                        <input id="txtApplicantSpeciality" name="txtApplicantSpeciality" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">Induction:</label>
+                                        <input id="txtinductionName" name="txtinductionName" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">Year:</label>
+                                        <input id="txtApplicantYear" name="txtApplicantYear" disabled class="form-control" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard" style="width:100%"></label>
+                                        <span id="btnAttachApplicant" class="btn btn-success">Attach</span>
+                                    </div>
+                                </div>
+                                <div id="divApplicantNoResult" class="col-md-12 col-sm-12 col-xs-12" style=" color: #f60606;display:none">
+                                    <span id="lblMsg"></span>
+
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="ln_solid"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Listing  </h2>
+            <div class="panel_toolbox">
+                Total Trainee Attach with with Supervisor : <span id="spnTotal">0</span>
+                
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div id="pnlSearch" class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Hospital</th>
+                            <th class="column-title">Year</th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Father Name </th>
+                            <th class="column-title">PMDC No </th>
+                            <th class="column-title">CNIC </th>
+                            <th class="column-title">Program </th>
+                            <th class="column-title">Specility </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbList">
+                    </tbody>
+                </table>
+                @Html.Partial("_Pagination")
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+    <table>
+        <tbody id="tbTempt">
+            <tr class="#cssRedish#">
+                <td>{#hospital#}</td>
+                <td>{#yearName#}</td>
+                <td>{#name#}</td>
+                <td>{#fatherName#}</td>
+                <td>{#pmdcNo#}</td>
+                <td>{#cnicNo#}</td>
+                <td>{#program#}</td>
+                <td>{#speciality#}</td>
+                <td>
+                    <a id="{#applicantId#}" title="Edit" class="ank ankDelete" href="#"><i class="fa fa-trash-o"></i></a>
+                </td>
+            </tr>
+        </tbody>
+        <tbody id="tbNoRecord">
+            <tr>
+                <td colspan="13" style="text-align:center;">No record found</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+

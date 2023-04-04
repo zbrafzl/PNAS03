@@ -1,0 +1,50 @@
+﻿@{
+    ViewBag.Title = "ApplicationListView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantApplicationModel
+@section RenderCss{
+
+}
+
+@section RenderScript{
+
+    <script>
+        var applicantId = 0;
+        $(document).ready(function () {
+
+        });
+
+    </script>
+}
+<div class="container content">
+    <div class="row main">
+        @Html.Partial("_ApplicantLinks")
+        <div class="col-sm-12 cv-box">
+            <div class="mt10">
+                <p>Thank you for completing Profile Wizard with PRP Portal.Please generate and download the fee voucher to proceed. </p>
+                <table class="table">
+                    <thead class="job-th">
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Status</th>
+                            <th>Operation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="job-tb">
+                            <td>@Model.applicant.name</td>
+                            <td>  @Model.status.applicationStatus </td>
+                            <td class="t-black">
+                                <a href="/profile-view-print"><i class="fa fa-eye "></i> Preview Profile</a>
+                                <a href="/applicant-voucher"><i class="fa fa-download "></i> Generate &amp; Download Fee Voucher</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "Registration ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.LoginModel
+@section RenderCss{
+    <style>
+
+        .ank-lbl {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .ank {
+            cursor: pointer;
+            padding: 10px 15px;
+            background: #049e27;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+            .ank:hover {
+                background: #5bb06e;
+                color: #fff;
+                text-decoration: none;
+            }
+    </style>
+}
+@section RenderScript{
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+}
+<div class="container content ">
+    <div class="row main">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10 form-box mn0">
+            <div class="main-login main-center">
+                <h1 class="text-center">Confirm Your Email</h1>
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4"><img src="/assets/public/images/sent_mail.png" class="w100" alt=""></div>
+                <div class="col-sm-4"></div>
+                <p>
+                    <label class="text-center">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        Your Registration process is almost completed, we just need your email verification please go your email account and click the link to verify the account.Please acknowledge the email for confirmation of registration.
+                    </label>
+                   
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

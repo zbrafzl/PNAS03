@@ -1,0 +1,752 @@
+﻿@{
+    ViewBag.Title = "ApplicantAddition";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ProfileModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var hospitalId = 0, applicantId = 0, countryId = 0, provinceIdDomicile = 0, distirctIdDomicile = 0
+            , typeId = 0, specialityId = 0;
+
+        var objApplicant = {}, objApplicantInfo = {}, objJoinig = {}, obj = {};
+
+        $(document).ready(function () {
+
+            hospitalId = ConvertToInt($("#hfdHospitalId").val());
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            countryId = ConvertToInt($("#hfdCountryId").val());
+
+            if (countryId > 0) {
+                $("#ddlCountry").val(countryId)
+            }
+
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+
+            $("#txtDob").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                startDate: '-90y',
+                endDate: '-20y'
+            }
+            );
+
+            $("#txtExpiryDatePMDC").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true
+                }
+            );
+
+            $("#txtDateOfPassingMBBS").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true
+                }
+            );
+
+            $("#txtCNICExpiryDate").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true
+                }
+            );
+
+            $("#txtJoiningDate").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true
+                }
+            );
+
+            $(document).on('change', 'input:radio[name="rbtndisable"]', function () {
+                DisableChangeEvent();
+            });
+
+            $(document).on('change', '#ddlHospital', function () {
+
+                hospitalId = ConvertToInt($("#ddlHospital").val());
+            });
+
+            $(document).on('change', '#ddlCountry', function () {
+                CountryChangeEvent();
+            });
+
+            $(document).on('change', '#ddlDomicileProvince', function () {
+
+                distirctIdDomicile = 0;
+                provinceIdDomicile = ConvertToInt($("#ddlDomicileProvince").val());
+                DDLSetToDefault("ddlDomicileDistrict", 'Select One', 0);
+
+                if (provinceIdDomicile > 0)
+
+                    ProviceDomicelChangeEvent();
+            });
+
+            $(document).on('change', '#ddlDomicileDistrict', function () {
+                distirctIdDomicile = ConvertToInt($("#ddlDomicileDistrict").val());
+            });
+
+            $(document).on('change', '#ddlProgram', function () {
+
+                typeId = ConvertToInt($("#ddlProgram").val());
+                specialityId = 0;
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+
+                if (typeId > 0) {
+                    ProgramChangeEvent();
+                }
+            });
+
+            $(document).on('click', '#btnSave', function () {
+                SaveFromData()
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SaveFromData();
+                }
+            });
+
+
+        });
+
+        function DisableChangeEvent() {
+
+
+            var attrId = $('input:radio[name="rbtndisable"]:checked').attr("id");
+
+            if (attrId == "rbtnDisableYes") {
+
+                $("#divDisable").show();
+            }
+            else if (attrId == "rbtnDisableNo") {
+
+                $("#divDisable").hide();
+            }
+
+        }
+
+        function CountryChangeEvent() {
+
+
+            var countryId = ConvertToInt($("#ddlCountry").val());
+
+            $("#ddlDistrict").hide();
+            $(".divDomicile").hide();
+            $("#txtDistrict").hide();
+
+            if (countryId > 0) {
+
+                $("#txtDistrict").hide();
+                $("#txtCNIC").removeClass("numeric");
+
+                $("#txtCNIC").val("");
+                $("#txtCNICExpiryDate").val("");
+                $("#txtCNIC").removeAttr("placeholder");
+
+
+                if (countryId == 132) {
+
+                    $("#txtCNIC").attr("placeholder", "CNIC");
+
+                    //ddlDistrict
+
+                    $("#ddlDistrict").show();
+
+                    // For Pakistan
+                    $("#divDDLDistrict").show();
+                    $(".divDomicile").show();
+                    $(".divDisable").show();
+
+                    $(".spnCnic").html("CNIC");
+                    $("#spnCnicUpload1").html("CNIC Front Picture");
+                    $("#spnCnicUpload2").html("CNIC Back Picture");
+
+                    $("#txtCNIC").addClass("numeric");
+                    $("#txtCNIC").attr("len", "13");
+
+                    PreEventProvince();
+                    provinceIdDomicile = ConvertToInt($("#ddlDomicileProvince").val());
+
+                    DDLSetToDefault("ddlDomicileDistrict", 'Select One', 0);
+                    if (provinceIdDomicile > 0)
+                        ProviceDomicelChangeEvent();
+                }
+                else {
+
+                    $("#txtDistrict").show();
+                    $(".divDomicile").hide();
+                    $(".divDisable").hide();
+
+                    $("#txtCNIC").attr("placeholder", "Passport");
+
+                    $(".spnCnic").html("Passport");
+                    $("#txtCNIC").attr("len", "20");
+                    $("#spnCnicUpload1").html("Passport 1st Page");
+                    $("#spnCnicUpload2").html("Passport 2nd Page");
+
+
+                }
+            }
+
+
+        }
+
+        function PreEventProvince() {
+
+            var provinceId = ConvertToInt($("#ddlDomicileProvince").val());
+
+            $(".divDisable").hide();
+            DDLSetToDefault("ddlDomicileDistrict", 'Select One', 0);
+
+            if (provinceId == 196)
+                $(".divDisable").show();
+
+            DisableChangeEvent();
+        }
+
+        function ProviceDomicelChangeEvent() {
+
+
+            var obj = {};
+
+            obj.typeId = provinceIdDomicile
+            obj.search = "GetDistrictByParent";
+
+            var list = CallActionPost("/Common/DDLGetRegion", obj);
+
+
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+                    $("#ddlDomicileDistrict").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                }
+                $("#ddlDomicileDistrict").val(distirctIdDomicile);
+            }
+        }
+
+        function ProgramChangeEvent() {
+
+
+            var obj = {};
+
+            obj.typeId = typeId
+            obj.search = "ByProgram";
+
+            var list = CallActionPost("/Common/DDLSpecialityGet", obj);
+
+
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+                    $("#ddlSpeciality").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                }
+                $("#ddlSpeciality").val(specialityId);
+            }
+        }
+
+        function SaveFromData() {
+
+
+
+            if (ValidateFormInfo()) {
+
+
+
+
+                var resp = CallActionPost("/ApplicantAdmin/ApplicantAddUpdate", obj);
+
+                if (resp != null && resp.status == true) {
+
+                    alert("Data saved successfully");
+
+                    window.location = "/admin/applicant-setup";
+                }
+
+            }
+
+        }
+
+        function ValidateFormInfo() {
+
+            debugger;
+
+            var isOK = true, disableId = 1, ctrl = "";
+
+            objApplicant = {};
+            objApplicantInfo = {};
+            objTrainee = {};
+
+            $(".req-fld").removeClass("req-fld");
+            $(".lbl-err").hide();
+
+            objApplicant.applicantId = applicantId;
+            objApplicant.name = $("#txtName").val();
+            objApplicant.pmdcNo = $("#txtPMDCNo").val();
+            objApplicant.emailId = $("#txtEmail").val().toLowerCase();
+            objApplicant.password = "123456";
+            objApplicant.inductionId = ConvertToInt($("#ddlInduction").val());
+            objApplicant.network = 1;
+            objApplicant.contactNumber = $("#txtContactNumber").val();
+            objApplicant.levelId = 3;
+            objApplicant.facultyId = ConvertToInt($("#ddlDegree").val());
+            objApplicant.pic = "";
+
+
+
+            if ($("#flPic").val()) {
+                objApplicant.pic = UploadImage("flPic", applicantId, "pic");
+                $("#hfdPic").val(objApplicant.pic);
+            }
+            objApplicant.pic = ConvertToString($("#hfdPic").val());
+
+
+            objTrainee.applicantId = applicantId;
+            objApplicantInfo.pic = objApplicant.pic;
+            objApplicantInfo.fatherName = ConvertToString($("#txtFatherName").val());
+            objApplicantInfo.genderId = ConvertToInt($("#ddlGender").val());
+
+            objApplicantInfo.countryId = countryId;
+            objApplicantInfo.inductionId = ConvertToInt($("#ddlInduction").val());
+
+            objApplicantInfo.dob = "";
+            if (ValidateDate("txtDob")) {
+                objApplicantInfo.dob = ConvertToString($("#txtDob").val());
+            }
+
+            objApplicantInfo.pmdcExpiryDate = "";
+            if (ValidateDate("txtExpiryDatePMDC")) {
+                objApplicantInfo.pmdcExpiryDate = ConvertToString($("#txtExpiryDatePMDC").val());
+            }
+
+            objApplicantInfo.mbbsPassingDate = "";
+            if (ValidateDate("txtDateOfPassingMBBS")) {
+                objApplicantInfo.mbbsPassingDate = ConvertToString($("#txtDateOfPassingMBBS").val());
+            }
+            objApplicantInfo.countryIdDegreePassing = ConvertToInt($("#ddlCountryDegree").val());
+
+
+            objApplicantInfo.address = ConvertToString($("#txtAddress").val());
+            objApplicantInfo.cnicNo = ConvertToString($("#txtCNIC").val());
+
+            if (objApplicantInfo.countryId == 132) {
+                // Pakistan
+                objApplicantInfo.districtId = ConvertToInt($("#ddlDistrict").val());
+                objApplicantInfo.districtName = "";
+                objApplicantInfo.domicileProvinceId = $("#ddlDomicileProvince").val();
+                objApplicantInfo.domicileDistrictId = $("#ddlDomicileDistrict").val();
+
+                if ($("#flDomicileFront").val()) {
+                    objApplicantInfo.domicilePicFront = UploadImage("flDomicileFront", applicantId, "DomicileFront");
+                    $("#hfdDomicileFront").val(objApplicantInfo.domicilePicFront);
+                }
+                objApplicantInfo.domicilePicFront = ConvertToString($("#hfdDomicileFront").val());
+
+
+                disableId = 1;
+                if (objApplicantInfo.domicileProvinceId == 196) {
+
+
+                    if ($("#rbtnDisableYes").is(':checked'))
+                        disableId = 2;
+                    else if ($("#rbtnDisableNo").is(':checked'))
+                        disableId = 1;
+
+                    objApplicantInfo.disableImage = "";
+                    if (disableId == 2) {
+
+                        if ($("#flDisable").val()) {
+                            objApplicantInfo.disableImage = UploadImage("flDisable", applicantId, "Disable");
+                            $("#hfdDisable").val(objApplicantInfo.disableImage);
+                        }
+                        objApplicantInfo.disableImage = ConvertToString($("#hfdDisable").val());
+                    }
+
+                }
+                else {
+                    objApplicantInfo.disableImage = "";
+                }
+
+                objApplicantInfo.disableId = disableId;
+
+            }
+            else {
+
+                objApplicantInfo.districtId = 0;
+                objApplicantInfo.districtName = ConvertToString($("#txtDistrict").val());
+                objApplicantInfo.domicileProvinceId = 0;
+                objApplicantInfo.domicileDistrictId = 0;
+            }
+
+
+            objApplicantInfo.cnicExpiryDate = "";
+            if (ValidateDate("txtCNICExpiryDate")) {
+                objApplicantInfo.cnicExpiryDate = ConvertToString($("#txtCNICExpiryDate").val());
+            }
+
+            if ($("#flCnicFront").val()) {
+                objApplicantInfo.cnicPicFront = UploadImage("flCnicFront", applicantId, "CnicFront");
+                $("#hfdCnicFront").val(objApplicantInfo.cnicPicFront);
+            }
+            objApplicantInfo.cnicPicFront = ConvertToString($("#hfdCnicFront").val());
+
+            if ($("#flCnicBack").val()) {
+                objApplicantInfo.cnicPicBack = UploadImage("flCnicBack", applicantId, "CnicBack");
+                $("#hfdCnicBack").val(objApplicantInfo.cnicPicBack);
+            }
+            objApplicantInfo.cnicPicBack = ConvertToString($("#hfdCnicBack").val());
+
+
+            //
+            objTrainee.applicantId = applicantId;
+            objTrainee.inductionId = ConvertToInt($("#ddlInduction").val());
+            objTrainee.hospitalId = hospitalId;
+            objTrainee.typeId = ConvertToInt($("#ddlProgram").val());
+            objTrainee.specialityId = ConvertToInt($("#ddlSpeciality").val());
+            objTrainee.marks = ConvertToInt($("#txtMarks").val());
+            objTrainee.joiningDate = "";
+            if (ValidateDate("txtJoiningDate")) {
+                objApplicantInfo.joiningDate = ConvertToString($("#txtJoiningDate").val());
+            }
+
+            obj = {};
+            obj.applicant = objApplicant;
+            obj.applicantInfo = objApplicantInfo;
+            obj.trainee = objTrainee;
+
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+
+
+            return isOK;
+
+        }
+
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Applicant  </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <input id="hfdApplicantId" type="hidden" value="@Model.applicantId" />
+                
+                <input id="hfdHospitalId" type="hidden" value="@Model.hospitalId" />
+                <fieldset>
+                    <legend> Applicant Info  </legend>
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                        <div class="form-group col-lg-12">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">Induction <span style="color:red">*</span>:</label>
+                                    <select id="ddlInduction" class="form-control" tabindex="1">
+                                        @foreach (var item in Model.listInduction)
+                                        {
+                                            <option value="@item.value">@item.key</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">Applicant Name <span style="color:red">*</span>:</label>
+                                    <input type="text" class="form-control" required="required" maxlength="50" name="txtName" id="txtName" placeholder="Applicant Name" tabindex="2" />
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">PMDC No *:</label>
+                                    <input type="text" class="form-control" required="required" maxlength="8" name="txtPMDCNo" id="txtPMDCNo" placeholder="PMDC Number" tabindex="21" />
+                                </div>
+
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">Degree <span style="color:red">*</span>:</label>
+                                    <select required="required" name="ddlDegree" id="ddlDegree" class="form-control" tabindex="18">
+                                        <option selected="selected" value="1">MBBS</option>
+                                        <option value="2">BDS</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">Contact No <span style="color:red">*</span>:</label>
+                                    <input type="text" class="form-control numeric" name="txtContactNumber" required="required" len="20" maxlength="11" id="txtContactNumber" placeholder="Contact 03xxxxxxxxx" tabindex="6" />
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">Email <span style="color:red">*</span>:</label>
+                                    <input class="form-control" type="email" required="required" maxlength="100" name="txtEmail" id="txtEmail" placeholder="Email" tabindex="7" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </fieldset>
+                <fieldset>
+                    <legend> Joining Information  </legend>
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                        <div class="form-group col-lg-12">
+                            @if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.hospital)
+                            {
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for=""> Hospital <span style="color:red">*</span></label>
+                                    <select class="form-control" name="ddlHospital" id="ddlHospital" required="required" tabindex="23">
+                                        @foreach (var u in Model.listHospital)
+                                        {
+                                            <option value="@u.value"> @u.key </option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for=""> Program <span style="color:red">*</span></label>
+                                <select class="form-control" name="ddlProgram" id="ddlProgram" required="required" tabindex="23">
+                                    <option value="0"> Select One </option>
+                                    @foreach (var u in Model.listProgram)
+                                    {
+                                        <option value="@u.value"> @u.key </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for=""> Speciality <span style="color:red">*</span></label>
+                                <select class="form-control" name="ddlSpeciality" id="ddlSpeciality" required="required" tabindex="24">
+                                    <option value="0"> Select One </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for=""> Marks <span style="color:red">*</span> </label>
+                                <input type="text" maxlength="10" name="txtMarks" id="txtMarks" class="form-control" tabindex="25">
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for=""> Joining Data <span style="color:red">*</span> <span id="spnJoiningDate" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                <input type="text" maxlength="10" name="txtJoiningDate" id="txtJoiningDate" class="form-control" autocomplete="off" tabindex="25">
+                            </div>
+                        </div>
+                    </form>
+                </fieldset>
+                <div class="form-group col-lg-12">
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label for="heard">&nbsp;</label>
+                        <input type="button" id="btnSave" value="Update" class="btn btn-success" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal BookInvestigation PathalogyModal fade" id="PopUpDetailinfo">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header align-items-center">
+                <h4 class="BookTxt"><img src="/Imgs/Examination.png" alt="">Applicant Detail Info</h4>
+                <button type="button" data-dismiss="modal">X</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <input id="hfdCountryId" type="hidden" value="@Model.countryId" />
+                <div class="x_content">
+                    <fieldset>
+                        <legend> Applicant Education  </legend>
+                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">Father/Husband Name <span style="color:red">*</span>:</label>
+                                    <input type="text" class="form-control" required="required" maxlength="50" name="txtFatherName" id="txtFatherName" placeholder="Father/Husband Name" tabindex="3" />
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">Gender <span style="color:red">*</span>:</label>
+                                    <select required="required" name="ddlGender" id="ddlGender" class="form-control" tabindex="4">
+                                        <option selected="selected" value="1">Male</option>
+                                        <option value="2">Female</option>
+                                        <option value="3">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="form-group">
+                                        <label for="lbl-err"> Date of Birth <span style="color:red">*</span> <span id="spnDob" class="lbl-err" style="display:none;">Invalid date</span> </label>
+                                        <input type="text" name="dob" id="txtDob" class="form-control datepicker dated" autocomplete="off" tabindex="5">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for=""> Country of Passing MBBS/BDS <span style="color:red">*</span></label>
+                                    <select class="form-control" name="ddlCountryDegree" id="ddlCountryDegree" required="required" tabindex="19">
+                                        @foreach (var u in Model.listCountry)
+                                        {
+                                            <option value="@u.value"> @u.key </option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-2 col-sm-2 col-xs-2">
+                                    <label for=""> Passing Date MBBS/BDS <span style="color:red">*</span> <span id="spnDateOfPassingMBBS" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                    <input type="text" maxlength="11" name="txtDateOfPassingMBBS" id="txtDateOfPassingMBBS" autocomplete="off" class="datepicker form-control dated" tabindex="20">
+                                </div>
+
+                                <div class="col-md-2 col-sm-2 col-xs-2">
+                                    <div class="form-group">
+                                        <label for=""> PMDC Expiry Date <span style="color:red">*</span> <span id="spnExpiryDatePMDC" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                        <input type="text" class="form-control datepicker dated" name="txtExpiryDatePMDC" autocomplete="off" id="txtExpiryDatePMDC" tabindex="22">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">Nationality <span style="color:red">*</span>:</label>
+                                    <select class="form-control" name="ddlCountry" id="ddlCountry" required="required" tabindex="8">
+                                        <option value="0">Select One</option>
+                                        @foreach (var item in Model.listCountry)
+                                        {
+                                            <option value="@item.value">@item.key</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">District :</label>
+                                    <select class="form-control" id="ddlDistrict" tabindex="9">
+                                        @foreach (var item in Model.listDistrict)
+                                        {
+                                            <option value="@item.value">@item.key</option>
+                                        }
+                                    </select>
+                                    <input required="required" type="text" name="txtDistrict" id="txtDistrict" class="form-control lenth" len="100" placeholder="District" style="display:none;" tabindex="9" />
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for=""><span class="spnCnic"> CNIC </span> <span style="color:red">*</span>  <small>(Without dashes) </small></label>
+                                    <input required="required" type="text" name="txtCNIC" id="txtCNIC" class="form-control lenth numeric" len="13" placeholder="CNIC" tabindex="10" />
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for=""> Expiry on <span class="spnCnic"> CNIC </span> <span style="color:red">*</span> <span id="spnCNICExpiryDate" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                    <input required="required" type="text" name="txtCNICExpiryDate" id="txtCNICExpiryDate" autocomplete="off" class="form-control datepicker dated" tabindex="11">
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3 divDomicile">
+                                    <label for=""> Province of Domicile <span style="color:red">*</span></label>
+                                    <select id="ddlDomicileProvince" name="ddlDomicileProvince" class="form-control" tabindex="12">
+                                        <option value="0"> Select One </option>
+                                        @foreach (var u in Model.listProvince)
+                                        {
+                                            <option value="@u.value"> @u.key </option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 col-sm-3 col-xs-3 divDomicile">
+                                    <label for="heard">District of Domicile :</label>
+                                    <select class="form-control" name="ddlDomicileDistrict" id="ddlDomicileDistrict" required="required" tabindex="13">
+                                        <option value="0"> Select One </option>
+                                    </select>
+                                </div>
+                                <div id="divDisableRadio" class="col-md-3 col-sm-3 col-xs-3 divDomicile">
+                                    <label for=""> Do you want to apply for disability quota?  <span style="color:red">*</span></label> <br>
+                                    <label><input type="radio" name="rbtndisable" id="rbtnDisableYes" value="Y"> Yes &nbsp;&nbsp;</label>
+                                    <label><input type="radio" name="rbtndisable" id="rbtnDisableNo" value="N" checked=""> No  &nbsp;&nbsp;</label>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <label for=""> Address  </label>
+                                    <textarea class="form-control" required="required" name="txtAddress" id="txtAddress" tabindex="14"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </fieldset>
+                    <fieldset>
+                        <legend> Document Images  </legend>
+                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                            <div class="form-group col-lg-12">
+
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for=""> Profile Picture  </label>
+                                    <input type="file" class="form-control flup" name="flPic" id="flPic" tabindex="15" />
+                                    <input type="hidden" id="hfdPic" value="" />
+                                    <img id="imgPic" class="flup-img" src="" alt="" style="display:none;" />
+                                    <a id="rmvPic" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for=""> <span id="spnCnicUpload1"> CNIC Front Picture</span>  </label>
+                                    <input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="15" />
+                                    <input type="hidden" id="hfdCnicFront" value="" />
+                                    <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
+                                    <a id="rmvCnicFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for=""> <span id="spnCnicUpload2"> CNIC Back Picture</span>   </label>
+                                    <input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="16" />
+                                    <input type="hidden" id="hfdCnicBack" value="" />
+                                    <img id="imgCnicBack" class="flup-img" src="" alt="" style="display:none;" />
+                                    <a id="rmvCnicBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for=""> Domicile Front Picture  </label>
+                                    <input type="file" class="form-control flup" name="flDomicileFront" id="flDomicileFront" tabindex="17" />
+                                    <input type="hidden" id="hfdDomicileFront" value="" />
+                                    <img id="imgDomicileFront" class="flup-img" src="" alt="" style="display:none;" />
+                                    <a id="rmvDomicileFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
+                                <div id="divDisable" class="col-md-3 col-sm-3 col-xs-3" style="display:none;">
+                                    <label for=""> Disable Certificate  </label>
+                                    <input type="file" class="form-control flup" name="flDisable" id="flDisable" tabindex="17" />
+                                    <input type="hidden" id="hfdDisable" value="" />
+                                    <img id="imgDisable" class="flup-img" src="" alt="" style="display:none;" />
+                                    <a id="rmvDisable" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
+                            </div>
+                        </form>
+                    </fieldset>
+
+                </div>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button class="btn btn-secondary SaveBtn mr-4" onclick="AddUpdateUnit(this)">Save Now</button>
+                <button type="button" class="btn btn-secondary CancelBtn btnClosePopup" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+
+
+</div>
+

@@ -1,0 +1,458 @@
+﻿@{
+    ViewBag.Title = "Applicant Research Paper ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ProfileModel
+@section RenderCss{
+
+    <style>
+        .ank {
+            cursor: pointer;
+        }
+
+        .grid-img {
+            width: 60px;
+            height: 40px;
+            border: 1px solid #ede9e9;
+        }
+
+        .chosen-container {
+            width: 100% !important;
+        }
+
+        .chosen-single {
+            height: 35px !important;
+        }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, objApplicant = {}, objResearchPaper = {}, objResearchPaperList = [],
+            imagesPath = "", applicantResearchId = 0, applicantResearchIdLast = 0, countResearchPaper = 0;
+
+
+        $(document).ready(function () {
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            imagesPath = "/Images/Applicant/" + applicantId + "/";
+
+            BindJournalDDL(0);
+
+            $(document).on('click', '#btnSave', function () {
+                SaveResearchPaperData();
+            });
+
+            $(document).on('change', '#ddlStatus', function () {
+
+                var statusId = ConvertToInt($(this).val());
+
+                $("#spnId").html("Option");
+
+                if (statusId == 1) {
+                    $("#spnId").html("*");
+                }
+            });
+
+
+
+            $(document).on('click', '.ankEdit', function () {
+
+                var idAttr = $(this).attr("id");
+                applicantResearchId = ConvertToInt(idAttr.replace("ankEdit", ""));
+
+                objResearchPaper = $.grep(objResearchPaperList, function (n, i) {
+                    return n.applicantResearchId == applicantResearchId;
+                })[0];
+
+
+                BindResearchPaperForm();
+
+            });
+
+            $(document).on('click', '.ankDel', function () {
+
+                var idAttr = $(this).attr("id");
+                applicantResearchId = ConvertToInt(idAttr.replace("ankDel", ""));
+
+                if (applicantResearchId > 0 && confirm('Are you sure you want to do delete this?')) {
+                    DeleteResearchPaper();
+                }
+            });
+
+
+
+
+            GetApplicantResearchPaperList();
+
+        });
+
+        function BindJournalDDL(countryId) {
+
+            $("#ddlJournal").empty();
+
+            var objJournal = {};
+            objJournal.typeId = countryId;
+            objJournal.condition = "ByCountry";
+
+            var list = CallActionPost("/Common/JournalGetForDDL", objJournal);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    $("#ddlJournal").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+
+                    //if (countryId == ddlItem.id)
+                    //    $("#ddlJournal").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    //else
+                }
+            }
+
+            $('#ddlJournal').trigger("chosen:updated");
+
+        }
+
+
+        function SaveResearchPaperData() {
+
+            if (ValidateResearchPaperFrom() == false) {
+
+                var resp = CallActionPost("/ApplicationAdmin/ApplicantResearchPaperAddUpdate", objResearchPaper);
+                location.reload();
+            }
+
+
+        }
+
+        function ValidateResearchPaperFrom() {
+
+            var isError = false, ctrl = "";
+
+            $(".req-fld").removeClass("req-fld");
+
+            objResearchPaper = {};
+            objResearchPaper.applicantResearchId = ConvertToInt($("#hfdPaperId").val())
+            objResearchPaper.applicantId = applicantId;
+            objResearchPaper.authorId = ConvertToInt($("#ddlAuthor").val());
+            objResearchPaper.publishStatusId = ConvertToInt($("#ddlStatus").val());
+            objResearchPaper.name = ConvertToString($("#txtTitle").val());
+            objResearchPaper.link = ConvertToString($("#txtLink").val());
+            objResearchPaper.webLink = ConvertToString($("#txtWebLink").val());
+            objResearchPaper.researchJournalId = ConvertToInt($("#ddlJournal").val());
+
+
+
+            objResearchPaper.isActive = $("#chkIsActive").is(':checked');
+
+
+            if (applicantResearchIdLast == 0)
+                applicantResearchIdLast = 1;
+            else applicantResearchIdLast = applicantResearchIdLast + 1;
+
+
+
+            var fileName = "ResearchPaper" + "_";
+            if (objResearchPaper.applicantResearchId == 0)
+                fileName = fileName + applicantResearchIdLast;
+            else if (objResearchPaper.applicantResearchId > 0)
+                fileName = fileName + objResearchPaper.applicantResearchId;
+
+            objResearchPaper.imageLetter = "abc";// $("#hfdLetter").val();
+
+            if (objResearchPaper.name == "") {
+                $("#txtTitle").addClass("req-fld");
+                ctrl = "txtTitle";
+                isError = true;
+            }
+            if (objResearchPaper.link == "") {
+
+                $("#txtLink").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtLink";
+            }
+
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
+
+        function GetApplicantResearchPaperList() {
+
+            var resp = CallActionGet("/ApplicantProfile/GetApplicantResearchPaperData?applicantId=" + applicantId);
+            if (resp != null && resp.length > 0) {
+                objResearchPaperList = resp;
+                BindPenelResearchPaperList();
+            }
+        }
+
+        function BindPenelResearchPaperList() {
+
+            var objItem = {};
+
+            var expTem = $("#tbPaperTemplate").html();
+            $("#divPaperList").hide();
+            $("#divBtnSave").show();
+            $("#tbPaperList").html("");
+            applicantExperienceIdLast = 0;
+
+            var htmlExpAll = "", htmlExp = "";
+            countResearchPaper = 0, imagePathCurent = "", _link = "", isActive = "";
+            if (objResearchPaperList != null && objResearchPaperList.length > 0) {
+
+                for (var i = 0; i < objResearchPaperList.length; i++) {
+
+                    htmlExp = expTem;
+                    objItem = objResearchPaperList[i];
+                    applicantResearchIdLast = objItem.applicantResearchId;
+
+                    countResearchPaper = countResearchPaper + 1;
+
+                    isActive = "InValid";
+                    if (objItem.researchJournalId == 0)
+                        isActive = "InValid";
+                    else if (objItem.isActive)
+                        isActive = "Valid";
+
+                    _link = objItem.link;
+
+                    if (objItem.publishStatusId == 2 && objItem.imageLetter == "abc") {
+
+                        imagePathCurent = "/Images/abc.jpg";
+                    }
+                    else {
+                        imagePathCurent = imagesPath + objItem.imageLetter;
+                    }
+
+                    htmlExpAll = htmlExpAll + htmlExp.replace(/{#title#}/g, objItem.name)
+                        .replace(/{#author#}/g, objItem.author)
+                        .replace(/{#publishStatus#}/g, objItem.publishStatus)
+                        .replace(/{#link#}/g, _link).replace(/{#paperId#}/g, objItem.applicantResearchId)
+                        .replace(/{#webLink#}/g, objItem.webLink)
+                        .replace(/{#journal#}/g, objItem.researchJournalName)
+                        .replace(/{#researchJournalId#}/g, objItem.researchJournalId)
+                        .replace(/{#regionId#}/g, objItem.regionId)
+                        .replace(/{#regionName#}/g, objItem.regionName)
+                        .replace(/{#displine#}/g, objItem.displine)
+                        .replace(/{#isActive#}/g, isActive);
+                }
+                $("#divPaperList").show();
+            }
+
+            if (countResearchPaper >= 2)
+                $("#divBtnSave").hide();
+
+
+            $("#tbPaperList").html(htmlExpAll);
+
+        }
+
+        function BindResearchPaperForm() {
+
+            $("#frmPaper").show();
+
+            $("#ddlAuthor").val(objResearchPaper.authorId);
+            $("#ddlStatus").val(objResearchPaper.publishStatusId);
+            $("#hfdPaperId").val(objResearchPaper.applicantResearchId);
+            $("#txtTitle").val(objResearchPaper.name);
+            $("#txtLink").val(objResearchPaper.link);
+            $("#txtWebLink").val(objResearchPaper.webLink);
+            $('#ddlJournal').val(objResearchPaper.researchJournalId);
+            $('#ddlJournal').trigger("chosen:updated");
+
+            debugger;
+
+            if (objResearchPaper.researchJournalId == 0)
+                $("#chkIsActive").prop("checked", false)
+            else
+                $("#chkIsActive").prop("checked", objResearchPaper.isActive)
+
+            $("#btnSave").show();
+        }
+
+        function DeleteResearchPaper() {
+
+            var resp = CallActionGet("/ApplicantProfile/ApplicantResearchPaperDeleteSingle?applicantResearchId=" + applicantResearchId);
+            ClearResearchPaperForm();
+            GetApplicantResearchPaperList();
+
+        }
+
+        function ClearResearchPaperForm() {
+
+            $("#hfdPaperId").val("0");
+            $("#txtTitle").val("");
+            $("#txtLink").val("");
+            $("#txtWebLink").val("");
+            $('#ddlJournal').val(0);
+            $('#ddlJournal').trigger("chosen:updated");
+        }
+
+
+    </script>
+}
+<div class="container" style="margin-bottom:60px;">
+    <div class="row main">
+        @Html.Partial("_ApplicationUpdateLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <div class="">
+                    <div class="col-sm-12">
+                        <h3 class="text-center">
+                            Research Paper : Step 4 of 6 Research Papers
+                        </h3>
+                        <div class="col-sm-12">
+                            <hr>
+                            <p>
+                                <b>Note:</b><br />  i. Papers published in National and International impact factor journals shall be accepted.
+                                <br />ii. Active DOI link required.
+                            </p><hr>
+                        </div>
+                        <hr class="colorgraph">
+                        <div class="row">
+                            <div id="divPaperList" class="col-xs-12 col-sm-12 col-md-12" style="display:none">
+                                <table style="display:none">
+                                    <tbody id="tbPaperTemplate">
+                                        <tr class="job-tb">
+                                            <td>
+                                                {#journal#}
+                                                <input type="hidden" id="hfdJournalId{#paperId#}" value="{#researchJournalId#}" />
+                                                <input type="hidden" id="hfdRegionId{#paperId#}" value="{#regionId#}" />
+                                            </td>
+                                            <td>{#isActive#}</td>
+                                            <td>{#regionName#}</td>
+                                            <td>{#displine#}</td>
+                                            <td>{#title#}</td>
+                                            <td>{#author#}</td>
+                                            <td>{#publishStatus#}</td>
+                                            <td><a class="ank" href="{#link#}" target="_blank">{#link#} </a> </td>
+                                            <td><a class="ank" href="{#webLink#}" target="_blank">{#webLink#} </a> </td>
+                                            <td>
+                                                <a id="ankEdit{#paperId#}" class="ankEdit ank"><i class="fa fa-pencil-square-o"></i></a>&nbsp;|&nbsp;
+                                                <a id="ankDel{#paperId#}" class="ankDel ank"><i class="fa fa-trash-o"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table mt10">
+                                    <thead class="job-th">
+                                        <tr>
+                                            <th>Journal</th>
+                                            <th>Valid Status</th>
+                                            <th>Country</th>
+                                            <th>Displine</th>
+                                            <th>Title</th>
+                                            <th>Author</th>
+                                            <th>Status</th>
+                                            <th>DOI Link</th>
+                                            <th>Web Link</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbPaperList">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="frmPaper" class="well" style="display:none;">
+                            <form role="form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4" style="display:none;">
+                                        <div class="form-group">
+                                            <label for=""> Country</label>
+                                            <select id="ddlCountry" name="ddlCountry" class="form-control  chosen-select">
+                                                <option value="0" selected="selected">None </option>
+                                                @foreach (var u in Model.listRegion)
+                                                {
+                                                    <option value="@u.id"> @u.value </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-10 col-sm-10 col-md-10">
+                                        <div class="form-group">
+                                            <label for=""> Journal</label>
+                                            <select id="ddlJournal" name="ddlJournal" class="form-control chosen-select">
+                                                <option value="0">Select One</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <div class="form-group">
+                                                <label> Is Accurate  </label>
+                                                <input type="checkbox" id='chkIsActive' name="chkIsActive" class="form-control" value="IsActive">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""> DOI Link <span class="sprq">*</span></label>
+                                            <input id="txtLink" type="text" class="form-control lenth" len="1000" name="appect_ref_link">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""> Publisher Web Link  <span class="sprq">*</span></label>
+                                            <input id="txtWebLink" type="text" class="form-control lenth" len="1000" name="appect_ref_link">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4" style="display:none;">
+                                        <div class="form-group">
+                                            <label>Acceptance Letter <span class="sprq" id="spnId">*</span></label>
+                                            <input type="file" id="flLetter" class="form-control flup" tabindex="1">
+                                            <input type="hidden" id="hfdLetter" value="" />
+                                            <img id="imgLetter" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvLetter" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <input type="hidden" id="hfdPaperId" value="0" />
+                                            <label for=""> Title <span class="sprq">*</span></label>
+                                            <input id="txtTitle" type="text" class="form-control lenth" len="200" name="research_ppr_title">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label for="">Author</label>
+                                            <select id="ddlAuthor" name="author" class="form-control">
+                                                <option value="1"> 1st, 2nd or 3rd </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label for=""> Status</label>
+                                            <select id="ddlStatus" name="ddlStatus" class="form-control">
+                                                <option value="2"> Published </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label> &nbsp;</label>
+                                            <input type="button" id="btnSave" name="submit" class="btn mybtn animated-button" value="Update" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

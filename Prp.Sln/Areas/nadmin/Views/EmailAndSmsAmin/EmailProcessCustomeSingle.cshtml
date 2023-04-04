@@ -1,0 +1,281 @@
+﻿
+@{
+    ViewBag.Title = "ApplicantViewDetail";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.SmsEmailAdminModel
+@section RenderCss{
+
+    <style type="text/css">
+        #divprint {
+            width: 100%;
+            margin: 0 auto;
+            margin-top: 15px;
+            font-family: 'Lato', sans-serif !important;
+        }
+
+        .text-center {
+            text-align: center;
+            text-align: -webkit-center;
+            text-align: -moz-center;
+        }
+
+        .top_detail tr td:nth-child(2n) {
+            border-bottom: 1px solid #000;
+        }
+
+        .imgView {
+            height: 40px;
+            width: 70px;
+        }
+
+        .ank {
+            font-style: italic;
+            color: #007bff;
+        }
+
+        .spn-edit {
+            float: right;
+            margin-right: 5px;
+            padding: 1px 6px;
+            background: #fefefe;
+            color: #8b8686;
+        }
+
+            .spn-edit:hover {
+                background: #e9e0e0;
+            }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, objApplicant = {}, imagesPath = "", key = "", value = "";
+
+        $(document).ready(function () {
+
+            try {
+                applicantId = ConvertToInt($("#hfdApplicantId").val());
+            } catch (e) {
+                applicantId = 0;
+            }
+
+            $("#ddlType").val("pmdcNo");
+
+            key = ConvertToString($("#hfdKey").val());
+            if (key.length > 0) {
+                $("#ddlType").val(key);
+            }
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchApplicant();
+                }
+
+            });
+
+
+            $(document).on('click', '#btnSearch', function () {
+
+                SearchApplicant();
+            });
+
+
+            $(document).on('click', '#btnSendSms', function () {
+
+                var body = ConvertToString($("#txtMessage").val());
+                var subject = ConvertToString($("#txtSubject").val());
+                var title = ConvertToString($("#txtTitle").val());
+
+                
+
+                if (body.length > 0 && subject.length > 0 && title.length > 0)
+                    SendSmsToApplicant();
+
+            });
+
+
+        });
+
+        function SearchApplicant() {
+
+            var key = $("#ddlType").val();
+            var value = ConvertToString($("#txtSearch").val());
+            if (value.length > 0)
+                window.location.href = "/admin/applicant-send-email-single-custom?key=" + key + "&value=" + value;
+            else { alert("Please enter something which you want to search"); }
+        }
+
+        function SendSmsToApplicant() {
+
+            var obj = {};
+            obj.emailId = ConvertToString($("#txtEmail").val());
+            obj.body = ConvertToString($("#txtMessage").val());
+            obj.subject = ConvertToString($("#txtSubject").val());
+            obj.title = ConvertToString($("#txtTitle").val());
+            obj.applicantId = ConvertToInt($("#hfdApplicantId").val());
+
+            var resp = CallActionPost("/CommonFunctionsAdmin/SendEmailAdminCustom", obj);
+            if (resp != null && resp.status == true) {
+
+
+                $("#txtMessage").val("");
+
+                $("#divSmsSuccess").show();
+                $("#divSmsDanger").hide();
+            }
+            else {
+                $("#divSmsSuccess").hide();
+                $("#divSmsDanger").show();
+            }
+
+        }
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Send SMS To Applicant </h2>
+            <div class="clearfix"></div>
+        </div>
+
+        <form class="form-horizontal form-label-left input_mask">
+            <div class="form-group col-lg-12">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <fieldset>
+                        <legend> Search Panel  </legend>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <input type="hidden" id="hfdKey" value="@(Model.search.key)" />
+                            <label for="heard">Select Type :</label>
+                            <select id="ddlType" name="ddlType" class="form-control">
+                                <option value="pmdcNo" selected="selected"> PMDC No </option>
+                                <option value="emailId"> Email Id </option>
+                                <option value="contactNumber"> Contact Number </option>
+                                <option value="applicantId"> Applicant Id </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <label for="heard">Search :</label>
+                            <input id="txtSearch" name="txtSearch" class="form-control" value="@(Model.search.value)" />
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <label for="heard" style="width:100%;">Action </label>
+                            <input type="button" id="btnSearch" class="btn btn-success" value="Search" />
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                @if (Model.applicantId > 0)
+                {
+                    <input type="hidden" id="hfdApplicantId" value="@(Model.applicant.applicantId)" />
+                    <fieldset>
+                        <legend> SMS Panel  </legend>
+                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Name *:</label>
+                                    <input type="text" class="form-control" maxlength="50" required="required" name="txtName" id="txtName" placeholder="Full Name" value="@(Model.applicant.name)" readonly />
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">PMDC No *:</label>
+                                    <input type="text" class="form-control" required="required" maxlength="8" name="txtPMDCNo" id="txtPMDCNo" placeholder="PMDC Number" value="@(Model.applicant.pmdcNo)" readonly />
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Email *:</label>
+                                    <input class="form-control" type="email" required="required" maxlength="100" name="txtEmail" id="txtEmail" placeholder="Email" value="@(Model.applicant.emailId)" readonly />
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Status *:</label>
+                                    <input type="text" class="form-control" maxlength="50" required="required" name="txtName" id="txtStatus" placeholder="Full Name" value="@(Model.applicant.applicationStatus)" readonly />
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Contact No *:</label>
+                                    <input type="text" class="form-control numeric" name="txtContactNumber" required="required" len="20" maxlength="11" id="txtContactNumber" placeholder="Contact 03xxxxxxxxx" value="@(Model.applicant.contactNumber)" readonly />
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard"> Faculty *:</label>
+                                    <input type="text" class="form-control" required="required" maxlength="8" name="txtFaculty" id="txtFaculty" placeholder="PMDC Number" value="@(Model.applicant.facultyName)" readonly />
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Subject *:</label>
+                                    <input type="text" class="form-control" maxlength="200" required="required" name="txtSubject" id="txtSubject" placeholder="Subject" />
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Title *:</label>
+                                    <input type="text" class="form-control" maxlength="200" required="required" name="txtTitle" id="txtTitle" placeholder="Title" />
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <label for="heard">Message *:</label>
+                                    <textarea class="form-control" required="required" name="txtMessage" id="txtMessage" tabindex="13" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-2 col-sm-2 col-xs-2">
+                                    <label for="heard" style="width:100%;"></label>
+                                    <input type="button" id="btnSendSms" value="Send SMS" class="btn btn-success" />
+                                </div>
+
+                            </div>
+                            <div>
+                                <div id="divSmsSuccess" class="alert alert-success alert-dismissible show" role="alert" style="clear:both; display:none">
+                                    <span> Message Sent</span>
+                                    <a href="#" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </a>
+                                </div>
+                                <div id="divSmsDanger" class="alert alert-danger alert-dismissible show" role="alert" style="clear:both; display:none">
+                                    <span> Some thing went wrong!</span>
+                                    <a href="#" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                        </form>
+                    </fieldset>
+
+                }
+                else
+                {
+                    if (Model.requestType == 1)
+                    {
+                        <fieldset>
+                            <legend> Search Result   </legend>
+                            <div>
+                                <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                    <span> Applicant not exists</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    }
+                    else if (Model.requestType == 3)
+                    {
+
+                        <fieldset>
+                            <legend> Search Result  </legend>
+                            <div>
+                                <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                    <span> Some thing went wrong</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    }
+
+                }
+            </div>
+        </div>
+    </div>
+</div>

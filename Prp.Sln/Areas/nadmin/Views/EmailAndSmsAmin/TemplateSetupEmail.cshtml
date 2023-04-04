@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "Setup Email Template";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.EmailTemplateModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var statusId = 0;
+        $(document).ready(function () {
+
+             try {
+
+                CKFinder.setupCKEditor(null, '@Url.Content("~/ckfinder")');
+                var editor = CKEDITOR.instances['txtDetail'];
+                if (editor) { editor.destroy(true); }
+                CKEDITOR.replace('txtDetail', {
+                    enterMode: CKEDITOR.ENTER_BR,
+                });
+
+            } catch (e) {
+
+            }
+
+        });
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            var pageUrl = "/admin/email-template-manage";
+            $("#hfdRedirectUrl").val(pageUrl);
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Email Template Setup </h2>
+            <div class="panel_toolbox">
+                <a href="/admin/email-template-manage" class="btn btn-info"> Manage</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="x_content">
+            <br />
+            @using (Html.BeginForm("SaveEmailTemplateData", "EmailAndSmsAmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+            {
+        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+            @Html.HiddenFor(m => m.template.emailTemplateId, new { @id = "hfdId" })
+            @Html.HiddenFor(m => m.template.isActive, new { @id = "hfdIsActive" })
+            @Html.HiddenFor(m => m.redirectUrl, new { @id = "hfdRedirectUrl" })
+            <div class="form-group col-lg-12">
+
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Type *:</label>
+                    @Html.DropDownListFor(a => a.template.typeId, new SelectList(Model.listType, "id", "name"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1" })
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Name *:</label>
+                    @Html.TextBoxFor(a => a.template.name, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "2" })
+                </div>
+            </div>
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Title *:</label>
+                    @Html.TextBoxFor(a => a.template.title, new { @class = "form-control", @required = "required", @id = "txtValue", @tabindex = "3" })
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Subject *:</label>
+                    @Html.TextBoxFor(a => a.template.subject, new { @class = "form-control", @required = "required", @id = "txtValue", @tabindex = "4" })
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="form-group">
+                    <label for="detail" class="form-label required">Detail </label>
+                    @Html.TextAreaFor(x => x.template.body, new { @class = "form-control ckeditor", @id = "txtDetail", @rows = "5" })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+            <div class="item form-group">
+                <div class="col-md-6 col-sm-6 offset-md-3">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+            </div>
+
+        </form>
+            }
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Applicant Application Status";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantStatusModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var statusId = 0;
+        $(document).ready(function () {
+
+
+            $(document).on('change', '#ddlStatus', function () {
+                statusId = $(this).val();
+                window.location.href = "/admin/applicant-application-status?applicationStatusId=" + statusId;
+            });
+
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Applicant List </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">ID </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">PMDC </th>
+                            <th class="column-title">Contact No </th>
+                            <th class="column-title">Level </th>
+                            <th class="column-title">Faculty </th>
+                            <th class="column-title">Action </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && (Model.listApplicant != null && Model.listApplicant.Count > 0))
+                        {
+                            foreach (var item in Model.listApplicant)
+                            {
+                                <tr>
+                                    <td>@item.applicantId</td>
+                                    <td>@item.name</td>
+                                    <td>@item.pmdcNo</td>
+                                    <td>@item.contactNumber</td>
+                                    <td>@item.levelName</td>
+                                    <td>@item.facultyName</td>
+                                    <td>  <a class="ank" href="@("/admin/application-view-detail?applicantId="+ item.applicantId)" target="_blank"> view</a> </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

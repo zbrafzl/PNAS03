@@ -1,0 +1,93 @@
+﻿
+@{
+    ViewBag.Title = "Constant Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.UserSetupModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        $(document).ready(function () {
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>User Setup </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/user-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                @using (Html.BeginForm("SaveUserData", "UsersAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                        @Html.HiddenFor(m => m.user.userId, new { @id = "hfdId" })
+
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Type *:</label>
+                                @Html.DropDownListFor(a => a.user.typeId, new SelectList(Model.listType, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1", @required = "required" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Parent *:</label>
+                                <select id="ddlParent" name="ddlParent" class="form-control" tabindex="2">
+                                    <option value="0">Select One</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Department *:</label>
+                                @Html.DropDownListFor(a => a.user.departmentId, new SelectList(Model.listDepartment, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1", @required = "required" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Designation *:</label>
+                                @Html.DropDownListFor(a => a.user.designationId, new SelectList(Model.listDesgnation, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1", @required = "required" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">First Name *:</label>
+                                @Html.TextBoxFor(a => a.user.firstName, new { @class = "form-control", @required = "required", @id = "firstName", @tabindex = "3" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Last Name *:</label>
+                                @Html.TextBoxFor(a => a.user.lastName, new { @class = "form-control", @required = "required", @id = "lastName", @tabindex = "4" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-5 col-sm-5 col-xs-5">
+                                <label for="heard">Email Id :</label>
+                                @Html.TextBoxFor(a => a.user.emailId, new { @class = "form-control", @id = "emailId", @tabindex = "5", @required = "required" })
+                            </div>
+                            <div class="col-md-5 col-sm-5 col-xs-5">
+                                <label for="heard">Password :</label>
+                                @Html.TextBoxFor(a => a.user.password, new { @type = "password", @class = "form-control", @id = "password", @tabindex = "6", @required = "required" })
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard">Status :</label>
+                                @Html.CheckBoxFor(a => a.user.isActive, new { @class = "form-control", @id = "chkActive", @tabindex = "7" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success" tabindex="8">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

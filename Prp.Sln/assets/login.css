@@ -1,0 +1,154 @@
+body {
+	background: url(/assets/bg.jpg) no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	padding: 0;
+}
+
+.login-wrap {
+	border-radius: 4px;
+	display: table;
+	margin: 20px auto 0;
+	min-width: 400px;
+	position: relative;
+	top: 50%;
+	padding: 0;
+	min-height: 300px;
+	background-color: transparent;
+}
+
+.logo img {
+	height: auto;
+	margin: 50px 0px 0px 0px !important; /*margin: 15px 0;*/	
+	width: 210px;
+}
+
+.verifyForm .legend {
+	background-color: #8e8256;
+}
+
+.login-wrap h4 {
+	color: #fff;
+	margin: 10px 0;
+	border-bottom: 1px solid #ccc;
+	padding: 10px 0;
+}
+
+.squaredOne, .squaredtwo, .squaredthree, .squaredfour {
+	margin: 0;
+}
+
+label.nms {
+	margin: 0 45px 0 5px;
+}
+
+.legend {
+	position: relative;
+	width: 100%;
+	display: block;
+	background: #FA6D1A;
+	padding: 15px;
+	color: #fff;
+	font-size: 20px;
+}
+
+.legend:after {
+	content: "";
+	background-image: url(http://simpleicon.com/wp-content/uploads/multy-user.png);
+	background-size: 100px 100px;
+	background-repeat: no-repeat;
+	background-position: right -16px;
+	opacity: 0.06;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	position: absolute;
+}
+
+.input {
+	position: relative;
+	width: 90%;
+	margin: 15px auto;
+}
+
+.input span {
+	position: absolute;
+	display: block;
+	color: #d4d4d4;
+	left: 10px;
+	top: 8px;
+	font-size: 20px;
+}
+
+.input input {
+	width: 100%;
+	padding: 10px 5px 10px 40px;
+	display: block;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	transition: 0.2s ease-out;
+	color: #444;
+}
+
+.input input:focus {
+	padding: 10px 5px 10px 10px;
+	outline: 0;
+	border-color: #FF7052;
+}
+
+.submit {
+	/* width: 45px; */
+	/* height: 45px; */
+	display: block;
+	margin: 9px;
+	background: #FA6D1A;
+	/* border-radius: 100%; */
+	border: 1px solid #FF7052;
+	color: #FA6D1A;
+	font-size: 15px;
+	cursor: pointer;
+	box-shadow: 0px 0px 0px 7px #fff;
+	transition: 0.2s ease-out;
+	padding: 8px 25px;
+	text-transform: uppercase;
+	float: left;
+	width: 100%;
+	color: #fff;
+}
+
+.submit:hover, .submit:focus {
+	background: #fff;
+	color: #FA6D1A;
+	outline: 0;
+}
+
+.feedback {
+	position: absolute;
+	bottom: -70px;
+	width: 100%;
+	text-align: center;
+	color: #fff;
+	background: #2ecc71;
+	padding: 10px 0;
+	font-size: 12px;
+	display: none;
+	opacity: 0;
+}
+
+.feedback:before {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: "";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(46, 204, 113, 0);
+	border-bottom-color: #2ecc71;
+	border-width: 10px;
+	margin-left: -10px;
+}

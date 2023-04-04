@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PRP | @ViewBag.Title </title>
+    <!--        <link rel="stylesheet" href="bootstrap.css" type="text/css" />-->
+
+    <link href="/assets/public/css/bootstrap.css" rel="stylesheet">
+
+    <script src="/assets/jquery/jquery.min.js"></script>
+    <script src="/assets/vendor/bootstrap.min.js"></script>
+    <script src="/assets/jquery/CommonFunctions.js"></script>
+
+    <link href="/assets/css/gazat.css" rel="stylesheet" />
+
+    <style>
+
+        .pager {
+            text-align: right;
+        }
+
+        .dataTables_filter {
+           
+            margin: auto;
+        }
+
+        .form-control {
+            display: inline;
+        }
+
+            .form-control.txt {
+                width: 60%;
+            }
+
+            .form-control.btn {
+                width: 23%;
+            }
+
+        .btn:hover {
+            color: #fff;
+            background-color: #50b948;
+        }
+        .dataTables_filter {
+            margin-bottom:10px;
+        }
+
+        .dataTables_filter label {
+            width: 10%;
+            float: left;
+            margin-top: 5px;
+        }
+
+        .txt {
+            width: 45% !important;
+            float: left;
+        }
+        .mybtn {
+            margin-left:10px;
+            width: 15% !important;
+            float: left;
+        }
+            .mybtn:hover {
+                border: solid 1px #50b948;
+                background-color: #fff;
+                color: #50b948;
+            }
+
+        .center-div {
+            margin: auto;
+            width: 60%;
+        }
+    </style>
+    @RenderSection("RenderCss", required: false)
+</head>
+
+<body>
+    <section class="first_section">
+        @RenderBody()
+    </section>
+    <script type="text/javascript">
+
+        $('table.paginated').each(function () {
+            var $table = $(this);
+            var itemsPerPage = 20;
+            var currentPage = 0;
+            var pages = Math.ceil($table.find("tr:not(:has(th))").length / itemsPerPage);
+            $table.bind('repaginate', function () {
+                if (pages > 1) {
+                    var pager;
+                    if ($table.next().hasClass("pager"))
+                        pager = $table.next().empty(); else
+                        pager = $('<div class="pager" style="padding-top: 20px; direction:ltr; " align="center"></div>');
+
+                    $('<span class="pg-goto"></span>').text(' « First ').bind('click', function () {
+                        currentPage = 0;
+                        $table.trigger('repaginate');
+                    }).appendTo(pager);
+
+                    $('<span class="pg-goto"> « Prev </span>').bind('click', function () {
+                        if (currentPage > 0)
+                            currentPage--;
+                        $table.trigger('repaginate');
+                    }).appendTo(pager);
+
+                    var startPager = currentPage > 2 ? currentPage - 2 : 0;
+                    var endPager = startPager > 0 ? currentPage + 3 : 5;
+                    if (endPager > pages) {
+                        endPager = pages;
+                        startPager = pages - 5; if (startPager < 0)
+                            startPager = 0;
+                    }
+
+                    for (var page = startPager; page < endPager; page++) {
+                        $('<span id="pg' + page + '" class="' + (page == currentPage ? 'pg-selected' : 'pg-normal') + '"></span>').text(page + 1).bind('click', {
+                            newPage: page
+                        }, function (event) {
+                            currentPage = event.data['newPage'];
+                            $table.trigger('repaginate');
+                        }).appendTo(pager);
+                    }
+
+                    $('<span class="pg-goto"> Next » </span>').bind('click', function () {
+                        if (currentPage < pages - 1)
+                            currentPage++;
+                        $table.trigger('repaginate');
+                    }).appendTo(pager);
+                    $('<span class="pg-goto"> Last » </span>').bind('click', function () {
+                        currentPage = pages - 1;
+                        $table.trigger('repaginate');
+                    }).appendTo(pager);
+
+                    if (!$table.next().hasClass("pager"))
+                        pager.insertAfter($table);
+                    //pager.insertBefore($table);
+
+                }// end $table.bind('repaginate', function () { ...
+
+                $table.find(
+                    'tbody tr:not(:has(th))').hide().slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage).show();
+            });
+
+            $table.trigger('repaginate');
+        });
+
+    </script>
+
+    @RenderSection("RenderScript", required: false)
+</body>
+</html>

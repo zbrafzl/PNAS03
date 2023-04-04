@@ -1,0 +1,116 @@
+﻿@{
+    ViewBag.Title = "Ticker Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.TickerModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+
+    <script src="~/ckfinder/ckfinder.js"></script>
+    <script src="~/ckeditor/ckeditor.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            typeId = ConvertToInt($("#ddlType").val());
+            if (typeId > 0)
+                DDLTypeChangeEvent();
+
+
+             try {
+                CKFinder.setupCKEditor(null, '@Url.Content("~/ckfinder")');
+                 var editor = CKEDITOR.instances['txtDetailLong'];
+                if (editor) { editor.destroy(true); }
+                 CKEDITOR.replace('txtDetailLong', {
+                    enterMode: CKEDITOR.ENTER_BR,
+                 });
+            } catch (e) {
+
+            }
+
+            $(document).on('change', '#ddlType', function () {
+                typeId = $(this).val();
+                if (typeId > 0)
+                    DDLTypeChangeEvent();
+            });
+
+        });
+
+        function DDLTypeChangeEvent() {
+
+            $("#divShort").hide();
+            $("#divLong").hide();
+
+            if (typeId == 1)
+                $("#divShort").show();
+            else
+                $("#divLong").show();
+        }
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Ticker Setup </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/ticker-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                @using (Html.BeginForm("TickerSaveData", "CommonAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                        @Html.HiddenFor(m => m.ticker.tickerId, new { @id = "hfdId" })
+                        @Html.HiddenFor(m => m.ticker.inductionId, new { @id = "hfdInductionId" })
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Type :</label>
+                                @Html.DropDownListFor(a => a.ticker.typeId, new SelectList(Model.listType, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Name *:</label>
+                                @Html.TextBoxFor(a => a.ticker.name, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "2" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Sort Order *:</label>
+                                @Html.TextBoxFor(a => a.ticker.sortOrder, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "3" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Status *:</label>
+                                @Html.CheckBoxFor(a => a.ticker.isActive, new { @class = "form-control", @id = "chkActive", @tabindex = "4" })
+                            </div>
+                        </div>
+                        <div id="divShort" class="form-group col-lg-12" style="display:none;">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Detail :</label>
+                                @Html.TextBoxFor(a => a.ticker.detailShort, new { @class = "form-control", @id = "txtDetailShort", @tabindex = "5" })
+                            </div>
+                        </div>
+                        <div id="divLong" class="form-group col-lg-12" style="display:none;">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Detail :</label>
+                                @Html.TextAreaFor(x => x.ticker.detailLong, new { @class = "form-control ckeditor", @id = "txtDetailLong", @rows = "5" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

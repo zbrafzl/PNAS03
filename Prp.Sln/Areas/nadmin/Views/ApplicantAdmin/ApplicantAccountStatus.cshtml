@@ -1,0 +1,86 @@
+﻿@{
+    ViewBag.Title = "Applicant Account Status";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantStatusModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var statusId = 0;
+        $(document).ready(function () {
+
+            statusId = $("#hfdStatusId").val();
+
+            $("#ddlStatus").val(statusId);
+
+            $(document).on('change', '#ddlStatus', function () {
+                statusId = $(this).val();
+                window.location.href = "/admin/applicant-account-status?statusId=" + statusId;
+            });
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Applicant List </h2>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            @Html.HiddenFor(m => m.search.accountStatusId, new { @id = "hfdStatusId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Status :</label>
+                    <select id="ddlStatus" name="ddlStatus" class="form-control">
+                        <option value="-1" selected="selected"> Both </option>
+                        @if (Model != null && (Model.listStatus != null && Model.listStatus.Count > 0))
+                        {
+                            foreach (var u in Model.listStatus)
+                            {
+                                <option value="@u.id">@u.value </option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">ID </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">PMDC </th>
+                            <th class="column-title">Contact No </th>
+                            <th class="column-title">Faculty </th>
+                            <th class="column-title">Status </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && (Model.listApplicant != null && Model.listApplicant.Count > 0))
+                        {
+                            foreach (var item in Model.listApplicant)
+                            {
+                                <tr>
+                                    <td>@item.applicantId</td>
+                                    <td>@item.name</td>
+                                    <td>@item.pmdcNo</td>
+                                    <td>@item.contactNumber</td>
+                                    <td>@item.facultyName</td>
+                                    <td>@item.accountStatus</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

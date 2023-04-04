@@ -1,0 +1,124 @@
+﻿@model Prp.Sln.ContactModel
+@{
+    ViewBag.Title = "Contact Us";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section RenderCss{
+
+    <style>
+
+
+        .ank {
+            font-style: italic;
+            color: #007bff;
+        }
+
+        .imgView {
+            height: 40px;
+            width: 70px;
+            border: 1px solid #000;
+            margin-bottom: 5px;
+            margin-right: 10px;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+
+    <script>
+
+        $(document).ready(function () {
+            $(".ctrlUnq").prop("disabled", true);
+        });
+
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+
+                @if (Model.contact != null && Model.contact.contactId > 0)
+
+                {
+                    <form class="form-horizontal">
+                        @Html.HiddenFor(m => m.contact.contactId, new { @id = "hfdId" })
+                        @Html.HiddenFor(m => m.contact.typeId, new { @id = "hfdTypeId" })
+                        <h3 class="heading">Message/Question Detail Information</h3>
+                        <hr class="colorgraph">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div>
+                                    <label> Title <span class="sprq">*</span></label>
+                                    @Html.TextBoxFor(a => a.contact.title, new { @class = "form-control ctrlUnq", @required = "required", @id = "txtTitle", @tabindex = "3" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div>
+                                    <label> Message/Question <span class="sprq">*</span></label>
+                                    @Html.TextAreaFor(model => model.contact.question, new { @class = "form-control ctrlUnq", @required = "required", @rows = "8", @id = "txtComments", @tabindex = "3" })
+                                </div>
+                            </div>
+                        </div>
+                        @if (Model != null && (Model.listDocs != null && Model.listDocs.Count > 0))
+                        {
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <label> Images <span class="sprq">*</span></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    @foreach (var doc in Model.listDocs)
+                                    {
+                                        <a class="ank" href="@("/images/contact/" + doc.image)" target="_blank" title="Click to view">
+                                            <img class="imgView" src="@("/images/contact/" +doc.image)" />
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </form>
+                    if (Model.listAnswer != null && Model.listAnswer.Count > 0)
+                    {
+                        <h3 class="heading">Answer's</h3>
+                        <hr class="colorgraph">
+                        <div class="main-login main-center">
+                            <div class="row" style="margin: 0px 0px;">
+                                <table class="table mt10">
+                                    <thead class="job-th">
+                                        <tr>
+                                            <th style="width:79%;">Answer</th>
+                                            <th style="width:10%;">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.listAnswer)
+                                        {
+                                            <tr class="job-tb">
+                                                <td>@item.answer </td>
+                                                <td>
+                                                    @item.datedAnswer.ToString("dd MM yyyy")<br />
+                                                    @item.datedAnswer.ToString("HH:mm:ss")
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+</div>

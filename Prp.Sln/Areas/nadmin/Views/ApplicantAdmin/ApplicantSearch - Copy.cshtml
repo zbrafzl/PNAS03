@@ -1,0 +1,367 @@
+﻿@{
+    ViewBag.Title = "Applicant List";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ApplicantStatusModel
+@section RenderCss{
+
+    <style>
+        .imgView {
+            height: 50px;
+            width: 45px;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var countryTypeId = 0, perPageRecords = 10, statusId = 0
+            , pageNum = 1, totalCount = 0, obj = {};
+        $(document).ready(function () {
+
+            statusId = ConvertToInt($("#hfdStatusId").val());
+            $("#ddlStatus").val(statusId);
+
+            SearchApplicant();
+
+
+            $(document).on('click', '.tbRow', function () {
+
+                var applicantId = ConvertToInt($(this).attr("id"));
+                window.location = "/admin/applicant-detail?key=applicantId&value=" + applicantId;
+
+            });
+
+         
+            $(document).on('click', '#btnSearch', function () {
+                SearchApplicant();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchApplicant();
+                }
+            });
+
+            $(document).on('click', '.liPage', function () {
+
+                var id = ConvertToInt($(this).closest('li').attr("id"));
+
+                $(".liclick").removeClass("current");
+
+                var pageNo = id;// ConvertToInt($(this).val());
+
+                if (pageNo == 0) {
+
+                    if ($(this).attr("type") == "first") {
+
+                        pageNo = 1;
+                    }
+                    else
+                        if ($(this).attr("type") == "last") {
+
+                            var lastPage = Math.ceil(totalCount / perPageRecords);
+                            pageNo = lastPage;
+                        }
+                }
+                pageNum = pageNo;
+
+                SearchApplicant();
+
+            });
+
+        });
+
+        function SearchApplicant() {
+
+            var rowHtml = "";
+
+            //$("#divDownload").hide();
+
+            $("#tbPanel").html("");
+
+            obj = {};
+            obj.top = perPageRecords;
+            obj.pageNum = pageNum;
+            obj.statusTypeId = ConvertToInt($("#hfdStatusTypeId").val());
+            obj.statusId = ConvertToInt($("#ddlStatus").val());
+            obj.search = ConvertToString($("#txtSearch").val());
+
+            var url = "/ApplicantAdmin/ApplicantSearchSimple";
+
+            var list = CallActionPost(url, obj);
+
+            var html = "";
+
+            var singleHtml = "", objItem = {};
+            if (list != null && list.length > 0) {
+
+                totalCount = list[0].totalCount;
+
+                //$("#divDownload").show();
+                rowHtml = $("#tbTempHtml").html();
+
+                for (var i = 0; i < list.length; i++) {
+
+                    objItem = list[i];
+                    singleHtml = rowHtml;
+
+                    //var _date = new Date(objItem.dated);
+                    //dated = ToDateFormatDDMMYYY(_date);
+
+                    html = html + singleHtml.replace(/{#rowNum#}/g, objItem.rowNum)
+                        .replace(/{#applicantId#}/g, objItem.applicantId)
+                        .replace(/{#pic#}/g, objItem.pic)
+                        .replace(/{#name#}/g, objItem.name)
+                        .replace(/{#cnicNo#}/g, objItem.cnicNo)
+                        .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                        .replace(/{#fatherName#}/g, objItem.fatherName)
+                        .replace(/{#emailId#}/g, objItem.emailId)
+                        .replace(/{#contactNumber#}/g, objItem.contactNumber)
+                        .replace(/{#facultyName#}/g, objItem.facultyName)
+                        .replace(/{#districtName#}/g, objItem.districtName)
+                        .replace(/{#domicileProvince#}/g, objItem.domicileProvince)
+                        .replace(/{#dated#}/g, objItem.dated)
+                        .replace(/{#status#}/g, objItem.status);
+                }
+
+                $("#tblPanel").show();
+                $("#tbPanel").html(html);
+
+                if (totalCount > 0)
+                    CreatePaginationHtml(perPageRecords, totalCount, pageNum);
+            }
+            else {
+
+                $("#tblPanel").hide();
+                $("#tbPanel").html("");
+            }
+
+        }
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            obj = {};
+            obj.countryTypeId = ConvertToInt($("#ddlCountryTypeId").val());
+            obj.applicantNo = ConvertToString($("#txtApplicantNo").val());
+            obj.cnicNo = ConvertToString($("#txtCnicNo").val());
+            obj.dateStart = ConvertToString($("#txtStartDate").val());
+            if (obj.dateStart.length == 0) {
+                obj.dateStart = "13/01/2021";
+            }
+            obj.dateEnd = ConvertToString($("#txtEndDate").val());
+            if (obj.dateEnd.length == 0) {
+                obj.dateEnd = "20/01/2021";
+            }
+            obj.applicationStatusId = 8;
+            obj.voucherStatusId = 1;
+
+            obj.condition = "ByDate";
+            if (obj.applicantNo.length > 0 || obj.cnicNo.length)
+                obj.condition = "WithOutDate";
+
+            $("#hfdCountryTypeId").val(obj.countryTypeId);
+            $("#hfdApplicantNo").val(obj.applicantNo);
+            $("#hfdCnicNo").val(obj.cnicNo);
+            $("#hfdDateStart").val(obj.dateStart);
+            $("#hfdDateEnd").val(obj.dateEnd);
+            $("#hfdApplicationStatusId").val(obj.applicationStatusId);
+            $("#hfdVoucherStatusId").val(obj.voucherStatusId);
+            $("#hfdCondition").val(obj.condition);
+            $("#hfdpageUrl").val("/admin/voucher-list-bank");
+            $("#hfdTop").val(6000);
+            $("#hfdPageNo").val(1);
+
+            $("#hfdReportType").val("BankVoucher");
+
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+        function ShowingRowsText(perPageRecords, count, pageNum) {
+
+            var rcordsNow = pageNum * perPageRecords;
+            var startRecords = rcordsNow - perPageRecords;
+            if (rcordsNow > count)
+                rcordsNow = count;
+
+            startRecords = startRecords + 1;
+            $("#divShowingResult").html("Showing " + startRecords + " to " + rcordsNow + " of " + count + " entries");
+
+
+        }
+
+        function CreatePaginationHtml(perPageRecords, count, pageNum) {
+
+
+
+            try {
+
+                ShowingRowsText(perPageRecords, count, pageNum);
+                $("#divPagination").show();
+
+                var htmlPagination = $("#templatePagination").html();
+                var pageStart = 1, pageEnd = 5;
+                var lastPage = Math.ceil(count / perPageRecords);
+
+                if (pageNum > 3) {
+                    pageStart = pageNum - 2;
+                    pageEnd = pageNum + 2;
+                }
+
+                if (pageEnd > lastPage)
+                    pageEnd = lastPage;
+
+                var lisHtml = "";
+                for (var i = pageStart; i <= pageEnd; i++) {
+                    lisHtml = lisHtml + "<li class='liPage' id='" + i + "'> " + i + "</li>";
+                }
+                htmlPagination = htmlPagination.replace(/{#lastPage#}/g, lastPage).replace(/{#Pagination#}/g, lisHtml);
+                $(".list_pagination").html(htmlPagination);
+
+                $("#" + pageNum).addClass("current");
+
+
+
+            } catch (e) {
+                $("#liPagination").hide();
+            }
+        }
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+
+
+        @using (Html.BeginForm("ExportDataToExcelAndDownload", "VoucherAdmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+        {
+            @Html.HiddenFor(m => m.statusTypeId, new { @id = "hfdStatusTypeId" })
+            @Html.HiddenFor(m => m.statusId, new { @id = "hfdStatusId" })
+
+            @*
+                @Html.HiddenFor(m => m.search.applicantNo, new { @id = "hfdApplicantNo" })
+                @Html.HiddenFor(m => m.search.cnicNo, new { @id = "hfdCnicNo" })
+                @Html.HiddenFor(m => m.search.dateStart, new { @id = "hfdDateStart" })
+                @Html.HiddenFor(m => m.search.dateEnd, new { @id = "hfdDateEnd" })
+                @Html.HiddenFor(m => m.search.applicationStatusId, new { @id = "hfdApplicationStatusId" })
+                @Html.HiddenFor(m => m.search.voucherStatusId, new { @id = "hfdVoucherStatusId" })
+                @Html.HiddenFor(m => m.search.condition, new { @id = "hfdCondition" })
+
+                @Html.HiddenFor(m => m.search.pageUrl, new { @id = "hfdpageUrl" })
+                @Html.HiddenFor(m => m.search.top, new { @id = "hfdTop" })
+                @Html.HiddenFor(m => m.search.pageNum, new { @id = "hfdPageNo" })
+                @Html.HiddenFor(m => m.search.reportType, new { @id = "hfdReportType" })*@
+
+
+            <div class="x_title">
+                <h2>Applicant List </h2>
+                <div id="divDownload" class="panel_toolbox" style="display:none;">
+                    <button type="submit" class="btn btn-success" id="btnExportToExcel" tabindex="7" style="float:right;">Export To Excel</button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <form class="form-horizontal form-label-left input_mask">
+                <div class="form-group col-lg-12">
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label for="heard">Status :</label>
+                        <select id="ddlStatus" name="ddlStatus" class="form-control">
+                            <option value="-1" selected="selected"> All </option>
+                            @if (Model != null && (Model.listStatus != null && Model.listStatus.Count > 0))
+                            {
+                                foreach (var u in Model.listStatus)
+                                {
+                                    <option value="@u.id">@u.value </option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-7 col-sm-7 col-xs-7">
+                        <label for="heard">Search :</label>
+                        <input type="text" id="txtSearch" name="txtSearch" placeholder="Name, father name, PMDC, Contact No, Email" class="form-control" />
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard" style="width:100%;">&nbsp;</label>
+                        <input type="button" id="btnSearch" name="btnSearch" value="Search" class="btn btn-success" />
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ln_solid"></div>
+            </form>
+        }
+
+        <div class="x_content">
+            <div class="table-responsive">
+                <table id="tblPanel" class="table table-striped jambo_table bulk_action" style="display:none;">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Sr. </th>
+                            <th class="column-title">Pic </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Father Name </th>
+                            <th class="column-title">PMDC </th>
+                            <th class="column-title">Email </th>
+                            <th class="column-title">Contact Number </th>
+                            <th class="column-title">Faculty Name </th>
+                            <th class="column-title">District </th>
+                            <th class="column-title">Domicile </th>
+                            <th class="column-title">Status </th>
+                            <th class="column-title">Dated </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbPanel">
+                    </tbody>
+                </table>
+                <div id="divPagination" style="display:none;">
+                    <div id="msgPagination" class="col-md-4">
+                        <div class="dataTables_info" id="divShowingResult">
+                            Showing
+                            <span id="shStart"> </span> to <span id="shEnd"> </span> of <span id="shTotal"></span>
+                            entries
+                        </div>
+                    </div>
+                    <div id="liPagination" class="col-md-8">
+                        <ul class="list_pagination">
+                        </ul>
+                    </div>
+                    <ul id="templatePagination" style="display:none;">
+                        <li class='liPage' id='0' type="first"> First Page</li>
+                        {#Pagination#}
+                        <li class='liPage' id='0' type="last"> Last Page</li>
+                    </ul>
+                </div>
+                <div style="display:none;">
+                    <table>
+                        <tbody id="tbTempHtml">
+                            <tr class="tbRow" id="{#applicantId#}">
+                                <td>{#rowNum#}</td>
+                                <td>
+                                    <img class="imgView" src="/images/Applicant/{#applicantId#}/{#pic#}" />
+                                    @*<a class="ank" href="/images/Applicant/{#applicantId#}/{#pic#}" target="_blank" title="Click to view">
+
+                                    </a>*@
+                                </td>
+                                <td>{#name#}</td>
+                                <td>{#fatherName#}</td>
+                                <td>{#pmdcNo#}  </td>
+                                <td>{#emailId#}</td>
+                                <td>{#contactNumber#}</td>
+                                <td>{#facultyName#}</td>
+                                <td>{#districtName#}</td>
+                                <td>{#domicileProvince#}</td>
+                                <td>{#status#}</td>
+                                <td>{#dated#}  </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

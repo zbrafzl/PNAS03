@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "Applicant Joining";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ApplicantJoiningModel
+@section RenderCss{
+
+}
+
+@section RenderScript{
+
+    <script>
+        var applicantId = 0;
+        $(document).ready(function () {
+
+        });
+
+    </script>
+}
+
+
+<div class="container content">
+    <div class="row main">
+        @Html.Partial("_ApplicantLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal">
+                    <h3 class="text-center">Applicant Joinig</h3>
+                    <hr class="colorgraph">
+                    @if (Model.applicantFinal != null && Model.applicantFinal.applicantId > 0)
+                    {
+                        if (Model.info.countryId == 132)
+                        {
+                            <div class="row">
+                                <div class="col-md-12"> <h5>Please join your respective hospital / institute w.e.f. 01-03-2021 (Monday) 08AM to 03-03-2021 (Wednesday) 02 PM. </h5></div>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="col-md-12"> <h5>Please join your respective hospital / institute w.e.f. 11-03-2021 (Thursday) 08AM to 13-03-2021 (Saturday) 02 PM. </h5></div>
+                            </div>
+                        }
+
+                        <hr class="colorgraph">
+                        <div class="row" style="padding:0px 20px;">
+                            <fieldset>
+                                <legend>
+                                    <label class="checkbox-inline" for="chkConfirm">
+                                        Joinig
+                                    </label>
+                                </legend>
+                                <div class="row col-md-12  ">
+                                    <div class="col-md-12">
+                                        <p>
+                                            Program :  @Model.applicantFinal.typeName
+                                        </p>
+                                        <p>
+                                            Hospital :  @Model.applicantFinal.hospitalName
+                                        </p>
+                                        <p>
+                                            InstituteName  :  @Model.applicantFinal.instituteName
+                                        </p>
+                                        <p>
+                                            Speciality  :  @Model.applicantFinal.specialityName
+                                        </p>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5>
+                                    Oooops! You are not selected. Please try in next induction.
+                                </h5>
+                            </div>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

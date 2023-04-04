@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "Send Auto SMS";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.SMSModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0, counter = 0;
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+            $("#ddlType").val(typeId);
+
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SendEmail();
+                }
+            });
+
+            $(document).on('click', '#btnSendEmail', function () {
+                SendEmail();
+            });
+
+
+           
+
+        });
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Sending Email Process Runing   ( @Model.totalSent) </h2>
+            <div class="clearfix"></div>
+        </div>
+        
+    </div>
+</div>

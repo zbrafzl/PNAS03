@@ -1,0 +1,94 @@
+﻿
+@{
+    ViewBag.Title = "Constant Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.MenuSetupModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        $(document).ready(function () {
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Menu Setup </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/menu-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                @using (Html.BeginForm("SaveMenuData", "MenusAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                        @Html.HiddenFor(m => m.menu.menuId, new { @id = "hfdId" })
+
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Type *:</label>
+                                @Html.DropDownListFor(a => a.menu.typeId, new SelectList(Model.listType, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Application *:</label>
+                                @Html.DropDownListFor(a => a.menu.appId, new SelectList(Model.listApp, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Parent *:</label>
+                                @Html.DropDownListFor(a => a.menu.parentId, new SelectList(Model.listParent, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "2" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard"> Url *:</label>
+                                @Html.TextBoxFor(a => a.menu.url, new { @class = "form-control", @id = "url", @tabindex = "3" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard"> Name *:</label>
+                                @Html.TextBoxFor(a => a.menu.name, new { @class = "form-control", @required = "required", @id = "name", @tabindex = "4" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard"> Name *:</label>
+                                @Html.TextBoxFor(a => a.menu.nameDisplay, new { @class = "form-control", @required = "required", @id = "nameDisplay", @tabindex = "5" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard">Icon Class *:</label>
+                                @Html.TextBoxFor(a => a.menu.iconClass, new { @class = "form-control",  @id = "iconClass", @tabindex = "6" })
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard">Sort Order :</label>
+                                @Html.TextBoxFor(a => a.menu.sortOrder, new { @class = "form-control", @id = "sortOrder", @tabindex = "7" })
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard"> Is Menu :</label>
+                                @Html.CheckBoxFor(a => a.menu.isMenu, new { @class = "form-control", @id = "isMenu", @tabindex = "8" })
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard">Status :</label>
+                                @Html.CheckBoxFor(a => a.menu.isActive, new { @class = "form-control", @id = "chkActive", @tabindex = "9" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success" tabindex="8">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

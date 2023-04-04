@@ -1,0 +1,315 @@
+﻿@{
+    ViewBag.Title = "Voucher";
+    Layout = "~/Views/Shared/_LayoutPrint.cshtml";
+}
+
+@section RenderCss{
+    <style>
+        td span {
+            line-height: 18px;
+        }
+
+        .div_print {
+            clear: both;
+            float: left;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        .btn_print {
+            padding: 10px 40px;
+            background-color: #48a0d7;
+            border-radius: 5px
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        $(document).ready(function () {
+            PageInit();
+        });
+
+        function PageInit() {
+
+            var applicantId = ConvertToInt(sessionStorage.getItem("applicantIdPrint"));
+
+
+
+            if (applicantId > 0) {
+
+                var printDate = "";
+
+                try {
+
+                    var currentDate = GetCurrentDate();
+                    printDate = ToDateFormatDDMMYYY(currentDate);
+
+                } catch (e) {
+
+                }
+
+                var app = CallActionGet("/ApplicantProfile/GetApplicantInfo?applicantId=" + applicantId);
+
+                if (app != null && app.applicantId > 0) {
+
+
+                    var info = CallActionGet("/ApplicantProfile/GetApplicantProfileData?applicantId=" + applicantId);
+
+                    if (info != null && info.applicantDetailId > 0) {
+
+
+                        var tempHtml = $("#tbTem").html();
+
+                        var htmlVoucher = "", htmlSingle = "";
+
+                        var copyType = "BankCopy", width = "320px";
+
+                        for (var i = 1; i <= 3; i++) {
+
+                            htmlSingle = tempHtml;
+
+                            if (i == 1)
+                                copyType = "Bank Copy";
+                            else if (i == 2)
+                                copyType = "PHF Copy";
+                            else if (i == 3) {
+                                copyType = "Candidate Copy";
+
+                                width = "340px";
+                            }
+
+                            htmlVoucher = htmlVoucher + htmlSingle.replace(/{#copyType#}/g, copyType)
+                                .replace(/#width#/g, width).replace(/{#currentDate#}/g, printDate)
+                                .replace(/{#applicantId#}/g, FormatNumberToLength(app.applicantId, 4)).replace(/{#applicantName#}/g, app.name)
+                                .replace(/{#applicantCNIC#}/g, info.cnicNo)
+                                .replace(/{#applicantPMDC#}/g, app.pmdcNo);
+                        }
+
+                        $("#divVoucher").html(htmlVoucher);
+
+                    } // if (info != null && info.applicantDetailId > 0) {
+                }// if (app != null && app.applicantId > 0) {
+
+            }
+
+            //printDiv();
+
+            $(document).on('click', '#btnPrint', function (event) {
+                printDiv();
+            });
+        }
+    </script>
+}
+
+<div>
+
+    <div class="col-md-12 col-sm-12 col-xs-12 div_print">
+        <span id="btnPrint" class="btn_print"> Print</span>
+    </div>
+    <div class="clearfix"></div>
+    <div class="ln_solid"></div>
+    <div id="divprint" class="col-md-12 col-sm-12 col-xs-12">
+        <style>
+            td span {
+                line-height: 18px !important;
+            }
+        </style>
+        <div id="divVoucher" style="float:left; width:100%;">
+
+
+        </div>
+    </div>
+    <div id="tbTem" style=" display:none">
+        <table style="width:#width#;float:left;border: 2px dotted #000;margin-right: 10px;">
+            <tbody style="">
+                <tr>
+                    <td style=" padding: 10px;">
+                        <table style="margin:0px 0px 0px 0px;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span style="float:left;">Date :  {#currentDate#}</span>
+
+                                        <span style="float:right;"> Voucher No. : {#applicantId#}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table style="width:100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="float:left; "><img src="/Images/slip_phf.png" alt="Logo" style="width: 70px;height: 60px;"></td>
+                                                    <td style="width:220px;">
+                                                        <table style="width:100%;">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style="text-align:center;font-size:25px;">
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                    <td style="float:right; "><img class="imgQR" src="/Images/slip_punjab.png" alt="Logo" style="width: 70px;height: 61px;"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border-bottom: 1px solid #000;">
+                                        <table style="width:100%">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="padding: 10px 0px;float: left;padding-top: 17px;">
+                                                        <span class="" style=""> Punjab Health Foundation </span>
+                                                    </td>
+                                                    <td style="float: right;    padding: 10px 0px;">
+                                                        <span style="border:1px solid #000;padding:5px;float: right;">{#copyType#} </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border-bottom: 1px solid #000;">
+                                        <table style="width:100%">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="">
+                                                        <span class="" style=""><strong>Bank of Punjab</strong></span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="">
+                                                        <span class="" style=""><strong>A/C : 048830600077</strong></span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr class="">
+                                    <td style="padding-top: 5px;line-height: 10px;">
+                                        <table style="    width: 100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="width: 50%;">
+                                                        Applied For
+                                                    </td>
+                                                    <td style="">
+                                                        <span class="spnAppliedFor"> PG Level 3</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="">
+                                                        Candidate No
+                                                    </td>
+                                                    <td style="">
+                                                        <span> {#applicantId#}</span>
+                                                    </td>
+                                                    <td>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <table style="width: 100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="">
+                                                        Candidate Name
+                                                    </td>
+                                                    <td style="">
+                                                        <span>  {#applicantName#} </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Candidate CNIC
+                                                    </td>
+                                                    <td>
+                                                        <span>  {#applicantCNIC#}   </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Candidate PMDC
+                                                    </td>
+                                                    <td>
+                                                        <span> {#applicantPMDC#} </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table style="width: 100%;">
+                            <tbody>
+                                <tr>
+                                    <th style="    border: 1px solid #000;    padding: 2px;">S.No</th>
+                                    <th style="    padding: 2px;    border: 1px solid #000;">Description</th>
+                                    <th style="    padding: 2px;    border: 1px solid #000;">PKR</th>
+                                </tr>
+                                <tr>
+                                    <td style="    padding: 2px;    border: 1px solid #000;">
+                                        1
+                                    </td>
+                                    <td style="    padding: 2px;    border: 1px solid #000;">
+                                        Application Fee
+                                    </td>
+                                    <td style="    padding: 2px;    border: 1px solid #000;">
+                                        1,000
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style=" padding: 2px;    border: 1px solid #000;">
+                                        Total Payable
+                                    </td>
+                                    <td style="    padding: 2px;    border: 1px solid #000;">
+                                        1,000
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table style="width: 100%;margin-top: 5px;border-bottom: 1px solid #000;">
+                            <tbody style="">
+                                <tr style="display: block;">
+                                    <td style="padding: 2px;border: 1px solid #000;width: 50%; padding-right:29px; font-size:15px;">
+                                        Amount in Words
+                                    </td>
+                                    <td style="padding: 2px;border: 1px solid #000;width: 50%; font-size:15px;">
+                                        One Thousand Only
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 0px;width: 100%;">
+                                        <span style="border:1px solid #000;padding:5px;">Due Date : 08 Sep 2020</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table style="    width: 100%;">
+                            <tbody style="">
+                                <tr>
+
+                                    <td style="width: 100%;">
+                                        <h5>Important Information</h5>
+                                        <p style="text-align: center;text-align: -webkit-center;text-align: -moz-center;font-size: 12px; padding: 0px 20px;margin-bottom: 5px; ">1. Voucher can e paid through paid order on account of the candidates and made in favour of punjab health foundation at my branch in Pakistan of the following banks.</p>
+                                        <ul style="margin-bottom: 0px;">
+                                            <li>Bank of Punjab</li>
+                                        </ul>
+                                        <p style="font-size: 12px;"><strong>Note:</strong> Payment through "Bank Orders" is accepted at banks up to two days prior to due date</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

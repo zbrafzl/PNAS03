@@ -1,0 +1,203 @@
+﻿@{
+    ViewBag.Title = "Grievance Gazette Marks List";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.GrievanceAdminModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0, feedbackId = 0, applicantId = 0;
+        $(document).ready(function () {
+
+            var dateFormatDatePocker = 'dd-mm-yyyy';
+            startDate = new Date(2020, 09 - 1, 21);
+            endDate = new Date(2020, 10 - 1, 05);
+
+            $("#txtStartDate").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                startDate: startDate,
+                endDate: endDate
+            });
+
+            $("#txtEndDate").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                startDate: startDate,
+                endDate: endDate
+            });
+
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchGrievanceList();
+                }
+
+            });
+
+            $(document).on('click', '#btnSearch', function () {
+                SearchGrievanceList();
+            });
+
+            $(document).on('click', '.ankLogin', function () {
+
+                try {
+
+                    var applicantId = ConvertToInt($(this).attr("applicantid"));
+
+                    var resp = CallActionGet("/CommonAdmin/LoginByPhfDeveloperByApplicantId?applicantId=" + applicantId);
+                    if (resp.status == true && resp.id > 0) {
+                        window.open('/ad/application', '_blank');
+                    }
+
+                } catch (e) {
+
+                }
+
+            });
+
+            $(document).on('click', '.anUpdate', function () {
+
+                try {
+
+                    var applicantId = ConvertToInt($(this).attr("applicantid"));
+
+                    var resp = CallActionGet("/CommonAdmin/LoginByPhfDeveloperByApplicanssfffstId?applicantId=" + applicantId);
+                    if (resp.status == true && resp.id > 0) {
+                        window.open('/ad/application', '_blank');
+                    }
+
+                } catch (e) {
+
+                }
+
+            });
+
+        });
+
+
+        function SearchGrievanceList() {
+
+
+            var search = ConvertToString($("#txtSearch").val());
+            window.location.href = "/admin/grievance-marks-list?search=" + search;
+
+        }
+
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Grievance Gazette Marks List </h2>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Search :</label>
+                    <input type="text" id="txtSearch" name="txtSearch" class="form-control" value="@(Model.search.search)" placeholder="Search By Form No./Name/PMDC No/Email/Contact Number" />
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard">Start Date :</label>
+                    <input type="text" id="txtStartDate" name="txtStartDate" class="form-control" />
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard">End Date :</label>
+                    <input type="text" id="txtEndDate" name="txtEndDate" class="form-control" />
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard" style="width:100%;">&nbsp;</label>
+                    <input type="button" id="btnSearch" name="btnSearch" value="Search" class="btn btn-success" />
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Sr </th>
+                            <th class="column-title">Form No. </th>
+                            <th class="column-title">PMDC No </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Email </th>
+                            <th class="column-title">Contact Number </th>
+                            <th class="column-title">Application </th>
+                            <th class="column-title">Date </th>
+
+                            <th class="column-title">Grievance Action </th>
+
+
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+
+                            <th class="column-title">Login </th>
+
+                            <th class="column-title">Update </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && (Model.listGrievance != null && Model.listGrievance.Count > 0))
+                        {
+                            var sr = 0;
+                            foreach (var item in Model.listGrievance)
+                            {
+                                sr = sr + 1;
+                                <tr>
+                                    <td>@sr</td>
+                                    <td>@item.applicantId</td>
+                                    <td>@item.pmdcNo</td>
+                                    <td>@item.name</td>
+                                    <td>@item.emailId</td>
+                                    <td>@item.contactNumber</td>
+                                    <td>@item.application</td>
+                                    <td>@item.dated.ToString("dd MMM yyyy")</td>
+                                    <td>@item.actionType</td>
+                                    <td>
+                                        <a title="Make Attendence" class="ank ankemail" target="_blank" href="@("/admin/grievance-marks-detail?grievanceId="+ item.grievanceId)" id="@(item.grievanceId)" applicantid="@(item.applicantId)"><i class="fa fa-pencil-square-o"></i></a>
+                                    </td>
+
+                                    <td>
+                                        <a title="Login" class="ank ankLogin" id="@(item.grievanceId)" applicantid="@(item.applicantId)"><i class="fa fa-pencil-square-o"></i></a>
+                                    </td>
+
+                                    @if (item.appearanceId > 0 && item.statusId == 0)
+                                    {
+                                        <td>
+                                            <a title="Update Status" class="ank anUpdate" id="@(item.grievanceId)" applicantid="@(item.applicantId)"><i class="fa fa-pencil-square-o"></i></a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td>&nbsp;</td>
+                                    }
+
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

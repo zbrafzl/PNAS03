@@ -1,0 +1,226 @@
+﻿@{
+    ViewBag.Title = "Applicant Exprience";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.CompletedDistictionModel
+@section RenderCss{
+
+    <style>
+        .ank {
+            cursor: pointer;
+        }
+
+        .grid-img {
+            width: 60px;
+            height: 40px;
+            border: 1px solid #ede9e9;
+        }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, objApplicant = {}, imagesPath = "", graduateType = 0, applicantExperienceId = 0, applicantExperienceIdLast = 0;
+
+        var objExprience = {}, objExprienceList = [], objDistinction = {}, objDistinctionList = [];
+
+        var applicantDistinctionId = 0, totalNoOfDistinction = 0, applicantDistinctionIdLast = 0;
+
+        var isCurrentExist = false;
+
+        $(document).ready(function () {
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            imagesPath = "/Images/Applicant/" + applicantId + "/";
+
+            $(document).on('click', '#btnSaveDistinction', function () {
+
+                var isConfirm = $("#chkConfirm").is(':checked');
+                if (isConfirm) {
+
+                    SaveDistinctionData();
+                }
+                else {
+
+                    alert("Please select agree information");
+                }
+
+               
+               
+            });
+
+
+        });
+
+        /*----- ***************** Distinction *****************************
+         --------------------------------------------------------------------------- */
+
+        function SaveDistinctionData() {
+
+            if (ValidateDistinctionFrom() == false) {
+
+                var resp = CallActionPost("/ApplicantProfile/ApplicantDistinctionAddUpdate", objDistinction);
+                if (resp != null && resp.status == true) {
+
+                    location.reload();
+                }
+            }
+        }
+
+        function ValidateDistinctionFrom() {
+
+            var isError = false, ctrl = "";
+            objDistinction = {};
+
+
+            objDistinction.applicantDistinctionId = 0;
+            objDistinction.applicantId = applicantId;
+            objDistinction.year = ConvertToString($("#ddlYear").val());
+            objDistinction.subject = ConvertToString($("#txtSubjectDisnt").val());
+
+
+            $(".req-fld").removeClass("req-fld");
+
+            var fileName = "Distinction" + "_000";
+
+            if ($("#flDisnt").val()) {
+                objDistinction.imageDistinction = UploadImage("flDisnt", applicantId, fileName);
+                $("#hfdDisnt").val(objDistinction.imageDistinction);
+            }
+
+            objDistinction.imageDistinction = $("#hfdDisnt").val();
+
+            if (objDistinction.year == 0) {
+                $("#ddlYear").addClass("req-fld");
+                ctrl = "ddlYear";
+                isError = true;
+            }
+            if (objDistinction.subject == "") {
+
+                $("#txtSubjectDisnt").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtSubjectDisnt";
+            }
+
+            if (objDistinction.imageDistinction == "") {
+
+                $("#flDisnct").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flExp";
+            }
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
+
+    </script>
+
+}
+<div class="container" style="margin-bottom:60px;">
+    <div class="row main">
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3>Distinctions Information</h3>
+                        <hr class="colorgraph">
+                        <table class="table mt10">
+                            <tbody id="tbDisntTemplate" style="display:none;">
+                                <tr class="job-tb">
+                                    <td><img src="{#image#}" class="grid-img" /></td>
+                                    <td>{#year#}</td>
+                                    <td>{#subject#}</td>
+                                    <td>
+                                        <a id="ankEditDisnt{#disntId#}" class="ankEditDisnt ank"><i class="fa fa-pencil-square-o"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table id="divDisntList" class="table mt10 " style="display:none">
+                            <thead class="job-th">
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Years</th>
+                                    <th>Subject</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbDisntList">
+                            </tbody>
+                        </table>
+                        <div class="well">
+                            <form role="form" method="POST" class="">
+                                <h3> Distinctions (3rd) </h3> <hr>
+                                <div class="row">
+                                    <div class="col-md-2 col-sm-2">
+                                        <div class="form-group">
+                                            <input id="hfdDisntId" type="hidden" value="0" />
+                                            <label> Years </label>
+                                            <select id="ddlYear" class="form-control" name="dist_years">
+                                                <option value="5"> 5 </option>
+                                                <option value="4"> 4 </option>
+                                                <option value="3"> 3 </option>
+                                                <option value="2"> 2 </option>
+                                                <option value="1"> 1 </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4">
+                                        <div class="form-group">
+                                            <label> Subject <span class="sprq">*</span></label>
+                                            <input id="txtSubjectDisnt" type="text" name="subject" class="form-control lenth" len="100" placeholder="subject">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4">
+                                        <div class="form-group">
+                                            <label>Distinction Attachement <span class="sprq">*</span></label>
+                                            <input type="file" id="flDisnt" class="form-control flup" tabindex="1">
+                                            <input type="hidden" id="hfdDisnt" value="" />
+                                            <img id="imgDisnt" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvDisnt" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label> &nbsp;</label>
+                                            <input type="button" id="btnSaveDistinction" name="submit" class="btn mybtn animated-button form-control" value="Save Distinction" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <fieldset>
+                                        <legend>
+                                            <label class="checkbox-inline" for="chkConfirm">
+                                                <input type="checkbox" name="acknowledge" id="chkConfirm" value="1" required="required">
+                                                I agree information are correct.
+                                            </label>
+                                        </legend>
+                                        <div class="row col-md-12  ">
+                                            <div class="col-md-12">
+                                                <p>
+                                                    1. I, @Model.applicant.name, declare that, the entries made by me in the Application Form are complete and true to the best of my knowledge and based on records.<br />
+                                                    2. I am solely responsible for providing any of incorrect information supplied in the application form for registration.<br />
+                                                    3. If information submitted found wrong, mismatched or forged the application will be rejected and training if started will be discontinued with no right of appeal at institution / government level.<br />
+                                                    4.<span style="color:#ff0000; font-size:14px;"><b> I will be liable to a disciplinary action may be initiated against me if any of the documents uploaded/attached/submitted found fake/ forged.</b></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-4">
+            </div>
+            @Html.Partial("_NotePageBottom")
+        </div>
+    </div>
+</div>

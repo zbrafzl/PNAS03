@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "Dashboard Status";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.HomeModelAdmin
+@section RenderCss{
+    <style>
+
+        .tile_stats_count {
+            cursor: pointer;
+        }
+
+            .tile_stats_count:hover {
+                opacity: 0.5;
+            }
+
+        .tile_info tr {
+            cursor: pointer;
+        }
+
+            .tile_info tr:hover {
+                opacity: 0.5;
+            }
+
+        .tdddd {
+            width: 49%;
+            float: left;
+        }
+
+        .panel_toolbox {
+            margin: 3px 0px 0px 0px !important;
+        }
+
+        .ank-title {
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+
+        .x_content p {
+            margin-bottom: 0px;
+        }
+
+        .fixed_height_320 {
+            height: 215px;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        dateFormat(new Date(), "dddd, mmmm dS, yyyy, h:MM:ss TT");
+
+        $(document).ready(function () {
+
+            //$(document).on('click', '.sts_account', function () {
+            //    var id = ConvertToInt($(this).attr("id"));
+            //    window.location = "/admin/applicant-search?statusTypeId=52&statusId=" + id;
+            //});
+
+            //$(document).on('click', '.sts_application', function () {
+            //    var id = ConvertToInt($(this).attr("id"));
+            //    window.location = "/admin/applicant-search?statusTypeId=53&statusId=" + id;
+            //});
+
+        });
+
+    </script>
+}
+
+<!-- /top tiles -->
+
+<div class="row col-md-12 col-sm-12">
+    <div class="row x_title col-md-12 col-sm-12">
+        <div class="col-md-6">
+            <h3>PRP <small>Punjab Residency Program July-2021 </small></h3>
+        </div>
+
+    </div>
+</div>
+@{
+    if (Model.listDashBoard != null && Model.listDashBoard.Count > 0)
+    {
+        
+
+        <div class="row col-md-12 col-sm-12">
+            @{
+                var listVerification = Model.listDashBoard.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.verification).ToList();
+                if (listVerification != null && listVerification.Count > 0)
+                {
+
+                    var verifyToal = 0;
+                    var verifyPending = 0;
+                    var verifyApproved = 0;
+                    var verifyReject = 0;
+                    try
+                    {
+                        verifyToal = listVerification.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+                        verifyToal = 0;
+                    }
+
+                    try
+                    {
+                        verifyPending = listVerification.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        verifyApproved = listVerification.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    try
+                    {
+                        verifyReject = listVerification.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    <div class="col-md-3 col-sm-3 ">
+                        <div class="x_panel tile fixed_height_320 overflow_hidden">
+                            <div class="x_title">
+                                <h2>Verification Status</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <table style="width:100%">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="sts_account" id="-1">
+                                                    <td>
+                                                        <p><i class="fa fa-square black"></i>Total </p>
+                                                    </td>
+                                                    <td>@verifyToal</td>
+                                                </tr>
+                                                <tr class="sts_account" id="2">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Pending </p>
+                                                    </td>
+                                                    <td>@verifyPending</td>
+                                                </tr>
+                                                <tr class="sts_account" id="0">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>Approved </p>
+                                                    </td>
+                                                    <td>@verifyApproved</td>
+                                                </tr>
+                                                <tr class="sts_account" id="0">
+                                                    <td>
+                                                        <p><i class="fa fa-square  red"></i>Rejected </p>
+                                                    </td>
+                                                    <td>@verifyReject</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+}

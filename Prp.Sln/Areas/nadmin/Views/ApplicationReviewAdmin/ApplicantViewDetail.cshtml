@@ -1,0 +1,467 @@
+﻿
+@{
+    ViewBag.Title = "ApplicantViewDetail";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ProofReadingAdminModel
+@section RenderCss{
+
+    <style>
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+
+
+
+        var applicantId = 0, objApplicant = {}, imagesPath = "";
+
+        $(document).ready(function () {
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+
+
+
+
+        });
+
+
+
+    </script>
+}
+<div style=" margin-bottom:60px;">
+    <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
+        <style type="text/css">
+            #divprint {
+                width: 900px;
+                margin: 0 auto;
+                margin-top: 15px;
+                font-family: 'Lato', sans-serif !important;
+            }
+
+            .text-center {
+                text-align: center;
+                text-align: -webkit-center;
+                text-align: -moz-center;
+            }
+
+            .top_detail tr td:nth-child(2n) {
+                border-bottom: 1px solid #000;
+            }
+        </style>
+        @{
+            var applicant = Model.applicant;
+            var info = Model.applicantInfo;
+
+            var degree = Model.degree;
+
+            decimal marksDegree = 0;
+            decimal marksDMC = 0;
+            decimal marksHouseJob = 0;
+
+            decimal marksExperience = 0;
+            decimal marksDistinction = 0;
+
+            decimal marksResearchPaper = 0;
+
+            <table style="width: 100%;" cellspacing="0px">
+                <tbody>
+                    <tr style="float: left">
+                        <th>
+                            <h4 style="margin: 0px; font-size: 35px; border-bottom: 2px solid #000;">@applicant.name</h4>
+                        </th>
+                    </tr>
+                    <tr style="float: right">
+                        <th><img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" width="60px;" /></th>
+                    </tr>
+                </tbody>
+            </table>
+            <table style="width: 100%;" cellspacing="0px">
+                <tbody>
+                    <tr>
+                        <td>
+                            <table class="top_detail" style="width: 57%; float: left;">
+                                <tbody>
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>@applicant.name</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email</td>
+                                        <td>@applicant.emailId</td>
+                                    </tr>
+                                    <tr>
+                                        <td>PMDC Number</td>
+                                        <td><a href="http://pmdc.org.pk//DesktopModules/pmdcDetails/PractDetail.aspx?RegistrationNo=85746-P" target="_blank"> View </a> @applicant.pmdcNo</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date Of Birth</td>
+                                        <td>@info.dob.ToString("dd MMM yyyy")</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Address</td>
+                                        <td>@info.address</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CNIC</td>
+                                        <td>@info.cnicNo</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Country of Passing MBBS/BDS</td>
+                                        <td>@info.countryDegreePassing</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Disability Quota Application</td>
+                                        <td> @info.disable</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CNIC Front Image</td>
+                                        <td>
+                                            <a href="@("http://prp.phf.gop.pk/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicFront)" target="_blank">
+                                                <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicFront)" alt="Cnic Front Side" style="width: 30px; height: 20px;" />
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Domicile Front Image</td>
+                                        <td><img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.domicilePicFront)" alt="Domicile Front Side" style="width: 30px; height: 20px;" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="top_detail" style="width: 40%; float: right;">
+                                <tbody>
+                                    <tr>
+                                        <td>Father Name</td>
+                                        <td>@info.fatherName</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mobile No</td>
+                                        <td>@applicant.contactNumber</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Domicile</td>
+                                        <td>@info.domicileProvince - @info.domicileDistrict</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gender</td>
+                                        <td>@info.gender</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last Date of PMDC</td>
+                                        <td>@info.pmdcExpiryDate.ToString("dd MMM yyyy")</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CNIC Expiry Date</td>
+                                        <td>@info.cnicExpiryDate.ToString("dd MMM yyyy")</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nationality</td>
+                                        <td>Pakistan - @info.districtName</td>
+                                    </tr>
+                                    <tr>
+                                        <td>House Job</td>
+                                        @if (degree.houseJobTypeId == 1)
+                                        {
+                                            <td> Public</td>
+                                        }
+                                        else
+                                        {
+                                            <td> Private</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <td>CNIC Back Image</td>
+                                        <td><img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicBack)" alt="Cnic Back Side" style="width: 30px; height: 20px;" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Domicile Back Image</td>
+                                        <td><img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.domicilePicBack)" alt="Domicile Back Side" style="width: 30px; height: 20px;" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            {
+
+                if (Model.listMarks != null && Model.listMarks.Count > 0)
+                {
+                    try
+                    {
+                        marksDegree = Model.listMarks.Where(x => x.marksType == 1).FirstOrDefault().marksExpected;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    try
+                    {
+                        marksDMC = Model.listMarks.Where(x => x.marksType == 2).FirstOrDefault().marksExpected;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+
+
+                    try
+                    {
+                        marksHouseJob = Model.listMarks.Where(x => x.marksType == 4).FirstOrDefault().marksExpected;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        marksExperience = Model.listMarks.Where(x => x.marksType == 7).FirstOrDefault().marksExpected;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        marksDistinction = Model.listMarks.Where(x => x.marksType == 8).FirstOrDefault().marksExpected;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    if ((marksExperience + marksDistinction) > 20)
+                    {
+                        marksExperience = 20;
+                    }
+
+                    try
+                    {
+                        marksResearchPaper = Model.listMarks.Where(x => x.marksType == 9).FirstOrDefault().marksExpected;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
+            }
+
+            <table style="margin-top: 5px; width: 100%;" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #000; -webkit-print-color-adjust: exact;">
+                            <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                Education (Degree Aggregate: @marksDegree, Attempts Aggregate:  @marksDMC.TooInt() House Job From Public Teaching Institutions: @marksHouseJob.TooInt())
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="padding: 5px 0px;">
+                            <p style="color: #000; font-size: 14px; margin: 0px;">
+                                @degree.instituteHouseJob
+                            </p>
+                            <p style="color: #000; font-size: 14px; margin: 0px;">
+                                Attempt Certified
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            if (Model.listDegreeMark != null && Model.listDegreeMark.Count > 0)
+            {
+                <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <th>Year</th>
+                            <th>Obtained Marks</th>
+                            <th>Total Marks</th>
+                            <th>Attempts</th>
+                            <th>Certificates</th>
+                        </tr>
+                        @foreach (var marks in Model.listDegreeMark)
+                        {
+                            <tr>
+                                <td>@marks.year</td>
+                                <td>@marks.obtainMarks</td>
+                                <td>@marks.totalMarks</td>
+                                <td>@marks.attempt</td>
+                                <td>
+                                    Yes<span><img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + marks.imageDMC)" alt="@("DMC of " + marks.year)" style="width: 30px; height: 20px; vertical-align: middle;" /></span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td style="background-color: #000; -webkit-print-color-adjust: exact;">
+                            <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                Work Experience (Aggregate including Distinctions: @marksExperience.ToString("0.00"))
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            if (Model.listExprince != null && Model.listExprince.Count > 0)
+            {
+                var sr = 0;
+                <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <th>Sr.#</th>
+                            <th>Institute</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Duration</th>
+                            <th>Is Continuous</th>
+                            <th>Certificate</th>
+                        </tr>
+                        @foreach (var exp in Model.listExprince)
+                        {
+                            sr = sr + 1;
+                            <tr>
+                                <td> @sr</td>
+                                <td>@exp.instituteName</td>
+                                <td>@exp.startDated.ToString("dd MMM yyyy")</td>
+                                <td>@exp.endDate</td>
+                                <td>@(exp.noOfMonth+"th Month")</td>
+                                @if (exp.isCurrent)
+                                {
+                                    <td>Yes</td>
+                                }
+                                else
+                                {
+                                    <td>No</td>
+                                }
+                                <td><img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + exp.imageExperience)" alt="@("Experience of " + exp.instituteName)" style="width: 30px; height: 20px;" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            if (Model.listDistinction != null && Model.listDistinction.Count > 0)
+            {
+                <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td style="background-color: #000; -webkit-print-color-adjust: exact;">
+                                <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                    Distinction
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                var sr = 0;
+                <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                    <thead> <tr><th>Sr.#</th> <th> Subject </th><th> Year </th> <th> Certificate </th>  </tr></thead>
+                    <tbody>
+                        @foreach (var dis in Model.listDistinction)
+                        {
+                            sr = sr + 1;
+                            <tr>
+                                <td> @sr</td>
+                                <td>@dis.subject</td>
+                                <td>@dis.year</td>
+                                <td><img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + dis.imageDistinction)" alt="@("Distinction of " + dis.subject)" style="width: 30px; height: 20px;" /></td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            }
+
+            if (Model.listResearchPaper != null && Model.listResearchPaper.Count > 0)
+            {
+                <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td style="background-color: #000; -webkit-print-color-adjust: exact;">
+                                <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                    Research Paper (@marksResearchPaper.ToString("0.00"))
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                var sr = 0;
+                <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                    <thead> <tr><th>Sr.#</th> <th> Subject </th><th> Year </th> <th> Certificate </th>  </tr></thead>
+                    <tbody>
+                        @foreach (var paper in Model.listResearchPaper)
+                        {
+                            sr = sr + 1;
+                            <tr>
+                                <td>@paper.name</td>
+                                <td>@paper.author</td>
+                                <td>@paper.publishStatus</td>
+                                <td><img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + paper.imageLetter)" alt="@("Research Paper of " + paper.name)" style="width: 30px; height: 20px;" /></td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            }
+
+
+            if (Model.listSpecility != null && Model.listSpecility.Count > 0)
+            {
+                decimal marksType = 0;
+                foreach (var typ in Model.listType)
+                {
+                    var listSpecility = Model.listSpecility.Where(x => x.typeId == typ.id).ToList();
+                    if (listSpecility != null && listSpecility.Count > 0)
+                    {
+                        try
+                        {
+                            marksType = listSpecility.Where(x => x.typeId == typ.id).FirstOrDefault().marksType;
+                        }
+                        catch (Exception)
+                        {
+                        }
+
+                        decimal MarksTotal = 0;
+                        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <td style="background-color: #000; -webkit-print-color-adjust: exact;">
+                                        <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                            @typ.value Preference  (@marksType)
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                            <thead> <tr><th>Preference No.</th> <th> Specillaty</th><th> Institute</th> <th> Institute Marks</th>  <th> Total Marks</th>  </tr></thead>
+                            <tbody>
+                                @foreach (var spc in listSpecility)
+                                {
+                                    MarksTotal = spc.marks + marksDegree + marksDMC + marksHouseJob + marksType + marksExperience + marksResearchPaper;
+                                    <tr>
+                                        <td>@spc.preferenceNo</td>
+                                        <td>@spc.specialityName</td>
+                                        <td>@spc.hospitalName</td>
+                                        <td>@spc.marks.TooInt()</td>
+                                        <td>@MarksTotal </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    }
+                }
+            }
+        }
+    </div>
+
+</div>
+
+

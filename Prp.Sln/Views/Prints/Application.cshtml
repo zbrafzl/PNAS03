@@ -1,0 +1,487 @@
+﻿
+@{
+    ViewBag.Title = "Application";
+    Layout = "~/Views/Shared/_LayoutPrint.cshtml";
+}
+
+@section RenderCss{
+    <style>
+        td span {
+            line-height: 18px;
+        }
+
+        .div_print {
+            clear: both;
+            float: left;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        .btn_print {
+            padding: 10px 40px;
+            background-color: #48a0d7;
+            border-radius: 5px
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        $(document).ready(function () {
+
+            PageInit();
+
+        });
+
+        function PageInit() {
+
+            var objReg = JSON.parse(sessionStorage.OpdPatientReg);
+
+            var hospitalInfo = JSON.parse(sessionStorage.hospitalInfo);
+
+            $(".spnHospitalName").html(hospitalInfo.nameDisplay);
+            $("#spnHospitalDesc").html(hospitalInfo.shortDescDisplay);
+            $("#spnDeptMedicalDepart").html("OPD Slip - " + objReg.medicalDepartmentName.TooStringDefault(""));
+
+            var guardian = "N/A";
+            if (objReg.patientGuardian.name.lenght > 0) {
+                guardian = objReg.patientGuardian.name;
+                if (objReg.patientGuardian.name.lenght > 0) {
+                    guardian = guardian + ', ' + objReg.patientGuardian.relationStr;
+                }
+            }
+
+            var regDate = "";
+
+            try {
+                regDate = ToDateFormatDDMMYYY(JsonToDate(objReg.registrationInfo.dated));
+                if (objReg.isNew == false)
+                    regDate = ToDateFormatDDMMYYY(JsonToDate(objReg.regDate));
+            } catch (e) {
+
+            }
+
+            var mlc = "";
+            try {
+                var listMlc = [];
+
+                if (objReg.patientMlc.name != '')
+                    listMlc.push(objReg.patientMlc.name);
+
+                if (objReg.patientMlc.station != '')
+                    listMlc.push(objReg.patientMlc.station);
+
+                if (objReg.patientMlc.belt != '')
+                    listMlc.push(objReg.patientMlc.belt);
+
+                if (listMlc.length > 0)
+                    mlc = listMlc.join(", ");
+
+            } catch (e) {
+
+            }
+
+            $(".spnDatetime").html(TooDateFormatDDMMYYYHHMMSS(JsonToDate(objReg.registrationInfo.dated)));
+            $(".spnPatientName").html(objReg.patientInfo.firstName + " " + objReg.patientInfo.lastName.TooStringDefault(""));
+            $(".spnAgeGender").html(objReg.patientInfo.age + " " + objReg.patientInfo.ageTypeStr + ", " + objReg.patientInfo.genderStr.TooTitleCase());
+            $(".spnMrn").html(objReg.registrationInfo.emrn);
+            $(".spnFatherName").html(objReg.patientInfo.fatherName.TooStringDefault("N/A"));
+            $("#spnTokenNumber").html(objReg.registrationInfo.tokenNo);
+            $("#spnNic").html(objReg.patient.cnic.TooStringDefault("N/A"));
+            $(".spnContact").html(objReg.patient.contactNumber);
+            $("#spnGuardian").html(guardian);
+            $("#spnCity").html(objReg.patientInfo.distirct);
+            $("#spnAddress").html(objReg.patientInfo.address.TooStringDefault("N/A"));
+            $("#spnRegDate").html(regDate);
+            $(".spnVisitDate").html(ToDateFormatDDMMYYY(JsonToDate(objReg.registrationInfo.dated)));
+            $(".spnMlc").html(mlc.TooStringDefault("N/A"));
+            $(".imgQR").attr("src", objReg.qrCodePath);
+
+
+            if (objReg.hospitalId == 3 && objReg.typeId > 0) {
+
+                $(".spnType").html("( " + objReg.type + " )");
+            }
+
+            if (objReg.registrationInfo.departmentNameOld == "Reffered") {
+
+
+                var reff = CallActionGet("/PatientRegistration/GetPatientRefferedInfo?patientId=" + objReg.registrationInfo.patientId
+                    + "&registrationId=" + objReg.registrationInfo.registrationIdOld);
+
+
+                $(".patienttype").html("Reffered ");
+                $(".spnClinicName").html("From  : " + reff[0].fromHospital);
+                $(".divReffered").show();
+
+            }
+
+            printDiv();
+            //window.close();
+
+            $(document).on('click', '#btnPrint', function (event) {
+                printDiv();
+                window.close();
+            });
+
+
+        }
+    </script>
+}
+<div>
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <span id="btnPrint" class="btn_print"> Print</span>
+
+    </div>
+    <div class="clearfix"></div>
+    <div class="ln_solid"></div>
+    <div id="divprint" class="col-md-12 col-sm-12 col-xs-12">
+        <style>
+            td span {
+                line-height: 18px !important;
+            }
+        </style>
+        <table style="width:735px;">
+            <tr>
+                <td>
+                    <table style="margin:0px 0px 0px 0px;">
+                        <tr>
+                            <td>
+                                <table style="width:100%;">
+                                    <tr>
+                                        <td style="float:left; "><img src="/Images/SlipLogo.png" alt="Logo" style="width:95px; height:80;" /></td>
+                                        <td style=" float:left; width:520px;">
+                                            <table style="width:100%;">
+                                                <tr>
+                                                    <td style="text-align:center; font-size:25px;">
+                                                        <b>  <span class="spnHospitalName"> </span></b>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center; font-size:17px;">
+                                                        <span id="spnHospitalDesc"> </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center; font-size:20px;">
+                                                        <span id="spnDeptMedicalDepart"> </span>
+                                                    </td>
+                                                </tr>
+                                                <tr class="divReffered" style="display:none;">
+                                                    <td style="text-align:center; font-size:18px;">
+                                                        <b><span class="patienttype"></span>  <span class="spnClinicName"> </span> </b>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td style="float:left; "><img class="imgQR" src="/mrn/SlipQRCode.png" alt="Logo" style="width:95px; height:80px;" /></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:100%; margin-top:7px;">
+                                    <tr>
+                                        <td><b><span class="spnPatientName" style="font-size:20px;"> </span> </b> ,&nbsp;&nbsp;&nbsp;<span class="spnAgeGender"> </span> </td>
+                                        <td> <span class="spnDatetime"> </span></td>
+                                        <td style="float:right;"><b> <span class="spnMrn" style="font-size:20px;"> </span> </b></td>
+                                    </tr>
+                                </table>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:100%;">
+                                <table style="width:49.5%; float:left;">
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:13px;"> Father/Husband : </span></b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" class="spnFatherName"> </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:13px;"> Patient NIC :</span></b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" id="spnNic"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:13px;"> Guardian : </span></b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" id="spnGuardian"> </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:13px;"> Reg. Date :</span> </b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" id="spnRegDate"> </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:13px;"> Visit Date :&nbsp;&nbsp;&nbsp; </span></b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" class="spnVisitDate"> </span>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                                <table style="width:49.5%; float:left;">
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b>  <span style="font-size:13px;"> Token No : </span></b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" id="spnTokenNumber"> </span>
+                                            <b> <span style="font-size:15px; margin-left:20px;" class="spnType"> </span></b>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:13px;"> Contact :</span> </b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" class="spnContact"> </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:13px;"> City : </span> </b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" id="spnCity"> </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:13px;"> Address :</span> </b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span style="font-size:15px;" id="spnAddress"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:30%;">
+                                            <b><span style="font-size:12px;"> MLC :</span> </b>
+                                        </td>
+                                        <td style="width:60%;">
+                                            <span class="spnMlc"> </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:45%; float:left;">
+                                    <tr>
+                                        <td style="height: 95px; float:left; width:100%;"> <b><span style="font-size:12px; border-bottom: 1px solid #c8c1c1;width: 100%;float: left;"> Presenting Complaint </span></b> </td>
+                                    </tr>
+                                </table>
+                                <table style="width:9%; float:left;">
+                                    <tr><td> &nbsp;</td></tr>
+                                </table>
+                                <table style="width:45%; float:left;">
+                                    <tr>
+                                        <td style="height: 95px; float:left; width:100%;"> <b><span style="font-size:12px; border-bottom: 1px solid #c8c1c1;width: 100%;float: left;"> History </span></b> </td>
+                                    </tr>
+                                </table>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:45%; float:left;">
+                                    <tr>
+                                        <td style="height: 95px; float:left; width:100%;"> <b><span style="font-size:12px; border-bottom: 1px solid #c8c1c1;width: 100%;float: left;"> Examination </span></b> </td>
+                                    </tr>
+                                </table>
+                                <table style="width:9%; float:left;">
+                                    <tr><td> &nbsp;</td></tr>
+                                </table>
+                                <table style="width:45%; float:left;">
+                                    <tr>
+                                        <td style="height: 95px; float:left; width:100%;"> <b><span style="font-size:12px; border-bottom: 1px solid #c8c1c1;width: 100%;float: left;"> Provisional Diagnosis </span></b> </td>
+                                    </tr>
+                                </table>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:45%; float:left;">
+                                    <tr>
+                                        <td style="height: 95px; float:left; width:100%;"> <b><span style="font-size:12px; border-bottom: 1px solid #c8c1c1;width: 100%;float: left;"> Treatment </span></b> </td>
+                                    </tr>
+                                </table>
+                                <table style="width:9%; float:left;">
+                                    <tr><td> &nbsp;</td></tr>
+                                </table>
+                                <table style="width:45%; float:left;">
+                                    <tr>
+                                        <td style="height: 95px; float:left; width:100%;"> <b><span style="font-size:12px; border-bottom: 1px solid #c8c1c1;width: 100%;float: left;"> Investigations </span></b> </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:45%; float:left;">
+                                    <tr>
+                                        <td style="height: 40px; float:left; width:49%;"><input type="checkbox" /> Admit</td>
+                                        <td style="height: 40px; float:left; width:49%;"><input type="checkbox" /> Discharge</td>
+                                    </tr>
+                                </table>
+                                <table style="width:9%; float:left;">
+                                    <tr><td> &nbsp;</td></tr>
+                                </table>
+                                <table style="width:45%; float:left;">
+                                    <tr>
+                                        <td style="height: 40px; float:left; width:49%;"><span style="font-size:12px; border-top: 1px solid #c8c1c1;width: 70%;float: left;">  Name Of Doctor  with Designation </span></td>
+                                        <td style="height: 40px; float:left; width:49%;"><span style="font-size:12px; border-top: 1px solid #c8c1c1;width: 70%;float: left;"> Signature </span> </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="height: 40px; width: 100%; float: left; text-align:center; margin-top:5px; margin-bottom:5px; ">
+                                <b>
+                                    <span style="font-size:18px;">
+                                        -نوٹ: یہ پرچی سنبھال کر رکھیں اور دوبارہ ہسپتال آنے کی صورت میں بطور حوالہ ہمراہ لائیں
+
+                                    </span>
+                                </b><br />
+
+                                <span style="font-size:14px;">
+                                    Powered by : Punjab Health Foundation (PHF).
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style=" border-top-style: dotted;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width:49%; float:left; margin-top:5px;">
+                                    <tr>
+
+                                        <td style="height: 360px; width: 100%; float: left;  border-right-style: dotted;">
+                                            <table style="width:100%">
+                                                <tr style="height:360px;">
+                                                    <td style=" width: 70%; float: left; height:360px;">
+                                                        <table>
+                                                            <tr>
+                                                                <td>
+                                                                    <span style="font-size:12px;">
+                                                                        <b> <span class="spnHospitalName"> </span></b>
+                                                                    </span><br />
+                                                                    <span style="font-size:14px;">
+                                                                        <b>OPD -  <span class="spnMrn"> </span> </b>
+                                                                    </span>
+                                                                    <br />
+                                                                    <b>
+                                                                        <span class="spnPatientName">
+                                                                        </span>
+                                                                    </b>
+                                                                    &nbsp;&nbsp;&nbsp;
+                                                                    <span class="spnAgeGender">
+                                                                    </span>
+                                                                    <br />
+                                                                    F/H :
+                                                                    <span class="spnFatherName">
+                                                                    </span>
+                                                                    <br />
+                                                                    Contact :
+                                                                    <span class="spnContact">
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td style=" width: 28%; float: left; text-align:center;">
+                                                        <img class="imgQR" src="/Images/SlipQRCode.png" alt="Logo" style="width:100px;" />
+                                                        <br />
+                                                        <span class="spnDatetime">
+                                                        </span>
+                                                    </td>
+                                                </tr>
+
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table style="width:1%; float:left;">
+                                    <tr>
+                                        <td> &nbsp;</td>
+                                    </tr>
+                                </table>
+                                <table style="width:49%; float:left;  margin-top:5px;">
+                                    <tr>
+                                        <td style="height: 360px; width: 100%; float: left; ">
+                                            <table style="width:100%">
+                                                <tr style="height:360px;">
+                                                    <td style=" width: 70%; float: left; height:360px;">
+                                                        <table>
+                                                            <tr>
+                                                                <td>
+                                                                    <span style="font-size:12px;">
+                                                                        <b> <span class="spnHospitalName"> </span></b>
+                                                                    </span>
+                                                                    <br />
+                                                                    <span style="font-size:14px;">
+                                                                        <b>OPD -  <span class="spnMrn"> </span> </b>
+                                                                    </span>
+                                                                    <br />
+                                                                    <b>
+                                                                        <span class="spnPatientName">
+                                                                        </span>
+                                                                    </b>
+                                                                    &nbsp;&nbsp;&nbsp;
+                                                                    <span class="spnAgeGender">
+                                                                    </span>
+                                                                    <br />
+                                                                    F/H :
+                                                                    <span class="spnFatherName">
+                                                                    </span>
+                                                                    <br />
+                                                                    Contact :
+                                                                    <span class="spnContact">
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td style=" width: 28%; float: left; text-align:center;">
+                                                        <img class="imgQR" src="/mrn/SlipQRCode.png" alt="Logo" style="width:100px; " />
+                                                        <br />
+                                                        <span class="spnDatetime">
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+

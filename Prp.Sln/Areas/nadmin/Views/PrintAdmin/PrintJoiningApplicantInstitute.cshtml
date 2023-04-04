@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "Print Joining Applicant List";
+    Layout = "~/Areas/nadmin/Views/Shared/_LayoutPrint.cshtml";
+}
+@model Prp.Sln.ApplicantJoiningAdminModel
+@section RenderCss{
+    <style>
+        td span {
+            line-height: 18px;
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        $(document).ready(function () {
+
+            PageInit();
+
+        });
+
+        function PageInit() {
+
+            //printDiv();
+
+            $(document).on('click', '#btnPrint', function (event) {
+                printDiv();
+            });
+
+
+        }
+    </script>
+}
+<div style="width:1271px;">
+
+    <div class="center-div">
+        <a id="btnPrint" class="btn btn-app animated-button btn_print"><i class="fa fa-save"></i> &nbsp; Print </a>
+    </div>
+    <div class="clearfix"></div>
+    <div class="ln_solid"></div>
+    <div id="divprint" class="col-md-12 col-sm-12 col-xs-12">
+        <style type="text/css">
+            td span {
+                line-height: 18px !important;
+            }
+
+            .heading {
+                float: left;
+                width: 100%;
+                text-align: center;
+            }
+
+            .tbl {
+                border-collapse: collapse;
+            }
+
+                .tbl td {
+                    border: 1px solid black;
+                }
+        </style>
+        <table style="width:1271px;">
+            <tr>
+                <td>
+                    <table style="margin:0px 0px 0px 0px;">
+                        <tr>
+                            <td>
+                                <table style="width:100%;">
+                                    <tr>
+                                        <td class="heading" style="font-size: 25px;">
+                                            <b>  <span class="spnInstituteName"> @Model.loggedInUser.displayName </span></b>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="heading" style="font-size: 15px;">
+                                            <b>  <span class="spnInstituteName"> Print Date Time : @DateTime.Now </span></b>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table class="tbl">
+                                    <thead>
+                                        <tr class="headings">
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Image </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Form No. </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Name </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Father Name </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">PMDC No </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Email  </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Contact Number </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Marks</th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Hospital/Institute </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Program </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Speciality </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Quota </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Joining Status </th>
+                                            <th style="background-color: #8b8686; color:#fff; -webkit-print-color-adjust: exact;">Joining Date </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @if (Model != null && (Model.listApplicant != null && Model.listApplicant.Count > 0))
+                                        {
+                                            foreach (var item in Model.listApplicant)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <img class="imgView" src="@("http://prp.phf.gop.pk/images/Applicant/" + item.applicantId + "/" + item.pic)" style="width: 30px; height: 20px; vertical-align: middle;" />
+                                                    </td>
+                                                    <td>@item.applicantId</td>
+                                                    <td>@item.name</td>
+                                                    <td>@item.fatherName</td>
+                                                    <td>@item.pmdcNo</td>
+                                                    <td>@item.emailId</td>
+                                                    <td>@item.contactNumber</td>
+                                                    <td>@item.marks</td>
+                                                    <td>@item.hospitalName</td>
+                                                    <td>@item.typeName</td>
+                                                    <td>@item.specialityName</td>
+                                                    <td>@item.quotaName</td>
+                                                    @if (item.joiningId > 0)
+                                                    {
+                                                        <td>Joined</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>Not Joinied</td>
+                                                    }
+                                                    <td>@item.dateJoining</td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+
+
+
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+</div>
+

@@ -1,0 +1,766 @@
+﻿@{
+    ViewBag.Title = "Beds Management";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.BedModelAdmin
+@section RenderCss{
+
+    <style>
+        .addNewMd {
+            width: 10%;
+            float: left;
+            margin-left: 10px;
+            border: 1px solid #7e9aff;
+            padding: 6px 20px;
+            font-size: initial;
+            color: #fff;
+            background-color: #a3b6fa;
+            cursor: pointer;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var hospitalId = 0, departmentId = 0, untiId = 0, programId = 0, disciplineId = 0, specialityId = 0;
+        var bedId = 0, objBed = {}, listBed = [], htmlNoRecord = "";
+        $(document).ready(function () {
+
+            htmlNoRecord = $("#tbNoRecord").html();
+
+            hospitalId = ConvertToInt($("#hfdHospitalId").val());
+
+            if (hospitalId > 0) {
+                $("#ddlHospital").val(hospitalId);
+
+
+            }
+
+            $(document).on('change', '#ddlHospital', function () {
+
+                hospitalId = ConvertToInt($(this).val());
+                if (hospitalId > 0)
+                    window.location.href = "/admin/hospital-bed-management?hospitalId=" + hospitalId;
+
+            });
+
+            $(document).on('change', '#ddlDepartment', function () {
+
+
+                departmentId = ConvertToInt($(this).val());
+
+                $("#hfdDepartmentId").val(departmentId);
+
+
+                $("#btnModelUnit").hide();
+                DDLSetToDefault("ddlUnit", 'Select One', 0);
+
+                if (departmentId > 0) {
+                    $("#btnModelUnit").show();
+                    DDLEventChangeDepartment();
+                }
+
+                GetAndBindBedListing();
+
+            });
+
+            $(document).on('change', '#ddlDiscipline', function () {
+
+                specialityId = 0;
+                disciplineId = ConvertToInt($(this).val());
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+
+                if (disciplineId > 0) {
+                    DDLEventChangeDiscipline()
+                }
+
+
+
+            });
+
+            $(document).on('click', '#btnSave', function () {
+
+                if (ValidateFormBed() == false) {
+
+
+                    var resp = CallActionPost("/Hospitals/BedsAddUpdate", objBed);
+
+                    if (resp != null && resp.status == true) {
+
+                        ClearForm();
+                        GetAndBindBedListing();
+                    }
+                }
+
+            });
+
+            $(document).on('click', '.ankEidt', function () {
+
+
+                bedId = ConvertToInt($(this).attr("id"));
+
+                var objB = {};
+
+                try {
+
+                    objB = $.grep(listBed, function (n, i) {
+                        return n.bedId == bedId;
+                    })[0];
+                } catch (e) {
+                    objB = {};
+                }
+
+                if (objB != null && objB.bedId > 0) {
+
+                    hospitalId = objB.hospitalId;
+                    departmentId = objB.departmentId;
+                    DDLEventChangeDepartment();
+                    $("#ddlUnit").val(objB.unitId);
+                    $("#ddlProgram").val(objB.programId);
+                    disciplineId = objB.disciplineId;
+                    DDLEventChangeDiscipline()
+                    $("#ddlDiscipline").val(objB.disciplineId)
+                    $("#ddlSpeciality").val(objB.specialityId);
+                    $("#txtBedsER").val(objB.bedsER);
+                    $("#txtBedsICU").val(objB.bedsICU);
+                    $("#txtBedsOther").val(objB.bedsOther);
+                    $("#txtBedsWard").val(objB.bedsWards);
+                    $("#txtRemarksN").val(objB.remarksN);
+
+                    $("#hfdImageN").val(objB.imageN);
+                    if (objB.imageN != "") {
+                        $("#imgImageN").attr("src", "/images/beds/" + objB.imageN);
+                        $("#imgImageN").show();
+                        $("#rmvImageN").show();
+
+                    }
+
+
+                    $("#txtBedsDep").val(objB.bedsDep);
+                    $("#txtRemarksDep").val(objB.remarksDep);
+
+                    $("#hfdImageDep").val(objB.imageDep);
+                    if (objB.imageDep != "") {
+                        $("#imgImageDep").attr("src", "/images/beds/" + objB.imageDep);
+                        $("#imgImageDep").show();
+                        $("#rmvImageDep").show();
+                       
+                    }
+
+                }
+
+            });
+
+            $(document).on('click', '.ankDelete', function () {
+
+                try {
+
+                    if (confirm("are you sure to delete this record ?")) {
+
+                        var bedId = ConvertToInt($(this).attr("id"));
+                        var hospitalId = ConvertToInt($(this).attr("hospitalId"));
+                        var obj = {};
+                        obj.bedId = bedId;
+                        obj.hospitalId = hospitalId;
+                        var respMsg = CallActionPost("/Hospitals/BedDelete", obj);
+                        if (respMsg.status) {
+                            alert(respMsg.msg);
+                            GetAndBindBedListing();
+                        }
+                        else {
+                            alert(respMsg.msg);
+                        }
+
+                    } else {
+
+                    }
+                } catch (e) {
+                    isOk = true;
+                }
+
+
+                
+
+            });
+
+        });
+
+        function GetAndBindBedListing() {
+
+            var htmlAll = htmlNoRecord;
+            listBed = [];
+
+            $("#divPagination").hide();
+
+            var obj = {};
+            obj.top = perPageRecords;
+            obj.pageNum = pageNo;
+            obj.hospitalId = hospitalId;
+            obj.departmentId = departmentId;
+
+            if (departmentId > 0) {
+
+                listBed = CallActionPost("/Hospitals/BedsSearch", obj);
+
+                if (listBed != null && listBed.length > 0) {
+
+                    htmlAll = "";
+                    //totalCount = listBed[0].totalCount;
+                    var objItem = {};
+
+                    var htmlTemp = $("#tbTempt").html();
+
+                    $("#tbList").html(htmlAll);
+
+                    var htmlSingle = "", actionTd = "";
+
+                    for (var i = 0; i < listBed.length; i++) {
+
+
+                        htmlSingle = htmlTemp;
+                        objItem = listBed[i];
+
+                        htmlAll = htmlAll + htmlSingle.replace(/{#bedId#}/g, objItem.bedId)
+                            .replace(/{#department#}/g, objItem.department)
+                            .replace(/{#unit#}/g, objItem.unit)
+                            .replace(/{#program#}/g, objItem.program)
+                            .replace(/{#discipline#}/g, objItem.discipline)
+                            .replace(/{#speciality#}/g, objItem.speciality)
+                            .replace(/{#bedsER#}/g, objItem.bedsER)
+                            .replace(/{#bedsICU#}/g, objItem.bedsICU)
+                            .replace(/{#bedsOther#}/g, objItem.bedsOther)
+                            .replace(/{#bedsWards#}/g, objItem.bedsWards)
+                            .replace(/{#bedsDep#}/g, objItem.bedsDep)
+                            .replace(/{#admin#}/g, objItem.admin)
+                            .replace(/{#hospitalId#}/g, objItem.hospitalId);
+                    }
+
+                    if (totalCount > 0)
+                        CreatePaginationHtml(perPageRecords, totalCount, pageNo);
+
+                    $("#pnlSearch").show();
+
+                }
+
+            }
+
+            $("#tbList").html(htmlAll);
+
+
+        }
+
+        function DDLEventChangeDepartment() {
+
+            DDLSetToDefault("ddlUnit", 'Select One', 0);
+
+            var obj = {};
+            obj.typeId = hospitalId;
+            obj.parentId = departmentId;
+            obj.search = "ByDepartment";
+            var listResp = CallActionPost("/Common/DDLGetUnit", obj);
+
+            var ddlItem = {};
+
+            if (listResp != null && listResp.length > 0) {
+
+                for (var i = 0; i < listResp.length; i++) {
+                    ddlItem = listResp[i];
+                    $("#ddlUnit").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                }
+
+                $("#ddlUnit").val(untiId);
+            }
+        }
+
+        
+
+        function DDLEventChangeDiscipline() {
+
+
+            DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+
+
+            var obj = {};
+            obj.typeId = disciplineId;
+            obj.search = "ByOnlyDiscipline";
+            var listResp = CallActionPost("/Common/DDLGetSpeciality", obj);
+
+            var ddlItem = {};
+
+            if (listResp != null && listResp.length > 0) {
+
+                for (var i = 0; i < listResp.length; i++) {
+                    ddlItem = listResp[i];
+                    $("#ddlSpeciality").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                }
+            }
+        }
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            var ctrl = "";
+
+            $("#hfdSpecialityId").val($("#ddlSpeciality").val());
+            var pageUrl = "/admin/employee-manage";;
+            $("#hfdRedirectUrl").val(pageUrl);
+
+            var dateJoining = ConvertToString($("#txtJoiningDate").val());
+
+            if (dateJoining == "") {
+                $("#txtJoiningDate").addClass("req-fld");
+                isOk = false;
+                if (ctrl == "")
+                    ctrl = "txtJoiningDate";
+            }
+
+            $("#hfdDateJoining").val(dateJoining);
+
+            var imageName = "";
+
+            debugger;
+
+            if ($("#flImage").val()) {
+
+                var guid = CreateGuid();
+                imageName = UploadImageAdmin("flImage", 0, guid, 0, "/images/employee/");
+                $("#hfdImage").val(imageName);
+            }
+            $("#hfdImageProfile").val($("#hfdImage").val());
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+        function PopupEvent(ctr) {
+
+            $("#txtNameUnit").val("");
+            $("#txtNameUnit").focus();
+        }
+
+        function AddUpdateUnit() {
+
+            var obj = {};
+            obj.name = ConvertToString($('#txtNameUnit').val())
+            obj.unitId = 0;
+            obj.code = "000";
+            obj.isActive = true;
+            obj.typeId = 0;
+            obj.hospitalId = hospitalId;
+            obj.departmentId = departmentId;
+
+
+            var resp = CallActionPost("/Hospitals/UnitAddUpdate", obj);
+
+            if (resp != null && resp.status == true) {
+
+                unitId = resp.id;
+                $('.btnClosePopup').click();
+                DDLEventChangeDepartment();
+            }
+            else {
+
+            }
+
+        }
+
+        function ValidateFormBed() {
+
+            var isError = false, ctrl = "";
+            $(".lbl-err").hide();
+            $(".req-fld").removeClass("req-fld");
+
+            objBed = {};
+            objBed.bedId = bedId;
+            objBed.hospitalId = hospitalId;
+            objBed.departmentId = departmentId;
+            objBed.unitId = ConvertToInt($("#ddlUnit").val());
+            objBed.disciplineId = ConvertToInt($("#ddlDiscipline").val());
+            objBed.specialityId = ConvertToInt($("#ddlSpeciality").val());
+
+            objBed.bedsER = ConvertToInt($("#txtBedsER").val());
+            objBed.bedsICU = ConvertToInt($("#txtBedsICU").val());
+            objBed.bedsOther = ConvertToInt($("#txtBedsOther").val());
+            objBed.bedsWards = ConvertToInt($("#txtBedsWard").val());
+
+            objBed.bedsDep = ConvertToInt($("#txtBedsDep").val());
+
+            objBed.remarksN = ConvertToString($("#txtRemarksN").val());
+            objBed.remarksDep = ConvertToString($("#txtRemarksDep").val());
+
+            var imageNameN = "";
+
+            if ($("#flImageN").val()) {
+
+                var guid = CreateGuid();
+                imageNameN = UploadImageAdmin("flImageN", 0, guid, 0, "/images/Beds/");
+                $("#hfdImageN").val(imageNameN);
+            }
+
+            objBed.imageN = $("#hfdImageN").val();
+
+            var imageNameDep = "";
+
+            if ($("#flImageDep").val()) {
+
+                var guid = CreateGuid();
+                imageNameDep = UploadImageAdmin("flImageDep", 0, guid, 0, "/images/Beds/");
+                $("#hfdImageDep").val(imageNameDep);
+            }
+            objBed.imageDep = $("#hfdImageDep").val();
+
+            if (objBed.hospitalId == 0) {
+
+                $("#ddlHospital").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlHospital";
+            }
+
+            if (objBed.departmentId == 0) {
+
+                $("#ddlDepartment").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlDepartment";
+            }
+
+            if (objBed.unitId == 0) {
+
+                $("#ddlUnit").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlUnit";
+            }
+
+
+            if (objBed.disciplineId == 0) {
+
+                $("#ddlDiscipline").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlDiscipline";
+            }
+
+            if (objBed.specialityId == 0) {
+
+                $("#ddlSpeciality").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlSpeciality";
+            }
+
+           
+
+
+            if (objBed.bedsER == 0 && objBed.bedsICU == 0 && objBed.bedsOther == 0 && objBed.bedsWards == 0 && objBed.bedsDep == 0) {
+
+                isError = true;
+
+                if (objBed.bedsER == 0) {
+                    $("#txtBedsER").addClass("req-fld");
+                    if (ctrl == "")
+                        ctrl = "txtBedsER";
+                }
+
+                if (objBed.bedsICU == 0) {
+                    $("#txtBedsICU").addClass("req-fld");
+                    if (ctrl == "")
+                        ctrl = "txtBedsICU";
+                }
+
+                if (objBed.bedsOther == 0) {
+                    $("#txtBedsOther").addClass("req-fld");
+                    if (ctrl == "")
+                        ctrl = "txtBedsOther";
+                }
+
+                if (objBed.bedsWards == 0) {
+                    $("#txtBedsWard").addClass("req-fld");
+                    if (ctrl == "")
+                        ctrl = "txtBedsWard";
+                }
+
+
+                if (objBed.bedsDep == 0) {
+                    $("#txtBedsDep").addClass("req-fld");
+                    if (ctrl == "")
+                        ctrl = "txtBedsDep";
+                }
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+
+        }
+
+        function ClearForm() {
+
+            bedId = 0;
+
+            $("#ddlUnit").val(0);
+            $("#ddlProgram").val(0);
+
+           
+            $("#ddlSpeciality").val(0);
+            
+            $("#txtBedsER").val(0);
+            $("#txtBedsICU").val(0);
+            $("#txtBedsOther").val(0);
+            $("#txtBedsWard").val(0);
+
+            $("#txtBedsDep").val(0);
+
+            $("#txtRemarksN").val("");
+            $("#txtRemarksDep").val("")
+
+
+            $("#hfdImageN").val("");
+            $("#imgImageN").hide();
+            $("#rmvImageN").hide();
+
+            $("#hfdImageDep").val("");
+            $("#imgImageDep").hide();
+            $("#rmvImageDep").hide();
+
+        }
+
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Bed Management </h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                    @Html.HiddenFor(m => m.hospitalId, new { @id = "hfdHospitalId" })
+                    @Html.HiddenFor(m => m.departmentId, new { @id = "hfdDepartmentId" })
+
+                    @Html.HiddenFor(m => m.bed.unitId, new { @id = "hfdUnitId" })
+                    @if (Model.loggedInUser.typeId != 81)
+                    {
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <select id="ddlHospital" class="form-control">
+                                    @foreach (var item in Model.listHospital)
+                                    {
+                                        <option value="@(item.value)"> @item.key </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    <fieldset>
+                        <legend>  Info  </legend>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Department *:</label>
+                                @Html.DropDownListFor(a => a.departmentId, new SelectList(Model.listDepartment, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlDepartment", @tabindex = "4", @required = "required" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard" style="width:100%; float:left;">Unit *:</label>
+                                <select id="ddlUnit" class="form-control" style="width:80%;float:left;">
+                                    <option value="0"> Select One </option>
+                                </select>
+                                <span id="btnModelUnit" style="display:none;" title="Add Unit" class="addNewMd" data-toggle="modal" data-target="#PopUpUnit" onclick="PopupEvent(this);">
+                                    <b>+</b>
+                                </span>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Specialty *:</label>
+                                <select id="ddlDiscipline" class="form-control">
+                                    <option value="0"> Select One </option>
+                                    @foreach (var item in Model.listDiscipline)
+                                    {
+                                        <option value="@item.value"> @item.key </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Sub Specialty *:</label>
+                                <select id="ddlSpeciality" class="form-control">
+                                    <option value="0"> Select One </option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>  Notified  </legend>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Beds ER *:</label>
+                                @Html.TextBoxFor(a => a.bed.bedsER, new { @class = "form-control numeric", @id = "txtBedsER", @tabindex = "10", @required = "required", @len = "3" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Beds ICU *:</label>
+                                @Html.TextBoxFor(a => a.bed.bedsICU, new { @class = "form-control numeric", @id = "txtBedsICU", @tabindex = "10", @required = "required", @len = "3" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Beds Ward *:</label>
+                                @Html.TextBoxFor(a => a.bed.bedsWards, new { @class = "form-control numeric", @id = "txtBedsWard", @tabindex = "10", @required = "required", @len = "3" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Beds Other *:</label>
+                                @Html.TextBoxFor(a => a.bed.bedsOther, new { @class = "form-control numeric", @id = "txtBedsOther", @tabindex = "10", @required = "required", @len = "3" })
+                            </div>
+                            <div class="col-md-9 col-sm-3 col-xs-9">
+                                <label for="heard">Remarks :</label>
+                                @Html.TextBoxFor(a => a.bed.remarksN, new { @class = "form-control", @id = "txtRemarksN", @tabindex = "10" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <div class="form-group">
+                                    <label for="" style="width:100%; float:left; clear:both;"> Image (Notification/Order)  </label>
+                                    <input type="file" class="form-control flup" name="flImageN" id="flImageN" tabindex="10" />
+                                </div>
+                                <div>
+                                    <input type="hidden" id="hfdImageN" value="@(Model.bed.imageN)" />
+                                    <img id="imgImageN" class="flup-img" src="@("/Images/Beds/"+ Model.bed.imageN)" alt="" style="display:none;" />
+                                    <a id="rmvImageN" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>  Un Notified  </legend>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Beds :</label>
+                                @Html.TextBoxFor(a => a.bed.bedsDep, new { @class = "form-control numeric", @id = "txtBedsDep", @tabindex = "11", @required = "required", @len = "3" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <div class="form-group">
+                                    <label for="" style="width:100%; float:left; clear:both;"> Image (Notification/Order)  </label>
+                                    <input type="file" class="form-control flup" name="flImageN" id="flImageDep" tabindex="11" />
+                                </div>
+                                <div>
+                                    <input type="hidden" id="hfdImageDep" value="@(Model.bed.imageDep)" />
+                                    <img id="imgImageDep" class="flup-img" src="@("/Images/Beds/"+ Model.bed.imageDep)" alt="" style="display:none;" />
+                                    <a id="rmvImageDep" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
+                            </div>
+                            <div class="col-md-9 col-sm-3 col-xs-9">
+                                <label for="heard">Remarks :</label>
+                                @Html.TextBoxFor(a => a.bed.remarksDep, new { @class = "form-control", @id = "txtRemarksDep", @tabindex = "11" })
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="clearfix"></div>
+                    <div class="ln_solid"></div>
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button id="btnSave" type="button" class="btn btn-success" tabindex="12">Submit</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Beds Listiing  </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div id="pnlSearch" class="x_content" style="display:none;">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Department </th>
+                            <th class="column-title">Unit </th>
+                            <th class="column-title">Speciality </th>
+                            <th class="column-title">Sub Speciality </th>
+                            <th class="column-title">Notified Beds ER</th>
+                            <th class="column-title">NotifiedBeds ICU</th>
+                            <th class="column-title">NotifiedBeds Wards </th>
+                            <th class="column-title">Notified Beds Other </th>
+                            <th class="column-title">Deployed Beds </th>
+                            <th class="column-title">Admin </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbList">
+                    </tbody>
+                </table>
+                @Html.Partial("_Pagination")
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal BookInvestigation PathalogyModal fade" id="PopUpUnit">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header align-items-center">
+                <h4 class="BookTxt"><img src="/Imgs/Examination.png" alt="">Add New Unit</h4>
+                <button type="button" data-dismiss="modal">X</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="x_content">
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="heard">Name *:</label>
+                                <input type="text" id="txtNameUnit" class="form-control" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button class="btn btn-secondary SaveBtn mr-4" onclick="AddUpdateUnit(this)">Save Now</button>
+                <button type="button" class="btn btn-secondary CancelBtn btnClosePopup" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="display:none;">
+    <table>
+        <tbody id="tbTempt">
+            <tr>
+                <td>{#department#}</td>
+                <td>{#unit#}</td>
+                <td>{#discipline#}</td>
+                <td>{#speciality#}</td>
+                <td>{#bedsER#}</td>
+                <td>{#bedsICU#}</td>
+                <td>{#bedsWards#}</td>
+                <td>{#bedsOther#}</td>
+                <td>{#bedsDep#}</td>
+                <td>{#admin#}</td>
+                <td>
+                    <a id="{#bedId#}" title="Edit" class="ank ankEidt" href="#"><i class="fa fa-pencil-square-o"></i></a>
+                    &nbsp;|&nbsp;
+                    <a id="{#bedId#}" hospitalId="{#hospitalId#}" title="Delete" class="ank ankDelete" href="#"><i class="fa fa-trash-o"></i></a>
+
+                </td>
+            </tr>
+        </tbody>
+        <tbody id="tbNoRecord">
+            <tr>
+                <td colspan="13" style="text-align:center;">No record found</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

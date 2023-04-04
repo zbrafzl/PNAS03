@@ -1,0 +1,248 @@
+﻿@{
+    ViewBag.Title = "Grievance - Verification Application";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ContactModel
+@section RenderCss{
+
+    <style>
+
+        .ank:hover {
+            cursor: pointer;
+        }
+
+        .query-new {
+            background-color: #f95454;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        .query-old {
+            background-color: #61aa2f;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        .spdetail {
+            font-size: 12px;
+            font-style: italic;
+            color: #0a26ed;
+            cursor: pointer;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+
+    <script>
+
+        var contactId = 0, isChageAble = false;
+        $(document).ready(function () {
+
+
+            contactId = ConvertToInt($("#hfdId").val());
+
+            isChageAble = $("#hfdChageAble").val();
+
+            //if (contactId == 0) {
+            //    $("#frmApplication").show();
+            //}
+
+            $(".ctrlUnq").prop("disabled", true);
+
+
+
+        });
+
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            var emailId = $("#txtEmail").val().toLowerCase();
+            if (ValidateEmail(emailId) == false) {
+                isOk = false;
+                alert("Please enter valid emailId")
+            }
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+
+                @if (ViewBag != null && ViewBag.message != null)
+                {
+                    var message = ViewBag.message.message;
+                    var classType = "panel-success";
+
+                    if (ViewBag.message.status == false)
+                    {
+                        classType = "panel-danger";
+                        if (String.IsNullOrWhiteSpace(message))
+                        {
+                            message = " Something went wrong.";
+                        }
+                    }
+                    <div id="divMessage" class="col-sm-12">
+                        <div id="divMsg" class="@("panel "+ classType )">
+                            <div class="panel-heading">
+                                <label class="text-center">
+                                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                    <ul id="idErrorMsg" class="ul-err">
+                                        @message
+                                    </ul>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @using (Html.BeginForm("ContactUsSave", "Feedbacks", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+                {
+                    <form class="form-horizontal" style="display:none;">
+                        @Html.HiddenFor(m => m.contact.contactId, new { @id = "hfdId" })
+                        @Html.HiddenFor(m => m.isChangeAble, new { @id = "hfdChageAble" })
+                        @Html.HiddenFor(m => m.contact.typeId, new { @id = "hfdGrievanceTypeId" })
+                        @Html.HiddenFor(m => m.redirectUrl, new { @id = "hfdRedirectUrl" })
+                        <div id="frmApplication" style="display:none;">
+                            <h3 class="heading">Grievance Application</h3>
+                            <hr class="colorgraph">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label> Applicant Name <span class="sprq">*</span></label>
+                                        @Html.TextBoxFor(a => a.contact.name, new { @class = "form-control ctrlUnq", @required = "required", @id = "txtName", @tabindex = "1" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label> PMDC No <span class="sprq">*</span></label>
+                                        @Html.TextBoxFor(a => a.contact.pmdcNo, new { @class = "form-control ctrlUnq", @required = "required", @id = "txtPMDCNo", @tabindex = "1" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label> Email Id <span class="sprq">*</span></label>
+                                        @Html.TextBoxFor(a => a.contact.emailId, new { @class = "form-control ctrlUnq", @required = "required", @id = "txtEmail", @tabindex = "2" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label> Subject <span class="sprq">*</span></label>
+                                        @Html.TextBoxFor(a => a.contact.title, new { @class = "form-control", @required = "required", @id = "txtTitle", @tabindex = "3" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label> Grievance <span class="sprq">*</span></label>
+                                        @Html.TextAreaFor(model => model.contact.question, new { @class = "form-control", @required = "required", @rows = "8", @id = "txtComments", @tabindex = "3" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                                    <div class="col-sm-4">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button type="submit" class="btn btn-app animated-button" style="width:100%">Submit</button>
+                                    </div>
+                                    <div class="col-sm-4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                }
+                @if (Model.listQuestion != null && Model.listQuestion.Count > 0)
+                {
+                    <h3 class="heading">Message/Question</h3>
+                    <hr class="colorgraph">
+                    <div class="main-login main-center">
+                        <div class="row" style="margin: 0px 0px;">
+                            <table class="table mt10">
+                                <thead class="job-th">
+                                    <tr>
+                                        <th style="width:15%;">Subject</th>
+                                        <th style="width:54%;">Grievance</th>
+                                        <th style="width:10%;">Date</th>
+                                        <th style="width:10%;">Status</th>
+                                        <th style="width: 10%; display: none;">View</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.listQuestion)
+                                    {
+                                        <tr class="job-tb">
+                                            <td>@item.title </td>
+                                            <td>@item.question </td>
+                                            <td>
+                                                @item.dated.ToString("dd MM yyyy")<br />
+                                                @item.dated.ToString("HH:mm:ss")
+                                            </td>
+                                            @if (item.totalReply == 0)
+                                            {
+                                                <td>
+                                                    <span class="ank query-new"> Pending </span>
+                                                    <br />  <br />  <br />
+                                                    @if (Model.contact.typeId == 11)
+                                                    {
+                                                        <a class="ank" target="_blank" href="/print/grievance-verification"><span class="ank query-old"> Print </span></a>
+
+                                                    }
+                                                    else if (Model.contact.typeId == 21)
+                                                    {
+                                                        <a class="ank" target="_blank query-old" href="/print/grievance-gazzette"> <span class="ank query-old"> Print </span> </a>
+
+                                                    }
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td>
+                                                    <span class="query-old">Appeared </span> <br />
+                                                </td>
+                                            }
+                                            @if (item.totalReply > 0)
+                                            {
+                                                <td style="display:none;">
+                                                    <a class="ank" title="View Detail" target="_blank" href=@("/contact-detail?id=" + item.contactId)><i class="fa fa-eye"></i></a> <br />
+                                                    <a class="ank" target="_blank" href=@("/contact-detail?id=" + item.contactId)>View</a>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td style="display:none;">
+                                                    <a class="ank" title="Edit" href=@(Model.redirectUrl)><i class="fa fa-edit"></i></a> <br />
+
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>

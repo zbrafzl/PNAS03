@@ -1,0 +1,659 @@
+﻿@{
+    ViewBag.Title = "Supervisor Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.EmployeeModelAdmin
+@section RenderCss{
+    <style>
+
+        .lbl-err {
+            color: #f82a2a;
+        }
+
+        .flup-img {
+            margin: 10px;
+            border: 1px solid;
+        }
+
+        .form-control:focus {
+            border: 2px solid #ced4da !important;
+        }
+
+        .pd-l0 {
+            padding-left: 0px;
+        }
+
+        .lblHdLft {
+            width: 50%;
+            float: left;
+            text-align: left;
+            margin-right: 10px;
+        }
+
+        .lblHdRft {
+            width: 40%;
+            float: left;
+            text-align: left;
+        }
+
+        .lblHead {
+            width: 100%;
+            float: left;
+            text-align: center;
+        }
+
+        .chkbx {
+            display: block;
+            width: 100%;
+            height: calc(1.5em + 0.75rem + 2px);
+            padding: 0.375rem 0.75rem;
+            font-size: 10px;
+            font-weight: 300;
+            line-height: 0.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+
+        .removeImage {
+            border: 1px solid;
+            cursor: pointer;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var employeeId = 0, degreeId = 0, programId = 0, disciplineId = 0, specialityId = 0;
+
+        $(document).ready(function () {
+
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+            $("#txtJoiningDate").datepicker({
+                showOn: "button",
+                buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif",
+                buttonImageOnly: true,
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                setDate: new Date()
+            });
+
+            employeeId = ConvertToInt($("#hfdId").val());
+            $("#hfdImage").val($("#hfdImageProfile").val());
+
+            $("#divSpBds").hide();
+            $("#divSpMbbs").hide();
+
+            if (employeeId > 0) {
+
+                try {
+                    var dated = $("#hfdJoiningDate").val()
+                    $("#txtJoiningDate").val(dated);
+                } catch (e) {
+
+                }
+
+                var image = ConvertToString($("#hfdImage").val());
+                if (image != "") {
+                    $("#imgImage").show();
+                    $("#rmvImage").show();
+                }
+
+
+                programId = ConvertToInt($("#ddlProgram").val());
+                disciplineId = ConvertToInt($("#hfdDisciplineId").val());
+                specialityId = ConvertToInt($("#hfdSpecialityId").val());
+
+                if (programId > 0) {
+                    DDLEventChangeProgram();
+                }
+
+                if (disciplineId > 0)
+                    DDLEventChangeDiscipline();
+
+
+                degreeId = ConvertToInt($("#ddlDegree").val());
+
+
+                var programIds = $("#hfdProgramIds").val();
+
+                if (degreeId == 1 || degreeId == 16) {
+
+                    $("#divSpMbbs").show();
+
+                    if (programIds.indexOf("1") >= 0) {
+                        $("#chkFCPS").prop("checked", true);
+                    }
+                    if (programIds.indexOf("2") >= 0) {
+                        $("#chkMS").prop("checked", true);
+                    }
+                    if (programIds.indexOf("3") >= 0) {
+                        $("#chkMD").prop("checked", true);
+                    }
+
+                }
+                else if (degreeId == 2) {
+                    $("#divSpBds").show();
+
+                    if (programIds.indexOf("4") >= 0) {
+                        $("#chkMDS").prop("checked", true);
+                    }
+                    if (programIds.indexOf("5") >= 0) {
+                        $("#chkFCPSD").prop("checked", true);
+                    }
+                }
+
+            }
+            else {
+
+
+                $("#ddlDegree").val(1);
+
+                $("#divSpBds").hide();
+                $("#divSpMbbs").show();
+
+
+            }
+
+            //DDLEventChangeDiscipline();
+            //$(document).on('change', '#ddlDiscipline', function () {
+            //    disciplineId = ConvertToInt($(this).val());
+            //    $("#hfdSpecialityId").val(0);
+            //    DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+            //    if (disciplineId > 0)
+            //        DDLEventChangeDiscipline();
+            //});
+
+
+            $(document).on('change', '#ddlDegree', function () {
+
+
+                degreeId = ConvertToInt($(this).val());
+
+                $("#divSpBds").hide();
+                $("#divSpMbbs").hide();
+
+                if (degreeId == 1 || degreeId == 16) {
+                    $("#divSpMbbs").show();
+                    DDLEventChangeDegree();
+                }
+                else if (degreeId == 2) {
+                    $("#divSpBds").show();
+                }
+
+            });
+
+            $(document).on('change', '#ddlProgram', function () {
+
+
+                programId = ConvertToInt($(this).val());
+
+                DDLSetToDefault("ddlDiscipline", 'Select One', 0);
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+                disciplineId = 0;
+                specialityId = 0;
+
+                if (programId > 0) {
+                    DDLEventChangeProgram();
+                }
+            });
+
+            $(document).on('change', '#ddlDiscipline', function () {
+
+
+                disciplineId = ConvertToInt($(this).val());
+
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+                specialityId = 0;
+
+                if (disciplineId > 0) {
+                    DDLEventChangeDiscipline();
+                }
+            });
+
+
+
+
+        });
+
+
+        function DDLEventChangeDegree() {
+
+        }
+
+        function DDLEventChangeProgram() {
+
+
+            var obj = {};
+            obj.typeId = programId;
+            obj.search = "ByProgram";
+            var listResp = CallActionPost("/Common/DDLGetDiscipline", obj);
+
+            var ddlItem = {};
+
+            if (listResp != null && listResp.length > 0) {
+
+                for (var i = 0; i < listResp.length; i++) {
+                    ddlItem = listResp[i];
+                    $("#ddlDiscipline").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                }
+
+                if (disciplineId == 0) {
+
+                    if (listResp.length == 1) {
+                        disciplineId = listResp[0].value;
+                        DDLEventChangeDiscipline();
+                    }
+                }
+
+            }
+            $("#ddlDiscipline").val(disciplineId);
+        }
+
+        function DDLEventChangeDiscipline() {
+
+
+            DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+
+
+            var obj = {};
+            obj.typeId = programId;
+            obj.parentId = disciplineId;
+            obj.search = "ByDispline";
+            var listResp = CallActionPost("/Common/DDLGetSpeciality", obj);
+
+            var ddlItem = {};
+
+            if (listResp != null && listResp.length > 0) {
+
+                for (var i = 0; i < listResp.length; i++) {
+                    ddlItem = listResp[i];
+                    $("#ddlSpeciality").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                }
+
+                if (specialityId == 0) {
+                    if (listResp.length == 1) {
+                        specialityId = listResp[0].value;
+                    }
+                }
+            }
+
+            $("#ddlSpeciality").val(specialityId);
+        }
+
+        function SetValueAndValidateForm(event) {
+
+            var ctrl = "";
+            $(".lbl-err").hide();
+            $(".req-fld").removeClass("req-fld");
+
+            var isOk = true;
+
+            try {
+
+                var obj = {};
+                obj.employeeId = ConvertToInt($("#hfdId").val());
+                obj.cellNo = ConvertToString($("#txtCellNo").val());
+
+                var respMsg = CallActionPost("/EmployeeAdmin/EmployeeIsExistsCellNo", obj);
+
+                if (respMsg.status == false) {
+
+                    isOk = false;
+                    $("#txtCellNo").addClass("req-fld");
+                    
+                    $("#spnCellNo").show();
+                   
+                    if (ctrl == "")
+                        ctrl = "txtCellNo";
+
+                    alert(respMsg.msg);
+                }
+
+            } catch (e) {
+                isOk = true;
+            }
+
+            if (isOk == true) {
+
+                try {
+
+                    var obj = {};
+                    obj.employeeId = ConvertToInt($("#hfdId").val());
+                    obj.cnic = ConvertToString($("#txtCNIC").val());
+
+                    var respMsg = CallActionPost("/EmployeeAdmin/EmployeeIsExistsCNIC", obj);
+
+                    if (respMsg.status == false) {
+
+                        $("#txtCNIC").addClass("req-fld");
+                        isOk = false;
+
+                        $("#spnCnic").show();
+
+                        if (ctrl == "")
+                            ctrl = "txtCNIC";
+
+                        isOk = false;
+                        alert(respMsg.msg);
+                    }
+
+                } catch (e) {
+                    isOk = true;
+                }
+            }
+
+
+
+            var pageUrl = "/admin/employee-manage";;
+            $("#hfdRedirectUrl").val(pageUrl);
+
+            
+           
+
+            specialityId = $("#ddlSpeciality").val();
+            $("#hfdSpecialityId").val(specialityId);
+            if (specialityId == 0) {
+
+                $("#ddlSpeciality").addClass("req-fld");
+                isOk = false;
+                if (ctrl == "")
+                    ctrl = "ddlSpeciality";
+
+            }
+
+            //hfdProgramIds
+
+            disciplineId = $("#ddlDiscipline").val();
+            $("#hfdDisciplineId").val(disciplineId);
+            if (disciplineId == 0) {
+
+                $("#ddlDiscipline").addClass("req-fld");
+                isOk = false;
+                if (ctrl == "")
+                    ctrl = "ddlDiscipline";
+
+            }
+
+            var dateJoining = ConvertToString($("#txtJoiningDate").val());
+            if (dateJoining == "") {
+                $("#txtJoiningDate").addClass("req-fld");
+                isOk = false;
+                if (ctrl == "")
+                    ctrl = "txtJoiningDate";
+            }
+
+            $("#hfdDateJoining").val(dateJoining);
+
+            var imageName = "";
+
+            if ($("#flImage").val()) {
+
+                var guid = CreateGuid();
+                imageName = UploadImageAdmin("flImage", 0, guid, 0, "/images/employee/");
+                $("#hfdImage").val(imageName);
+            }
+            $("#hfdImageProfile").val($("#hfdImage").val());
+
+            var programIds = "";
+
+            if (degreeId == 1 || degreeId == 16) {
+
+                if ($("#chkFCPS").is(":checked")) {
+                    programIds = ConvertToInt($("#chkFCPS").attr("attrId"));
+                }
+
+                if ($("#chkMS").is(":checked")) {
+                    if (programIds != "")
+                        programIds = programIds + ",";
+                    programIds = programIds + ConvertToInt($("#chkMS").attr("attrId"));
+                }
+
+                if ($("#chkMD").is(":checked")) {
+                    if (programIds != "")
+                        programIds = programIds + ",";
+                    programIds = programIds + ConvertToInt($("#chkMD").attr("attrId"));
+                }
+            }
+            else if (degreeId == 2) {
+
+                if ($("#chkMDS").is(":checked")) {
+                    programIds = ConvertToInt($("#chkMDS").attr("attrId"));
+                }
+
+                if ($("#chkFCSPD").is(":checked")) {
+                    if (programIds != "")
+                        programIds = programIds + ",";
+                    programIds = programIds + ConvertToInt($("#chkFCSPD").attr("attrId"));
+                }
+
+            }
+
+            $("#hfdProgramIds").val(programIds);
+
+
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Supervisor Profile </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/employee-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @using (Html.BeginForm("EmployeeSetupSave", "EmployeeAdmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                        @Html.HiddenFor(m => m.employee.employeeId, new { @id = "hfdId" })
+                        @Html.HiddenFor(m => m.employee.dateJoining, new { @id = "hfdDateJoining" })
+                        @Html.HiddenFor(m => m.employee.image, new { @id = "hfdImageProfile" })
+                        <input id="hfdJoiningDate" name="hfdJoiningDate" type="hidden" value="@Model.employee.joiningDate.ToString("dd/MM/yyyy")">
+                        @Html.HiddenFor(m => m.redirectUrl, new { @id = "hfdRedirectUrl" })
+                        @Html.HiddenFor(m => m.employeeSpeciality.id, new { @id = "hfdIdDetail" })
+                        @Html.HiddenFor(m => m.employeeSpeciality.disciplineId, new { @id = "hfdDisciplineId" })
+                        @Html.HiddenFor(m => m.employeeSpeciality.specialityId, new { @id = "hfdSpecialityId" })
+                        @Html.HiddenFor(m => m.employee.programIds, new { @id = "hfdProgramIds" })
+                        <fieldset>
+                            <legend> Personal Info  </legend>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <label for="heard">Full Name as per posting/transfer orders *:</label>
+                                    @Html.TextBoxFor(a => a.employee.name, new { @class = "form-control", @required = "required", @id = "txtName", @tabindex = "1", placeholder = "Name as per posting/transfer orders" })
+                                </div>
+                                <div class="col-md-2 col-sm-2 col-xs-2" style="display:none;">
+                                    <label for="heard">Relation Type :</label>
+                                    @Html.DropDownListFor(a => a.employee.relationId, new SelectList(Model.listRelation, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "2" })
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4" style="display:none;">
+                                    <label for="heard">Relation :</label>
+                                    @Html.TextBoxFor(a => a.employee.relationName, new { @class = "form-control", @id = "txtName", @tabindex = "3" })
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="col-md-4 col-sm-4 col-xs-4 pd-l0">
+                                        <label for="heard">Gender *:</label>
+                                        @Html.DropDownListFor(a => a.employee.genderId, new SelectList(Model.listGender, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlGender", @tabindex = "4", @required = "required" })
+                                    </div>
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <label for="heard">Martial Status :</label>
+                                        @Html.DropDownListFor(a => a.employee.martialStatusId, new SelectList(Model.listMartialStatus, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlMartialStatus", @tabindex = "5" })
+                                    </div>
+                                    <div class="col-md-4 col-sm-4 col-xs-4 ">
+                                        <label for="heard">Designation *:</label>
+                                        @Html.DropDownListFor(a => a.employee.designationId, new SelectList(Model.listDesignation, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlDesignation", @tabindex = "6", @required = "required" })
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-6  pd-l0">
+                                        <label for="heard">Cell No *:<span id="spnCellNo" class="lbl-err" style="display:none;" > Already exists</span> </label>
+                                        @Html.TextBoxFor(a => a.employee.cellNo, new { @class = "form-control numeric", @required = "required", @id = "txtCellNo", @len = "11", @tabindex = "7" })
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-6">
+                                        <label for="heard">Cnic *:<span id="spnCnic" class="lbl-err" style="display:none;" > Already exists</span></label>
+                                        @Html.TextBoxFor(a => a.employee.cnic, new { @class = "form-control numeric", @required = "required", @id = "txtCNIC", @len = "13", @tabindex = "8" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="form-group">
+                                            <label for="" style="width:100%; float:left; clear:both;"> Profile Image  </label>
+                                            <input type="file" class="form-control flup" name="flImage" id="flImage" tabindex="8" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <input type="hidden" id="hfdImage" value="@(Model.employee.image)" />
+                                        <img id="imgImage" class="flup-img" src="@("/Images/employee/"+ Model.employee.image)" alt="" style="display:none;" />
+                                        <a id="rmvImage" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <label for="heard">City *:</label>
+                                    @Html.DropDownListFor(a => a.employee.districtId, new SelectList(Model.listDistrict, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlCity", @tabindex = "9" })
+                                </div>
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <label for="heard">Address *:</label>
+                                    @Html.TextBoxFor(a => a.employee.address, new { @class = "form-control", @id = "txtAddress", @tabindex = "10", @required = "required" })
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend> Basic Qualification  </legend>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <label for="heard">Quaification *: </label>
+                                    @Html.DropDownListFor(a => a.employee.degreeId, new SelectList(Model.listDegree, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlDegree", @tabindex = "11", @required = "required" })
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <div id="divSpMbbs" style="display:none;">
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <label class="lblHead" for="heard">Supervisor of :</label>
+                                        </div>
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <label class="lblHead" for="heard">FCPS</label>
+                                            <input type="checkbox" id="chkFCPS" attrId="1" class="chkbx" tabindex="11" />
+                                        </div>
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <label class="lblHead" for="heard">MS</label>
+                                            <input type="checkbox" id="chkMS" attrId="2" class="chkbx" tabindex="11" />
+                                        </div>
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <label class="lblHead" for="heard">MD</label>
+                                            <input type="checkbox" id="chkMD" attrId="3" class="chkbx" tabindex="11" />
+                                        </div>
+                                    </div>
+                                    <div id="divSpBds" style="display:none;">
+                                        <div class="col-md-4 col-sm-4 col-xs-4">
+                                            <label class="lblHead" for="heard">Supervisor of : </label>
+                                        </div>
+                                        <div class="col-md-4 col-sm-4 col-xs-4">
+                                            <label class="lblHead" for="heard">MDS</label>
+                                            <input type="checkbox" id="chkMDS" attrId="4" class="chkbx" tabindex="11" />
+                                        </div>
+                                        <div class="col-md-4 col-sm-4 col-xs-4">
+                                            <label class="lblHead" for="heard">FCPS-Dentestity</label>
+                                            <input type="checkbox" id="chkFCSPD" attrId="5" class="chkbx" tabindex="11" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend> Specialization Details  </legend>
+                            <div class="form-group col-lg-12">
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Program *:</label>
+                                    @Html.DropDownListFor(a => a.employeeSpeciality.typeId, new SelectList(Model.listProgram, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlProgram", @tabindex = "12" })
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Specialty *:</label>
+                                    <select id="ddlDiscipline" class="form-control" tabindex="12">
+                                        <option value="0"> Select One </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label for="heard">Sub Specialty *:</label>
+                                    <select id="ddlSpeciality" class="form-control" tabindex="12">
+                                        <option value="0"> Select One </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="form-group col-lg-12 pd-l0">
+                            <div class="col-md-6 col-sm-6 col-xs-6 pd-l0">
+                                <fieldset>
+                                    <legend> Posting/Joining Date  </legend>
+                                    @if (Model.loggedInUser.typeId != 81)
+                                    {
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <label for="heard">Hospital *:</label>
+                                            @Html.DropDownListFor(a => a.employee.hospitalId, new SelectList(Model.listHospital, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlCity", @tabindex = "13" })
+                                        </div>
+                                    }
+                                    <div class="col-md-6 col-sm-6 col-xs-6">
+                                        <label for="heard">Joining Date *:</label>
+                                        <input type="text" id="txtJoiningDate" name="txtJoiningDate" class="form-control" tabindex="13" autocomplete="off" />
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-3" style="display:none;">
+                                        <label class="lblHead" for="heard">Posting Status</label>
+                                        @Html.CheckBoxFor(a => a.employee.isActive, new { @class = "chkbx", @id = "chkActive", @tabindex = "10" })
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <fieldset>
+                                    <legend> Teaching Experience (in Years):  </legend>
+
+                                    <div class="col-md-6 col-sm-6 col-xs-6">
+                                        <label for="heard">Total Experience *:</label>
+                                        @Html.TextBoxFor(a => a.employee.yearExerience, new { @class = "form-control number", @id = "txtYear", @tabindex = "14", @len = "2", @required = "required" })
+                                    </div>
+                                    <div class="col-md-4 col-sm-4 col-xs-4" style="display:none;">
+                                        <label for="heard">Pre Specilization :</label>
+                                        @*@Html.TextBoxFor(a => a.employee.yearExerience, new { @class = "form-control number", @id = "txtYear", @tabindex = "10", @len = "2", @required = "required" })*@
+                                    </div>
+                                    <div class="col-md-4 col-sm-4 col-xs-4" style="display:none;">
+                                        <label for="heard">Total :</label>
+                                        <input type="text" id="txtExperienceTotal" class="form-control" disabled />
+                                    </div>
+
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-9">
+                                <button type="submit" class="btn btn-success" tabindex="15">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,294 @@
+﻿@{
+    ViewBag.Title = "Grievance Gazette Detail";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+
+@model Prp.Sln.GrievanceAdminModel
+@section RenderCss{
+
+    <style>
+
+        .jumbotron {
+            padding: 10px 15px;
+        }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0, appearanceId = 0, applicantId = 0;
+        $(document).ready(function () {
+
+            appearanceId = ConvertToInt($("#hfdAppearanceId").val());
+
+           
+            //ddlAppearanceType
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+            startDate = new Date(2020, 09 - 1, 23);
+            endDate = new Date(2020, 09 - 1, 30);
+
+            $("#txtAppearanceDate").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                setDate: new Date(),
+                startDate: startDate,
+                endDate: endDate
+            });
+
+
+
+            if (appearanceId == 0) {
+
+                $("#ddlAppearanceType").val(1);
+                $("#ddlActionType").val(1);
+
+                //$("#txtAppearanceDate").val();
+            }
+
+
+            $(document).on('change', '#ddlAppearanceType', function () {
+
+                $(".cls-guardian").hide();
+                var AppearanceTypeId = $(this).val();
+                if (AppearanceTypeId == 2) {
+                    $(".cls-guardian").show();
+                }
+            });
+
+
+        });
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+
+            
+            var grievanceIdMain = ConvertToInt($("#hfdGrievanceIdMain").val());
+            $("#hfdGrievanceId").val(grievanceIdMain);
+
+            var appearanceTypeId = ConvertToInt($("#ddlAppearanceType").val());
+
+            var appearanceDate = ConvertToString($("#txtAppearanceDate").val());
+            if (appearanceDate.length == 0) {
+                isOk = false;
+                alert("Please select appearance date")
+            }
+
+            if (appearanceTypeId == 2) {
+
+                var guardianId = ConvertToInt($("#ddlGuardian").val());
+                if (guardianId == 0) {
+                    isOk = false;
+                    alert("Please select Guardian")
+                }
+
+                var guardianName = ConvertToString($("#txtGuardianName").val());
+                if (guardianName.length == 0) {
+                    isOk = false;
+                    alert("Please Enter Guardian Name")
+                }
+
+                var guardianContactNumber = ConvertToString($("#txtGuardianContactNumber").val());
+                if (guardianContactNumber.length == 0) {
+                    isOk = false;
+                    alert("Please Enter Guardian Contact Number")
+                }
+
+            }
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Grievance Gazette Marks List </h2>
+            <div class="clearfix"></div>
+        </div>
+        <fieldset id="frmEmail">
+            <legend> Application Info  </legend>
+            <div class="form-group col-lg-12">
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard" style="width:100%;">Form No</label>
+                    <input type="text" id="btnSendEmail" name="btnSendEmail" value="@(Model.applicant.applicantId)" class="form-control" readonly="readonly" />
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <label for="heard" style="width: 100%;">PMDC No</label>
+                    <input type="text" id="btnSendEmail" name="btnSendEmail" value="@(Model.applicant.pmdcNo)" class="form-control" readonly="readonly" />
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <label for="heard" style="width:100%;">Name</label>
+                    <input type="text" id="btnSendEmail" name="btnSendEmail" value="@(Model.applicant.name)" class="form-control" readonly="readonly" />
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <label for="heard" style="width:100%;">Email</label>
+                    <input type="text" id="btnSendEmail" name="btnSendEmail" value="@(Model.applicant.emailId)" class="form-control" readonly="readonly" />
+                </div>
+            </div>
+            <div class="form-group col-lg-12">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <label for="heard">Application :</label>
+                    <div class="x_content">
+                        <div class="bs-example" data-example-id="simple-jumbotron">
+                            <div class="jumbotron">
+                                @Html.HiddenFor(m => m.grievance.grievanceId, new { @id = "hfdGrievanceIdMain" })
+                                @{
+                                    try
+                                    {
+                                        <p> @Model.grievance.application </p>
+                                    }
+                                    catch (Exception)
+                                    {
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset id="frmEmail">
+            <legend> Action  </legend>
+            @using (Html.BeginForm("SaveGrievanceAppearanceData", "GrievanceAdmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+            {
+                <form class="form-horizontal form-label-left input_mask">
+                    <div class="form-group col-lg-12">
+                        @Html.HiddenFor(m => m.appearance.appearanceId, new { @id = "hfdAppearanceId" })
+                        @Html.HiddenFor(m => m.appearance.grievanceId, new { @id = "hfdGrievanceId" })
+                        @Html.HiddenFor(m => m.appearance.appearanceDate, new { @id = "hfdAppearanceDate" })
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <label for="heard" style="width:100%;">Apearance Type</label>
+                            @Html.DropDownListFor(a => a.appearance.appearanceTypeId, new SelectList(Model.listAppearanceType, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlAppearanceType", @tabindex = "1", @required = "required" })
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <label for="heard" style="width:100%;">Attendance No</label>
+                            @Html.TextBoxFor(a => a.appearance.attendanceNo, new { @class = "form-control", @required = "required", @id = "txtAttendanceNo", @tabindex = "2" })
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <label for="heard" style="width:100%;">Apearance Date</label>
+                            @if (Model.appearance.appearanceId == 0)
+                            {
+                                <input type="text" id="txtAppearanceDate" name="txtAppearanceDate" class="form-control" tabindex="3" />
+                            }
+                            else
+                            {
+                                <input type="text" id="txtAppearanceDate" name="txtAppearanceDate" class="form-control" tabindex="3" value="@(Model.appearance.datedAppearance.ToString("dd/MM/yyyy"))" />
+                            }
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <label for="heard" style="width:100%;">Action Type</label>
+                            @Html.DropDownListFor(a => a.appearance.actionTypeId, new SelectList(Model.listActionType, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlActionType", @tabindex = "4", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12 cls-guardian" style="display:none">
+                        <div class="col-md-2 col-sm-2 col-xs-2">
+                            <label for="heard" style="width: 100%;">Guardian Type</label>
+                            @Html.DropDownListFor(a => a.appearance.guardianId, new SelectList(Model.listGuardian, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlGuardian", @tabindex = "4" })
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4 ">
+                            <label for="heard" style="width:100%;">Guardian Name</label>
+                            @Html.TextBoxFor(a => a.appearance.guardianName, new { @class = "form-control", @id = "txtGuardianName", @tabindex = "4" })
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4 ">
+                            <label for="heard" style="width:100%;">Guardian Contact Number</label>
+                            @Html.TextBoxFor(a => a.appearance.guardianContactNumber, new { @class = "form-control", @id = "txtGuardianContactNumber", @tabindex = "4" })
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="heard" style="width: 100%;">Admin Comments</label>
+                            @Html.TextAreaFor(model => model.appearance.actionComments, new { @class = "form-control", @rows = "3", @id = "txtComments", @tabindex = "5" })
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12">
+                        <div class="col-md-2 col-sm-2 col-xs-2">
+                            <label for="heard" style="width:100%;">&nbsp;</label>
+                            <button type="submit" class="btn btn-success" tabindex="6">Save</button>
+                        </div>
+                        <div class="col-md-8 col-sm-8 col-xs-8">
+                            <label for="heard" style="width:100%;">&nbsp;</label>
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xs-2" >
+                            <label for="heard" style="width:100%;">&nbsp;</label>
+                            <a id="ankRefresh" class="ank btn btn-success" href="@("/admin/grievance-marks-detail?grievanceId="+ Model.appearance.grievanceId)" style="float:right">Refresh </a>
+                        </div>
+                    </div>
+                </form>
+            }
+        </fieldset>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Sr </th>
+                            <th class="column-title">Attendance No </th>
+                            <th class="column-title">Type </th>
+                            <th class="column-title">Guardian </th>
+                            <th class="column-title">Status </th>
+                            <th class="column-title">Appearance Date </th>
+                            <th class="column-title">Admin </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && (Model.listGrievance != null && Model.listGrievance.Count > 0))
+                        {
+                            var sr = 0;
+                            foreach (var item in Model.listGrievance)
+                            {
+                                if (item.appearanceId > 0)
+                                {
+                                    sr = sr + 1;
+                                    <tr>
+                                        <td>@sr</td>
+
+                                        <td>@item.attendanceNo</td>
+                                        @if (item.appearanceTypeId == 1)
+                                        {
+                                            <td>Self</td>
+                                        }
+                                        else if (item.appearanceTypeId == 2)
+                                        {
+                                            <td>Guardian</td>
+                                        }
+                                        <td>@item.guardianName  </td>
+
+                                        <td>@item.actionType</td>
+
+                                        @if (item.adminIdAppearance > 0)
+                                        {
+                                            <td>@item.datedAppearance.ToString("dd MMM yyyy")</td>
+                                        }
+                                        else
+                                        {
+                                            <td>&nbsp;</td>
+                                        }
+                                        <td>@item.adminAppearance</td>
+                                        <td>
+                                            <a title="Make Attendence" class="ank" href="@("/admin/grievance-marks-detail?grievanceId="+ item.grievanceId+"&appearanceId="+item.appearanceId)"><i class="fa fa-pencil-square-o"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

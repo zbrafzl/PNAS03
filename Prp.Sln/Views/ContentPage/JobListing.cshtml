@@ -1,0 +1,205 @@
+﻿
+@{
+    ViewBag.Title = "JobListing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.SpecialityJobModel
+
+@section RenderCss{
+
+    <style>
+
+        td span {
+            line-height: 18px;
+        }
+
+        #divprint {
+            width: 100%;
+            margin: 0 auto;
+            margin-top: 15px;
+            font-family: 'Lato', sans-serif !important;
+        }
+
+        .center-div {
+            margin: auto;
+            width: 50%;
+            padding: 10px;
+            height: 60px;
+        }
+
+        .btn_print {
+            padding: 10px 40px;
+            background-color: #48a0d7;
+            border-radius: 5px
+        }
+
+        .ank {
+            cursor: pointer;
+        }
+
+        .spn-img-view {
+            font-style: italic;
+        }
+
+        .spn-edit {
+            float: right;
+            margin-right: 5px;
+            padding: 1px 6px;
+            background: #fefefe;
+            color: #8b8686;
+        }
+
+            .spn-edit:hover {
+                background: #e9e0e0;
+            }
+
+        .imgView {
+            width: 60px;
+            height: 40px;
+            border: 1px solid #ede9e9;
+            width: 30px;
+            height: 20px;
+        }
+
+
+        .text-center {
+            text-align: center;
+            text-align: -webkit-center;
+            text-align: -moz-center;
+        }
+
+        .top_detail tr td:nth-child(2n) {
+            border-bottom: 1px solid #000;
+        }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var typeId = 0;
+
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+            $("#ddlType").val(typeId);
+            $(document).on('change', '#ddlType', function () {
+                typeId = $(this).val();
+                window.location.href = "/induction/jobs-post?typeId=" + typeId;
+            });
+
+            $(document).on('click', '.btn_print', function () {
+
+                printDiv();
+
+            });
+
+        });
+
+        function printDiv() {
+
+            var result = false;
+            try {
+
+                var divToPrint = document.getElementById('divprint');
+                var newWin = window.open('', 'Print-Window');
+                newWin.document.open();
+                newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+                newWin.document.close();
+                setTimeout(function () { newWin.close(); }, 10);
+                result = true;
+
+            } catch (e) {
+                result = false;
+            }
+            return result;
+        }
+    </script>
+}
+<div class="container" style=" margin-bottom:60px;">
+    <div class="row main">
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal">
+                    <h3 class="heading">
+                        Job post list
+                    </h3>
+                    <div class="col-sm-12" style="display:none;">
+                        <div class="center-div">
+                            <a class="btn btn-app animated-button btn_print"><i class="fa fa-save"></i> &nbsp; Print </a>
+                        </div>
+                    </div>
+                    <div class="row cols-sm-12">
+                        <input type="hidden" id="hfdTypeId" value="@(Model.typeId)" />
+                        <div class="center-div">
+                            Select Type :
+
+                            <select id="ddlType" name="ddlType" class="form-control">
+                                @foreach (var item in Model.listDegreeType)
+                                {
+                                    <option value="@(item.id)"> @item.name </option>
+                                }
+                            </select>
+                        </div>
+
+
+                    </div>
+                    <div>
+                        <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
+                            @{
+                                if (Model.listQouta != null && Model.listQouta.Count > 0)
+                                {
+                                    foreach (var qt in Model.listQouta)
+                                    {
+                                        var listSpecility = Model.listSpecialityJob.Where(x => x.quotaId == qt.id).ToList();
+                                        if (listSpecility != null && listSpecility.Count > 0)
+                                        {
+                                            var sr = 0;
+                                            <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                            <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                                                @qt.name
+                                                            </p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sr.</th>
+                                                        <th>Sepecility</th>
+                                                        <th> Hospital</th>
+                                                        <th> Seats</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var spc in listSpecility.OrderBy(x => x.specialityName))
+                                                    {
+                                                        sr = sr + 1;
+                                                        <tr>
+                                                            <td>@sr</td>
+                                                            <td>@spc.specialityName</td>
+                                                            <td>@spc.hospitalName</td>
+                                                            <td>@spc.jobs</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="row cols-sm-12">
+                        &nbsp; &nbsp; &nbsp; &nbsp;
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,811 @@
+﻿@{
+    ViewBag.Title = "Applicant Exprience";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ProfileModel
+@section RenderCss{
+
+    <style>
+        .ank {
+            cursor: pointer;
+        }
+
+        .grid-img {
+            width: 60px;
+            height: 40px;
+            border: 1px solid #ede9e9;
+        }
+
+        .chosen-single {
+            height: 40px;
+        }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, objApplicant = {}, imagesPath = "", graduateType = 0;
+
+        var objHouse = {}, objHouseList = [], houseJobId = 0, proviceIdJob = 196, typeIdJob = 1, instituteIdJob = 0, applicantJobIdLast = 0;
+
+        var objExprience = {}, objExprienceList = [], applicantExperienceId = 0, applicantExperienceIdLast = 0, isCurrentExist = false;
+
+        var objDistinction = {}, objDistinctionList = [], applicantDistinctionId = 0, totalNoOfDistinction = 0, applicantDistinctionIdLast = 0;
+
+        $(document).ready(function () {
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            imagesPath = "/Images/Applicant/" + applicantId + "/";
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+
+            var endDate = new Date(2022, 2 - 1, 07)
+
+            $("#txtExpDateStart").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                endDate: new Date(),
+                showOnFocus: true,
+                changeYear: true
+            }).on('changeDate', function (e) {
+                $("#txtExpDateEnd").datepicker('setStartDate', $("#txtExpDateStart").val());
+            });
+
+            $("#txtExpDateEnd").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                endDate: new Date(),
+                showOnFocus: true,
+                changeYear: true
+            }).on('changeDate', function (e) {
+                $("#txtExpDateStart").datepicker('setEndDate', $("#txtExpDateEnd").val());
+            });
+
+            $(document).on('change', '#ddlLevel', function () {
+                var levelId = $(this).val();
+
+                $("#ddlLevelType").empty();
+                $("#ddlHospital").empty();
+                if (levelId > 0) {
+                    BindLevelTypeDDL(levelId, 1);
+
+                    BindHospitalDDL(levelId, 1, 0);
+                }
+            });
+
+            $(document).on('change', '#ddlLevelType', function () {
+
+
+                var levelId = $("#ddlLevel").val();
+
+                var typeId = $(this).val();
+
+                $("#ddlHospital").empty();
+                if (typeId > 0) {
+                    BindHospitalDDL(levelId, typeId, 0);
+                }
+            });
+
+            $(document).on('click', '#btnExpSave', function () {
+                SaveExperienceDate();
+            });
+
+            $(document).on('click', '#chkIsCurrent', function () {
+
+                var status = $("#chkIsCurrent").is(':checked');
+
+                $("#divTxtExpDateEnd").show();
+                if (status == true) {
+                    $("#divTxtExpDateEnd").hide();
+
+                }
+            });
+
+            $(document).on('click', '.ankEdit', function () {
+
+                var idAttr = $(this).attr("id");
+                applicantExperienceId = ConvertToInt(idAttr.replace("ankEdit", ""));
+
+                objExprience = $.grep(objExprienceList, function (n, i) {
+                    return n.applicantExperienceId == applicantExperienceId;
+                })[0];
+
+
+                BindExprienceForm();
+
+            });
+
+            $(document).on('click', '.ankDel', function () {
+
+                var idAttr = $(this).attr("id");
+                applicantExperienceId = ConvertToInt(idAttr.replace("ankDel", ""));
+
+                if (applicantExperienceId > 0 && confirm('Are you sure you want to do delete this?')) {
+                    DeleteExprience();
+                }
+            });
+
+            // House Job
+            $("#txtDateStartJob").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                endDate: new Date(),
+                showOnFocus: true,
+                changeYear: true
+            }).on('changeDate', function (e) {
+                $("#txtDateEndJob").datepicker('setStartDate', $("#txtDateStartJob").val());
+            });
+
+            $("#txtDateEndJob").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                endDate: endDate,
+                showOnFocus: true,
+                changeYear: true
+            }).on('changeDate', function (e) {
+                $("#txtDateStartJob").datepicker('setEndDate', $("#txtDateEndJob").val());
+            });
+
+            $("#ddlProvinceJob").val(proviceIdJob);
+            $("#ddlTypeJob").val(typeIdJob);
+
+            $("#divJobHospitalTxt").hide();
+            $("#divJobHospitalIsSame").hide();
+
+            if (proviceIdJob == 196 && typeIdJob == 1) {
+                $("#divJobHospitalDll").show();
+            }
+
+            if (proviceIdJob == 196) {
+                $("#divJobHospitalIsSame").show();
+            }
+
+            $(document).on('change', '#ddlProvinceJob', function () {
+
+                proviceIdJob = ConvertToInt($("#ddlProvinceJob").val());
+
+                $("#divJobHospitalDll").hide();
+                $("#divJobHospitalTxt").hide();
+                $("#divJobHospitalIsSame").hide();
+
+                if (proviceIdJob == 196 && typeIdJob == 1) {
+                    $("#divJobHospitalDll").show();
+                }
+                else {
+                    $("#divJobHospitalTxt").show();
+                }
+
+
+                if (proviceIdJob == 196) {
+                    $("#divJobHospitalIsSame").show();
+                }
+
+            });
+
+            $(document).on('change', '#ddlTypeJob', function () {
+
+                typeIdJob = ConvertToInt($("#ddlTypeJob").val());
+
+                proviceIdJob = ConvertToInt($("#ddlProvinceJob").val());
+
+                $("#divJobHospitalDll").hide();
+                $("#divJobHospitalTxt").hide();
+
+                if (proviceIdJob == 196 && typeIdJob == 1) {
+                    $("#divJobHospitalDll").show();
+                }
+                else {
+                    $("#divJobHospitalTxt").show();
+                }
+
+            });
+
+            $(document).on('click', '.ankJobEdit', function () {
+
+                var idAttr = $(this).attr("id");
+                houseJodId = ConvertToInt(idAttr.replace("ankJobEdit", ""));
+
+                objHouse = $.grep(objHouseList, function (n, i) {
+                    return n.houseJodId == houseJodId;
+                })[0];
+
+                BindJobForm();
+
+            });
+
+            $(document).on('click', '.ankJobDel', function () {
+
+                var idAttr = $(this).attr("id");
+                houseJodId = ConvertToInt(idAttr.replace("ankJobDel", ""));
+
+                if (houseJodId > 0 && confirm('Are you sure you want to do delete this?')) {
+                    DeleteJob();
+                }
+            });
+
+
+            $(document).on('click', '#btnSaveJob', function () {
+                SaveJobData();
+            });
+
+
+            // Common
+            $(document).on('click', '#ankContinue', function () {
+
+                var table = $(".mt10 #tbExpList");
+                var sum = 0;
+                table.find('.job-tb').each(function (i) {
+                    var $tds = $(this).find('td'),
+                        Quantity = parseInt($tds.eq(6).text());
+                    //alert('Row ' + (i + 1) + '\nQuantity: ' + Quantity);
+                    sum += Quantity;
+                });
+                if (sum < 730) {
+                    alert('Experiece of minimum two years required');
+                }
+                else {
+                    $('#ankContinue').attr("href", "/applicant-speciality");
+                    CallActionGet("/ApplicantProfile/UpdateApplicantStatus?applicantId=" + applicantId
+                        + "&applicationStatus=5");
+
+                    window.location = "/applicant-speciality";
+                    
+                }
+                
+            });
+
+
+            // On Page load
+
+            // Experience
+            $("#ddlLevelType").val(23);
+            BindLevelTypeDDL(23, 1);
+            BindHospitalDDL(23, 1, 0);
+            $("#ddlProvince").val(196);
+            GetApplicantExpList();
+            //ClearExprienceForm();
+
+
+            //GetApplicantDistinctionList();
+
+            //GetApplicantJobList();
+
+            //BindHospitalDDLJob();
+            $("#divJobHospitalDll").show();
+
+            $('td:nth-child(7),th:nth-child(7)').hide();
+            $('td:nth-child(9),th:nth-child(9)').hide();
+
+
+        });
+
+
+        /*----- ***************** Experience *****************************
+        --------------------------------------------------------------------------- */
+
+        function BindLevelTypeDDL(levelId, levelTypeId) {
+
+            $("#ddlLevelType").empty();
+
+            var list = CallActionGet("/Common/ConstantGetByType?typeId=" + levelId);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (levelTypeId == ddlItem.id)
+                        $("#ddlLevelType").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlLevelType").append("<option  value='" + ddlItem.id + "'>" + ddlItem.name + "</option>");
+                }
+            }
+
+        }
+
+        function BindHospitalDDL(levelId, typeId, hospitalId) {
+
+            $("#ddlHospital").empty();
+
+            var obj = {};
+            obj.instituteId = levelId;
+            obj.typeId = typeId;
+            obj.condition = "ByLevelAndType";
+
+            $("#ddlHospital").append("<option  value='0'> Select One </option>")
+
+            var list = CallActionPost("/Common/HospitalGetForDDL", obj);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (hospitalId == ddlItem.id)
+                        $("#ddlHospital").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    else $("#ddlHospital").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+            }
+
+            $('#ddlHospital').trigger("chosen:updated");
+
+        }
+
+        function SaveExperienceDate() {
+
+            if (ValidateExperienceFrom() == false) {
+                //alert(objExprience.applicantExperienceId);
+                var resp = CallActionPost("/ApplicantProfile/ApplicantExperienceAddUpdate", objExprience);
+                if (resp != null && resp.status == true) {
+                    console.log(resp);
+
+                    location.reload();
+                    //ClearExprienceForm();
+                    //GetApplicantExpList();
+                }
+                else {
+                    //alert("this");
+                    //console.log(resp);
+                    alert(resp.msg);
+                }
+            }
+
+        }
+
+        function ValidateExperienceFrom() {
+
+            //var sum = 0;
+            //$('.table td:nth-child(6)').each(function () {
+            //    sum += parseInt($(this).text());
+            //})
+            //console.log(sum);
+            
+            //$('tr').each(function () {
+            //    //the value of sum needs to be reset for each row, so it has to be set inside the row loop
+            //    var sum = 0
+            //    //find the combat elements in the current row and sum it 
+            //    $(this).find('#mt10 > tbody  > tr > td:nth-child(6)').each(function () {
+            //        var combat = $(this).text();
+            //        if (!isNaN(combat) && combat.length !== 0) {
+            //            sum += parseFloat(combat);
+            //        }
+            //    });
+            //    alert(sum);
+            //});
+
+            var isError = false, ctrl = "";
+            $(".lbl-err").hide();
+            $(".req-fld").removeClass("req-fld");
+
+            objExprience = {};
+            //alert(ConvertToInt($("#txtExpHfdId").val()));
+            objExprience.applicantExperienceId = ConvertToInt($("#txtExpHfdId").val())
+            objExprience.applicantId = applicantId;
+            objExprience.levelId = ConvertToInt($("#ddlLevel").val());
+            objExprience.levelTypeId = ConvertToInt($("#ddlLevelType").val());
+            objExprience.instituteId = ConvertToInt($("#ddlHospital").val());
+
+
+            //objHouse.startDateStr = "";
+            //if (ValidateDate("txtDateStartJob")) {
+            //    objHouse.startDateStr = ConvertToString($("#txtDateStartJob").val());
+            //}
+
+            objExprience.startDated = "";
+            if (ValidateDate("txtExpDateStart")) {
+                objExprience.startDated = ConvertToString($("#txtExpDateStart").val());
+            }
+
+            objExprience.endDate = "";
+            if (ValidateDate("txtExpDateEnd")) {
+                objExprience.endDate = ConvertToString($("#txtExpDateEnd").val());
+            }
+
+            objExprience.instituteName = "";
+
+            objExprience.provinceId = ConvertToInt($("#ddlProvince").val());
+            objExprience.typeId = ConvertToInt($("#ddlType").val());
+
+            //objExprience.isCurrent = $("#chkIsCurrent").is(':checked');
+
+
+
+            if (applicantExperienceIdLast == 0)
+                applicantExperienceIdLast = 1;
+            else applicantExperienceIdLast = applicantExperienceIdLast + 1;
+
+            var fileName = "Experience" + "_";
+            if (objExprience.applicantExperienceId == 0)
+                fileName = "a_" + fileName + applicantExperienceIdLast;
+            else if (objExprience.applicantExperienceId > 0)
+                fileName == "b_" + fileName + objExprience.applicantExperienceId;
+
+
+            if ($("#flExp").val()) {
+                objExprience.imageExperience = UploadImage("flExp", applicantId, fileName);
+                $("#hfdExp").val(objExprience.imageExperience);
+            }
+            objExprience.imageExperience = $("#hfdExp").val();
+
+
+            if (objExprience.instituteId == 0) {
+                $("#ddlHospital").addClass("req-fld");
+                ctrl = "ddlHospital";
+                isError = true;
+            }
+
+
+            if (objExprience.levelTypeId == 0) {
+
+                $("#ddlLevelType").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlLevelType";
+            }
+
+            if (objExprience.startDated == "") {
+
+                $("#txtExpDateStart").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtExpDateStart";
+            }
+
+            if (objExprience.isCurrent == false && objExprience.endDate == "") {
+
+                $("#txtExpDateEnd").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtExpDateEnd";
+            }
+
+            if (objExprience.imageExperience == "") {
+
+                $("#flExp").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "flExp";
+            }
+
+            //if (isCurrentExist && objExprience.isCurrent) {
+
+            //    $("#chkIsCurrent").addClass("req-fld");
+            //    isError = true;
+            //    if (ctrl == "")
+            //        ctrl = "chkIsCurrent";
+
+            //    alert("More then 1 current experience can't allowed.")
+            //}
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
+
+        function GetApplicantExpList() {
+
+            var resp = CallActionGet("/ApplicantProfile/GetApplicantExperienceData?applicantId=" + applicantId);
+            if (resp != null && resp.length > 0) {
+                objExprienceList = resp;
+                BindPenelExprienceList();
+            }
+        }
+
+        function BindPenelExprienceList() {
+
+            var objItem = {};
+
+            var expTem = $("#tbExpTemplate").html();
+            $("#divExpList").hide();
+            $("#tbExpList").html("");
+            applicantExperienceIdLast = 0;
+            isCurrentExist = false;
+            console.log(objExprienceList);
+            var htmlExpAll = "", htmlExp = "", isCurrent = "No";
+            if (objExprienceList != null && objExprienceList.length > 0) {
+
+                for (var i = 0; i < objExprienceList.length; i++) {
+                    console.log(objExprienceList);
+                    htmlExp = expTem;
+                    objItem = objExprienceList[i];
+
+                    if (isCurrentExist == false)
+                        isCurrentExist = objItem.isCurrent;
+
+                    isCurrent = "No";
+                    if (objItem.isCurrent)
+                        isCurrent = "Yes";
+
+                    applicantExperienceIdLast = objItem.applicantExperienceId;
+
+
+                    htmlExpAll = htmlExpAll + htmlExp.replace(/{#image#}/g, imagesPath + objItem.imageExperience)
+                        .replace(/{#Institute#}/g, objItem.levelName + " " + objItem.levelTypeName).replace(/{#name#}/g, objItem.instituteName)
+                        .replace(/{#startDate#}/g, ToDateFormatDDMMYYYWithSlash(JsonToDate(objItem.startDated)))
+                        .replace(/{#endDate#}/g, ToDateFormatDDMMYYYWithSlash(JsonToDate(objItem.endDate))) 
+                        .replace(/{#noOfMonth#}/g, objItem.noOfMonth + " months").replace(/{#isCurrent#}/g, isCurrent)
+                        .replace(/{#noOfDays#}/g, objItem.noOfDays + " days").replace(/{#isCurrent#}/g, isCurrent)
+                        .replace(/{#provinceName#}/g, objItem.provinceName).replace(/{#typeName#}/g, objItem.typeName)
+                        .replace(/{#expId#}/g, objItem.applicantExperienceId);
+                }
+                $("#divExpList").show();
+            }
+
+            $("#tbExpList").html(htmlExpAll);
+
+        }
+
+        function BindExprienceForm() {
+
+
+            $("#ddlLevel").val(objExprience.levelId);
+            BindLevelTypeDDL(objExprience.levelId, objExprience.levelTypeId);
+            $("#ddlLevelType").val(objExprience.levelTypeId);
+
+            BindHospitalDDL(objExprience.levelId, objExprience.levelTypeId, objExprience.instituteId);
+            $("#ddlHospital").val(objExprience.instituteId);
+
+
+            $("#ddlProvince").val(objExprience.provinceId);
+            $("#ddlType").val(objExprience.typeId);
+
+            $("#txtExpHfdId").val(objExprience.applicantExperienceId);
+
+            //$("#txtExpDateStart").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objExprience.startDated)));
+            //$("#txtExpDateEnd").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objExprience.endDate)));
+
+
+            if (objExprience.isCurrent) {
+
+                $("#chkIsCurrent").attr("checked", "checked");
+                $("#txtExpDateEnd").val("");
+            }
+            else $("#txtExpDateEnd").datepicker('setDates', ToDateFormatDDMMYYYWithSlash(JsonToDate(objExprience.endDate)));
+
+            $("#txtExpDateStart").datepicker('setDates', ToDateFormatDDMMYYYWithSlash(JsonToDate(objExprience.startDated)));
+
+            $("#hfdExp").val("");
+            if (objExprience.imageExperience.length > 0) {
+                $('#imgExp').attr('src', imagesPath + objExprience.imageExperience);
+                $('#imgExp').show();
+                $('#rmvExp').show();
+                $("#hfdExp").val(objExprience.imageExperience);
+            }
+
+        }
+
+        function DeleteExprience() {
+            isCurrentExist = false;
+
+            var resp = CallActionGet("/ApplicantProfile/ApplicantExperienceDeleteSingle?applicantExperienceId=" + applicantExperienceId);
+
+            location.reload();
+
+            //ClearExprienceForm();
+            //GetApplicantExpList();
+
+        }
+
+        function ClearExprienceForm() {
+
+            $("#ddlLevel").val(23);
+            BindLevelTypeDDL(23, 1);
+            $("#ddlType").val(1);
+
+            $("#txtExpHfdId").val(0);
+            $("#txtExpDateStart").val("");
+            $("#txtExpDateEnd").val("");
+
+            $("#flExp").val(null);
+            $("#hfdExp").val("");
+            $('#imgExp').hide();
+            $('#rmvExp').hide();
+
+            $("#ddlProvince").val(196);
+
+
+
+            $("#chkIsCurrent").attr("checked", false);
+            $("#divTxtExpDateEnd").show();
+
+            BindHospitalDDL(23, 1, 0);
+
+        }
+
+        
+
+    </script>
+
+}
+<div class="container" style="margin-bottom:60px;">
+    <div class="row main">
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="progress mt15">
+                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:58%">
+                                58%
+                            </div>
+                        </div>
+                        <div class="mt15">
+                            <div>
+                                * Minimum Two Year Regular Experince Required
+                            </div>
+
+                        </div>
+                        <div class="mt-action-icon ">
+                            <i class=" icon-bubbles"></i>
+                        </div>
+                        <h3 class="text-center">Experience : Step 3 of 5</h3>
+                        <hr class="colorgraph">
+                        @*Experience*@
+                        <h3 class="pnExperience">Experience  Information</h3>
+                        <div class="row pnExperience">
+                            <div class="col-md-12"> <h5>Add Experience of public institution under punjab health department only. All other public institution experience are not valid </h5></div>
+                        </div>
+                        <hr class="colorgraph pnExperience">
+                        <div class="row pnExperience">
+                            <div id="divExpList" class="col-xs-12 col-sm-12 col-md-12" style="display:none;">
+                                <table class="table mt10" style="display:none">
+                                    <tbody id="tbExpTemplate">
+                                        <tr class="job-tb">
+                                            <td><img src="{#image#}" class="grid-img" /></td>
+                                            <td>{#Institute#}</td>
+                                            <td>{#name#}</td>
+                                            <td>{#startDate#}</td>
+                                            <td>{#endDate#}</td>
+                                            <td>{#noOfMonth#}</td>
+                                            <td>{#noOfDays#}</td>
+                                            <td>{#provinceName#}</td>
+                                            <td>{#typeName#}</td>
+                                            <td>
+                                                <a id="ankEdit{#expId#}" class="ankEdit ank"><i class="fa fa-pencil-square-o"></i></a>&nbsp;|&nbsp;
+                                                <a id="ankDel{#expId#}" class="ankDel ank"><i class="fa fa-trash-o"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table mt10">
+                                    <thead class="job-th">
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Type</th>
+                                            <th>Name</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Duration</th>
+                                            <th>Days</th>
+                                            <th>Province</th>
+                                            <th>Employment Type</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbExpList">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="well pnExperience">
+                            <form role="form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" id="txtExpHfdId" value="0" />
+                                            <label> Institute Level <span class="sprq">*</span></label>
+                                            <select id="ddlLevel" name="ddlLevel" class="form-control">
+                                                <option value="23" selected="selected"> Primary </option>
+                                                <option value="24">Secondary</option>
+                                                <option value="25">Tertiary</option>
+                                                <option value="27">Institute</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Institute Type <span class="sprq">*</span></label>
+                                            <select id="ddlLevelType" name="ddlLevelType" class="form-control">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <div class="form-group">
+                                                <label> Name Of Hospital/Institute <span class="sprq">*</span></label>
+                                                <select id="ddlHospital" name="ddlHospital alpha" class="form-control chosen-select">
+                                                </select>
+                                            </div>
+                                            @*<label> Name of DHQ/THQ/RHCs/Dispincery on Certificate <span class="sprq">*</span></label>
+                            <input type="text" id="txtExpName" name="title" class="form-control" len="100" placeholder="Name of DHQ/THQ/RHCs/Dispincery">*@
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2" style="display:none;">
+                                        <div class="form-group">
+                                            <label> Is Current  </label>
+                                            <input type="checkbox" id='chkIsCurrent' name="chkIsCurrent" class="form-control" value="IsCurrent">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="height:20px; "> </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Date From  <span class="sprq">*</span><span id="spnExpDateStart" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                            <input type="text" id='txtExpDateStart' name="join_date" class="form-control datepicker" placeholder="Date From">
+                                        </div>
+                                    </div>
+                                    <div id="divTxtExpDateEnd" class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Date To <span class="sprq">*</span><span id="spnExpDateEnd" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                            <input type="text" id='txtExpDateEnd' class="form-control datepicker" name="end_date" placeholder="Date To">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4">
+                                        <div class="form-group">
+                                            <label style="width:100%;" for="">Certificate <span class="sprq">*</span></label>
+                                            <input type="file" id="flExp" class="form-control flup" tabindex="1">
+                                            <input type="hidden" id="hfdExp" value="" />
+                                            <img id="imgExp" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvExp" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Province  <span class="sprq">*</span></label>
+                                            <select id="ddlProvince" name="ddlProvince" class="form-control" tabindex="1">
+                                                @foreach (var u in Model.listProvince)
+                                                {
+                                                    <option value="@u.regionId"> @u.name </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label> Type of Employment <span class="sprq">*</span></label>
+                                            <select id="ddlType" name="ddlType" class="form-control" tabindex="1">
+                                                <option value="1" selected="selected">Regular </option>
+                                                <option value="2">Contract </option>
+                                                <option value="3">Adhoc </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label style="width:100%;"> &nbsp;  </label>
+                                            <input type="button" id="btnExpSave" name="submit" class="btn mybtn animated-button" value="Save Exprience" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-4">
+            </div>
+            <div class="col-sm-6">
+                <a id="ankContinue" href="" class="btn btn-lg mb10 mt5 pull-right btn-red" value=""> Continue &nbsp;&nbsp;<i class="fa fa-arrow-right"></i></a>
+                &nbsp;&nbsp;
+                <a href="/applicant-education" class="btn btn-lg mb10 mt5 pull-right btn-blue" style="margin-right:10px; margin-top: 6px;"> <i class="fa fa-arrow-left"></i> &nbsp;&nbsp;Previous &nbsp;&nbsp;</a>
+            </div>
+            @Html.Partial("_NotePageBottom")
+        </div>
+    </div>
+</div>

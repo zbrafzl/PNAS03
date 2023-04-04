@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = "Application Completed List";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.VerificationModel
+@section RenderCss{
+
+
+
+}
+@section RenderScript{
+
+    <script>
+        var countryTypeId = 0, perPageRecords = 10, pageNum = 1, totalCount = 0, startDate, endDate, obj = {};
+       
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            $("#hfdStatusId").val(0);
+            $("#hfdCondition").val("");
+            $("#hfdpageUrl").val("/admin/applicant/verify-list-view");
+            $("#hfdTop").val(6000);
+            $("#hfdPageNo").val(1);
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+
+
+        @using (Html.BeginForm("ExportDataToExcelAndDownload", "VerficationProcess", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+        {
+
+            @Html.HiddenFor(m => m.verification.statusId, new { @id = "hfdStatusId" })
+            @Html.HiddenFor(m => m.verification.condition, new { @id = "hfdCondition" })
+            @Html.HiddenFor(m => m.verification.pageUrl, new { @id = "hfdpageUrl" })
+            @Html.HiddenFor(m => m.verification.top, new { @id = "hfdTop" })
+            @Html.HiddenFor(m => m.verification.pageNum, new { @id = "hfdPageNo" })
+
+            <div class="x_title">
+                <h2>Applcation List </h2>
+                <div id="divDownload" class="panel_toolbox">
+                    <button type="submit" class="btn btn-success" id="btnExportToExcel" tabindex="7" style="float:right;">Export To Excel</button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        }
+    </div>
+</div>

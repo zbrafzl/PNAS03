@@ -1,0 +1,446 @@
+﻿@{
+    ViewBag.Title = "Supervisor Experience";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.EmployeeModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var employeeId = 0, hospitalId = 0, id = 0, listExperience = [], objExperience = {}, htmlNoRecord = "", htmlTemp = "";
+        var objExp = {};
+        $(document).ready(function () {
+
+            htmlNoRecord = $("#tbNoRecord").html();
+            htmlTemp = $("#tbTempt").html();
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+            $("#txtStartDate").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                setDate: new Date()
+            });
+
+            $("#txtEndDate").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                setDate: new Date()
+            });
+
+            employeeId = ConvertToInt($("#hfdEmployeeId").val());
+
+
+            id = ConvertToInt($("#hfdIdDetail").val());
+
+            //if (employeeId > 0)
+            //    GetAndBindExperinceList();
+
+            hospitalId = ConvertToInt($("#hfdHospitalIdExp").val());
+
+
+            if (id > 0) {
+
+                $('#ddlHospital').val(hospitalId);
+
+                if (hospitalId == -1)
+                    $("#divHospitalName").show();
+
+
+                $('#txtStartDate').val($('#hfdStartDateExp').val())
+
+                if ($("#chkIsCurrent").is(":checked")) {
+                    $('#divEndDate').hide();
+                }
+                else {
+
+                    $('#divEndDate').show();
+                    $('#txtEndDate').val($('#hfdEndDateExp').val())
+                }
+            }
+
+            $(document).on('change', '#ddlHospital', function () {
+
+                var hospitalId = $("#ddlHospital").val();
+                $("#divHospitalName").hide();
+                if (hospitalId == -1)
+                    $("#divHospitalName").show();
+
+            });
+
+            $(document).on('click', '#chkIsCurrent', function () {
+
+                $('#divEndDate').hide();
+                if ($("#chkIsCurrent").is(":checked")) {
+                    $('#divEndDate').hide();
+                }
+                else {
+
+                    $('#divEndDate').show();
+                    $('#txtEndDate').val($('#hfdEndDateExp').val())
+                }
+
+            });
+
+            $(document).on('click', '#btnSaveExperience', function () {
+
+
+                if (ValidateFormExperience() == false) {
+
+                    var resp = CallActionPost("/EmployeeAdmin/AddUpdateExperience", objExp);
+
+                    debugger;
+                    if (resp != null && resp.status == true) {
+
+                        alert(resp.msg);
+
+                        window.location.href = "/admin/employee-experience-manage?employeeId=" + employeeId;
+                    }
+                }
+
+            });
+
+
+        });
+
+        function GetAndBindExperinceList() {
+            listExperience = [];
+            $("#tbList").html("");
+            var htmlAll = htmlNoRecord;
+
+            var obj = {};
+            obj.hospitalId = hospitalId;
+            obj.employeeId = employeeId;
+            listExperience = CallActionPost("/EmployeeAdmin/EmployeeExperienceGet", obj);
+            if (listExperience != null && listExperience.length > 0) {
+
+                htmlAll = "";
+                var objItem = {}; htmlSingle = "", isCurrent = "No", endDate = "";
+                for (var i = 0; i < listExperience.length; i++) {
+
+                    objItem = listExperience[i];
+                    htmlSingle = htmlTemp;
+                    isCurrent = "No";
+                    endDate = ""
+
+                    if (objItem.isCurrent)
+                        isCurrent = "Yes";
+                    else
+                        endDate = ToDateFormatDDMMYYYWithSlash(JsonToDate(objItem.dateEnd));
+
+                    htmlAll = htmlAll + htmlSingle.replace(/{#hospital#}/g, objItem.hospitalName)
+                        .replace(/{#typeName#}/g, objItem.typeName)
+                        .replace(/{#isCurrent#}/g, isCurrent)
+                        .replace(/{#startDate#}/g, ToDateFormatDDMMYYYWithSlash(JsonToDate(objItem.dateStart)))
+                        .replace(/{#endDate#}/g, endDate)
+                        .replace(/{#id#}/g, objItem.id);
+                }
+            }
+
+            $("#tbList").html(htmlAll);
+
+        }
+
+
+        function ValidateFormExperience() {
+
+            objExp = {};
+
+            var isError = false, ctrl = "";
+            $(".lbl-err").hide();
+            $(".req-fld").removeClass("req-fld");
+
+
+            var pageUrl = "/admin/employee-experience-manage?employeeId=" + employeeId;
+            $("#hfdRedirectUrl").val(pageUrl);
+
+
+            objExp = {};
+            objExp.id = ConvertToInt($("#hfdIdDetail").val());
+            objExp.employeeId = employeeId;
+            objExp.hospitalId = ConvertToInt($("#ddlHospital").val());
+            objExp.hospitalName = ConvertToString($("#txtHospitalName").val());
+
+            objExp.typeId = ConvertToInt($("#ddlTypeExperience").val());
+
+            objExp.startDate = ConvertToString($("#txtStartDate").val());
+
+            objExp.isCurrent = false;
+            if ($("#chkIsCurrent").is(":checked")) {
+                objExp.isCurrent = true;
+            }
+
+
+            if (objExp.isCurrent == false)
+                objExp.endDate = ConvertToString($("#txtEndDate").val());
+
+
+            if (objExp.hospitalId == 0) {
+
+                $("#ddlHospital").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlHospital";
+            }
+
+            if (objExp.hospitalId == -1) {
+
+                if (objExp.hospitalName == "") {
+
+                    $("#txtHospitalName").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "") {
+                        ctrl = "txtHospitalName";
+                    }
+                }
+            }
+
+            if (objExp.typeId == 0) {
+
+                $("#ddlTypeExperience").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlTypeExperience";
+            }
+
+            if (objExp.startDate == "") {
+                $("#txtStartDate").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtStartDate";
+            }
+
+            if (objExp.isCurrent == false) {
+
+                if (objExp.startDate == "") {
+                    $("#txtEndDate").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtEndDate";
+                }
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
+
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Supervisor Info </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/employee-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @Html.HiddenFor(m => m.employee.employeeId, new { @id = "hfdEmployeeId" })
+                <div class="form-group col-lg-12">
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Name *:</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.name">
+                    </div>
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Relation *:</label>
+                        <input class="form-control" id="txtRelation" disabled type="text" value="@(Model.employee.relation  +" - " + Model.employee.relationName)">
+                    </div>
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Cell No*:</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.cellNo">
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label for="heard">Cnic :</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.cnic">
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard">Gender *:</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.gender">
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard">Martial Status *:</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.martialStatus">
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label for="heard">Quaification *:</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.degree">
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard">Designation *:</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.designation">
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label for="heard">District :</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.district">
+                    </div>
+                    <div class="col-md-9 col-sm-9 col-xs-9">
+                        <label for="heard">Address *:</label>
+                        <input class="form-control" id="txtName" disabled type="text" value="@Model.employee.address">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ln_solid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Employee Experince </h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <input id="hfdId" type="hidden" value="0">
+                @Html.HiddenFor(m => m.redirectUrl, new { @id = "hfdRedirectUrl" })
+                @Html.HiddenFor(m => m.employeeExperience.id, new { @id = "hfdIdDetail" })
+                @Html.HiddenFor(m => m.employeeExperience.hospitalId, new { @id = "hfdHospitalIdExp" })
+                <input type="hidden" id="hfdStartDateExp" value="@Model.employeeExperience.dateStart.ToString("dd/MM/yyy")" />
+                <input type="hidden" id="hfdEndDateExp" value="@Model.employeeExperience.dateEnd.ToString("dd/MM/yyy")" />
+
+                <div class="form-group col-lg-12">
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        <label for="heard">Hospital *:</label>
+                        <select id="ddlHospital" class="form-control" tabindex="1">
+                            <option value="0">Select One</option>
+                            @foreach (var item in Model.listHospital)
+                            {
+                                <option value="@(item.value)"> @item.key </option>
+                            }
+                            <option value="-1">Other</option>
+                        </select>
+                    </div>
+                    <div id="divHospitalName" class="col-md-6 col-sm-6 col-xs-6" style="display:none;">
+                        <label for="heard">Hospital Name *:</label>
+                        <input class="form-control" id="txtHospitalName" type="text" value="@Model.employeeExperience.hospitalName" tabindex="1">
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Experience Type *:</label>
+                        @Html.DropDownListFor(a => a.employeeExperience.typeId, new SelectList(Model.listTypeExperience, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlTypeExperience", @tabindex = "2" })
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard">Is Current :</label>
+                        @Html.CheckBoxFor(a => a.employeeExperience.isCurrent, new { @class = "form-control", @id = "chkIsCurrent", @tabindex = "2" })
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <label for="heard">Start Date *:</label>
+                        <input class="form-control" id="txtStartDate" type="text" tabindex="3">
+                    </div>
+                    <div id="divEndDate" class="col-md-3 col-sm-3 col-xs-3">
+                        <label for="heard">End Date *:</label>
+                        <input class="form-control" id="txtEndDate" type="text">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ln_solid"></div>
+                <div class="item form-group">
+                    <div class="col-md-6 col-sm-6 offset-md-10">
+                        <span id="btnSaveExperience" class="btn btn-success" tabindex="13">Save</span>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ln_solid"></div>
+                <div id="pnlSearch" class="x_content">
+                    <div class="table-responsive">
+                        <table class="table table-striped jambo_table bulk_action">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title">Hospital</th>
+                                    <th class="column-title">Type </th>
+                                    <th class="column-title">Is Current </th>
+                                    <th class="column-title">Start Date </th>
+                                    <th class="column-title">End Date</th>
+                                    <th class="column-title">Experiece</th>
+                                    <th>
+                                        <span class="nobr">Action</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbList">
+                                @if (Model.listExperience != null && Model.listExperience.Count > 0)
+                                {
+
+                                    foreach (var item in Model.listExperience)
+                                    {
+                                        <tr>
+                                            <td>@item.hospitalName</td>
+                                            <td>@item.typeName</td>
+                                            @if (item.isCurrent)
+                                            {
+                                                <td>Yes</td>
+                                            }
+                                            else
+                                            {
+                                                <td>No</td>
+                                            }
+                                            <td>@item.dateStart.ToString("dd MMM yyyy")</td>
+                                            @if (item.isCurrent)
+                                            {
+                                                <td>-</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@item.dateEnd.ToString("dd MMM yyyy")</td>
+                                            }
+                                            <td>@item.experienceTitle</td>
+                                            <td>
+                                                <a title="Edit" class="ank" href="@("/admin/employee-experience-manage?employeeId="+ item.employeeId +"&id="+ item.id)"><i class="fa fa-pencil-square-o"></i></a>
+
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                        @Html.Partial("_Pagination")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="display:none;">
+    <table>
+        <tbody id="tbTempt">
+            <tr>
+                <td>{#hospital#}</td>
+                <td>{#typeName#}</td>
+                <td>{#isCurrent#}</td>
+                <td>{#startDate#}</td>
+                <td>{#endDate#}</td>
+                <td>
+                    <a id="{#id#}" title="Edit" class="ank" href="#"><i class="fa fa-pencil-square-o"></i></a>
+                </td>
+            </tr>
+        </tbody>
+        <tbody id="tbNoRecord">
+            <tr>
+                <td colspan="6" style="text-align:center;">No record found</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

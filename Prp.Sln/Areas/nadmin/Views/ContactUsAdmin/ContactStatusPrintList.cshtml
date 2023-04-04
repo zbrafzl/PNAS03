@@ -1,0 +1,261 @@
+﻿@{
+    ViewBag.Title = "Grievance Attendence Status List";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ContactAdminModel
+@section RenderCss{
+
+    <style>
+        .imgView {
+            height: 50px;
+            width: 45px;
+        }
+
+        .chosen-container {
+            width: 100% !important;
+        }
+
+        .chosen-single {
+            height: 39px !important;
+        }
+
+            .chosen-single span {
+                margin-top: 5px !important;
+            }
+
+            .chosen-single div {
+                margin-top: 5px !important;
+            }
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var countryTypeId = 0, perPageRecords = 20, statusId = 0
+            , pageNum = 1, totalCount = 0, obj = {};
+        $(document).ready(function () {
+
+
+            SearchAttendence();
+
+
+            $(document).on('click', '#btnSearch', function () {
+                SearchAttendence();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchAttendence();
+                }
+            });
+
+            $(document).on('click', '#btnPrint', function (event) {
+
+                $(".no-print").hide();
+                printDiv();
+            });
+
+        });
+
+        function SearchAttendence() {
+
+            var rowHtml = "";
+
+            $("#tbPanel").html("");
+            $("#divBtnPrint").hide();
+
+            obj = {};
+            obj.top = perPageRecords;
+            obj.pageNum = pageNum;
+            obj.typeId = ConvertToInt($("#hfdTypeId").val());
+            obj.dayNo = ConvertToInt($("#ddlDay").val());
+            obj.search = ConvertToString($("#txtSearch").val());
+
+            if (obj.start == 0) obj.start = 1;
+
+
+            var url = "/ContactUsAdmin/ContactStatusPrintListSearch";
+
+            var list = CallActionPost(url, obj);
+
+            var html = "";
+
+            var singleHtml = "", objItem = {};
+            if (list != null && list.length > 0) {
+
+                totalCount = list[0].totalCount;
+                rowHtml = $("#tbTempHtml").html();
+
+                for (var i = 0; i < list.length; i++) {
+
+                    objItem = list[i];
+                    singleHtml = rowHtml;
+
+
+                    html = html + singleHtml.replace(/{#attendenceNo#}/g, objItem.attendenceNo)
+                        .replace(/{#applicantId#}/g, objItem.applicantId)
+                        .replace(/{#name#}/g, objItem.name)
+                        .replace(/{#fatherName#}/g, objItem.fatherName)
+                        .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
+                        .replace(/{#contactNumber#}/g, objItem.contactNumber)
+                        .replace(/{#title#}/g, objItem.title)
+                        .replace(/{#comments#}/g, objItem.comments)
+                        .replace(/{#status#}/g, objItem.status)
+                        .replace(/{#contactId#}/g, objItem.contactId);
+
+                }
+
+                $("#tblPanel").show();
+                $("#tbPanel").html(html);
+                $("#divBtnPrint").show();
+
+            }
+            else {
+
+                $("#tblPanel").hide();
+                $("#tbPanel").html("");
+                $("#divBtnPrint").hide();
+            }
+
+        }
+
+
+
+
+
+
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+
+
+        @Html.HiddenFor(m => m.typeId, new { @id = "hfdTypeId" })
+        @Html.HiddenFor(m => m.applicantId, new { @id = "hfdApplicantId" })
+
+        <form class="form-horizontal form-label-left input_mask">
+            <div class="form-group col-lg-12">
+                <div class="form-group col-lg-12">
+                    <div class="col-md-5 col-sm-5 col-xs-5">
+                        <h2>Grievance Status List </h2>
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <select id="ddlDay" name="ddlDay" class="form-control">
+                            <option value="1">All</option>
+                            <option value="0" selected="selected">Today</option>
+                            <option value="-1">Today - 1 Day</option>
+                            <option value="-2">Today - 2 Day</option>
+                            <option value="-3">Today - 3 Day</option>
+                            <option value="-4">Today - 4 Day</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1 col-sm-1 col-xs-1">
+                        <input type="text" id="txtStart" name="txtStart" placeholder="Start" class="form-control" />
+                    </div>
+                    <div class="col-md-1 col-sm-1 col-xs-1">
+                        <input type="text" id="txtEnd" name="txtEnd" placeholder="End" class="form-control" />
+                    </div>
+                    <div class="col-md-1 col-sm-1 col-xs-1">
+                        <input type="button" id="btnSearch" name="btnSearch" value="Search" class="btn btn-success" />
+                    </div>
+                    <div id="divBtnPrint" class="col-md-1 col-sm-1 col-xs-1" style="display:none">
+                        <input type="button" id="btnPrint" name="btnPrint" value="Print" class="btn btn-success" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div id="divprint" class="x_content">
+            <style>
+                .table-responsive {
+                    display: block;
+                    width: 100%;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+
+                table.jambo_table {
+                    border: 1px solid rgba(221,221,221,0.78);
+                }
+
+                .table {
+                    width: 100%;
+                    margin-bottom: 1rem;
+                    color: #212529;
+                }
+
+                table {
+                    border-collapse: collapse;
+                }
+
+                    table.jambo_table thead {
+                        background: rgba(52,73,94,0.94);
+                        color: #ECF0F1;
+                    }
+
+                .table thead th {
+                    vertical-align: bottom;
+                    border-bottom: 2px solid #dee2e6;
+                }
+
+                .table td, .table th {
+                    padding: 4px !important;
+                    vertical-align: top;
+                    border-top: 1px solid #dee2e6;
+                }
+
+                th {
+                    text-align: inherit;
+                }
+
+                .table-striped tbody tr:nth-of-type(odd) {
+                    background-color: rgba(0,0,0,.05);
+                }
+            </style>
+            <div class="table-responsive">
+                <table id="tblPanel" class="table table-striped jambo_table bulk_action" style="display:none;">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title" style="width:3%;">No</th>
+                            <th class="column-title" style="width:30%;">Applicant </th>
+                            <th class="column-title" style="width:20%;">Subject</th>
+                            <th class="column-title" style="width:6%;">Status</th>
+                            <th class="column-title" style="width:40%;">Remarks</th>
+                            <th class="no-print">
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbPanel">
+                    </tbody>
+                </table>
+
+                <div style="display:none;">
+                    <table>
+                        <tbody id="tbTempHtml">
+                            <tr class="tbRow" id="{#applicantId#}">
+                                <td>{#attendenceNo#}  </td>
+                                <td>
+                                    {#name#}, S/D/O : {#fatherName#}
+                                    <br />{#applicantId#} , {#pmdcNo#}, {#contactNumber#}
+                                </td>
+                                <td>{#title#}</td>
+                                <td>{#status#}  </td>
+                                <td>{#comments#}  </td>
+                                <td class="no-print">
+                                    <a title="Comments"  class="ank" href="/admin/contact-comments?contactId={#contactId#}"><i class="fa fa-mail-forward"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

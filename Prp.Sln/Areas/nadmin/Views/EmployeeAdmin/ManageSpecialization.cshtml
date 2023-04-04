@@ -1,0 +1,276 @@
+﻿
+@{
+    ViewBag.Title = "Manage Specialization";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.EmployeeSpecialityModelAdmin
+@section RenderCss{
+    <style>
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var id=0, employeeId = 0, degreeId = 0, programId = 0, disciplineId = 0, specialityId = 0;
+
+        $(document).ready(function () {
+
+
+            id = ConvertToInt($("#hfdId").val());
+
+            if (id > 0) {
+
+                programId = ConvertToInt($("#ddlProgram").val());
+                disciplineId = ConvertToInt($("#hfdDisciplineId").val());
+                specialityId = ConvertToInt($("#hfdSpecialityId").val());
+
+                if (programId > 0) {
+                    DDLEventChangeProgram();
+                }
+
+                if (disciplineId > 0)
+                    DDLEventChangeDiscipline();
+            }
+
+            $(document).on('change', '#ddlProgram', function () {
+
+                programId = ConvertToInt($(this).val());
+
+                DDLSetToDefault("ddlDiscipline", 'Select One', 0);
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+                disciplineId = 0;
+                specialityId = 0;
+
+                if (programId > 0) {
+                    DDLEventChangeProgram();
+                }
+            });
+
+            $(document).on('change', '#ddlDiscipline', function () {
+
+                disciplineId = ConvertToInt($(this).val());
+
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+                specialityId = 0;
+
+                if (disciplineId > 0) {
+                    DDLEventChangeDiscipline();
+                }
+            });
+
+        });
+
+        function DDLEventChangeProgram() {
+
+
+            var obj = {};
+            obj.typeId = programId;
+            obj.search = "ByProgram";
+            var listResp = CallActionPost("/Common/DDLGetDiscipline", obj);
+
+            var ddlItem = {};
+
+            if (listResp != null && listResp.length > 0) {
+
+                for (var i = 0; i < listResp.length; i++) {
+                    ddlItem = listResp[i];
+                    $("#ddlDiscipline").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                }
+
+                if (disciplineId == 0) {
+
+                    if (listResp.length == 1) {
+                        disciplineId = listResp[0].value;
+                        DDLEventChangeDiscipline();
+                    }
+                }
+
+            }
+            $("#ddlDiscipline").val(disciplineId);
+        }
+
+        function DDLEventChangeDiscipline() {
+
+
+            DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+
+
+            var obj = {};
+            obj.typeId = programId;
+            obj.parentId = disciplineId;
+            obj.search = "ByDispline";
+            var listResp = CallActionPost("/Common/DDLGetSpeciality", obj);
+
+            var ddlItem = {};
+
+            if (listResp != null && listResp.length > 0) {
+
+                for (var i = 0; i < listResp.length; i++) {
+                    ddlItem = listResp[i];
+                    $("#ddlSpeciality").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                }
+
+                if (specialityId == 0) {
+                    if (listResp.length == 1) {
+                        specialityId = listResp[0].value;
+                    }
+                }
+            }
+
+            $("#ddlSpeciality").val(specialityId);
+        }
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            var pageUrl = "/admin/employee-specialization";;
+            $("#hfdRedirectUrl").val(pageUrl);
+
+            var ctrl = "";
+            $(".lbl-err").hide();
+            $(".req-fld").removeClass("req-fld");
+
+            specialityId = $("#ddlSpeciality").val();
+            $("#hfdSpecialityId").val(specialityId);
+            if (specialityId == 0) {
+
+                $("#ddlSpeciality").addClass("req-fld");
+                isOk = false;
+                if (ctrl == "")
+                    ctrl = "ddlSpeciality";
+            }
+
+            disciplineId = $("#ddlDiscipline").val();
+            $("#hfdDisciplineId").val(disciplineId);
+            if (disciplineId == 0) {
+
+                $("#ddlDiscipline").addClass("req-fld");
+                isOk = false;
+                if (ctrl == "")
+                    ctrl = "ddlDiscipline";
+
+            }
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Specialization </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/employee-manage" class="btn btn-info"> Manage</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @using (Html.BeginForm("EmployeeSpecialitySave", "EmployeeAdmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+                {
+                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                    @Html.HiddenFor(m => m.employee.employeeId, new { @id = "hfdEmployeeId" })
+                    @Html.HiddenFor(m => m.employee.hospitalId, new { @id = "hfdHospitalId" })
+
+
+                    @Html.HiddenFor(m => m.speciality.id, new { @id = "hfdId" })
+                    @Html.HiddenFor(m => m.speciality.disciplineId, new { @id = "hfdDisciplineId" })
+                    @Html.HiddenFor(m => m.speciality.specialityId, new { @id = "hfdSpecialityId" })
+                    <fieldset>
+                        <legend>Supervisor Info</legend>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Full Name:</label>
+                                @Html.TextBoxFor(a => a.employee.name, new { @class = "form-control", @disabled = "@disabled" })
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Gender:</label>
+                                @Html.TextBoxFor(a => a.employee.gender, new { @class = "form-control", @disabled = "@disabled" })
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Designation:</label>
+                                @Html.TextBoxFor(a => a.employee.designation, new { @class = "form-control", @disabled = "@disabled" })
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend> Specialization Details  </legend>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Program *:</label>
+                                @Html.DropDownListFor(a => a.speciality.typeId, new SelectList(Model.listProgram, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlProgram", @tabindex = "1" })
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Specialty *:</label>
+                                <select id="ddlDiscipline" class="form-control" tabindex="2">
+                                    <option value="0"> Select One </option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Sub Specialty *:</label>
+                                <select id="ddlSpeciality" class="form-control" tabindex="3">
+                                    <option value="0"> Select One </option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="clearfix"></div>
+                    <div class="ln_solid"></div>
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-9">
+                            <button type="submit" class="btn btn-success" tabindex="4">Submit</button>
+                        </div>
+                    </div>
+                </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Specialization List</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Program</th>
+                            <th class="column-title">Specialty</th>
+                            <th class="column-title">Sub Specialty</th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && (Model.list != null && Model.list.Count > 0))
+                        {
+                            foreach (var item in Model.list)
+                            {
+                                <tr>
+                                    <td>@item.typeName</td>
+                                    <td>@item.discipline </td>
+                                    <td>@item.speciality</td>
+                                    <td>
+                                        <a title="Edit" class="ank" href="@("/admin/employee-specialization?employeeId="+ item.employeeId+"&id="+ item.id)"><i class="fa fa-pencil-square-o"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

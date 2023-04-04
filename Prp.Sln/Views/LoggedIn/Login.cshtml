@@ -1,0 +1,144 @@
+﻿@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.LoginModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+        $(document).ready(function () {
+
+            $("#errorMessege").hide();
+
+            $("#btnLogin").click(function () {
+                LoggedInUserEvent();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    LoggedInUserEvent();
+                }
+            });
+        });
+
+        function LoggedInUserEvent() {
+            var isValid = true;
+
+            var userName = $("#txtUserName").val();
+            var password = $("#txtPassword").val();
+
+            if (userName == "")
+                isValid = false;
+
+            if (password == "")
+                isValid = false;
+
+            if (isValid == false)
+                return false;
+
+            var objLogin =
+            {
+                emailId: userName,
+                password: password
+            }
+
+            var message = "";
+
+            var resp = CallActionPost("/LoggedIn/LoggedInUser", objLogin)
+            if (resp != null) {
+                if (resp.status == false) {
+                    $("#errDivLogin").show();
+
+                    message = resp.message;
+                }
+                else {
+
+                    $("#errDivLogin").hide();
+                    window.location = "/";
+                }
+            }
+            else {
+                message = " In valid email or password";
+                $("#errDivLogin").show();
+            }
+
+            $("#spnError").html(message);
+            
+
+        }
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal">
+                    <h3 class="heading">Enter Your login Details to Continue</h3>
+                    <div class="">
+                        <label for="email" class="cols-sm-2 control-label">Your Email</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control" name="username" id="txtUserName" required="required" placeholder="Enter your Email">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <label for="password" class="cols-sm-2 control-label">Password</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input class="form-control" type="password" name="password" id="txtPassword" placeholder="Enter your Password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <div class="col-sm-12">
+                            <div class="form-group inline" style="margin-top:5px;">
+                                <label class="checkbox-inline" for="remember_me" style="float:left">
+                                    <input type="checkbox" name="remember_me" id="remember_me" value="1">
+                                    Remember me on this computer.
+                                </label>
+                                <label style="float:right; display:none">
+                                    <a href="/forgot-password">Forgot Password?</a>
+                                </label>
+                            </div>
+                            <hr style="margin: 15px 0px !important;">
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="col-sm-3">
+                            </div>
+                            <div class="col-sm-6">
+                                <input id="btnLogin" type="button" class="btn btn-app animated-button" value="Login" style="width:100%" />
+                            </div>
+                            <div class="col-sm-3">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="errDivLogin" class="col-sm-12" style="margin-top:10px; display:none;">
+                        <div class="panel panel-danger">
+                            <div class="panel-heading">
+                                <label>
+                                    <span id="spnError" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                   
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+</div>

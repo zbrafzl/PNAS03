@@ -1,0 +1,296 @@
+﻿
+@{
+    ViewBag.Title = "Institute Setup";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.SpecialityJobModelAdmin
+@section RenderCss{
+    <style>
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var specialityId = 0, instituteId = 0, hospitalId = "", specialityJobId = 0;
+
+        $(document).ready(function () {
+
+            specialityId = ConvertToInt($("#ddlSpeciality").val());
+
+            hospitalId = ConvertToInt($("#hfdHospitalId").val());
+
+
+            instituteId = ConvertToInt($("#hfdInstituteId").val());
+            if (instituteId == 0)
+                instituteId = ConvertToInt($("#ddlInstitute").val());
+
+
+
+            //$("#ddlSpeciality").attr("disabled", "disabled");
+            //$("#ddlInduction").attr("disabled", "disabled");
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+            if (specialityId > 0 && instituteId > 0) {
+
+                BindHospitalDDL();
+            }
+            else if (instituteId > 0) {
+                BindHospitalDDL();
+            }
+
+            if (instituteId > 0) {
+                $("#ddlInstitute").val(instituteId);
+            }
+            //
+
+            $(document).on('change', '#ddlSpeciality', function () {
+                specialityId = $(this).val();
+
+                DDLSetToDefault("ddlHospital", 'Select One', 0);
+                if (specialityId > 0)
+                    BindHospitalDDL();
+            });
+
+
+            $(document).on('change', '#ddlInstitute', function () {
+                instituteId = $(this).val();
+
+                DDLSetToDefault("ddlHospital", 'Select One', 0);
+                if (instituteId > 0)
+                    BindHospitalDDL();
+            });
+
+            $(document).on('change', '#ddlHospital', function () {
+
+                hospitalId = $(this).val();
+                $("#hfdHospitalId").val(hospitalId);
+
+            });
+
+            $(document).on('click', '.ankEdit', function () {
+
+                var idAttr = $(this).attr("id");
+                specialityJobId = ConvertToInt(idAttr.replace("ankEdit", ""));
+
+                if (specialityJobId > 0)
+                    BindForm();
+            });
+
+        });
+
+        function BindHospitalDDL() {
+
+            var objHos = {};
+            objHos.instituteId = instituteId;
+            objHos.condition = "ByHospital";
+
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+
+            var list = CallActionPost("/Hospitals/GetHospitalDDL", objHos);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (hospitalId == ddlItem.id)
+                        $("#ddlHospital").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    else $("#ddlHospital").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+
+                if (list.length == 1) {
+
+                    var hospitalIdThis = list[0].id;
+                    $("#ddlHospital").val(hospitalIdThis);
+                }
+
+            }
+
+        }
+
+        function BindForm() {
+
+
+            var resp = CallActionGet("/SpecialityAdmin/GetSpecialityJobById?specialityJobId=" + specialityJobId);
+            if (resp != null && resp.specialityJobId > 0) {
+
+                $("#hfdSpecialityJobId").val(specialityJobId);
+                $("#hfdIsActive").val(resp.isActive);
+
+                $("#ddlInduction").val(resp.inductionId);
+                $("#ddlSpeciality").val(resp.specialityId);
+                $("#ddlInstitute").val(resp.instituteId);
+                instituteId = resp.instituteId;
+                hospitalId = resp.hospitalId;
+                DDLSetToDefault("ddlHospital", 'Select One', 0);
+                BindHospitalDDL();
+                $("#hfdHospitalId").val(resp.hospitalId);
+                $("#ddlType").val(resp.typeId);
+                $("#ddlQuota").val(resp.quotaId);
+                $("#txtJobs").val(resp.jobs);
+
+            }
+            else {
+                alert("Data not exists");
+            }
+        }
+
+        function ValidateForm(event) {
+
+            var isOk = true;
+            try {
+
+                if (hospitalId == 0) {
+                    alert("Please select hospital.");
+                    isOk = false;
+                }
+
+            } catch (e) {
+                isOk = false;
+            }
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Job in Speciality Setup </h2>
+                <div class="panel_toolbox">
+                    <a href="/admin/speciality-manage" class="btn btn-info"> Manage Speciality</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                @using (Html.BeginForm("SaveSpecialityJobData", "SpecialityAdmin", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " ValidateForm(event)" }))
+                {
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                        @Html.HiddenFor(m => m.job.specialityJobId, new { @id = "hfdSpecialityJobId" })
+                        @Html.HiddenFor(m => m.job.hospitalId, new { @id = "hfdHospitalId" })
+
+
+                        <div id="divInduction" class="form-group col-lg-12">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Induction *:</label>
+                                @Html.DropDownListFor(a => a.job.inductionId, new SelectList(Model.listInduction, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlInduction", @tabindex = "1", @required = "required" })
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Speciality *:</label>
+                                @Html.DropDownListFor(a => a.job.specialityId, new SelectList(Model.listSpeciality, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlSpeciality", @tabindex = "1", @required = "required" })
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            @{ var instituteId = 0;
+
+                                try
+                                {
+                                    instituteId = Model.listInstitute.FirstOrDefault().id;
+                                }
+                                catch (Exception)
+                                {
+                                    instituteId = 0;
+                                }
+                                <input type="hidden" id="hfdInstituteId" value="@instituteId" />
+                            }
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Institute *:</label>
+                                @Html.DropDownListFor(a => a.job.instituteId, new SelectList(Model.listInstitute, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlInstitute", @tabindex = "1", @required = "required" })
+                            </div>
+
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label for="heard">Hospital *:</label>
+                                <select id="ddlHospital" name="ddlHospital" class="form-control" tabindex="2">
+                                    <option value="0" selected="selected"> Select One </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">Type *:</label>
+                                @Html.DropDownListFor(a => a.job.typeId, new SelectList(Model.listDegreeType, "id", "name"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "3", @required = "required" })
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-4">
+                                <label for="heard">Qouta *:</label>
+                                @Html.DropDownListFor(a => a.job.quotaId, new SelectList(Model.listQouta, "id", "name"), "Select One", new { @class = "form-control", @id = "ddlQuota", @tabindex = "3", @required = "required" })
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <label for="heard">No Of Jobs *:</label>
+                                @Html.TextBoxFor(a => a.job.jobs, new { @class = "form-control", @required = "required", @id = "txtJobs", @tabindex = "4" })
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard">Status :</label>
+                                @Html.CheckBoxFor(a => a.job.isActive, new { @class = "form-control", @id = "chkActive", @tabindex = "5" })
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success" tabindex="5">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Job List W.r.t Speciality </h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="table-responsive">
+                    <table class="table table-striped jambo_table bulk_action">
+                        <thead>
+                            <tr class="headings">
+                                <th class="column-title">Speciality </th>
+                                <th class="column-title">Institute </th>
+                                <th class="column-title">Hospital </th>
+                                <th class="column-title">Type </th>
+                                <th class="column-title">Quota </th>
+                                <th class="column-title">Jobs </th>
+                                <th class="column-title">Status </th>
+                                <th>
+                                    <span class="nobr">Action</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && (Model.listSpecialityJob != null && Model.listSpecialityJob.Count > 0))
+                            {
+                                foreach (var item in Model.listSpecialityJob)
+                                {
+                                    <tr>
+                                        <td>@item.specialityName</td>
+                                        <td>@item.instituteName</td>
+                                        <td>@item.hospitalName</td>
+                                        <td>@item.typeName</td>
+                                        <td>@item.quotaName</td>
+                                        @if (item.isActive)
+                                        {
+                                            <td>Active</td>
+                                        }
+                                        else
+                                        {
+                                            <td>In-Active</td>
+                                        }
+                                        <td>@item.jobs</td>
+                                        <td>
+                                            <a id="@("ankEdit"+item.specialityJobId )" class="ankEdit ank" title="Edit"><i class="fa fa-pencil-square-o"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

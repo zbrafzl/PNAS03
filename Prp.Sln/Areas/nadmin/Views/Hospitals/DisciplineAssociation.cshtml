@@ -1,0 +1,418 @@
+﻿@{
+    ViewBag.Title = "Employee Experience";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.HospitalDisciplineModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var id = 0, hospitalId = 0, typeId = 0, disciplineId = 0, specialityId = 0, id = 0
+            , list = [], obj = {}, htmlNoRecord = "", htmlTemp = "";
+
+
+        $(document).ready(function () {
+
+            htmlNoRecord = $("#tbNoRecord").html();
+            htmlTemp = $("#tbTempt").html();
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+
+            $("#txtStartDate").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                setDate: new Date()
+            });
+
+            $("#txtEndDate").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                setDate: new Date()
+            });
+
+            hospitalId = ConvertToInt($("#hfdHospitalId").val());
+
+            typeId = ConvertToInt($("#hfdTypeId").val());
+            disciplineId = ConvertToInt($("#ddlDiscipline").val());
+            specialityId = ConvertToInt($("#hfdSpecialityId").val());
+
+            DDLTypeChangeEvent();
+
+            if (hospitalId > 0)
+                $('#ddlHospital').val(hospitalId);
+
+            id = ConvertToInt($("#hfdId").val());
+            if (id > 0) {
+
+                $('#txtStartDate').val($('#hfdStartDate').val())
+                $('#txtEndDate').val($('#hfdEndDate').val())
+
+                $('#ddlSpeciality').val(specialityId);
+            }
+
+            CheckBoxApprovalClickEvent();
+
+            $(document).on('change', '#ddlHospital', function () {
+
+                hospitalId = $("#ddlHospital").val();
+                if (hospitalId > 0)
+                    window.location.href = "/admin/hospital-discipline?hospitalId=" + hospitalId;
+
+            });
+
+            $(document).on('click', '#chkApproved', function () {
+                CheckBoxApprovalClickEvent();
+            });
+
+            $(document).on('change', '#ddlType', function () {
+
+                typeId = $("#ddlType").val();
+                DDLTypeChangeEvent();
+            });
+
+            $(document).on('change', '#ddlDiscipline', function () {
+
+                disciplineId = $("#ddlDiscipline").val();
+                DDLDisciplineChangeEvent();
+            });
+
+            $(document).on('click', '#btnSave', function () {
+                if (ValidateForm() == false) {
+                    var resp = CallActionPost("/Hospitals/HospitalDisciplineAddUpdate", obj);
+                    if (resp != null && resp.status == true) {
+                        alert(resp.msg);
+                        window.location.href = "/admin/hospital-discipline";
+                    }
+                }
+            });
+
+            $(document).on('click', '.ankDelete', function () {
+
+                try {
+
+                    if (confirm("are you sure to delete this record ?")) {
+
+                        var obj = {};
+                        obj.id = ConvertToInt($(this).attr("id"));
+                        obj.hospitalId = ConvertToInt($(this).attr("hospitalId"));
+
+                        var respMsg = CallActionPost("/Hospitals/HospitalDisciplineDelete", obj);
+
+                        if (respMsg.status) {
+                            window.location.href = "/admin/hospital-discipline";
+                        }
+
+                    } else {
+
+                    }
+                } catch (e) {
+                    isOk = true;
+                }
+
+            });
+
+        });
+
+        function DDLTypeChangeEvent() {
+
+            $("#hfdTypeId").val(typeId);
+
+
+
+            $("#divSpeciality").hide();
+
+            if (typeId == 6 || typeId == 11) {
+                $("#divSpeciality").show();
+
+                DDLDisciplineChangeEvent();
+
+            }
+            else if (typeId == 1) {
+
+                $("#hfdSpecialityId").val(0);
+                DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+            }
+
+        }
+
+        function DDLDisciplineChangeEvent() {
+
+            DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+
+
+            if (disciplineId > 0) {
+
+                var obj = {};
+                obj.typeId = disciplineId;
+                obj.search = "ByOnlyDiscipline";
+                var listResp = CallActionPost("/Common/DDLGetSpeciality", obj);
+
+                var ddlItem = {};
+
+                if (listResp != null && listResp.length > 0) {
+
+                    for (var i = 0; i < listResp.length; i++) {
+                        ddlItem = listResp[i];
+                        $("#ddlSpeciality").append("<option  value='" + ddlItem.value + "'>" + ddlItem.key + "</option>");
+                    }
+                }
+            }
+
+        }
+
+        function CheckBoxApprovalClickEvent() {
+
+            $("#divEndDate").hide();
+            var status = $("#chkApproved").is(":checked");
+
+            if (status == false) {
+
+                $("#divEndDate").show();
+            }
+
+        }
+
+        function ValidateForm() {
+
+            var isError = false, ctrl = "";
+            $(".lbl-err").hide();
+            $(".req-fld").removeClass("req-fld");
+
+            obj = {};
+            obj.id = ConvertToInt($("#hfdId").val());
+            obj.hospitalId = ConvertToInt($("#hfdHospitalId").val());
+            obj.typeId = ConvertToInt($("#ddlType").val());
+            obj.disciplineId = ConvertToInt($("#ddlDiscipline").val());
+            obj.specialityId = ConvertToInt($("#ddlSpeciality").val());
+            obj.isApproved = false;
+
+            if ($("#chkApproved").is(":checked")) {
+                obj.isApproved = true;
+            }
+
+            obj.startDate = ConvertToString($("#txtStartDate").val());
+            obj.endDate = ConvertToString($("#txtEndDate").val());
+            obj.remarks = ConvertToString($("#txtRemarks").val());
+
+
+
+            if (obj.hospitalId == 0) {
+
+                $("#ddlHospital").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlHospital";
+            }
+
+            if (obj.disciplineId == 0) {
+
+                $("#ddlDiscipline").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlDiscipline";
+            }
+
+            if (obj.typeId == 6 || obj.typeId == 11) {
+
+                if (obj.specialityId == 0) {
+
+                    $("#ddlSpeciality").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "ddlSpeciality";
+                }
+
+            }
+
+            if (obj.startDate == "") {
+                $("#txtStartDate").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtStartDate";
+            }
+
+            if (obj.isApproved == false) {
+
+                if (obj.endDate == "") {
+                    $("#txtEndDate").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtEndDate";
+                }
+
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
+
+
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Hospital Discipline</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_title" style="display:none;">
+                <h2>Under Process</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+
+                @Html.HiddenFor(m => m.redirectUrl, new { @id = "hfdRedirectUrl" })
+                @Html.HiddenFor(m => m.discipline.id, new { @id = "hfdId" })
+                @Html.HiddenFor(m => m.hospitalId, new { @id = "hfdHospitalId" })
+                @Html.HiddenFor(m => m.discipline.typeId, new { @id = "hfdTypeId" })
+                @Html.HiddenFor(m => m.discipline.specialityId, new { @id = "hfdSpecialityId" })
+                <input type="hidden" id="hfdStartDate" value="@Model.discipline.dateStart.ToString("dd/MM/yyy")" />
+                <input type="hidden" id="hfdEndDate" value="@Model.discipline.dateEnd.ToString("dd/MM/yyy")" />
+
+                <div class="form-group col-lg-12">
+                    @if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.hospital)
+                    {
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <label for="heard">Hospital *:</label>
+                            @Html.DropDownListFor(a => a.discipline.hospitalId, new SelectList(Model.listHospital, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlHospital", @tabindex = "1" })
+                        </div>
+                    }
+                </div>
+                <div class="form-group col-lg-12">
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Type *:</label>
+                        <select id="ddlType" class="form-control" tabindex="1">
+                            @foreach (var item in Model.listType)
+                            {
+                                <option value="@(item.value)">@item.key</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Speciality *:</label>
+                        @Html.DropDownListFor(a => a.discipline.disciplineId, new SelectList(Model.listDiscipline, "value", "key"), "Select One", new { @class = "form-control", @id = "ddlDiscipline", @tabindex = "2" })
+                    </div>
+                    <div id="divSpeciality" class="col-md-4 col-sm-4 col-xs-4" style="display:none;">
+                        <label for="heard">Sub Speciality *:</label>
+                        <select id="ddlSpeciality" class="form-control" tabindex="2">
+                            <option value="0">Select One</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Approved Status :</label>
+                        @Html.CheckBoxFor(a => a.discipline.isApproved, new { @class = "form-control", @id = "chkApproved", @tabindex = "3" })
+                    </div>
+                    <div class="col-md-4 col-sm-4 col-xs-4">
+                        <label for="heard">Start Date *:</label>
+                        <input class="form-control" id="txtStartDate" type="text" tabindex="4">
+                    </div>
+                    <div class="col-md-4 col-sm-4 col-xs-4" id="divEndDate" style="display:none;">
+                        <label for="heard">End Date *:</label>
+                        <input class="form-control" id="txtEndDate" type="text" tabindex="4">
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label for="heard">Remarks:</label>
+                        @Html.TextBoxFor(a => a.discipline.remarks, new { @class = "form-control", @id = "txtRemarks", @tabindex = "5" })
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ln_solid"></div>
+                <div class="item form-group">
+                    <div class="col-md-6 col-sm-6 offset-md-10">
+                        <span id="btnSave" class="btn btn-success" tabindex="6">Save</span>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ln_solid"></div>
+                <div id="pnlSearch" class="x_content">
+                    <div class="table-responsive">
+                        <table class="table table-striped jambo_table bulk_action">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title">Approval Type</th>
+                                    <th class="column-title">Speciality</th>
+                                    <th class="column-title">Sub Speciality</th>
+                                    <th class="column-title">Approval Status</th>
+                                    <th class="column-title">Start Date </th>
+                                    <th class="column-title">End Date</th>
+                                    <th>
+                                        <span class="nobr">Action</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbList">
+                                @if (Model.list != null && Model.list.Count > 0)
+                                {
+
+                                    foreach (var item in Model.list)
+                                    {
+                                        <tr>
+                                            <td>@item.typeName</td>
+                                            <td>@item.discipline</td>
+                                            <td>@item.speciality</td>
+                                            @if (item.isApproved)
+                                            {
+                                                <td>Yes</td>
+                                            }
+                                            else
+                                            {
+                                                <td>No</td>
+                                            }
+                                            <td>@item.dateStart.ToString("dd MMM yyyy")</td>
+                                            @if (item.isApproved)
+                                            {
+                                                <td>-</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@item.dateEnd.ToString("dd MMM yyyy")</td>
+                                            }
+                                            <td>
+                                                @if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.hospital)
+                                                {
+                                                    <a title="Edit" class="ank" href="@("/admin/hospital-discipline?hospitalId=" + item.hospitalId + "&id=" + item.id)"><i class="fa fa-pencil-square-o"></i></a>
+                                                }
+                                                else
+                                                {
+                                                    <a title="Edit" class="ank" href="@("/admin/hospital-discipline?id=" + item.id)"><i class="fa fa-pencil-square-o"></i> &nbsp;&nbsp; | &nbsp;&nbsp;</a>
+                                                    <a id="@(item.id)" disciplineId="@(item.disciplineId)" hospitalId="@(item.hospitalId)" title="Delete" class="ank ankDelete" href="#"><i class="fa fa-trash-o"></i></a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;">No record exists</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

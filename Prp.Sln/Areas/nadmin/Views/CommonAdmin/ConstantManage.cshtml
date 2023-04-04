@@ -1,0 +1,103 @@
+﻿
+@{
+    ViewBag.Title = "Constant Manage";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ConstantModelAdmin
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0;
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+
+            $("#ddlParent").val(typeId);
+            $('#ddlParent').trigger("chosen:updated");
+
+            $(document).on('change', '#ddlParent', function () {
+                typeId = $(this).val();
+                window.location.href = "/admin/constant-manage?typeId=" + typeId;
+            });
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Constant Manage </h2>
+            <div class="panel_toolbox">
+                <a href="/admin/constant-setup" class="btn btn-info"> Add New</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            @Html.HiddenFor(m => m.typeId, new { @id = "hfdTypeId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Parent :</label>
+                    <select id="ddlParent" name="ddlParent" class="form-control  chosen-select">
+                        <option value="0" selected="selected"> Select One </option>
+                        @if (Model != null && (Model.listType != null && Model.listType.Count > 0))
+                        {
+                            foreach (var u in Model.listType)
+                            {
+                                <option value="@u.id">@u.id - @u.name </option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">ID </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Parent </th>
+                            <th class="column-title">Status </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && (Model.list != null && Model.list.Count > 0))
+                        {
+                            foreach (var item in Model.list)
+                            {
+                                <tr>
+                                    <td>@item.id</td>
+                                    <td>@item.name</td>
+                                    <td>@item.typeName</td>
+                                    @if (item.isActive)
+                                    {
+                                        <td>Active</td>
+                                    }
+                                    else
+                                    {
+                                        <td>In-Active</td>
+                                    }
+                                    <td>
+                                        <a title="Edit Content" class="ank" href="@("/admin/constant-setup?id="+ item.constantId)"><i class="fa fa-pencil-square-o"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,25 @@
+﻿<table border="1" style="font-size:14px; width: 100%; display:#displayVoucher#" cellspacing="0">
+    <thead> <tr> <th> Branch Code </th><th> Submitted Date </th> <th> Image </th>  </tr></thead>
+    <tbody>
+        <tr>
+            <td>{#branchCode#}</td>
+            <td>{#submittedDate#}</td>
+            <td>
+                <a class="ank" href="{#liveUlr#}/images/Applicant/{#applicantId#}/{#voucherImage#}" target="_blank">
+                    <img class="imgView" src="{#liveUlr#}/images/Applicant/{#applicantId#}/{#voucherImage#}" alt="No Image" style=" height: 40px; width: 70px; border: 2px solid #524c4c;"/>
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<table border="1" style="font-size:14px; width: 100%; display:#displayPayment#" cellspacing="0">
+    <thead> <tr> <th> IBN </th> <th> Applicant A/C No </th> <th> Applicant A/C Title </th><th> Submitted Date </th>  </tr></thead>
+    <tbody>
+        <tr>
+            <td>{#ibn#}</td>
+            <td>{#accountNo#}</td>
+            <td>{#accountTitle#}</td>
+            <td>{#submittedDate#}</td>
+        </tr>
+    </tbody>
+</table>

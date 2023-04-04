@@ -1,0 +1,106 @@
+﻿
+@{
+    ViewBag.Title = "Constant Manage";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.UserManageModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+        var typeId = 0;
+        $(document).ready(function () {
+
+            typeId = $("#hfdTypeId").val();
+
+            $("#ddlType").val(typeId);
+
+            $(document).on('change', '#ddlType', function () {
+                typeId = $(this).val();
+                window.location.href = "/admin/user-manage?typeId=" + typeId;
+            });
+        });
+    </script>
+}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>User Manage </h2>
+            <div class="panel_toolbox">
+                <a href="/admin/user-setup" class="btn btn-info"> Add New</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <form class="form-horizontal form-label-left input_mask">
+            @Html.HiddenFor(m => m.typeId, new { @id = "hfdTypeId" })
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <label for="heard">Parent :</label>
+                    <select id="ddlType" name="ddlType" class="form-control">
+                        <option value="0" selected="selected"> Select One </option>
+                        @if (Model != null && (Model.listType != null && Model.listType.Count > 0))
+                        {
+                            foreach (var u in Model.listType)
+                            {
+                                <option value="@u.id"> @u.value </option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="ln_solid"></div>
+        </form>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">ID </th>
+                            <th class="column-title">Name </th>
+                            <th class="column-title">User Name </th>
+                            <th class="column-title">Password </th>
+                            <th class="column-title">Display Name </th>
+                            <th class="column-title">Status </th>
+                            <th>
+                                <span class="nobr">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && (Model.listUser != null && Model.listUser.Count > 0))
+                        {
+                            foreach (var item in Model.listUser)
+                            {
+                        <tr>
+                            <td>@item.userId</td>
+                            <td>@item.firstName  @item.lastName</td>
+                            <td>@item.emailId</td>
+                            <td class="ank" title="@item.passwordDecrypt" > ***********</td>
+                            <td>@item.displayName</td>
+                            @if (item.isActive)
+                            {
+                                <td>Active</td>
+                            }
+                            else
+                            {
+                                <td>In-Active</td>
+                            }
+                            <td>
+                                <a title="Edit Content" class="ank" href="@("/admin/user-setup?id="+ item.userId)"><i class="fa fa-pencil-square-o"></i></a>
+                            </td>
+                        </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+

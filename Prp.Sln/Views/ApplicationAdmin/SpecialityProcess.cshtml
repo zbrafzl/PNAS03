@@ -1,0 +1,437 @@
+﻿@{
+    ViewBag.Title = "Applicant Specialities ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ProfileModel
+@section RenderCss{
+
+    <style>
+        .ank {
+            cursor: pointer;
+        }
+
+        .grid-img {
+            width: 60px;
+            height: 40px;
+            border: 1px solid #ede9e9;
+        }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var applicantId = 0, objApplicant = {}, applicantSpecilityId = 0
+            , objSpecility = {}, objSpecilityList = [], objTypeList = [];
+
+        var typeId = 0, specialityId = 0, hospitalId = 0, listHospitalByTypeAndSepecility = [];
+
+
+        $(document).ready(function () {
+
+            $("#divHtml").html("");
+
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            GetApplicantInfo();
+            BindTypeDDL(0);
+
+            $(document).on('change', '#ddlType', function () {
+                typeId = $(this).val();
+                BindSpecialityDDL(0);
+            });
+
+            $(document).on('change', '#ddlSpeciality', function () {
+                specialityId = $(this).val();
+                BindHospitalDDL(0);
+            });
+
+            $(document).on('click', '#btnSave', function () {
+                SaveSpecilityData();
+            });
+
+            $(document).on('click', '.ankEdit', function () {
+
+                var idAttr = $(this).attr("id");
+                applicantSpecilityId = ConvertToInt(idAttr.replace("ankEdit", ""));
+
+                objSpecility = $.grep(objSpecilityList, function (n, i) {
+                    return n.applicantSpecilityId == applicantSpecilityId;
+                })[0];
+
+                BindSpecilityForm();
+
+            });
+
+            $(document).on('click', '.ankDel', function () {
+
+                var idAttr = $(this).attr("id");
+                applicantSpecilityId = ConvertToInt(idAttr.replace("ankDel", ""));
+
+                if (applicantSpecilityId > 0 && confirm('Are you sure you want to do delete this?')) {
+                    DeleteSpecility();
+                }
+            });
+
+           
+            ClearSpecilityForm();
+            GetApplicantSpecilityList();
+
+        });
+
+        function GetApplicantInfo() {
+
+            var resp = CallActionGet("/ApplicantProfile/GetApplicantInfo?applicantId=" + applicantId);
+
+            if (resp != null && resp.applicantId > 0) {
+                objApplicant = resp;
+            }
+
+        }
+
+        function BindTypeDDL(typeId) {
+
+            DDLSetToDefault("ddlType", 'Select One', 0);
+            DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+
+            var obj = {};
+            obj.typeId = 12; // Degree Type
+            if (objApplicant.facultyId == 1)
+                obj.reffIds = "1,2,3";
+            else obj.reffIds = "4,5";
+            obj.reffId = applicantId;
+            obj.condition = "ReffIdsAndQuotaAndApplicantIdOrderById";// "ReffIdsOrderByIdAndApplicantId";//"ReffIdsOrderById";
+
+            objTypeList = CallActionPost("/Common/ConstantGetForDDL", obj);
+            if (objTypeList != null && objTypeList.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < objTypeList.length; i++) {
+                    ddlItem = objTypeList[i];
+
+                    if (typeId == ddlItem.id)
+                        $("#ddlType").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    else $("#ddlType").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+            }
+
+        }
+
+        function BindSpecialityDDL(specialityId) {
+
+            var obj = {};
+            obj.typeId = typeId;
+            obj.reffId = applicantId;
+            obj.condition = "GetThoseHasJobsByTypeIdAndQuotaAndApplicantId";//"GetThoseHasJobsByTypeId";
+
+            DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+
+
+            var list = CallActionPost("/Common/SpecialityGetForDDL", obj);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (specialityId == ddlItem.id)
+                        $("#ddlSpeciality").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    else $("#ddlSpeciality").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+            }
+
+        }
+
+        function BindHospitalDDL(hospitalId) {
+
+            listHospitalByTypeAndSepecility = [];
+            var obj = {};
+            obj.typeId = typeId;
+            obj.reffId = specialityId;
+            obj.userId = applicantId;
+            obj.condition = "GetThoseHasJobBySepecilityAndQuotaAndApplicant";//"GetThoseHasJobBySepecility";
+
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+
+            var list = CallActionPost("/Common/HospitalGetForDDL", obj);
+
+            if (list != null && list.length > 0) {
+
+                listHospitalByTypeAndSepecility = list;
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (hospitalId == ddlItem.id)
+                        $("#ddlHospital").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    else $("#ddlHospital").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+            }
+
+        }
+
+        function SaveSpecilityData() {
+
+            if (ValidateSpecilityFrom() == false) {
+
+                var checkPrefNo = CallActionPost("/ApplicantProfile/ApplicantSpecilityCheckPreferenceNo", objSpecility);
+
+                if (checkPrefNo != null) {
+
+                    if (checkPrefNo.status == true) {
+
+                        var resp = CallActionPost("/ApplicationAdmin/ApplicantSpecilityAddUpdate", objSpecility);
+                        if (resp != null) {
+                            if (resp.status == true) {
+                                ClearSpecilityForm();
+                                GetApplicantSpecilityList();
+                            }
+                            else {
+                                alert(resp.message);
+                            }
+                        }
+                        else {
+                            alert("Some thing went wrong!");
+                        }
+                        /*
+                         -----------------------------*/
+                    }
+                    else {
+                        alert(checkPrefNo.message);
+                    }
+                }
+                else {
+                    alert("Some thing went wrong!");
+                }
+            }
+
+        }
+
+        function ValidateSpecilityFrom() {
+
+
+            $(".req-fld").removeClass("req-fld");
+
+            var isError = false, ctrl = "";
+
+            objSpecility = {};
+
+            objSpecility.applicantSpecilityId = ConvertToInt($("#hfdSpecilityId").val())
+            objSpecility.applicantId = applicantId;
+            objSpecility.typeId = ConvertToInt($("#ddlType").val());
+            objSpecility.specialityId = ConvertToInt($("#ddlSpeciality").val());
+            objSpecility.hospitalId = ConvertToInt($("#ddlHospital").val());
+            objSpecility.preferenceNo = ConvertToInt($("#txtPreferenceNo").val());
+
+            if (objSpecility.typeId == 0) {
+                $("#ddlType").addClass("req-fld");
+                ctrl = "ddlType";
+                isError = true;
+            }
+            if (objSpecility.specialityId == 0) {
+
+                $("#ddlSpeciality").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlSpeciality";
+            }
+
+            if (objSpecility.hospitalId == 0) {
+
+                $("#ddlHospital").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "ddlHospital";
+            }
+
+            if (objSpecility.preferenceNo == 0) {
+
+                $("#txtPreferenceNo").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPreferenceNo";
+            }
+
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
+
+        function GetApplicantSpecilityList() {
+
+            var resp = CallActionGet("/ApplicantProfile/GetApplicantSpecilityData?applicantId=" + applicantId);
+            if (resp != null && resp.length > 0) {
+                objSpecilityList = resp;
+                BindPenelSpecilityList();
+            }
+        }
+
+        function BindPenelSpecilityList() {
+
+            $("#divHtml").html("");
+
+            var divTemp = $("#divTemp").html();
+            var htmlTemp = $("#tbTemplate").html();
+
+            var objItem = {};
+            var htmlComplete = "", htmlSingle = "";
+            var htmlCompleteDiv = "", htmlSingleDiv = "";
+
+            if (objSpecilityList != null && objSpecilityList.length > 0) {
+
+                var objType = {};
+                for (var i = 0; i < objTypeList.length; i++) {
+
+                    objType = objTypeList[i];
+
+                    var objTypeSpecilityList = $.grep(objSpecilityList, function (n, i) {
+                        return n.typeId == objType.id;
+                    });
+
+                    if (objTypeSpecilityList != null && objTypeSpecilityList.length > 0) {
+
+                        htmlComplete = "";
+                        htmlSingleDiv = divTemp;
+
+                        for (var j = 0; j < objTypeSpecilityList.length; j++) {
+
+                            htmlSingle = htmlTemp;
+                            objItem = objTypeSpecilityList[j];
+                            htmlComplete = htmlComplete + htmlSingle.replace(/{#specialityName#}/g, objItem.specialityName)
+                                .replace(/{#hospitalName#}/g, objItem.hospitalName)
+                                .replace(/{#preferenceNo#}/g, objItem.preferenceNo)
+                                .replace(/{#SpecilityId#}/g, objItem.applicantSpecilityId);
+                        }
+
+                        var body = " <table class='table mt10'><thead class='job-th'>" +
+                            "<tr><th>Speciality</th>" +
+                            "<th>Hospital</th><th>Preference No</th> <th>Action</th></tr> </thead> " +
+                            "<tbody>" + htmlComplete + " </tbody></table>";
+
+                        htmlCompleteDiv = htmlCompleteDiv + "<h3>" + objType.value + "</h3><hr class=colorgraph'>" +
+                            "<div class='row'><div class='col-xs-12 col-sm-12 col-md-12'>"
+                            + body + "</div></div> "
+
+                    }
+
+                }
+            }
+
+            $("#divHtml").html(htmlCompleteDiv);
+
+        }
+
+        function BindSpecilityForm() {
+
+            typeId = objSpecility.typeId;
+            specialityId = objSpecility.specialityId;
+            hospitalId = objSpecility.hospitalId;
+
+            $("#hfdSpecilityId").val(objSpecility.applicantSpecilityId);
+            $("#ddlType").val(typeId);
+            BindSpecialityDDL(specialityId)
+            $("#ddlSpeciality").val(specialityId);
+            BindHospitalDDL(hospitalId);
+            $("#ddlHospital").val(hospitalId);
+            $("#txtPreferenceNo").val(objSpecility.preferenceNo);
+        }
+
+        function DeleteSpecility() {
+
+            var resp = CallActionGet("/ApplicantProfile/ApplicantSpecilityDeleteSingle?applicantSpecilityId=" + applicantSpecilityId);
+            ClearSpecilityForm();
+            GetApplicantSpecilityList();
+
+        }
+
+        function ClearSpecilityForm() {
+
+            specialityId = 0;
+            hospitalId = 0;
+            $("#hfdSpecilityId").val(0);
+            $("#ddlSpeciality").val(0);
+            $("#txtPreferenceNo").val("");
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+        }
+
+    </script>
+}
+
+<div class="container" style=" margin-bottom:60px;">
+    <div class="row main">
+        @Html.Partial("_ApplicationUpdateLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3 class="text-center">Speciality : Step 5 of 6</h3>
+                        <hr class="colorgraph">
+                        <table style="display:none">
+                            <tbody id="tbTemplate">
+                                <tr class="job-tb">
+                                    <td>{#specialityName#}</td>
+                                    <td>{#hospitalName#}</td>
+                                    <td>{#preferenceNo#}</td>
+                                    <td>
+                                        <a id="ankEdit{#SpecilityId#}" class="ankEdit ank"><i class="fa fa-pencil-square-o"></i></a>&nbsp;|&nbsp;
+                                        <a id="ankDel{#SpecilityId#}" class="ankDel ank"><i class="fa fa-trash-o"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div id="divHtml">
+
+                        </div>
+                        <div class="well">
+                            <form role="form">
+                                <div class="row" style="height:20px; "> </div>
+                                <h4> Preference </h4>
+                                <div class="row">
+                                    <input type="hidden" id="hfdSpecilityId" value="0">
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label> Type <span class="sprq">*</span></label>
+                                            <select class="form-control" required="" id="ddlType" name="ddlType">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label> Speciality <span class="sprq">*</span></label>
+                                            <select class="form-control" id="ddlSpeciality" name="ddlSpeciality">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label> Hospital Name <span class="sprq">*</span></label>
+                                            <select class="form-control" required="" id="ddlHospital" name="ddlHospital">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label> Preference No. <span class="sprq">*</span></label>
+                                            <input type="text" required="" id="txtPreferenceNo" name="PrefNo" class="form-control numeric" len="2" placeholder="Please Enter Preference No">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <div class="form-group">
+                                            <label>&nbsp;</label>
+                                            <input type="button" id="btnSave" name="submit" class="btn mybtn animated-button form-control" value="Save Preference" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @Html.Partial("_NotePageBottom")
+        </div>
+    </div>
+</div>

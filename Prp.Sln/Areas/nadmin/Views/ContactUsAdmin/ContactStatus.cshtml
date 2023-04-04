@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "Applicant Question/Answer";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ContactAdminModel
+@section RenderCss{
+
+    <style>
+        .imgView {
+            height: 50px;
+            width: 45px;
+        }
+
+        .query-new {
+            background-color: #f95454;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        .query-old {
+            background-color: #61aa2f;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        .footer {
+            background-color: #2A3F54 !important;
+            color: #fff;
+        }
+
+    </style>
+
+}
+@section RenderScript{
+
+    <script>
+        var perPageRecords = 10, typeId = 0
+            , pageNum = 1, totalCount = 0, obj = {}, inductionId = 0;
+        $(document).ready(function () {
+
+            typeId = ConvertToInt($("#hfdTypeId").val());
+            ContactsStatus();
+        });
+
+        function ContactsStatus() {
+
+            var rowHtml = "";
+            $("#tbPanel").html("");
+
+            obj = {};
+            obj.typeId = typeId;
+
+            var url = "/ContactUsAdmin/ContactStatusByType";
+
+            var list = CallActionPost(url, obj);
+
+            var html = "", totalRemaning = "";
+
+            var singleHtml = "", objItem = {};
+
+            if (list != null && list.length > 0) {
+
+                totalCount = list[0].totalCount;
+
+                rowHtml = $("#tbTempHtml").html();
+
+                var remaningTotal = 0, total = 0, repliedTotal = 0;
+
+                for (var i = 0; i < list.length; i++) {
+
+                    objItem = list[i];
+                    singleHtml = rowHtml;
+
+                    //if (objItem.applicantId == 0) {
+                    //    queryType = "<span class='query-new'> New </span>"
+                    //}
+                    //else {
+                    //    queryType = "<span class='query-old'>LoggedIn</span>"
+                    //}
+
+                    totalRemaning = objItem.totalRemaning;
+
+                    remaningTotal = remaningTotal + totalRemaning;
+                    total = total + objItem.totalCount;
+                    repliedTotal = repliedTotal + objItem.totalReplied;
+
+                    html = html + singleHtml.replace(/{#name#}/g, objItem.name)
+                        .replace(/{#totalRemaning#}/g, totalRemaning)
+                        .replace(/{#totalCount#}/g, objItem.totalCount)
+                        .replace(/{#totalReplied#}/g, objItem.totalReplied);
+                }
+
+                html = html + " <tr class='footer'><td class='column-title'> Total </td>  <td class='column-title'>" + total + "</td>" +
+                    "<td class='column-title'>" + repliedTotal + "</td>  <td class='column-title'>" + remaningTotal + "</td> </tr >";
+
+                $("#tblPanel").show();
+                $("#tbPanel").html(html);
+
+            }
+            else {
+
+                $("#tblPanel").hide();
+                $("#tbPanel").html("");
+            }
+
+        }
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        @Html.HiddenFor(m => m.contact.typeId, new { @id = "hfdTypeId" })
+        <div class="x_title">
+            <h2>Email Replied Status </h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table id="tblPanel" class="table table-striped jambo_table bulk_action" style="display:none;">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Name </th>
+                            <th class="column-title">Total </th>
+                            <th class="column-title">Reply </th>
+                            <th class="column-title">Remaining </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbPanel">
+                    </tbody>
+                </table>
+                <div style="display:none;">
+                    <table>
+                        <tbody id="tbTempHtml">
+                            <tr class="tbRow">
+                                <td>{#name#}</td>
+                                <td>{#totalCount#}</td>
+                                <td>{#totalReplied#}</td>
+                                <td>{#totalRemaning#}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
