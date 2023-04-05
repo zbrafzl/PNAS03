@@ -49,6 +49,12 @@ namespace Prp.Sln
             );
 
             routes.MapRoute(
+                name: "VerifyRegister",
+                url: "verify-registration",
+                defaults: new { controller = "LoggedIn", action = "VerifyRegister", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
                 name: "ForgotPassword",
                 url: "forgot-password",
                 defaults: new { controller = "LoggedIn", action = "ForgotPassword", id = UrlParameter.Optional }

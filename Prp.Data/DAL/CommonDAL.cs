@@ -46,7 +46,7 @@ namespace Prp.Data
                     con = new SqlConnection(PrpDbConnectADO.Conn);
                     con.Open();
                     cmd.Connection = con;
-                    cmd.Parameters.AddWithValue("@inductionId", 12);
+                    cmd.Parameters.AddWithValue("@inductionId", 13);
                     cmd.Parameters.AddWithValue("@phaseId", 1);
                     DataTable dt = new DataTable();
                     using (var da = new SqlDataAdapter(cmd))

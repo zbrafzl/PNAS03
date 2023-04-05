@@ -31,7 +31,7 @@ namespace Prp.Sln
 
                             try
                             {
-                                string number = "03353131989";
+                                string number = "03006647709";
                                 string message = "Dear Applicant, the testing message Auto message. JobServiceSMS";
                                 //msg = FunctionUI.SendSms(number, message);
                             }

@@ -6395,6 +6395,7 @@
     <Content Include="Views\Shared\_GazetteMeritLinks.cshtml" />
     <Content Include="Views\Home\LandingPage.cshtml" />
     <Content Include="Views\Home\PNAS.cshtml" />
+    <Content Include="Views\LoggedIn\VerifyRegister.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

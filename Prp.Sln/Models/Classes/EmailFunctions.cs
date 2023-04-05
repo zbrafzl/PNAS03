@@ -50,90 +50,94 @@ namespace Prp.Sln
             string msgBody = "";
 
             string fullLink = "";
-            try
-
+            if (!message.Contains("Dear Loanees"))
             {
-                string link = "https://pk.eocean.us/APIManagement/API/RequestAPI";
-                string password = "";
                 try
-                {
-                    password = ConfigurationManager.AppSettings["SmsPassword"];
-                }
-                catch (Exception)
-                {
-                    password = "";
-                }
 
-                if (String.IsNullOrWhiteSpace(password))
                 {
+                    string link = "https://pk.eocean.us/APIManagement/API/RequestAPI";
+                    string password = "";
                     try
                     {
-                        string path = ProjConstant.SMS.Path.smsPassword;
-                        string filePath = Path.Combine(HttpContext.Current.Server.MapPath(path));
-                        password = filePath.ReadFile();
-                        password = password.Trim();
+                        password = ConfigurationManager.AppSettings["SmsPassword"];
                     }
                     catch (Exception)
                     {
                         password = "";
                     }
 
-                }
-
-                if (String.IsNullOrWhiteSpace(password))
-                {
-                    password = "AHL%2fcJw8rwobY9hd2XefAq84EdiM8lf4GtDI08ob%2f2SciwVUqiYHKgN%2fNoFgo65deg%3d%3d";
-                }
-
-                string urlParameters = "?user=phf&pwd=#password#&sender=PHF&reciever=#number#&msg-data=#message#&response=string";
-                number = "92" + number.Substring(1, number.Length - 1);
-
-                urlParameters = urlParameters.Replace("#password#", password);
-                urlParameters = urlParameters.Replace("#number#", number);
-                urlParameters = urlParameters.Replace("#message#", message);
-
-                fullLink = link + urlParameters;
-
-                HttpClient client = new HttpClient();
-                client.BaseAddress = new Uri(link);
-
-                // Add an Accept header for JSON format.
-                client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-                
-                // List data response.
-                HttpResponseMessage response = client.GetAsync(urlParameters).Result;  // Blocking call! Program will wait here until a response is received or a timeout occurs.
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseContent = response.Content;
-                    msgBody = responseContent.ReadAsStringAsync().GetAwaiter().GetResult().ToLower();
-
-                    if (msgBody.Contains("successfully"))
+                    if (String.IsNullOrWhiteSpace(password))
                     {
-                        msg.status = true;
-                        msg.msg = "Sent";
+                        try
+                        {
+                            string path = ProjConstant.SMS.Path.smsPassword;
+                            string filePath = Path.Combine(HttpContext.Current.Server.MapPath(path));
+                            password = filePath.ReadFile();
+                            password = password.Trim();
+                        }
+                        catch (Exception)
+                        {
+                            password = "";
+                        }
+
+                    }
+
+                    if (String.IsNullOrWhiteSpace(password))
+                    {
+                        password = "AHL%2fcJw8rwobY9hd2XefAq84EdiM8lf4GtDI08ob%2f2SciwVUqiYHKgN%2fNoFgo65deg%3d%3d";
+                    }
+
+                    string urlParameters = "?user=phf&pwd=#password#&sender=PHF&reciever=#number#&msg-data=#message#&response=string";
+                    number = "92" + number.Substring(1, number.Length - 1);
+
+                    urlParameters = urlParameters.Replace("#password#", password);
+                    urlParameters = urlParameters.Replace("#number#", number);
+                    urlParameters = urlParameters.Replace("#message#", message);
+
+                    fullLink = link + urlParameters;
+
+                    HttpClient client = new HttpClient();
+                    client.BaseAddress = new Uri(link);
+
+                    // Add an Accept header for JSON format.
+                    client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+
+                    // List data response.
+                    HttpResponseMessage response = client.GetAsync(urlParameters).Result;  // Blocking call! Program will wait here until a response is received or a timeout occurs.
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseContent = response.Content;
+                        msgBody = responseContent.ReadAsStringAsync().GetAwaiter().GetResult().ToLower();
+
+                        if (msgBody.Contains("successfully"))
+                        {
+                            msg.status = true;
+                            msg.msg = "Sent";
+                        }
+                        else
+                        {
+                            msg.status = false;
+                            msg.msg = "1.Error!";
+                        }
                     }
                     else
                     {
+                        Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
                         msg.status = false;
-                        msg.msg = "1.Error!";
+                        msg.msg = "2.Error!!";
                     }
+                    //Dispose once all HttpClient calls are complete. This is not necessary if the containing object will be disposed of; for example in this case the HttpClient instance will be disposed automatically when the application terminates so the following call is superfluous.
+                    client.Dispose();
+                    msg.message = link + urlParameters;
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
-                    msg.status = false;
-                    msg.msg = "2.Error!!";
+                    msg.msg = "3.Error!!!";
+                    msg.message = ex.Message + "    " + fullLink;
                 }
-                //Dispose once all HttpClient calls are complete. This is not necessary if the containing object will be disposed of; for example in this case the HttpClient instance will be disposed automatically when the application terminates so the following call is superfluous.
-                client.Dispose();
-                msg.message = link + urlParameters;
             }
-            catch (Exception ex)
-            {
-                msg.msg = "3.Error!!!";
-                msg.message = ex.Message + "    " + fullLink;
-            }
+            
 
             msg.message = msgBody + "    :     " + msg.message;
             return msg;

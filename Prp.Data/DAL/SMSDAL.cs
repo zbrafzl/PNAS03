@@ -150,7 +150,22 @@ namespace Prp.Data
             Message msg = new Message();
             try
             {
-                db.spSMSProcessAddUpdate(obj.smsProcessId, obj.smsId, obj.applicantId, obj.isProcess, obj.isSent);
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spSMSProcessAddUpdate]"
+                };
+                cmd.Parameters.AddWithValue("@smsProcessId", obj.smsProcessId);
+                cmd.Parameters.AddWithValue("@smsId", obj.smsId);
+                cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+                cmd.Parameters.AddWithValue("@isProcess", obj.isProcess);
+                cmd.Parameters.AddWithValue("@isSent", obj.isSent);
+                SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+                cmd.Connection = connection;
+                connection.Open();
+                cmd.ExecuteNonQuery();
+                connection.Close();
+                //db.spSMSProcessAddUpdate(obj.smsProcessId, obj.smsId, obj.applicantId, obj.isProcess, obj.isSent);
             }
             catch (Exception ex)
             {
