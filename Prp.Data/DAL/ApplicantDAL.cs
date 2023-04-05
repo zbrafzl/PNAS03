@@ -1959,7 +1959,7 @@ namespace Prp.Data
 
         public ApplicantVoucher GetApplicantVoucher(int inductionId, int phaseId, int applicantId)
         {
-            inductionId = 12;
+            inductionId = 13;
             ApplicantVoucher obj = new ApplicantVoucher();
             SqlConnection con = new SqlConnection();
             try
