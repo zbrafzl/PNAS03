@@ -74,33 +74,7 @@
 
         $(document).ready(function () {
 
-            $(document).on('click', '.btnTotal125', function () {
-                //var id = ConvertToInt($(this).attr("id"));
-                //var typeId = ConvertToInt($(this).attr("typeid"));
-                //window.location = "/admin/applicant-search?statusTypeId=" + typeId + "&statusId=" + id;
-                //var data = '';
-                //if (data == '')
-                //    return;
-                getTotalList125();
-            });
-            $(document).on('click', '.btnTotal126', function () {
-                //var id = ConvertToInt($(this).attr("id"));
-                //var typeId = ConvertToInt($(this).attr("typeid"));
-                //window.location = "/admin/applicant-search?statusTypeId=" + typeId + "&statusId=" + id;
-                //var data = '';
-                //if (data == '')
-                //    return;
-                getTotalList126();
-            });
-            $(document).on('click', '.btnTotal127', function () {
-                //var id = ConvertToInt($(this).attr("id"));
-                //var typeId = ConvertToInt($(this).attr("typeid"));
-                //window.location = "/admin/applicant-search?statusTypeId=" + typeId + "&statusId=" + id;
-                //var data = '';
-                //if (data == '')
-                //    return;
-                getTotalList127();
-            });
+            
             $(document).on('click', '.btnTotal128', function () {
                 //var id = ConvertToInt($(this).attr("id"));
                 //var typeId = ConvertToInt($(this).attr("typeid"));
@@ -235,11 +209,11 @@
                     string query = "select avb.applicantNo appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
                     + "avb.transactionIdBank bankTransId, avb.amount amount, avb.dated dateVerified from tblApplicant a "
                     + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId "
-                    + "inner join tblApplicantVoucherBank avb on av.applicantId = avb.applicantId";
+                    + "inner join tblApplicantVoucherBank avb on av.applicantId = avb.applicantId and avb.inductionId = 13";
 
-                    string query2 = "select CONCAT('128',av.applicantId) appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
+                    string query2 = "select CONCAT('135',av.applicantId) appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
                     + "av.submittedDate submitDate, '500' amount from tblApplicant a "
-                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId";
+                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId and av.inductionId = 13";
 
                     SqlConnection con = new SqlConnection();
                     SqlCommand cmd = new SqlCommand(query);
@@ -405,10 +379,10 @@
                                                                         <p><i class="fa fa-square black"></i>Total </p>
                                                                     </td>
                                                                     <td style="width:16.44%">@verifyToal</td>
-                                                                    <td style="width:16.44%"><button class="btn-green btnTotal125">125 Excel Download</button></td>
+                                                                    @*<td style="width:16.44%"><button class="btn-green btnTotal125">125 Excel Download</button></td>
                                                                     <td style="width:16.44%"><button class="btn-green btnTotal126">126 Excel Download</button></td>
-                                                                    <td style="width:16.44%"><button class="btn-green btnTotal127">127 Excel Download</button></td>
-                                                                    <td style="width:16.44%"><button class="btn-green btnTotal128">128 Excel Download</button></td>
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal127">127 Excel Download</button></td>*@
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal128">Excel Download</button></td>
                                                                 </tr>
                                                     @*<tr class="trclick" id="1" typeid="73">
                                                             <td>

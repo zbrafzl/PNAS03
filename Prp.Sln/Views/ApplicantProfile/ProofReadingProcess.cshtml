@@ -25,11 +25,13 @@
             background-color: #48a0d7;
             border-radius: 5px
         }
+
         .th_center {
-           text-align:center;
+            text-align: center;
         }
+
         .w1 {
-            width:1%;
+            width: 1%;
         }
 
         .center-div {
@@ -88,11 +90,11 @@
 
     <script>
 
-        var applicantId = 0, objApplicant = {}, imagesPath = "";
+        var applicantId = 0, objApplicant = {}, imagesPath = "", contactNumber = 0;
 
         $(document).ready(function () {
 
-            
+
 
             applicantId = ConvertToInt($("#hfdApplicantId").val());
 
@@ -102,13 +104,47 @@
 
                 var isConfirm = $("#chkConfirm").is(':checked');
                 if (isConfirm) {
+                    if (test) {
 
-                    CallActionGet("/ApplicantProfile/UpdateApplicantStatus?applicantId=" + applicantId
-                        + "&applicationStatus=8&condition=applicationStatus");
-                    window.location = "/application-completed";
+                        var valReturn = CallActionGet("/ApplicantProfile/UpdateApplicantStatus?applicantId=" + applicantId
+                            + "&applicationStatus=8&condition=applicationStatus");
+
+                        $('#myModal').modal('show');
+                        //
+                    }
+                    else {
+                        $('#myModal').modal('hide');
+                        alert("Please click on below link Verification Code.");
+                    }
                 }
                 else {
 
+                    alert("Please select agree information");
+                }
+            });
+            var test = false;
+            var otpCode;
+            $(document).on('click', '#ankGenerateOtpCode', function () {
+
+                var isConfirm = $("#chkConfirm").is(':checked');
+                if (isConfirm) {
+                    if (otpCode == null || otpCode == "") {
+                        var Code = CallActionGet("/ApplicantProfile/GenerateOtpCode?applicantId=" + applicantId
+                            + "&applicationStatus=8&condition=applicationStatus");
+
+                        if (Code != null) {
+                            otpCode = Code;
+                            test = true;
+                            //$("#otpregenrate").show();
+                            //$("#otpgenrate").hide();
+                            alert("Otp code sent in your mobile no for verification.");
+                        }
+                    }
+
+                } else {
+                    test = false;
+                    //$("#otpregenrate").hide();
+                    //$("#otpgenrate").show();
                     alert("Please select agree information");
                 }
             });
@@ -118,9 +154,64 @@
                 printDiv();
 
             });
+            //$(document).on('click', '.#btnSaveModal', function () {
 
+            //    window.location = "/application-completed";
+
+            //});
 
         });
+
+        $(document).on('click', '#ankReGenerateOtpCode', function () {
+
+            var isConfirm = $("#chkConfirm").is(':checked');
+            if (isConfirm) {
+                if (otpCode == null || otpCode == "") {
+                    var Code = CallActionGet("/ApplicantProfile/GenerateOtpCode?applicantId=" + applicantId
+                        + "&applicationStatus=8&condition=applicationStatus");
+
+                    if (Code != null) {
+                        otpCode = Code;
+                        test = true;
+
+                        $("#otpgenrate").hide();
+                        alert("Otp code sent in your mobile no for verification.");
+                    }
+                }
+
+            } else {
+                test = false;
+                $("#otpregenrate").hide();
+                $("#otpgenrate").show();
+                alert("Please select agree information");
+            }
+        });
+
+        $(document).on('click', '#btnSaveModal', function () {
+            mobilenumber = $("#txtMobile").val();
+            otp = $("#txtOtp").val();
+            if (mobilenumber.length != 11)
+                alert("Enter Correct Mobile Number")
+            else if (otp.length != 6)
+                alert("Enter Correct OTP")
+            else {
+                checkOtp(mobilenumber, otp)
+            }
+        });
+
+
+        function checkOtp(mobilenumber, otp) {
+            var valReturn = CallActionGet("/ApplicantProfile/CheckOtp?mobileNumber=" + mobilenumber + "" + "&otp=" + otp);
+
+            if (valReturn != 0) {
+                window.location = "/application-completed";
+            }
+            else {
+                alert("Mobile Number Or OTP does not match or OTP expired")
+            }
+        }
+
+
 
         function printDiv() {
             var result = false;
@@ -142,8 +233,8 @@
 
         function GetApplicantMarksInfo() {
             //alert("GetApplicantInfo");
-            if (@Convert.ToInt32(Session["degreeAchieved"]) == 13) {
-                if (@Convert.ToInt32(Session["appliedFor"]) == 13) {
+            if (1>0) {
+                if (1>0) {
                     var resp = CallActionGet("/ApplicantProfile/GetApplicantTentativeMarks?applicantId=" + applicantId
                         + "&fsc=100&gn=0&mw=0&bsn=0&extraQ=0&minExp=0&exp=0&entryTest=0");
                     console.log(resp);
@@ -319,11 +410,11 @@
                                 var digit = 0;
                                 if (Convert.ToInt32(Session["degreeAchieved"]) == 13)
                                 {
-                                    digit = 8;
+                                    digit = 5;
                                 }
                                 else
                                 {
-                                    digit = 7;
+                                    digit = 5;
                                 }
                                 decimal marksDegree = 0;
                                 decimal marksDMC = 0;
@@ -341,9 +432,9 @@
                                             <th>
                                                 <h4 style="margin: 0px; font-size: 35px;">@applicant.name</h4>
                                                 <h4 style="margin: 0px; font-size: 20px; margin-bottom:8px; ">
-                                                    @if (1>0)
+                                                    @if (1 > 0)
                                                     {
-                                                    <label style="margin: 0px; font-size: 20px; margin-top: 8px; border-bottom: 2px solid #000">Form No: 135@(applicant.applicantId) : Application for BSN Generic (4 Years Degree Program) </label>
+                                                        <label style="margin: 0px; font-size: 20px; margin-top: 8px; border-bottom: 2px solid #000">Form No: 135@(applicant.applicantId) : Application for BSN Generic (4 Years Degree Program) </label>
                                                     }
                                                     else if (Convert.ToInt32(Session["appliedFor"]) == 12)
                                                     {
@@ -361,7 +452,7 @@
                                                 <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pathProfilePic)" style="width:90px; height:80px;" />
                                                 @*<a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
 
-                            </a>*@
+                                                    </a>*@
                                             </th>
                                         </tr>
                                     </tbody>
@@ -384,29 +475,42 @@
                                                             <td>Date Of Birth</td>
                                                             <td>@info.dob.ToString("dd MMM yyyy")</td>
                                                         </tr>
+                                                        <tr>
+                                                            <td>Marital Status</td>
+                                                            @if (Model.applicantInfo.meritalStatus == 1)
+                                                            {
+                                                                <td>Single</td>
+                                                            }
+                                                            else if (Model.applicantInfo.meritalStatus == 2)
+                                                            {
+                                                                <td>Married</td>
+                                                            }
+                                                            else if (Model.applicantInfo.meritalStatus == 3)
+                                                            {
+                                                                <td>Separated</td>
+                                                            }
+                                                            else if (Model.applicantInfo.meritalStatus == 4)
+                                                            {
+                                                                <td>Widowed</td>
+                                                            }
+                                                        </tr>
                                                         @*<tr>
-                                        <td>PMDC Number</td>
-                                        <td>
-                                            @applicant.pmdcNo
-                                            <a class="ank" href="@("https://pmc.gov.pk/Doctors/Details?regNo="+@applicant.pmdcNo)" target="_blank"> View </a>
-                                        </td>
-                                    </tr>*@
-                                                        @if (Convert.ToInt32(Session["degreeAchieved"]) != 13)
-                                                        {
-                                                            <tr>
-                                                                <td>PNC Number</td>
+                                                                <td>PMDC Number</td>
                                                                 <td>
-                                                                    @applicant.pncNo
+                                                                    @applicant.pmdcNo
+                                                                    <a class="ank" href="@("https://pmc.gov.pk/Doctors/Details?regNo="+@applicant.pmdcNo)" target="_blank"> View </a>
                                                                 </td>
-                                                            </tr>
-                                                        }
+                                                            </tr>*@
+
                                                         <tr>
                                                             @if (info.countryId == 132)
                                                             {
-                                                                if(info.cnicPicBack == ""){ 
+                                                                if (info.cnicPicBack == "")
+                                                                {
                                                                     <td> Form B </td>
                                                                 }
-                                                                else { 
+                                                                else
+                                                                {
                                                                     <td> CNIC </td>
                                                                 }
 
@@ -476,7 +580,11 @@
                                                         </tr>
                                                         <tr>
                                                             <td>Mobile No</td>
-                                                            <td>@applicant.contactNumber</td>
+                                                            <td>
+                                                                @applicant.contactNumber
+
+                                                            </td>
+
                                                         </tr>
                                                         <tr>
                                                             <td>Gender</td>
@@ -489,52 +597,45 @@
                                                                 <td>Male</td>
                                                             }
                                                         </tr>
-                                                        @if (Convert.ToInt32(Session["degreeAchieved"]) != 13)
-                                                        {
-                                                            
-                                                            <tr>
-                                                                <td>PNC Expiry Date</td>
-                                                                <td>@info.pncExpiryDate.ToString("dd MMM yyyy")</td>
-                                                            </tr>
-                                                        }
-                                                    <tr>
-                                                        @if (info.countryId == 132)
-                                                        {
-                                                            if (info.cnicPicBack == "")
+
+                                                        <tr>
+                                                            @if (info.countryId == 132)
+                                                            {
+                                                                if (info.cnicPicBack == "")
+                                                                {
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td>CNIC Expiry Date</td>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <td>Passport Expiry Date</td>
+                                                            }
+                                                            @if (info.cnicPicBack == "")
                                                             {
 
                                                             }
                                                             else
                                                             {
-                                                                <td>CNIC Expiry Date</td>
+                                                                <td>@info.cnicExpiryDate.ToString("dd MMM yyyy")</td>
                                                             }
-                                                        }
-                                                        else
-                                                        {
-                                                            <td>Passport Expiry Date</td>
-                                                        }
-                                                        @if (info.cnicPicBack == "")
-                                                        {
 
-                                                        }
-                                                        else
-                                                        {
-                                                            <td>@info.cnicExpiryDate.ToString("dd MMM yyyy")</td>
-                                                        }
-                                                        
-                                                    </tr>
+                                                        </tr>
                                                         <tr>
                                                             @if (info.countryId == 132)
                                                             {
                                                                 if (info.cnicPicBack == "")
-                                                                { 
-                                                                    
+                                                                {
+
                                                                 }
                                                                 else
-                                                                { 
+                                                                {
                                                                     <td>CNIC Back</td>
                                                                 }
-                                                                
+
                                                             }
                                                             else
                                                             {
@@ -545,7 +646,7 @@
 
                                                             }
                                                             else
-                                                            { 
+                                                            {
                                                                 <td>
                                                                     <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicBack)" target="_blank" title="Click to view">
                                                                         <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.cnicPicBack)" />
@@ -555,7 +656,7 @@
                                                                     </a>
                                                                 </td>
                                                             }
-                                                            
+
                                                         </tr>
                                                         @if (info.countryId == 132)
                                                         {
@@ -711,7 +812,7 @@
                                                     <td>Post RN B.sc.Nursing/Generic</td>
                                                 }
                                                 else
-                                                { 
+                                                {
                                                     <td>@item.degreeName</td>
                                                 }
                                                 <td class="th_center">@item.obtainMarks</td>
@@ -728,32 +829,32 @@
                                             </tr>
                                             i++;
                                             @*<tr>
-                                                <th style="width:20%">Degree Type</th>
-                                                <th style="width:50%" colspan="2">Passing Institute/Board</th>
+                                                    <th style="width:20%">Degree Type</th>
+                                                    <th style="width:50%" colspan="2">Passing Institute/Board</th>
 
-                                            </tr>
-                                            <tr>
-                                                <td>@item.degreeName</td>
-                                                <td colspan="2">@item.degreeInstitute</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>@item.degreeName</td>
+                                                    <td colspan="2">@item.degreeInstitute</td>
 
-                                            </tr>
-                                            <tr>
-                                                <th>Obtained Marks</th>
-                                                <th>Total Marks</th>
-                                                <th>@item.degreeName Degree</th>
-                                            </tr>
-                                            <tr>
-                                                <td>@item.obtainMarks</td>
-                                                <td>@item.totalMarks</td>
-                                                <td>
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + item.imageDMC)" target="_blank" title="Click to view">
-                                                        <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + item.imageDMC)" alt="No Image" />
-                                                    </a>
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + item.imageDMC)" target="_blank" title="Click to view">
-                                                        <span class="ank spn-img-view">View</span>
-                                                    </a>
-                                                </td>
-                                            </tr>*@
+                                                </tr>
+                                                <tr>
+                                                    <th>Obtained Marks</th>
+                                                    <th>Total Marks</th>
+                                                    <th>@item.degreeName Degree</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>@item.obtainMarks</td>
+                                                    <td>@item.totalMarks</td>
+                                                    <td>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + item.imageDMC)" target="_blank" title="Click to view">
+                                                            <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + item.imageDMC)" alt="No Image" />
+                                                        </a>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + item.imageDMC)" target="_blank" title="Click to view">
+                                                            <span class="ank spn-img-view">View</span>
+                                                        </a>
+                                                    </td>
+                                                </tr>*@
                                         }
 
                                     </tbody>
@@ -842,17 +943,17 @@
                                             </tbody>
                                         </table>
                                         <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
-                                            <thead> 
+                                            <thead>
                                                 <tr>
-                                                    <th>Preference No.</th> 
-                                                    @if (1>0)
+                                                    <th>Preference No.</th>
+                                                    @if (1 > 0)
                                                     {
                                                     }
                                                     else
-                                                    { 
+                                                    {
                                                         <th> Specillaty</th>
                                                     }
-                                                    <th> Institute</th>  
+                                                    <th> Institute</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -860,7 +961,7 @@
                                                 {
                                                     <tr>
                                                         <td>@spc.preferenceNo</td>
-                                                        @if (1>0)
+                                                        @if (1 > 0)
                                                         {
                                                         }
                                                         else
@@ -910,7 +1011,7 @@
                                     else
                                     {
                                         <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
-                                            @if (0>1)
+                                            @if (0 > 1)
                                             {
                                                 <thead> <tr> <th> Branch Code </th><th> Submitted Date </th> <th> Image </th><th> Testing Center </th>  </tr></thead>
                                             }
@@ -930,7 +1031,7 @@
                                                             <span class="ank spn-img-view">View</span>
                                                         </a>
                                                     </td>
-                                                    @if (0>1)
+                                                    @if (0 > 1)
                                                     {
                                                         <td>@Model.voucher.testingCenterName.TooString()</td>
                                                     }
@@ -942,7 +1043,7 @@
 
 
 
-                                if (Convert.ToInt32(Session["appliedFor"]) != 13)
+                                if (0 > 1)
                                 {
                                     <table style="margin-top: 15px; width: 100%;" cellspacing="0">
                                         <tbody>
@@ -1005,29 +1106,29 @@
                                                     </a>
                                                 </td>
                                                 @*<td>
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
-                                                        <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" alt="No Image" />
-                                                    </a>
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
-                                                        <span class="ank spn-img-view">View</span>
-                                                    </a>
-                                                </td>*@
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
+                                                            <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" alt="No Image" />
+                                                        </a>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
+                                                            <span class="ank spn-img-view">View</span>
+                                                        </a>
+                                                    </td>*@
                                                 @*<td>
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" target="_blank" title="Click to view">
-                                                        <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" alt="No Image" />
-                                                    </a>
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" target="_blank" title="Click to view">
-                                                        <span class="ank spn-img-view">View</span>
-                                                    </a>
-                                                </td>*@
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" target="_blank" title="Click to view">
+                                                            <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" alt="No Image" />
+                                                        </a>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" target="_blank" title="Click to view">
+                                                            <span class="ank spn-img-view">View</span>
+                                                        </a>
+                                                    </td>*@
                                                 @*<td colspan="2">
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter2)" target="_blank" title="Click to view">
-                                                        <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter2)" alt="No Image" />
-                                                    </a>
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter2)" target="_blank" title="Click to view">
-                                                        <span class="ank spn-img-view">View</span>
-                                                    </a>
-                                                </td>*@
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter2)" target="_blank" title="Click to view">
+                                                            <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter2)" alt="No Image" />
+                                                        </a>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter2)" target="_blank" title="Click to view">
+                                                            <span class="ank spn-img-view">View</span>
+                                                        </a>
+                                                    </td>*@
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1048,45 +1149,18 @@
                                                     <tbody>
                                                         <tr style="text-align:center">
                                                             <th class="th_center w1 fsc" colspan="2">FSc</th>
-                                                            <th class="th_center w1 gn" colspan="2">General Nursing</th>
-                                                            <th class="th_center w1 bsn" colspan="2">BSN Generic</th>
-                                                            <th class="th_center w1 postRn" colspan="2">Post RN</th>
-                                                            @*<th class="th_center minExp">Minimum Experience Required</th>*@
-                                                            <th class="th_center w1 exper" colspan="2">Experience</th>
-                                                            <th class="th_center w1 entry" colspan="2">Entry Test</th>
+
                                                             <th class="th_center w1 total" colspan="2" rowspan="2">Total Aggregate</th>
                                                         </tr>
                                                         <tr style="text-align:center">
                                                             <th class="th_center w1 fsc">Obtained</th>
                                                             <th class="th_center w1 fsc">Total</th>
-                                                            <th class="th_center w1 gn">Obtained</th>
-                                                            <th class="th_center w1 gn">Total</th>
-                                                            <th class="th_center w1 bsn">Obtained</th>
-                                                            <th class="th_center w1 bsn">Total</th>
-                                                            <th class="th_center w1 postRn">Obtained</th>
-                                                            <th class="th_center w1 postRn">Total</th>
-                                                            @*<th class="th_center minExp">Minimum Experience Required</th>*@
-                                                            <th class="th_center w1 exper">Obtained</th>
-                                                            <th class="th_center w1 exper">Total</th>
-                                                            <th class="th_center w1 entry">Obtained</th>
-                                                            <th class="th_center w1 entry">Total</th>
-                                                            @*<th class="th_center total">Total Aggregate Obtained</th>
-                                                            <th class="th_center total">Total Aggregate</th>*@
+
                                                         </tr>
                                                         <tr style="text-align:center">
                                                             <td class="fsc" id="fsc"></td>
                                                             <td class="fsc">100</td>
-                                                            <td class="gn" id="gn"></td>
-                                                            <td class="gn totalQualification"></td>
-                                                            <td class="bsn" id="bsn"></td>
-                                                            <td class="bsn  totalQualification"></td>
-                                                            <td class="postRn" id="postRn"></td>
-                                                            <td class="postRn totalExtraQualification"></td>
-                                                            @*<td class="minExp" id="minExp"></td>*@
-                                                            <td class="exper" id="exper"></td>
-                                                            <td class="exper totalExperience"></td>
-                                                            <td class="entry" id="entry"></td>
-                                                            <td class="entry">40</td>
+
                                                             <td class="total" id="total"></td>
                                                             @*<td class="total">100</td>*@
                                                         </tr>
@@ -1104,24 +1178,24 @@
                                 <tbody>
                                     <tr style="float: left">
                                         <!--<fieldset>
-                                                <legend>
-                                                    <label class="checkbox-inline" for="chkConfirm" dir="rtl">
-                                                        <input type="checkbox" name="acknowledge" id="chkConfirm" value="1" required="required">
-                                                        یہ تصدیق شدہ ہے کہ معلومات درست ہیں۔
-                                                    </label>
-                                                </legend>
-                                                <div class="row col-md-12  ">
-                                                    <div class="col-md-12" dir="rtl">
-                                                        <p>
-                                                            1. میں،  @Model.applicant.name,  اعلان کرتا ہوں کہ، درخواست فارم میں میرے ذریعے کی گئی اندراجات میرے بہترین علم کے مطابق اور ریکارڈ پر مبنی مکمل اور درست ہیں۔<br />
-                                                            2. میں رجسٹریشن کے لیے درخواست فارم میں فراہم کردہ کسی بھی غلط معلومات فراہم کرنے کے لیے مکمل طور پر ذمہ دار ہوں۔<br />
-                                                            3. اگر جمع کرائی گئی معلومات غلط، مماثل یا جعلی پائی گئیں تو درخواست کو مسترد کر دیا جائے گا اور اگر ٹریننگ شروع کی گئی تو ادارہ/سرکاری سطح پر اپیل کے حق کے بغیر بند کر دیا جائے گا۔<br />
-                                                            4.<span style="color:#ff0000; font-size:14px;"><b> اگاگر اپ لوڈ کردہ/منسلک/جمع کردہ دستاویزات میں سے کوئی بھی جعلی/جعلی پایا گیا تو میں انضباطی کارروائی کا ذمہ دار ہوں گا۔</b></span><br />-->
-                                                                                @*5.<span style="color:#ff0000; font-size:14px;"><b>Important Note: Please ensure the correctness of information before Accept and Submit. Once submitted the information cannot be edited / changed.</b></span>*@
-                                                                                <!--</p>
-                                                    </div>
+                                        <legend>
+                                            <label class="checkbox-inline" for="chkConfirm" dir="rtl">
+                                                <input type="checkbox" name="acknowledge" id="chkConfirm" value="1" required="required">
+                                                یہ تصدیق شدہ ہے کہ معلومات درست ہیں۔
+                                            </label>
+                                        </legend>
+                                        <div class="row col-md-12  ">
+                                            <div class="col-md-12" dir="rtl">
+                                                <p>
+                                                    1. میں،  @Model.applicant.name,  اعلان کرتا ہوں کہ، درخواست فارم میں میرے ذریعے کی گئی اندراجات میرے بہترین علم کے مطابق اور ریکارڈ پر مبنی مکمل اور درست ہیں۔<br />
+                                                    2. میں رجسٹریشن کے لیے درخواست فارم میں فراہم کردہ کسی بھی غلط معلومات فراہم کرنے کے لیے مکمل طور پر ذمہ دار ہوں۔<br />
+                                                    3. اگر جمع کرائی گئی معلومات غلط، مماثل یا جعلی پائی گئیں تو درخواست کو مسترد کر دیا جائے گا اور اگر ٹریننگ شروع کی گئی تو ادارہ/سرکاری سطح پر اپیل کے حق کے بغیر بند کر دیا جائے گا۔<br />
+                                                    4.<span style="color:#ff0000; font-size:14px;"><b> اگاگر اپ لوڈ کردہ/منسلک/جمع کردہ دستاویزات میں سے کوئی بھی جعلی/جعلی پایا گیا تو میں انضباطی کارروائی کا ذمہ دار ہوں گا۔</b></span><br />-->
+                                        @*5.<span style="color:#ff0000; font-size:14px;"><b>Important Note: Please ensure the correctness of information before Accept and Submit. Once submitted the information cannot be edited / changed.</b></span>*@
+                                        <!--</p>
                                                 </div>
-                                            </fieldset>-->
+                                            </div>
+                                        </fieldset>-->
                                         <fieldset>
                                             <legend>
                                                 <label class="checkbox-inline" for="chkConfirm">
@@ -1143,12 +1217,104 @@
                                     </tr>
                                 </tbody>
                             </table>
+
+                            <table style="width: 100%; " cellspacing="0px">
+                                <tbody>
+                                    <tr style="float: left">
+
+                                        <fieldset>
+                                            <legend>
+                                                <label class="checkbox-inline" for="chkOtpCode">
+
+                                                    Generate OTP Code
+                                                </label>
+                                            </legend>
+                                            <div class="row col-md-12  ">
+                                                <div class="col-md-12" id="otpgenrate">
+                                                    <p>
+                                                        Please generate your Verification Code <span>
+
+                                                            <a id="ankGenerateOtpCode" class="pull-right">&nbsp;<i class="fa fa-external-link"></i> Generate Verification Code</a>
+
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                @*<div class="col-md-12" id="otpregenrate" style="display:none">
+                                                        <p>
+                                                            Please wait 10 minutes for Verification Code then click on ReGenerate Verification Code <span>
+
+                                                                <a id="ankReGenerateOtpCode" class="pull-right">&nbsp;<i class="fa fa-external-link"></i> ReGenerate Verification Code</a>
+
+                                                            </span>
+                                                        </p>
+                                                    </div>*@
+                                            </div>
+                                        </fieldset>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+
                     <div class="col-sm-12">
                         <a id="ankSubmit" class="btn btn-lg btn-red mb10 pull-right">&nbsp;<i class="fa fa-save"></i> &nbsp; Accept &amp; Submit </a>
                     </div>
                 </form>
+
+                <div class="modal fade" id="myModal" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Otp Verification</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row main">
+                                    <div class="col-sm-1"></div>
+                                    <div class="col-sm-10 form-box mn0" style="height:100%; padding:30px">
+                                        <div class="main-login main-center">
+                                            <h1 class="text-center">Confirm Your Mobile Number</h1>
+                                            <div class="col-sm-4"></div>
+                                            <div class="col-sm-4"><img src="/assets/public/images/sent_mail.png" class="w100" alt=""></div>
+                                            <div class="col-sm-4"></div>
+                                            <p>
+                                                <label class="text-center">
+                                                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                                    Your Registration process is almost completed, we just need your mobile number verification, please verify your mobile number and OTP sent to your mobile number.
+                                                </label>
+
+                                            </p>
+                                            <div class="col-md-12">
+                                                <div class="col-sm-2"></div>
+                                                <div class="col-sm-2" style="padding:10px; text-align:right" ">Mobile Number</div>
+                                                <div class="col-sm-4"><input type="text" name="txtMobile" maxlength="11" id="txtMobile" class="form-control" tabindex="0"></div>
+                                                <div class="col-sm-4"></div>
+                                            </div>
+                                            <div class="col-md-12" style="margin-top:20px">
+                                                <div class="col-sm-2"></div>
+                                                <div class="col-sm-2" style="padding:10px; text-align:right">OTP</div>
+                                                <div class="col-sm-4"><input type="text" name="txtOtp" maxlength="6" id="txtOtp" class="form-control" tabindex="0"></div>
+                                                <div class="col-sm-4"></div>
+                                            </div>
+
+                                            <div class="col-sm-12">
+                                                <span id="btnSaveModal" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28">Verify &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
 

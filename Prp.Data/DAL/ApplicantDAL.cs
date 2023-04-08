@@ -167,6 +167,7 @@ namespace Prp.Data
 
         public Message ApplicantUpdate(Applicant obj)
         {
+           
             Message msg = ApplicantUpdateByAdmin(obj);
             return msg;
         }

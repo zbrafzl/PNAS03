@@ -24,12 +24,15 @@
             padding: 10px;
             height: 60px;
         }
+
         .th_center {
             text-align: center;
         }
+
         .w1 {
             width: 1%;
         }
+
         .btn_print {
             width: 100%;
             padding: 10px;
@@ -114,8 +117,8 @@
 
         function GetApplicantMarksInfo() {
             //alert("GetApplicantInfo");
-            if (@Convert.ToInt32(Session["degreeAchieved"]) == 13) {
-                if (@Convert.ToInt32(Session["appliedFor"]) == 13) {
+            if (1>0) {
+                if (1>0) {
                     var resp = CallActionGet("/ApplicantProfile/GetApplicantTentativeMarks?applicantId=" + applicantId
                         + "&fsc=100&gn=0&mw=0&bsn=0&extraQ=0&minExp=0&exp=0&entryTest=0");
                     console.log(resp);
@@ -217,7 +220,7 @@
             else
             {
                 var resp = CallActionGet("/ApplicantProfile/GetApplicantTentativeMarks?applicantId=" + applicantId
-                    + "&fsc=0&gn=0&mw=0&bsn=0&extraQ=0&minExp=0&exp=0&entryTest=0");
+                    + "&fsc=100&gn=0&mw=0&bsn=0&extraQ=0&minExp=0&exp=0&entryTest=0");
                 console.log(resp);
             }
 
@@ -291,11 +294,11 @@
                                 var digit = 0;
                                 if (Convert.ToInt32(Session["degreeAchieved"]) == 13)
                                 {
-                                    digit = 8;
+                                    digit = 5;
                                 }
                                 else
                                 {
-                                    digit = 7;
+                                    digit = 5;
                                 }
                                 var degree = Model.degree;
 
@@ -315,9 +318,9 @@
                                             <th>
                                                 <h4 style="margin: 0px; font-size: 35px;">@applicant.name</h4>
                                                 <h4 style="margin: 0px; font-size: 20px; margin-bottom:8px; ">
-                                                    @if (Convert.ToInt32(Session["appliedFor"]) == 11)
+                                                    @if (1 > 0)
                                                     {
-                                                        <label style="margin: 0px; font-size: 20px; margin-top: 8px; border-bottom: 2px solid #000">Form No: 12@(digit)@(applicant.applicantId) : Application for Post RN BSc Nursing (2 years Degree Program) </label>
+                                                        <label style="margin: 0px; font-size: 20px; margin-top: 8px; border-bottom: 2px solid #000">Form No: 12@(digit)@(applicant.applicantId) : Application for BSN Generic (4 Years Degree Program)</label>
                                                     }
                                                     else if (Convert.ToInt32(Session["appliedFor"]) == 12)
                                                     {
@@ -335,7 +338,7 @@
                                                 <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pathProfilePic)" style="width:90px; height:80px;" />
                                                 @*<a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
 
-                            </a>*@
+                                                    </a>*@
                                             </th>
                                         </tr>
                                     </tbody>
@@ -358,22 +361,33 @@
                                                             <td>Date Of Birth</td>
                                                             <td>@info.dob.ToString("dd MMM yyyy")</td>
                                                         </tr>
+                                                        <tr>
+                                                            <td>Marital Status</td>
+                                                            @if (Model.applicantInfo.meritalStatus == 1)
+                                                            {
+                                                                <td>Single</td>
+                                                            }
+                                                            else if (Model.applicantInfo.meritalStatus == 2)
+                                                            {
+                                                                <td>Married</td>
+                                                            }
+                                                            else if (Model.applicantInfo.meritalStatus == 3)
+                                                            {
+                                                                <td>Separated</td>
+                                                            }
+                                                            else if (Model.applicantInfo.meritalStatus == 4)
+                                                            {
+                                                                <td>Widowed</td>
+                                                            }
+                                                        </tr>
                                                         @*<tr>
-                                        <td>PMDC Number</td>
-                                        <td>
-                                            @applicant.pmdcNo
-                                            <a class="ank" href="@("https://pmc.gov.pk/Doctors/Details?regNo="+@applicant.pmdcNo)" target="_blank"> View </a>
-                                        </td>
-                                    </tr>*@
-                                                        @if (Convert.ToInt32(Session["degreeAchieved"]) != 13)
-                                                        {
-                                                            <tr>
-                                                                <td>PNC Number</td>
+                                                                <td>PMDC Number</td>
                                                                 <td>
-                                                                    @applicant.pncNo
+                                                                    @applicant.pmdcNo
+                                                                    <a class="ank" href="@("https://pmc.gov.pk/Doctors/Details?regNo="+@applicant.pmdcNo)" target="_blank"> View </a>
                                                                 </td>
-                                                            </tr>
-                                                        }
+                                                            </tr>*@
+
                                                         <tr>
                                                             @if (info.countryId == 132)
                                                             {
@@ -420,26 +434,28 @@
                                                         </tr>
 
                                                         <tr>
-                                                            <td>Disability</td>
-                                                            @if (!String.IsNullOrWhiteSpace(info.disableImage))
-                                                            {
-                                                                <td>
-                                                                    @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
-                                                                        <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
-                                                                    </a>
-                                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
-                                                                        <span class="ank spn-img-view">View</span>
-                                                                    </a>
-                                                                </td>
-                                                            }
-                                                            else
-                                                            {
-                                                                if (@info.disableId == 1)
+                                                            <td></td>
+                                                            <td></td>
+                                                            @*<td>Disability</td>
+                                                                @if (!String.IsNullOrWhiteSpace(info.disableImage))
                                                                 {
-                                                                    <td> None </td>
+                                                                    <td>
+                                                                        @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                                                                            <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
+                                                                        </a>
+                                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                                                                            <span class="ank spn-img-view">View</span>
+                                                                        </a>
+                                                                    </td>
                                                                 }
+                                                                else
+                                                                {
+                                                                    if (@info.disableId == 1)
+                                                                    {
+                                                                        <td> None </td>
+                                                                    }
 
-                                                            }
+                                                                }*@
                                                         </tr>
 
                                                     </tbody>
@@ -465,14 +481,7 @@
                                                                 <td>Male</td>
                                                             }
                                                         </tr>
-                                                        @if (Convert.ToInt32(Session["degreeAchieved"]) != 13)
-                                                        {
 
-                                                            <tr>
-                                                                <td>PNC Expiry Date</td>
-                                                                <td>@info.pncExpiryDate.ToString("dd MMM yyyy")</td>
-                                                            </tr>
-                                                        }
                                                         <tr>
                                                             @if (info.countryId == 132)
                                                             {
@@ -701,32 +710,32 @@
                                             </tr>
                                             i++;
                                             @*<tr>
-                            <th style="width:20%">Degree Type</th>
-                            <th style="width:50%" colspan="2">Passing Institute/Board</th>
+                                                    <th style="width:20%">Degree Type</th>
+                                                    <th style="width:50%" colspan="2">Passing Institute/Board</th>
 
-                        </tr>
-                        <tr>
-                            <td>@item.degreeName</td>
-                            <td colspan="2">@item.degreeInstitute</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>@item.degreeName</td>
+                                                    <td colspan="2">@item.degreeInstitute</td>
 
-                        </tr>
-                        <tr>
-                            <th>Obtained Marks</th>
-                            <th>Total Marks</th>
-                            <th>@item.degreeName Degree</th>
-                        </tr>
-                        <tr>
-                            <td>@item.obtainMarks</td>
-                            <td>@item.totalMarks</td>
-                            <td>
-                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + item.imageDMC)" target="_blank" title="Click to view">
-                                    <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + item.imageDMC)" alt="No Image" />
-                                </a>
-                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + item.imageDMC)" target="_blank" title="Click to view">
-                                    <span class="ank spn-img-view">View</span>
-                                </a>
-                            </td>
-                        </tr>*@
+                                                </tr>
+                                                <tr>
+                                                    <th>Obtained Marks</th>
+                                                    <th>Total Marks</th>
+                                                    <th>@item.degreeName Degree</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>@item.obtainMarks</td>
+                                                    <td>@item.totalMarks</td>
+                                                    <td>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + item.imageDMC)" target="_blank" title="Click to view">
+                                                            <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + item.imageDMC)" alt="No Image" />
+                                                        </a>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + item.imageDMC)" target="_blank" title="Click to view">
+                                                            <span class="ank spn-img-view">View</span>
+                                                        </a>
+                                                    </td>
+                                                </tr>*@
                                         }
 
                                     </tbody>
@@ -812,7 +821,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Preference No.</th>
-                                                    @if(1>0)
+                                                    @if (1 > 0)
                                                     {
                                                     }
                                                     else
@@ -827,7 +836,7 @@
                                                 {
                                                     <tr>
                                                         <td>@spc.preferenceNo</td>
-                                                        @if (1>0)
+                                                        @if (1 > 0)
                                                         {
                                                         }
                                                         else
@@ -905,7 +914,7 @@
                                     }
                                 }
 
-                                if (Convert.ToInt32(Session["appliedFor"]) != 13)
+                                if (0 > 1)
                                 {
                                     <table style="margin-top: 15px; width: 100%;" cellspacing="0">
                                         <tbody>
@@ -976,13 +985,13 @@
                                                     </a>
                                                 </td>
                                                 @*<td>
-                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" target="_blank" title="Click to view">
-                                    <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" alt="No Image" />
-                                </a>
-                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" target="_blank" title="Click to view">
-                                    <span class="ank spn-img-view">View</span>
-                                </a>
-                            </td>*@
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" target="_blank" title="Click to view">
+                                                            <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" alt="No Image" />
+                                                        </a>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter)" target="_blank" title="Click to view">
+                                                            <span class="ank spn-img-view">View</span>
+                                                        </a>
+                                                    </td>*@
                                                 <td colspan="2">
                                                     <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter2)" target="_blank" title="Click to view">
                                                         <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.recommendationLetter2)" alt="No Image" />
@@ -1010,45 +1019,18 @@
                                                     <tbody>
                                                         <tr style="text-align:center">
                                                             <th class="th_center w1 fsc" colspan="2">FSc</th>
-                                                            <th class="th_center w1 gn" colspan="2">General Nursing</th>
-                                                            <th class="th_center w1 bsn" colspan="2">BSN Generic</th>
-                                                            <th class="th_center w1 postRn" colspan="2">Post RN</th>
-                                                            @*<th class="th_center minExp">Minimum Experience Required</th>*@
-                                                            <th class="th_center w1 exper" colspan="2">Experience</th>
-                                                            <th class="th_center w1 entry" colspan="2">Entry Test</th>
+
                                                             <th class="th_center w1 total" colspan="2" rowspan="2">Total Aggregate</th>
                                                         </tr>
                                                         <tr style="text-align:center">
                                                             <th class="th_center w1 fsc">Obtained</th>
                                                             <th class="th_center w1 fsc">Total</th>
-                                                            <th class="th_center w1 gn">Obtained</th>
-                                                            <th class="th_center w1 gn">Total</th>
-                                                            <th class="th_center w1 bsn">Obtained</th>
-                                                            <th class="th_center w1 bsn">Total</th>
-                                                            <th class="th_center w1 postRn">Obtained</th>
-                                                            <th class="th_center w1 postRn">Total</th>
-                                                            @*<th class="th_center minExp">Minimum Experience Required</th>*@
-                                                            <th class="th_center w1 exper">Obtained</th>
-                                                            <th class="th_center w1 exper">Total</th>
-                                                            <th class="th_center w1 entry">Obtained</th>
-                                                            <th class="th_center w1 entry">Total</th>
-                                                            @*<th class="th_center total">Total Aggregate Obtained</th>
-                                        <th class="th_center total">Total Aggregate</th>*@
+
                                                         </tr>
                                                         <tr style="text-align:center">
                                                             <td class="fsc" id="fsc"></td>
                                                             <td class="fsc">100</td>
-                                                            <td class="gn" id="gn"></td>
-                                                            <td class="gn totalQualification"></td>
-                                                            <td class="bsn" id="bsn"></td>
-                                                            <td class="bsn  totalQualification"></td>
-                                                            <td class="postRn" id="postRn"></td>
-                                                            <td class="postRn totalExtraQualification"></td>
-                                                            @*<td class="minExp" id="minExp"></td>*@
-                                                            <td class="exper" id="exper"></td>
-                                                            <td class="exper totalExperience"></td>
-                                                            <td class="entry" id="entry"></td>
-                                                            <td class="entry">40</td>
+
                                                             <td class="total" id="total"></td>
                                                             @*<td class="total">100</td>*@
                                                         </tr>
@@ -1063,32 +1045,32 @@
 
                             }
                             @*<table style="width: 100%;" cellspacing="0px">
-                                <tbody>
-                                    <tr style="float: left">
-                                        <fieldset>
-                                            <legend>
-                                                <label>
-                                                    Note:
-                                                </label>
-                                            </legend>
-                                            <div class="row col-md-12  ">
-                                                <div class="col-md-12">
-                                                    <p>
-                                                        Only closed and submitted applications will be considered for the induction.
-                                                    </p>
+                                    <tbody>
+                                        <tr style="float: left">
+                                            <fieldset>
+                                                <legend>
+                                                    <label>
+                                                        Note:
+                                                    </label>
+                                                </legend>
+                                                <div class="row col-md-12  ">
+                                                    <div class="col-md-12">
+                                                        <p>
+                                                            Only closed and submitted applications will be considered for the induction.
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </fieldset>
-                                    </tr>
-                                </tbody>
-                            </table>*@
+                                            </fieldset>
+                                        </tr>
+                                    </tbody>
+                                </table>*@
                         </div>
                     </div>
                     @*<div class="col-sm-12">
-                        <div class="center-div">
-                            <a class="btn btn-app animated-button btn_reopen"><i class="fa fa-save"></i> &nbsp; Reopen Application </a>
-                        </div>
-                    </div>*@
+                            <div class="center-div">
+                                <a class="btn btn-app animated-button btn_reopen"><i class="fa fa-save"></i> &nbsp; Reopen Application </a>
+                            </div>
+                        </div>*@
                 </form>
             </div>
         </div>
