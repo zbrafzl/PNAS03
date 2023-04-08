@@ -50,7 +50,7 @@
                     showOnFocus: true,
                     changeYear: true,
                     startDate: '-35y',
-                    endDate: '-17y'
+                    endDate: '-16y'
                 }
                 );
             }
@@ -432,7 +432,7 @@
 
             objApplicantInfo.address = ConvertToString($("#txtAddress").val());
             objApplicantInfo.cnicNo = ConvertToString($("#txtCNIC").val());
-            $("#ddlcnicSelect").val(1);
+            //$("#ddlcnicSelect").val(1);
             if ($("#ddlcnicSelect").val() == "1") {
                 objApplicantInfo.cnicExpiryDate = "";
                 if (ValidateDate("txtCNICExpiryDate")) {
@@ -1067,8 +1067,15 @@
             $("#divDDLDistrict").hide();
             $("#divTxtDistrict").hide();
             $(".divDomicile").hide();
-
-            $(".spnCnic").html("CNIC");
+            if (objApplicantInfo.cnicPicBack == "") {
+                $(".spnCnic").html("Form B");
+                $("#txtCNIC").attr("placeholder", "Form B");
+            }
+            else {
+                $(".spnCnic").html("CNIC");
+                $("#txtCNIC").attr("placeholder", "CNIC");
+            }
+            //$(".spnCnic").html("CNIC");
             $("#spnCnicUpload1").html("CNIC Front Picture");
             $("#spnCnicUpload2").html("CNIC Back Picture");
             objApplicantInfo.countryId = 132;
@@ -1488,6 +1495,7 @@
         function cnicCheckOption(that) {
             if (that.value == "2") {
                 document.getElementById("CNICexpiry").style.display = "none";
+                $("#txtCNIC").attr("placeholder", "Form B");
                 var elements = document.getElementsByClassName('spnCnic');
                 {
                     for (var i = 0; i < elements.length; i++) {
@@ -1497,6 +1505,7 @@
                 document.getElementById("cnicBackPicDiv").style.display = "none";
             } else {
                 document.getElementById("CNICexpiry").style.display = "block";
+                $("#txtCNIC").attr("placeholder", "CNIC");
                 var elements = document.getElementsByClassName('spnCnic');
                 {
                     for (var i = 0; i < elements.length; i++) {
@@ -1671,6 +1680,9 @@
                                     <label for=""> Marital Status   <span style="color:red">*</span></label>
                                     <select required="required" name="ddlMerital" id="ddlMerital" class="form-control" tabindex="5">
                                         <option selected="selected" value="1">Single</option>
+                                        <option value="2">Married</option>
+                                        <option value="3">Separated</option>
+                                        <option value="4">Widow</option>
                                         <option value="2">Married</option>
                                         <option  value="3">Divorced</option>
                                         <option  value="4">Widow</option>
@@ -1848,7 +1860,7 @@
                             </div>
                             <div class="col-sm-4">
                                 <div class="form-group">
-                                    <label for=""> <span> CNIC Front Picture</span> <span style="color:red">*</span>  </label>
+                                    <label for=""> <span class="spnCnic"> CNIC / Form B Number</span> <span> Front Picture</span> <span style="color:red">*</span>  </label>
                                     <input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="19" />
                                     <input type="hidden" id="hfdCnicFront" value="" />
                                     <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
