@@ -291,15 +291,15 @@ namespace Prp.Sln.Controllers
 
                     body = body.Replace("{#name#}", obj.name).Replace("{#key#}", key);
 
-                    try
-                    {
+                    //try
+                    //{
 
-                        obj.emailId.SendEmail(ProjConstant.Email.Subject.registration
-                      , ProjConstant.Email.Title.registration, body);
-                    }
-                    catch (Exception)
-                    {
-                    }
+                    //    obj.emailId.SendEmail(ProjConstant.Email.Subject.registration
+                    //  , ProjConstant.Email.Title.registration, body);
+                    //}
+                    //catch (Exception)
+                    //{
+                    //}
 
                     try
                     {

@@ -1512,8 +1512,148 @@ namespace Prp.Sln.Controllers
         [HttpGet]
         public JsonResult UpdateApplicantStatus(int applicantId, int applicationStatus)
         {
-            Message msg = ApplicantStatusUpdate(applicantId, ProjConstant.Constant.statusApplicantApplication, applicationStatus);
+           
+           Message msg = ApplicantStatusUpdate(applicantId, ProjConstant.Constant.statusApplicantApplication, applicationStatus);
             return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+        private string GenerateRandomOTP(int iOTPLength, string[] saAllowedCharacters)
+
+        {
+
+            string sOTP = String.Empty;
+
+            string sTempChars = String.Empty;
+
+            Random rand = new Random();
+
+            for (int i = 0; i < iOTPLength; i++)
+
+            {
+
+                int p = rand.Next(0, saAllowedCharacters.Length);
+
+                sTempChars = saAllowedCharacters[rand.Next(0, saAllowedCharacters.Length)];
+
+                sOTP += sTempChars;
+
+            }
+
+            return sOTP;
+
+        }
+        public string GetContactNumber(int applicantId)
+        {
+            string result = string.Empty;
+            string query = "select isnull((select top(1) contactNumber from tblApplicant where applicantId = " + applicantId + "),0)";
+            SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+            SqlCommand cmd = new SqlCommand(query, connection);
+            connection.Open();
+            SqlDataReader reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                string value = reader.GetString(0); // assuming the column type is string
+                if (!string.IsNullOrEmpty(value))
+                {
+                    result = value;
+                }
+                                                // do something with the value
+            }
+            reader.Close();
+            connection.Close();
+            return result;
+        }
+        [HttpGet]
+        public string GenerateOtpCode(int applicantId, int applicationStatus)
+        {
+            Message msg = new Message();
+            int randomNumber = 0;
+            string result = string.Empty;
+            string tpCode = string.Empty;
+            string sRandomOTP = string.Empty;
+            int contactNumber = 0;
+            string Number = GetContactNumber(applicantId);
+
+            string query2 = "select top(1) Cast(otpCode as varchar(250)) from tblOtps where applicantId = " + applicantId + " AND IsUsed = 0 ";
+            SqlConnection connections = new SqlConnection(PrpDbConnectADO.Conn);
+            SqlCommand cmds = new SqlCommand(query2, connections);
+            connections.Open();
+            SqlDataReader readers = cmds.ExecuteReader();
+            if (readers.HasRows)
+            {
+
+                if (readers.Read())
+                {
+
+                    string value = readers.GetString(0); // assuming the column type is string
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        result = value;
+                    }
+                    // do something with the value
+                }
+            }
+            readers.Close();
+            connections.Close();
+            if (string.IsNullOrEmpty(result)) { 
+                if (!string.IsNullOrEmpty(Number))
+                {
+                    contactNumber = Number.TooInt();
+                }
+            try
+            {
+                string smsBody = "";
+                int smsId = 0;
+                try
+                {
+                    SMS sms = new SMSDAL().GetByTypeForApplicant(applicantId, ProjConstant.SMSType.registration);
+                    smsBody = sms.detail;
+                    smsId = sms.smsId;
+                }
+                catch (Exception)
+                {
+                    smsBody = "";
+                }
+                if (String.IsNullOrWhiteSpace(smsBody))
+                {
+                    smsId = 0;
+                    string[] saAllowedCharacters = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+
+                     sRandomOTP = GenerateRandomOTP(6, saAllowedCharacters);
+                    randomNumber = Convert.ToInt32(sRandomOTP);
+                    smsBody = "Dear Candidate, Your Application is ready to submit. Your OTP is : " + randomNumber + ".";
+
+                }
+
+                Message msgSms = FunctionUI.SendSms(Convert.ToString(Number), smsBody);
+
+                try
+                {
+                    SmsProcess objProcess = msgSms.status.SmsProcessMakeDefaultObject(applicantId, smsId);
+                    new SMSDAL().AddUpdateSmsProcess(objProcess);
+                    string query = "insert into tblOtps values (" + applicantId + ",'" + Number + "'," + randomNumber + ",getdate(),0)";
+                    SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+                    connection.Open();
+                    SqlCommand cmd = new SqlCommand(query, connection);
+                    cmd.ExecuteNonQuery();
+                    connection.Close();
+
+                   // msg = ApplicantStatusUpdate(applicantId, ProjConstant.Constant.statusApplicantApplication, 8);
+
+
+             result = sRandomOTP;
+
+                }
+                catch (Exception)
+                {
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+        }
+       
+            return result;
         }
 
         [HttpGet]
@@ -1662,7 +1802,35 @@ namespace Prp.Sln.Controllers
             }
             return msg;
         }
-
+        public int CheckOtp(string mobileNumber, int otp)
+        {
+            int result;
+            string query = "select isnull((select applicantId from tblOtps where mobilenumber = '" + mobileNumber + "' and otpCode = " + otp + " and isUsed = 0),0)";
+            SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+            SqlCommand cmd = new SqlCommand(query, connection);
+            connection.Open();
+            int ret = cmd.ExecuteScalar().TooInt();
+            connection.Close();
+            //check from db where mobile number and otp matches and not used before
+            //if exists, update isUsed to 1 AND add verification status 53,1
+            if (ret > 0)
+            {
+                Session["aoolicantId"] = ret;
+                result = 1;
+                query = "update tblOtps set isUsed = 1 where mobilenumber = '" + mobileNumber + "' and otpCode = " + otp + " and isUsed = 0";
+                connection = new SqlConnection(PrpDbConnectADO.Conn);
+                cmd = new SqlCommand(query, connection);
+                connection.Open();
+                cmd.ExecuteScalar().TooInt();
+                connection.Close();
+                Message msg = new ApplicantDAL().ReigsterVerify(ret, 1, 0);
+            }
+            else
+            {
+                result = 0;
+            }
+            return result;
+        }
         [HttpGet]
         public JsonResult GetApplicationDetailData(int applicantId)
         {
