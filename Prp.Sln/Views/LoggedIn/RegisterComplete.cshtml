@@ -28,70 +28,27 @@
 }
 @section RenderScript{
     <script>
-        var mobilenumber = null, otp = null;
         $(document).ready(function () {
 
         });
-
-        $(document).on('click', '#btnSave', function () {
-            mobilenumber = $("#txtMobile").val();
-            otp = $("#txtOtp").val();
-            if (mobilenumber.length != 11)
-                alert("Enter Correct Mobile Number")
-            else if (otp.length != 6)
-                alert("Enter Correct OTP")
-            else {
-                checkOtp(mobilenumber, otp)
-            }
-        });
-
-
-        function checkOtp(mobilenumber, otp) {
-            var valReturn = CallActionGet("/LoggedIn/CheckOtp?mobileNumber=" + mobilenumber + "" + "&otp=" + otp);
-
-            if (valReturn != 0) {
-                window.location = "/verify-registration";
-            }
-            else {
-                alert("Mobile Number Or OTP does not match or OTP expired")
-            }
-        }
     </script>
 }
 <div class="container content ">
     <div class="row main">
         <div class="col-sm-1"></div>
-        <div class="col-sm-10 form-box mn0" style="height:100%; padding:30px">
+        <div class="col-sm-10 form-box mn0">
             <div class="main-login main-center">
-                <h1 class="text-center">Confirm Your Mobile Number</h1>
+                <h1 class="text-center">Confirm Your Email</h1>
                 <div class="col-sm-4"></div>
                 <div class="col-sm-4"><img src="/assets/public/images/sent_mail.png" class="w100" alt=""></div>
                 <div class="col-sm-4"></div>
                 <p>
                     <label class="text-center">
                         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                        Your Registration process is almost completed, we just need your mobile number verification, please verify your mobile number and OTP sent to your mobile number.
+                        Your Registration process is almost completed, we just need your email verification please go your email account and click the link to verify the account.Please acknowledge the email for confirmation of registration.
                     </label>
-
+                   
                 </p>
-                <div class="col-md-12">
-                    <div class="col-sm-2"></div>
-                    <div class="col-sm-2" style="padding:10px; text-align:right" ">Mobile Number</div>
-                    <div class="col-sm-4"><input type="text" name="txtMobile" maxlength="11" id="txtMobile" class="form-control" tabindex="0"></div>
-                    <div class="col-sm-4"></div>
-                </div>
-                <div class="col-md-12" style="margin-top:20px">
-                    <div class="col-sm-2"></div>
-                    <div class="col-sm-2" style="padding:10px; text-align:right">OTP</div>
-                    <div class="col-sm-4"><input type="text" name="txtOtp" maxlength="6" id="txtOtp" class="form-control" tabindex="0"></div>
-                    <div class="col-sm-4"></div>
-                </div>
-
-                <div class="col-sm-12">
-                    <span id="btnSave" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28">Verify &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
-                </div>
-
-
             </div>
         </div>
     </div>

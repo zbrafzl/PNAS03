@@ -272,11 +272,6 @@
                 UpdateApplicantAmmenmentStatus();
             });
 
-            $(document).on('click', '#btnUpdateAmmenmentJoining', function () {
-
-                UpdateApplicantAmmenmentStatusJoining();
-            });
-
         });
 
         function GetApplicantMarksInfo() {
@@ -730,54 +725,6 @@
 
             }
         }
-
-
-        function UpdateApplicantAmmenmentStatusJoining() {
-
-            var errorMsg = "";
-            var isError = false;
-
-            $("#divError").hide();
-            $("#idErrorMsg").html();
-
-            try {
-
-                var isError = false;
-                var obj = {};
-
-                obj.applicantId = ConvertToInt($("#hfdApplicantId").val());
-                obj.approvalStatusTypeId = statusTypeId;
-                obj.approvalStatusId = ConvertToInt($("#ddlStatusTypeJoining").val());
-                obj.comments = '';
-
-                if (isError == false) {
-                    //alert(statuAction);
-                    statuAction = "AddUpdateVerficationStatusJoining";
-                    var resp = CallActionPost("/VerficationProcess/" + statuAction, obj);
-                    if (resp != null && resp.status == true) {
-                        $("#divError").hide();
-                        $("#spnMsg").html("");
-                        var url = "/admin/applicant-search-join?statusTypeId=52&statusId=-1";
-                        window.open(url);
-                        //var url = window.location.pathname;
-                        //window.location.assign(url);
-                    }
-                    else {
-                        $("#divError").show();
-                        $("#idErrorMsg").html("<li>" + resp.message + "</li>");
-                    }
-                }
-                else {
-                    $("#divError").show();
-                    $("#idErrorMsg").html(errorMsg);
-                }
-
-            } catch (e) {
-
-            }
-        }
-
-
     </script>
 }
 
@@ -885,7 +832,7 @@
                                             <input type="text" class="form-control" required="required" maxlength="15" name="txtPMDCNo" id="txtPMDCNo" placeholder="PNC Number" value="@(Model.applicant.pncNo)" />
                                         </div>
                                     }
-
+                                    
                                     <div class="col-md-2 col-sm-2 col-xs-2">
                                         <label for="heard">Contact No *:</label>
                                         <input type="text" class="form-control numeric" name="txtContactNumber" required="required" len="20" maxlength="11" id="txtContactNumber" placeholder="Contact 03xxxxxxxxx" value="@(Model.applicant.contactNumber)" />
@@ -1109,23 +1056,23 @@
                                                                 </tr>
 
                                                                 @*<tr>
-                                                            <td>Disability Quota</td>
-                                                            @if (!String.IsNullOrWhiteSpace(info.disableImage))
-                                                            {
-                                                                <td>
-                                                                    @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
-                                                                        <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
-                                                                    </a>
-                                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
-                                                                        <span class="ank spn-img-view">View</span>
-                                                                    </a>
-                                                                </td>
-                                                            }
-                                                            else
-                                                            {
-                                                                <td> @info.disable</td>
-                                                            }
-                                                        </tr>*@
+            <td>Disability Quota</td>
+            @if (!String.IsNullOrWhiteSpace(info.disableImage))
+            {
+                <td>
+                    @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                        <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
+                    </a>
+                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                        <span class="ank spn-img-view">View</span>
+                    </a>
+                </td>
+            }
+            else
+            {
+                <td> @info.disable</td>
+            }
+        </tr>*@
                                                                 <tr>
                                                                     @if (info.countryId == 132)
                                                                     {
@@ -1162,7 +1109,7 @@
                                                                         </a>
                                                                     </td>
                                                                 </tr>
-
+                                                                
                                                             </tbody>
                                                         </table>
                                                         <table class="top_detail" style="width: 49%; float: left;">
@@ -1650,206 +1597,206 @@
                                             }
                                         }
                                         @*if (Model.applicant.applicationStatusId > ProjConstant.Constant.ApplicationStatus.experience)
-                                {
-
-                                    <table style="margin-top: 15px; width: 100%;" cellspacing="0">
-                                        <tbody>
-                                            <tr>
-                                                <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                    <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                        Work Experience (Exprience Marks : <label style="font-weight:bold" class="obtainedExperience"></label>
-                                                        / <label style="font-weight:bold" class="totalExperience"></label>)
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    if (Model.listExprince != null && Model.listExprince.Count > 0)
-                                    {
-                                        var sr = 0;
-                                        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
-                                            <tbody>
-                                                <tr>
-                                                    <th>Sr.#</th>
-                                                    <th>Institute</th>
-                                                    <th>From</th>
-                                                    <th>To</th>
-                                                    <th>Duration</th>
-                                                    <th>Province</th>
-                                                    <th>Type of Employment</th>
-                                                    <th>Certificate</th>
-                                                </tr>
-                                                @foreach (var exp in Model.listExprince)
-                                                {
-                                                    sr = sr + 1;
-                                                    <tr>
-                                                        <td> @sr</td>
-                                                        <td>@exp.instituteName</td>
-                                                        <td>@exp.startDated.ToString("dd MMM yyyy")</td>
-                                                        <td>@exp.endDate.ToString("dd MMM yyyy")</td>
-                                                        <td>@(exp.noOfMonth + " Month")</td>
-                                                        <td>@(exp.provinceName )</td>
-                                                        <td>@(exp.typeName )</td>
-                                                        <td>
-                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + exp.imageExperience)" target="_blank" title="Click to view">
-                                                                <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + exp.imageExperience)" alt="No Image" />
-                                                            </a>
-                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + exp.imageExperience)" target="_blank" title="Click to view">
-                                                                <span class="ank spn-img-view">View</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    }
-                                    else
-                                    {
-                                        <table style="margin-top: 5px; width: 100%;" cellspacing="0">
-                                            <tbody>
-                                                <tr>
-                                                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                        <p style="margin: 6px;color: #fff;font-size: 16px;">
-                                                            Expreience not exists
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-
-                                    }
-                                }
-                                if (Model.applicant.applicationStatusId > ProjConstant.Constant.ApplicationStatus.paymentDone)
-                                {
-                                    if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.keVerification
-                                                                && Model.loggedInUser.typeId != ProjConstant.Constant.UserType.keSenior)
-                                    {
-
-                                        if (Model.listSpecility != null && Model.listSpecility.Count > 0)
                                         {
-                                            decimal marksType = 0;
-                                            foreach (var typ in Model.listType)
-                                            {
-                                                var listSpecility = Model.listSpecility.Where(x => x.typeId == typ.id).ToList();
-                                                if (listSpecility != null && listSpecility.Count > 0)
-                                                {
-                                                    try
-                                                    {
-                                                        marksType = listSpecility.Where(x => x.typeId == typ.id).FirstOrDefault().marksType;
-                                                    }
-                                                    catch (Exception)
-                                                    {
-                                                    }
 
-                                                    decimal MarksTotal = 0;
-                                                    <table style="margin-top: 15px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
-                                                        <tbody>
-                                                            <tr>
-                                                                <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                                    <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                        @typ.value Preference  (@marksType.ToString("0.00"))
-                                                                    </p>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-
-
-                                                    <table border="1" style="font-size:14px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
-                                                        <thead> <tr><th>Preference No.</th> <th> Specillaty</th><th> Institute</th> <th> Institute Marks</th>  <th> Total Marks</th>  </tr></thead>
-                                                        <tbody>
-                                                            @foreach (var spc in listSpecility.OrderBy(x => x.preferenceNo))
-                                                            {
-                                                                MarksTotal = marksDegree + marksGradation + marksDMC + marksHouseJob + marksType + marksExperienceDistinction + marksResearchPaper + spc.marks;
-                                                                <tr>
-                                                                    <td>@spc.preferenceNo</td>
-                                                                    <td>@spc.specialityName</td>
-                                                                    <td>@spc.hospitalName</td>
-                                                                    @if (spc.marks > 0)
-                                                                    {
-                                                                        <td><b> @spc.marks.ToString("0.00")</b></td>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <td>@spc.marks.ToString("0.00")</td>
-                                                                    }
-                                                                    <td>@MarksTotal.ToString("0.00") </td>
-                                                                </tr>
-                                                            }
-
-                                                        </tbody>
-                                                    </table>
-                                                }
-                                            }
-
-                                                if (Model.listSpecility != null && Model.listSpecility.Count > 0)
-                                                {
-                                                    if (Model.listSpecility != null && Model.listSpecility.Count > 0)
-                                                    {
-                                                        <table style="margin-top: 15px; width: 100%;" cellspacing="0">
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                                        <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                            Preference
-                                                                        </p>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Preference No.</th>
-                                                                    @if (Convert.ToString(Session["appliedFor"]) == "11")
-                                                                    {
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <th> Specillaty</th>
-                                                                    }
-                                                                    <th> Institute</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach (var spc in Model.listSpecility.OrderBy(x => x.preferenceNo))
-                                                                {
-                                                                    <tr>
-                                                                        <td>@spc.preferenceNo</td>
-                                                                        @if (Convert.ToString(Session["appliedFor"]) == "11")
-                                                                        {
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            <td>@spc.specialityName</td>
-                                                                        }
-
-                                                                        <td>@spc.hospitalName</td>
-                                                                    </tr>
-                                                                }
-
-                                                            </tbody>
-                                                        </table>
-                                                    }
-                                                    <P style="page-break-before: always" />
-                                                }
-                                        }
-                                        else
-                                        {
-                                            <table style="margin-top: 5px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
+                                            <table style="margin-top: 15px; width: 100%;" cellspacing="0">
                                                 <tbody>
                                                     <tr>
                                                         <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                            <p style="margin: 6px;color: #fff;font-size: 16px;">
-                                                                Specility not exists
+                                                            <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                                                Work Experience (Exprience Marks : <label style="font-weight:bold" class="obtainedExperience"></label>
+                                                                / <label style="font-weight:bold" class="totalExperience"></label>)
                                                             </p>
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
+                                            if (Model.listExprince != null && Model.listExprince.Count > 0)
+                                            {
+                                                var sr = 0;
+                                                <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>Sr.#</th>
+                                                            <th>Institute</th>
+                                                            <th>From</th>
+                                                            <th>To</th>
+                                                            <th>Duration</th>
+                                                            <th>Province</th>
+                                                            <th>Type of Employment</th>
+                                                            <th>Certificate</th>
+                                                        </tr>
+                                                        @foreach (var exp in Model.listExprince)
+                                                        {
+                                                            sr = sr + 1;
+                                                            <tr>
+                                                                <td> @sr</td>
+                                                                <td>@exp.instituteName</td>
+                                                                <td>@exp.startDated.ToString("dd MMM yyyy")</td>
+                                                                <td>@exp.endDate.ToString("dd MMM yyyy")</td>
+                                                                <td>@(exp.noOfMonth + " Month")</td>
+                                                                <td>@(exp.provinceName )</td>
+                                                                <td>@(exp.typeName )</td>
+                                                                <td>
+                                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + exp.imageExperience)" target="_blank" title="Click to view">
+                                                                        <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + exp.imageExperience)" alt="No Image" />
+                                                                    </a>
+                                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + exp.imageExperience)" target="_blank" title="Click to view">
+                                                                        <span class="ank spn-img-view">View</span>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            }
+                                            else
+                                            {
+                                                <table style="margin-top: 5px; width: 100%;" cellspacing="0">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                                <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                                                    Expreience not exists
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+
+                                            }
                                         }
-                                    }
-                                }*@
+                                        if (Model.applicant.applicationStatusId > ProjConstant.Constant.ApplicationStatus.paymentDone)
+                                        {
+                                            if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.keVerification
+                                                                        && Model.loggedInUser.typeId != ProjConstant.Constant.UserType.keSenior)
+                                            {
+
+                                                if (Model.listSpecility != null && Model.listSpecility.Count > 0)
+                                                {
+                                                    decimal marksType = 0;
+                                                    foreach (var typ in Model.listType)
+                                                    {
+                                                        var listSpecility = Model.listSpecility.Where(x => x.typeId == typ.id).ToList();
+                                                        if (listSpecility != null && listSpecility.Count > 0)
+                                                        {
+                                                            try
+                                                            {
+                                                                marksType = listSpecility.Where(x => x.typeId == typ.id).FirstOrDefault().marksType;
+                                                            }
+                                                            catch (Exception)
+                                                            {
+                                                            }
+
+                                                            decimal MarksTotal = 0;
+                                                            <table style="margin-top: 15px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                                            <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                                                                @typ.value Preference  (@marksType.ToString("0.00"))
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+
+
+                                                            <table border="1" style="font-size:14px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
+                                                                <thead> <tr><th>Preference No.</th> <th> Specillaty</th><th> Institute</th> <th> Institute Marks</th>  <th> Total Marks</th>  </tr></thead>
+                                                                <tbody>
+                                                                    @foreach (var spc in listSpecility.OrderBy(x => x.preferenceNo))
+                                                                    {
+                                                                        MarksTotal = marksDegree + marksGradation + marksDMC + marksHouseJob + marksType + marksExperienceDistinction + marksResearchPaper + spc.marks;
+                                                                        <tr>
+                                                                            <td>@spc.preferenceNo</td>
+                                                                            <td>@spc.specialityName</td>
+                                                                            <td>@spc.hospitalName</td>
+                                                                            @if (spc.marks > 0)
+                                                                            {
+                                                                                <td><b> @spc.marks.ToString("0.00")</b></td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td>@spc.marks.ToString("0.00")</td>
+                                                                            }
+                                                                            <td>@MarksTotal.ToString("0.00") </td>
+                                                                        </tr>
+                                                                    }
+
+                                                                </tbody>
+                                                            </table>
+                                                        }
+                                                    }
+
+                                                        if (Model.listSpecility != null && Model.listSpecility.Count > 0)
+                                                        {
+                                                            if (Model.listSpecility != null && Model.listSpecility.Count > 0)
+                                                            {
+                                                                <table style="margin-top: 15px; width: 100%;" cellspacing="0">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                                                <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                                                                    Preference
+                                                                                </p>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Preference No.</th>
+                                                                            @if (Convert.ToString(Session["appliedFor"]) == "11")
+                                                                            {
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <th> Specillaty</th>
+                                                                            }
+                                                                            <th> Institute</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach (var spc in Model.listSpecility.OrderBy(x => x.preferenceNo))
+                                                                        {
+                                                                            <tr>
+                                                                                <td>@spc.preferenceNo</td>
+                                                                                @if (Convert.ToString(Session["appliedFor"]) == "11")
+                                                                                {
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <td>@spc.specialityName</td>
+                                                                                }
+
+                                                                                <td>@spc.hospitalName</td>
+                                                                            </tr>
+                                                                        }
+
+                                                                    </tbody>
+                                                                </table>
+                                                            }
+                                                            <P style="page-break-before: always" />
+                                                        }
+                                                }
+                                                else
+                                                {
+                                                    <table style="margin-top: 5px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                                    <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                                                        Specility not exists
+                                                                    </p>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                            }
+                                        }*@
                                         if (Model.applicant.applicationStatusId >= ProjConstant.Constant.ApplicationStatus.proofReading)
                                         {
                                             if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
@@ -1888,7 +1835,7 @@
                                                         else
                                                         {
                                                             <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
-                                                                <thead>
+                                                                <thead> 
                                                                     <tr>
                                                                         <th> Branch Code </th>
                                                                         <th> Submitted Date </th>
@@ -1898,7 +1845,7 @@
                                                                         }
                                                                         else
                                                                         {
-
+                                                                            
                                                                         }
                                                                         <th> Image </th>
                                                                     </tr>
@@ -2006,7 +1953,7 @@
                             </div>
                         </fieldset>
 
-                        if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.phfITManager
+                        if ( Model.loggedInUser.typeId == ProjConstant.Constant.UserType.phfITManager
                             || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter
                             || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
                             || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior)
@@ -2039,42 +1986,6 @@
                                         <div class="col-md-3 col-sm-3 col-xs-3">
                                             <label for="heard">&nbsp;</label>
                                             <input type="button" id="btnUpdateAmmenment" value="Update" class="btn btn-success" />
-                                        </div>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        }
-
-
-                        else if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.institute)
-                        {
-                            <fieldset id="fsVerifyAmmend">
-                                <legend>
-                                    Joining  Action
-                                </legend>
-                                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
-                                    <div class="form-group col-lg-12">
-                                        <div class="col-md-3 col-sm-3 col-xs-3">
-                                            <label for="heard">Status Type *:</label>
-                                            <select id="ddlStatusTypeJoining" name="ddlStatusTypeJoining" class="form-control">
-                                                <option value="0" selected="selected">Not Joined</option>
-                                                <option value="1">Joined</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div id="divComments" class="form-group col-lg-12" style="display:none;">
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <label for="heard">Comments *:</label>
-                                            <div id="divCommentValue" style="display:none;">
-                                                @Model.statusApproval.comments
-                                            </div>
-                                            <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-lg-12">
-                                        <div class="col-md-3 col-sm-3 col-xs-3">
-                                            <label for="heard">&nbsp;</label>
-                                            <input type="button" id="btnUpdateAmmenmentJoining" value="Update" class="btn btn-success" />
                                         </div>
                                     </div>
                                 </form>

@@ -247,42 +247,11 @@
                 <input type="hidden" id="hfdHospitalId" value="@Model.hospitalId" />
                 @if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.hospital)
                 {
-                    <div class="col-md-1 col-sm-1 col-xs-1">
-                        <label for="heard">Induction </label>
-                        <select id="ddlInduction" name="ddlInduction" class="form-control">
-                            <option value="7"> 7</option>
-                            <option value="8"> 8</option>
-                            <option value="9"> 9</option>
-                            <option value="10"> 10</option>
-                            <option value="11"> 11</option>
-                            <option value="12"> 12</option>
-                        </select>
-                    </div>
                     <div class="col-md-3 col-sm-3 col-xs-3">
                         <label for="heard">Hospital </label>
                         <select id="ddlHospital" name="ddlHospital" class="form-control">
                             <option value="0"> Select One</option>
                             @foreach (var item in Model.listHospital.OrderBy(x => x.key))
-                            {
-                                <option value="@item.value">@item.key</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="col-md-3 col-sm-3 col-xs-3">
-                        <label for="heard">Specialty </label>
-                        <select id="ddlSpecialty" name="ddlSpecialty" class="form-control">
-                            <option value="0"> Select One</option>
-                            @foreach (var item in Model.listSpeciality.OrderBy(x => x.key))
-                            {
-                                <option value="@item.value">@item.key</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="col-md-3 col-sm-3 col-xs-3">
-                        <label for="heard">Program </label>
-                        <select id="ddlType" name="ddlType" class="form-control">
-                            <option value="0"> Select One</option>
-                            @foreach (var item in Model.listType.OrderBy(x => x.key))
                             {
                                 <option value="@item.value">@item.key</option>
                             }

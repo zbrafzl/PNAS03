@@ -207,9 +207,12 @@
 
                     var resp = CallActionPost("/ApplicantProfile/ApplicantEducationAddUpdate", objEducation);
                     if (resp != null && resp.status == true) {
-                       
+                        if (@Convert.ToString(Session["degreeAchieved"]) == 13) {
                             window.location = "/applicant-speciality";
-                        
+                        }
+                        else {
+                            window.location = "/applicant-exprience";
+                        }
 
                     }
                 }
@@ -298,7 +301,7 @@
                         ctrl = "flRowDegree1";
                 }
                 $("#hfdRowDegree1").val(objDegree.matricImage);
-
+                
                 var objDegreeMarks = {};
                 objDegreeMarks.degreeTypeId = ConvertToInt($("#ddlMatric").val());;
                 objDegreeMarks.applicantId = applicantId;
@@ -313,7 +316,7 @@
                 else {
                     objDegreeMarks.degreeInstituteName = $("#ddlMatricBoard option:selected").text();
                 }
-
+                
                 //alert(objDegreeMarks);
                 objDegree.DegreeMarks.push(objDegreeMarks);
             }
@@ -446,7 +449,7 @@
                 alert("Matric Passing Date cannot be After Intermediate Passing Date");
             }
 
-            if (13 == 12) {
+            if (@Convert.ToString(Session["degreeAchieved"]) == 12) {
                 if ($("#txtRowDegree3MarksObtain").val().length > 0) {
                     if ($("#flRowDegree3").val()) {
                         objDegree.imageDegreeBSNursing = UploadImage("flRowDegree3", applicantId, "BSNursing");
@@ -499,7 +502,7 @@
                     alert("Obtained Marks cannot be More than Total Marks");
                 }
             }
-            else if (13 == 11) {
+            else if (@Convert.ToString(Session["degreeAchieved"]) == 11) {
                 if ($("#txtRowDegree03MarksObtain").val().length > 0) {
                     if ($("#flRowDegree03").val()) {
                         objDegree.imageDegreeGeneralNursing = UploadImage("flRowDegree03", applicantId, "GeneralNursing");
@@ -626,7 +629,7 @@
                     alert("Minimum 60% Marks in Midwifery Required");
                 }
             }
-            if (13 == 11) {
+            if (@Convert.ToString(Session["appliedFor"]) == 11) {
                 if ($("#txtObtainMarksType5").val().length > 0) {
                     if ($("#flType5").val()) {
                         objDegree.imageDegreeBsc = UploadImage("flType5", applicantId, "PostRnSpecialization");
@@ -664,7 +667,7 @@
                 }
 
             }
-            if (13 == 12) {
+            if (@Convert.ToString(Session["appliedFor"]) == 12) {
 
 
                 if ($("#txtObtainMarksType4").val().length > 0) {
@@ -718,7 +721,7 @@
         }
 
         function GetApplicantEducationInfo() {
-            debugger;
+
 
             $("#ddlDegree").attr("disabled", "disabled");
 
@@ -746,7 +749,7 @@
                             document.getElementById("matricBoardNameDiv").style.display = "block";
                             $("#txtMatricBoardName").val(item.degreeInstituteName);
                         }
-
+                        
 
                         $("#hfdRowDegree1").val("");
                         if (@Convert.ToString(Session["MatricDegreeImg"]).Length > 0) {
@@ -1051,7 +1054,7 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="progress mt15">
-                            @if ("13" == "13")
+                            @if (Convert.ToString(Session["degreeAchieved"]) == "13")
                             {
                                 <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:50%">
                                     50%
@@ -1260,7 +1263,7 @@
                                             </div>
                                         </div>
                                     </fieldset>
-                                    @if ("13" == "12")
+                                    @if (Convert.ToString(Session["degreeAchieved"]) == "12")
                                     {
                                         <fieldset id="fieldType" class="fieldType">
                                             <legend>  BSN Generic </legend>
@@ -1314,7 +1317,7 @@
                                             </div>
                                         </fieldset>
                                     }
-                                    else if ("13" == "11")
+                                    else if (Convert.ToString(Session["degreeAchieved"]) == "11")
                                     {
                                         <fieldset id="fieldType" class="fieldType">
                                             <legend>  General Nursing (03 years) </legend>
@@ -1368,7 +1371,7 @@
                                             </div>
                                         </fieldset>
                                         <fieldset id="fieldType" class="fieldType">
-                                            @if (Convert.ToInt32(2) == 1)
+                                            @if (Convert.ToInt32(Session["genderID"]) == 1)
                                             {
                                                 <legend>  Basic Specialty for Males in lieu of Midwifery : Specialization (4th year) </legend>
                                             }
@@ -1438,7 +1441,7 @@
                             @*Certificates Start*@
 
 
-                            @if ("13" == "11")
+                            @if (Convert.ToString(Session["appliedFor"]) == "11")
                             {
                                 <fieldset id="fieldType5" class="fieldType">
                                     <legend>  1 year Post Basic specialization in any Specialty: (If Already Done) </legend>
@@ -1497,7 +1500,7 @@
                                     </div>
                                 </fieldset>
                             }
-                            @if ("13" == "12")
+                            @if (Convert.ToString(Session["appliedFor"]) == "12")
                             {
                                 <fieldset id="fieldType4" class="fieldType">
                                     <legend> Post RN B.sc.Nursing/Generic:  (If Already Done) </legend>
@@ -1556,7 +1559,7 @@
                                     </div>
                                 </fieldset>
                             }
-                            @if ("13" == "13")
+                            @if (Convert.ToString(Session["degreeAchieved"]) == "13")
                             {
                                 <div class="col-sm-12">
                                     <a href="/applicant-voucher" class="btn btn-lg mb10 mt5 pull-right btn-blue" style="margin-left:10px; margin-top: 6px; display:none;">  &nbsp;&nbsp;Next &nbsp;&nbsp; <i class="fa fa-arrow-right"></i> </a>

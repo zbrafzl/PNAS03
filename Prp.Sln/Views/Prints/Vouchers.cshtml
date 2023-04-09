@@ -111,11 +111,11 @@
 
                             htmlVoucher = htmlVoucher + htmlSingle.replace(/{#copyType#}/g, copyType)
                                 .replace(/#width#/g, width).replace(/{#currentDate#}/g, printDate)
-                                .replace(/{#applicantId#}/g, "135" + FormatNumberToLength(app.applicantId, 5)).replace(/{#applicantName#}/g, app.name)
+                                .replace(/{#applicantId#}/g, "12" + digit + FormatNumberToLength(app.applicantId, 5)).replace(/{#applicantName#}/g, app.name)
                                 .replace(/{#applicantCNIC#}/g, info.cnicNo)
-                                .replace(/{#amount#}/g, '500')
-                                .replace(/{#amountInWords#}/g, 'Five Hundred Only')
-                                .replace(/{#appliedFor#}/g, 'BSN Generic (F)')
+                                .replace(/{#amount#}/g, amount)
+                                .replace(/{#amountInWords#}/g, amountInWords)
+                                .replace(/{#appliedFor#}/g, appliedFor)
                                 .replace(/{#applicantPMDC#}/g, app.pncNo);
                         }
 
@@ -214,7 +214,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="">
-                                                        <span class="" style=""><strong> (Through Cash Management Solution only) <span style="font-size:10px;"></span></strong>  </span>
+                                                        <span class="" style=""><strong>A/C : 6580048830600077 <span style="font-size:10px;"></span></strong>  </span>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -263,7 +263,7 @@
                                                         <span>  {#applicantCNIC#}   </span>
                                                     </td>
                                                 </tr>
-                                                @*@if(Convert.ToInt32(Session["degreeAchieved"]) != 13)
+                                                @if(Convert.ToInt32(Session["degreeAchieved"]) != 13)
                                                 {
                                                     <tr>
                                                         <td>
@@ -273,7 +273,7 @@
                                                             <span> {#applicantPMDC#} </span>
                                                         </td>
                                                     </tr>
-                                                }*@
+                                                }
                                             </tbody>
                                         </table>
                                     </td>
@@ -320,7 +320,7 @@
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0px;width: 100%;">
-                                        <span style="border:1px solid #000;padding:5px;">Due Date : 18 April 2023</span>
+                                        <span style="border:1px solid #000;padding:5px;">Due Date : 16 June 2022</span>
                                     </td>
                                 </tr>
                             </tbody>
