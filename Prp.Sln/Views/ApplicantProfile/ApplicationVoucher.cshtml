@@ -87,7 +87,10 @@
                     SaveAndProceed();
                 }
             });
-
+            $(document).on('click', '#btnSaveModal', function () {
+                $('#myModal').modal('hide');
+                window.location = "/applicant-proof-reading";
+            });
             $(document).on('click', '#ankContinue', function () {
 
                 if (applicantVoucherId > 0) {
@@ -95,7 +98,7 @@
                     CallActionGet("/ApplicantProfile/UpdateApplicantStatus?applicantId=" + applicantId
                         + "&applicationStatus=7&condition=applicationStatus");
 
-                    window.location = "/applicant-proof-reading";
+                    $('#myModal').modal('show');
                 }
                 else {
 
@@ -365,12 +368,12 @@
                         </div> <div class="mt-action-icon ">
                             <i class=" icon-bubbles"></i>
                         </div>
-                        @if (1>0)
+                        @if (1 > 0)
                         {
                             <h3 class="text-center">Payment : Step 4 of 4</h3>
                         }
                         else
-                        { 
+                        {
                             <h3 class="text-center">Payment : Step 5 of 5</h3>
                         }
 
@@ -564,7 +567,7 @@
             </div>
             <div class="col-sm-4">
             </div>
-            @if (1>0)
+            @if (1 > 0)
             {
                 <div class="col-sm-6">
                     <a id="ankContinue" class="btn btn-lg mb10 mt5 pull-right btn-red" value=""> Continue &nbsp;&nbsp;<i class="fa fa-arrow-right"></i></a>
@@ -582,6 +585,44 @@
             }
 
             @Html.Partial("_NotePageBottom")
+        </div>
+    </div>
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Cofirmation</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row main">
+                        <div class="col-sm-1"></div>
+                        <div class="col-sm-10 form-box mn0" style="height:100%; padding:30px">
+                            <div class="main-login main-center">
+
+
+                                <p> These changes are not edible after submission. If you are sure please click on <b>Save</b> Button</p>
+
+                                <p>
+                                    <label class="text-center">
+                                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                        <img src="~/Images/popupTxt.jpeg" />
+                                    </label>
+                                </p>
+                                <div class="col-sm-12">
+                                    <span id="btnSaveModal" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28">Save &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cacel</button>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

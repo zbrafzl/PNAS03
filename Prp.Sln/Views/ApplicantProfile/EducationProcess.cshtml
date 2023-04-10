@@ -97,6 +97,10 @@
             );
 
             $(document).on('click', '#btnSaveEducation', function () {
+                $('#myModal').modal('show');
+            });
+            $(document).on('click', '#btnSaveModal', function () {
+                $('#myModal').modal('hide');
                 SaveAndProceed();
             });
 
@@ -1064,7 +1068,7 @@
                                 </div>
                             }
                         </div>
-                        @if (1>0)
+                        @if (1 > 0)
                         {
                             <h3 class="text-center">Education : Step 2 of 4 </h3>
                         }
@@ -1073,10 +1077,10 @@
                             <h3 class="text-center">Education : Step 2 of 5 </h3>
                         }
                         @*<div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:33%">
-                                    33%
-                                </div>
+                                33%
                             </div>
-                            <h3 class="text-center">Education : Step 2 of 6  <span class="lightgray"></span></h3>*@
+                        </div>
+                        <h3 class="text-center">Education : Step 2 of 6  <span class="lightgray"></span></h3>*@
                         <form role="form">
                             <fieldset class="grd-local">
                                 <legend>Add Education</legend>
@@ -1579,6 +1583,44 @@
                     </div>
                 </div>
                 @Html.Partial("_NotePageBottom")
+            </div>
+        </div>
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Cofirmation</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row main">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-10 form-box mn0" style="height:100%; padding:30px">
+                                <div class="main-login main-center">
+
+
+                                    <p> These changes are not edible after submission. If you are sure please click on <b>Save</b> Button</p>
+
+                                    <p>
+                                        <label class="text-center">
+                                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                            <img src="~/Images/popupTxt.jpeg" />
+                                        </label>
+                                    </p>
+                                    <div class="col-sm-12">
+                                        <span id="btnSaveModal" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28">Save &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cacel</button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

@@ -1362,6 +1362,7 @@
     <Content Include="html\verificationAccept.html" />
     <Content Include="html\verificationReject.html" />
     <Content Include="html\wrongPreferenceDelete.html" />
+    <Content Include="Images\popupTxt.jpeg" />
     <Content Include="Images\punjab.png" />
     <Content Include="newpage.html" />
     <Content Include="Scripts\bootstrap.js" />
