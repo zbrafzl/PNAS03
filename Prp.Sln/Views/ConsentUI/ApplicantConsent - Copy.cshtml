@@ -1,0 +1,135 @@
+﻿@{
+    ViewBag.Title = " Applicant Conent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ConsentModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+        @Html.Partial("_ApplicantLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <h3 class="heading">Consent - Application Merit </h3>
+                <hr class="colorgraph">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>
+                            Please select program in whcih you want to give consent. 
+                        </h5>
+                    </div>
+                </div>
+                @if (Model.applicant.isValid == 1)
+                {
+                    if (Model.listType != null && Model.listType.Count > 0)
+                    {
+                        if ((Model.consent == null || Model.consent.typeId == 0) || (Model.consent.consentId == Model.consentId && Model.consent.roundId == Model.roundId))
+                        {
+                            using (Html.BeginForm("SaveConsentData", "ConsentUI", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+                            {
+                                <form class="form-horizontal">
+                                    @Html.HiddenFor(m => m.consent.roundId, new { @id = "hfdRoundId" })
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="form-group">
+                                                <label> Program <span class="sprq">*</span></label>
+                                                @Html.DropDownListFor(a => a.consent.typeId, new SelectList(Model.listType, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="form-group">
+                                                <label> Status <span class="sprq">*</span></label>
+                                                @Html.DropDownListFor(a => a.consent.consentTypeId, new SelectList(Model.listConsentStatus, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlConsentType", @tabindex = "2" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                                            <div class="col-sm-4">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <button type="submit" class="btn btn-app animated-button" style="width:100%">Apply Consent</button>
+                                            </div>
+                                            <div class="col-sm-4">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            }
+                        }
+
+
+                        if (Model.consent != null && Model.consent.typeId > 0)
+                        {
+                            <hr class="colorgraph">
+                            <div class="main-login main-center">
+                                <div class="row" style="margin: 0px 0px;">
+                                    <table class="table mt10">
+                                        <thead class="job-th">
+                                            <tr>
+                                                <th>Program</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="job-tb">
+                                                <td>@Model.consent.typeName  </td>
+                                                <td>@Model.consent.consentType  </td>
+                                                <td>
+                                                    <a id="ankEdit" class="ank" href="@("/applicant/consent?consentId="+ Model.consent.consentId)"><i class="fa fa-pencil-square-o"></i></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5>
+                                    Your merit  not matched in any prgram and speciality.
+                                </h5>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>
+                                You application status rejected
+                            </h5>
+                        </div>
+                    </div>
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>
+

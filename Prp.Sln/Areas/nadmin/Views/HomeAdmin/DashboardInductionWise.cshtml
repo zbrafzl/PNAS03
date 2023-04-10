@@ -71,7 +71,7 @@
             }
             //alert(@listOfObjects);
             //console.log(@listOfObjects);
-            inductionId = 12;
+            inductionId = 13;
             //inductionId = ConvertToInt($("#hfdInductionIdDashboard").val());
             debugger;
 
@@ -90,7 +90,7 @@
                 //var typeId = 52
                 //var id = 8;
                 //var typeId = 53;
-                var url = "/admin/applicant-search-induction-" + inductionId + "?statusTypeId=" + typeId + "&statusId=" + id;
+                //var url = "/admin/applicant-search-induction-" + inductionId + "?statusTypeId=" + typeId + "&statusId=" + id;
 
                 if (userTypeId == 1) { }
                 window.open(url, "_blank");
@@ -107,7 +107,7 @@
 <div class="row col-md-12 col-sm-12">
     <div class="row x_title col-md-12 col-sm-12">
         <div class="col-md-12">
-            <h3>PNAS <small>Punjab Nursing Admission System 2022 </small></h3>
+            <h3>PNAS <small>Punjab Nursing Admission System 2023 </small></h3>
         </div>
         @*<div class="col-md-3">
             @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionIdDashboard" })
@@ -401,25 +401,25 @@
                             <tr>
                                 <td>
                                     <table class="tile_info">
-                                        <tr class="trclick" id="1" typeid="52">
+                                        <tr class="trclick" id="1" typeid="53">
                                             <td>
                                                 <p><i class="fa fa-square green"></i>Profile </p>
                                             </td>
                                             <td>@profile</td>
                                         </tr>
-                                        <tr class="trclick" id="2" typeid="52">
+                                        <tr class="trclick" id="2" typeid="53">
                                             <td>
                                                 <p><i class="fa fa-square warning"></i>Education</p>
                                             </td>
                                             <td>@education</td>
                                         </tr>
-                                        <tr class="trclick" id="3" typeid="52">
+                                        @*<tr class="trclick" id="3" typeid="53">
                                             <td>
                                                 <p><i class="fa fa-square purple"></i>Experience</p>
                                             </td>
                                             <td>@experience</td>
-                                        </tr>
-                                        @*<tr class="trclick" id="4" typeid="52">
+                                        </tr>*@
+                                        @*<tr class="trclick" id="4" typeid="53">
                                             <td>
                                                 <p><i class="fa fa-square aero"></i>Research Paper</p>
                                             </td>
@@ -444,25 +444,25 @@
                             <tr>
                                 <td>
                                     <table class="tile_info">
-                                        <tr class="trclick" id="5" typeid="52">
+                                        <tr class="trclick" id="5" typeid="53">
                                             <td>
-                                                <p><i class="fa fa-square black"></i>Speciality </p>
+                                                <p><i class="fa fa-square black"></i>Preferences </p>
                                             </td>
                                             <td>@specility</td>
                                         </tr>
-                                        @*<tr class="trclick" id="6" typeid="52">
+                                        @*<tr class="trclick" id="6" typeid="53">
                                             <td>
                                                 <p><i class="fa fa-square black"></i>Payment Due </p>
                                             </td>
                                             <td>@paymentDone</td>
                                         </tr>*@
-                                        <tr class="trclick" id="7" typeid="52">
+                                        <tr class="trclick" id="7" typeid="53">
                                             <td>
                                                 <p><i class="fa fa-square red"></i>Proof Reading </p>
                                             </td>
                                             <td>@proofReading</td>
                                         </tr>
-                                        <tr class="trclick" id="8" typeid="52">
+                                        <tr class="trclick" id="8" typeid="53">
                                             <td>
                                                 <p><i class="fa fa-square green"></i>Completed</p>
                                             </td>

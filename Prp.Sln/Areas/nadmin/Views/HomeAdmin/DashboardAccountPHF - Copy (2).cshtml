@@ -111,7 +111,7 @@
                 getTotalList128();
             });
             $(document).on('click', '.btnNavigate', function () {
-                window.open("/admin/applicant-search?statusTypeId=74&statusId=3", '_blank');
+                window.open("/admin/applicant-search?statusTypeId=73&statusId=3", '_blank');
                 //window.location = "/admin/applicant-search?statusTypeId=73&statusId=3";
             });
             
@@ -235,11 +235,11 @@
                     string query = "select avb.applicantNo appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
                     + "avb.transactionIdBank bankTransId, avb.amount amount, avb.dated dateVerified from tblApplicant a "
                     + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId "
-                    + "inner join tblApplicantVoucherBank avb on av.applicantId = avb.applicantId and avb.inductionId = 13";
+                    + "inner join tblApplicantVoucherBank avb on av.applicantId = avb.applicantId";
 
-                    string query2 = "select CONCAT('135',av.applicantId) appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
+                    string query2 = "select CONCAT('128',av.applicantId) appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
                     + "av.submittedDate submitDate, '500' amount from tblApplicant a "
-                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId and av.inductionId = 13";
+                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId";
 
                     SqlConnection con = new SqlConnection();
                     SqlCommand cmd = new SqlCommand(query);
@@ -402,16 +402,13 @@
                                                 <table class="">
                                                                 <tr class="" id="-1" typeid="73">
                                                                     <td style="width:39%">
-                                                                        <p><i class="fa fa-square black"></i>Total Uploaded Vouchers</p>
+                                                                        <p><i class="fa fa-square black"></i>Total </p>
                                                                     </td>
-                                                                    <td style="width:15.7%">@verifyToal</td>
-																	<td style="width:16.44%"></td>
-																	<td style="width:16.44%"></td>
-																	<td style="width:1%"></td>
-                                                                    @*<td style="width:16.44%"><button class="btn-green btnTotal125">125 Excel Download</button></td>
+                                                                    <td style="width:16.44%">@verifyToal</td>
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal125">125 Excel Download</button></td>
                                                                     <td style="width:16.44%"><button class="btn-green btnTotal126">126 Excel Download</button></td>
-                                                                    <td style="width:16.44%"><button class="btn-green btnTotal127">127 Excel Download</button></td>*@
-                                                                    <td style="width:16.44%"><button class="btn-green btnTotal128">Posted Vouchers</button></td>
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal127">127 Excel Download</button></td>
+                                                                    <td style="width:16.44%"><button class="btn-green btnTotal128">128 Excel Download</button></td>
                                                                 </tr>
                                                     @*<tr class="trclick" id="1" typeid="73">
                                                             <td>

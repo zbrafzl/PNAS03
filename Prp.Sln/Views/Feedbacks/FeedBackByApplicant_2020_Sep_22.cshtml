@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "Feedback";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.FeedBackModel
+@section RenderCss{
+
+}
+@section RenderScript{
+
+    <script>
+
+
+        function SetValueAndValidateForm(event) {
+
+            var isOk = true;
+
+            if (isOk == false)
+                event.preventDefault();
+        }
+
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+        @Html.Partial("_ApplicantLinks")
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                @if (Model.listFeedBack.Count <= 10)
+                {
+                    using (Html.BeginForm("SaveFeedbackData", "Feedbacks", FormMethod.Post, new { enctype = "multipart/form-data", onsubmit = " SetValueAndValidateForm(event)" }))
+                    {
+                        <form class="form-horizontal">
+                            @Html.HiddenFor(m => m.feedBack.feedbackId, new { @id = "hfdId" })
+                            <h3 class="heading">Feedback</h3>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <label> PMDC No <span class="sprq">*</span></label>
+                                        @Html.TextBoxFor(a => a.feedBack.pmdcNo, new { @class = "form-control", @required = "required", @id = "txtPMDCNo", @tabindex = "1" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label> Comments <span class="sprq">*</span></label>
+                                        @Html.TextAreaFor(model => model.feedBack.comments, new { @class = "form-control", @required = "required", @rows = "8", @id = "txtComments", @tabindex = "2" })
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12" style="margin:10px 0px 20px 0px;">
+                                    <div class="col-sm-4">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button type="submit" class="btn btn-app animated-button" style="width:100%">Send FeedBack</button>
+                                    </div>
+                                    <div class="col-sm-4">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divError" class="col-sm-12" style=" display:none;">
+                                <div id="divMsg" class="panel panel-danger">
+                                    <div class="panel-heading">
+                                        <label class="text-center">
+                                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                            <ul id="idErrorMsg" class="ul-err">
+                                            </ul>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                }
+                @if (Model.listFeedBack != null && Model.listFeedBack.Count > 0)
+                {
+                    <hr class="colorgraph">
+                    <div class="main-login main-center" >
+                        <div class="row" style="margin: 0px 0px;">
+                            <table class="table mt10">
+                                <thead class="job-th">
+                                    <tr>
+                                        <th>PMDC No</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.listFeedBack)
+                                    {
+                                        <tr class="job-tb">
+                                            <td>@item.pmdcNo </td>
+                                            <td>@item.comments</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
