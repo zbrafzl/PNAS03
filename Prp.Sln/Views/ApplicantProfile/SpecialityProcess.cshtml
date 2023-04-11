@@ -48,13 +48,15 @@
             });
 
             $(document).on('click', '#btnSave', function () {
-                SaveAndProceed();
+                SaveSpecilityData();
                // $('#myModal').modal('show');
             });
+
             $(document).on('click', '#btnSaveModal', function () {
                 $('#myModal').modal('hide');
                 window.location = "/applicant-voucher";
             });
+
             $(document).on('click', '.ankEdit', function () {
 
                 var idAttr = $(this).attr("id");
