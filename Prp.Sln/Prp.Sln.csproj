@@ -224,6 +224,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoggedInController.cs" />
     <Compile Include="Controllers\MeritGazatController.cs" />
+    <Compile Include="Controllers\OtpController.cs" />
     <Compile Include="Controllers\PnasAdminController.cs" />
     <Compile Include="Controllers\PrintsController.cs" />
     <Compile Include="Controllers\QaAdminController.cs" />
@@ -6397,6 +6398,7 @@
     <Content Include="Views\Home\LandingPage.cshtml" />
     <Content Include="Views\Home\PNAS.cshtml" />
     <Content Include="Views\LoggedIn\VerifyRegister.cshtml" />
+    <Content Include="Views\Otp\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

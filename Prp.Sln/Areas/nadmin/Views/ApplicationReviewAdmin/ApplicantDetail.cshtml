@@ -281,8 +281,7 @@
 
         function GetApplicantMarksInfo() {
             //alert("GetApplicantInfo");
-            if (@Convert.ToInt32(Session["degreeAchieved"]) == 13) {
-                if (@Convert.ToInt32(Session["appliedFor"]) == 13) {
+            if (1>0) {
                     var resp = CallActionGet("/CommonAdmin/GetApplicantTentativeMarks?applicantId=" + applicantId
                         + "&fsc=100&gn=0&mw=0&bsn=0&extraQ=0&minExp=0&exp=0&entryTest=0");
                     console.log(resp);
@@ -298,7 +297,6 @@
                     $("#total").html(resp.fscObtained);
                     $(".obtainedAllQualification").html(resp.fscObtained);
                     $(".totalAllQualification").html("100");
-                }
             }
             else if (@Convert.ToInt32(Session["degreeAchieved"]) == 12) {
                 if (@Convert.ToInt32(Session["appliedFor"]) == 12) {
@@ -792,7 +790,7 @@
                             <input type="hidden" id="hfdKey" value="@(Model.search.key)" />
                             <select id="ddlType" name="ddlType" class="form-control">
                                 <option value="applicantId" selected="selected"> Applicant Id </option>
-                                <option value="pmdcNo"> PMDC No </option>
+                                <option value="pmdcNo"> CNIC No </option>
                                 <option value="emailId"> Email Id </option>
                                 <option value="contactNumber"> Contact Number </option>
                             </select>
@@ -813,7 +811,7 @@
                     || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.callCenter)
                     {
                         <div class="col-md-6 col-sm-6 col-xs-6">
-                            <fieldset>
+                            <fieldset style="display:none">
                                 <legend> Functions </legend>
                                 @if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper)
                                 {
@@ -878,7 +876,7 @@
                                         <label for="heard">Name *:</label>
                                         <input type="text" class="form-control" maxlength="50" required="required" name="txtName" id="txtName" placeholder="Full Name" value="@(Model.applicant.name)" />
                                     </div>
-                                    @if (Convert.ToInt32(Session["degreeAchieved"]) < 13)
+                                    @if (14 < 13)
                                     {
                                         <div class="col-md-2 col-sm-2 col-xs-2">
                                             <label for="heard">PNC No *:</label>
@@ -894,7 +892,7 @@
                                         <label for="heard">Email *:</label>
                                         <input class="form-control" type="email" required="required" maxlength="100" name="txtEmail" id="txtEmail" placeholder="Email" value="@(Model.applicant.emailId)" />
                                     </div>
-                                    <div class="col-md-2 col-sm-2 col-xs-2">
+                                    <div class="col-md-2 col-sm-2 col-xs-2" style="display:none">
                                         <label for="heard" style="width:100%;">Action</label>
                                         <input type="button" id="btnUpdateInfo" value="Update" class="btn btn-success" />
                                         <input type="button" id="btnDeleteApplicant" value="Delete" class="btn btn-danger" />
@@ -914,7 +912,7 @@
                             </form>
                         </fieldset>
                     }
-                    if (Model.applicant.statusId == 0)
+                    if (Model.applicant.statusId > 0)
                     {
 
                         if (Model.statusApproval != null && Model.statusApproval.approvalStatusId == 2)
@@ -1084,7 +1082,7 @@
                                                     <td>
                                                         <table class="top_detail" style="width: 48%; float: left; margin-right:2%">
                                                             <tbody>
-                                                                @if (applicant.levelId < 13)
+                                                                @if (14 < 13)
                                                                 {
                                                                     <tr>
                                                                         <td>PNC Number</td>
@@ -1167,7 +1165,7 @@
                                                         </table>
                                                         <table class="top_detail" style="width: 49%; float: left;">
                                                             <tbody>
-                                                                @if (applicant.levelId < 13)
+                                                                @if (14 < 13)
                                                                 {
                                                                     <tr>
                                                                         <td>PNC Expiry Date</td>
@@ -2102,23 +2100,16 @@
                                     <div>
                                         <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
                                             <span> Applicant Account Status</span>
-                                            <br />
-                                            <span> Account Status : @Model.applicant.status</span>
-                                            @if (Model.applicant.statusId != 1)
-                                            {
-                                                <div class="panel_toolbox">
-                                                    <a id="ankButtonActivate" class="btn btn-info">Activate</a>
-                                                    <a id="ankButtonActivationEmail" class="btn btn-info" style="display:none;"></a>
-                                                </div>
-                                            }
-                                            <br />
+
                                             <span> Application Name : @Model.applicant.name</span>
                                             <br />
                                             <span> Contact No : @Model.applicant.contactNumber</span>
                                             <br />
-                                            <span> PMDC No : @Model.applicant.pmdcNo</span>
+                                            <span> Applicant ID : @Model.applicant.applicantId</span>
                                             <br />
                                             <span> Email Id : @Model.applicant.emailId</span>
+                                            <br />
+                                            <span> CNIC : @Model.applicantInfo.cnicNo</span>
                                         </div>
                                     </div>
                                 </div>

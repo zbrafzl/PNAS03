@@ -345,18 +345,62 @@ namespace Prp.Data
             Message msg = new Message();
             try
             {
-
-                var item = db.spApplicantGetBySearch(search, condition).FirstOrDefault();
-                msg = MapApplicant.ToEntity(item);
+                string query = "";
+                DataTable dt = new DataTable();
+                if (condition.Trim() == "applicantId")
+                {
+                    query = "select top 1 applicantId from tblApplicant where applicantId = " + Convert.ToInt32(search) + " ";
+                }
+                else if (condition.Trim() == "emailId")
+                {
+                    query = "select top 1 applicantId from tblApplicant where emailId like '%"+search+"%' " ;
+                }
+                else if (condition.Trim() == "contactNumber")
+                {
+                    query = "select top 1 applicantId from tblApplicant where contactNumber like '%" + search + "%' ";
+                }
+                else if (condition.Trim() == "pmdcNo")
+                {
+                    query = "select top 1 t1.applicantId from tblApplicant t1 inner join tblApplicantInfo t2 on t1.applicantId = t2.applicantId where t2.cnicNo like '%" + search + "%' ";
+                }
+                SqlConnection con = new SqlConnection();
+                SqlCommand cmd = new SqlCommand(query);
+                try
+                {
+                    con = new SqlConnection(PrpDbConnectADO.Conn);
+                    con.Open();
+                    cmd.Connection = con;
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    sda.Fill(dt);
+                    if (dt.Rows.Count > 0)
+                    {
+                        DataRow dr = dt.Rows[0];
+                        msg.id = dr[0].TooInt();
+                        msg.status = true;
+                    }
+                    else
+                    {
+                        msg.status = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    msg.status = false;
+                    msg.msg = ex.Message;
+                }
+                finally
+                {
+                    con.Close();
+                }
             }
             catch (Exception ex)
             {
                 msg.status = false;
                 msg.msg = ex.Message;
             }
-            msg.id = search.TooInt();
-            msg.status = true;
-            msg.message = "Applicant Exists";
+            //msg.id = search.TooInt();
+            //msg.status = true;
+            //msg.message = "Applicant Exists";
             return msg;
         }
 
