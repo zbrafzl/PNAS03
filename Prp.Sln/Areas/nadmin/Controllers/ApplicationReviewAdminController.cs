@@ -28,7 +28,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             try
             {
 
-                int inductionId = 12;
+                int inductionId = 13;
                 int phaseId = 1;
 
                 string key = Request.QueryString["key"].TooString();
