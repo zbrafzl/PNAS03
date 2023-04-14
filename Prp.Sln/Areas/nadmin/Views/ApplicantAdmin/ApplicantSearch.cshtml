@@ -21,7 +21,7 @@
         $(document).ready(function () {
 
             statusId = ConvertToInt($("#hfdStatusId").val());
-            inductionId = 13;
+            inductionId = ConvertToInt($("#hfdInductionId").val());
             $("#ddlStatus").val(statusId);
 
             SearchApplicant();

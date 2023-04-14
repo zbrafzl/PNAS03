@@ -62,16 +62,6 @@
             margin: 0px 10px 0;
         }
 
-        #newscontent {
-            float:none !important;
-            padding:20px;
-            font-size:20px;
-        }
-
-        #controls {
-            display:none !important;
-        }
-
         .ul-link li {
             min-width: 35px;
         }
@@ -149,7 +139,7 @@
                                             <li>
                                                 &nbsp;
                                             </li>
-                                            if (Model.applicationStatusId > 1 && Model.loggedInUser.pic.Trim() != "")
+                                            if (Model.applicationStatusId > 1)
                                             {
                                                 <li class="blink">
                                                     <a href="/print/voucher" target="_blank">Download Challan Form <i class="fa fa-download"> </i></a>
@@ -206,30 +196,20 @@
 
             try
             {
-                //var listTicker = Model.listTicker.Where(x => x.typeId == 1 && x.isActive == true).ToList().OrderBy(x => x.sortOrder).ToList();
-                if (1 > 0)
+                var listTicker = Model.listTicker.Where(x => x.typeId == 1 && x.isActive == true).ToList().OrderBy(x => x.sortOrder).ToList();
+                if (listTicker != null && listTicker.Count > 0)
                 {
-                    <div class="notifyAlert" style="text-align:center">
-                        <div class="container-fluid" style="text-align:center">
-                            <ul id="ticker" style="display: none; text-align:center">
-                                @*@foreach (var item in listTicker)
+                    <div class="notifyAlert">
+                        <div class="container-fluid">
+                            <ul id="ticker" style="display: none;">
+                                @foreach (var item in listTicker)
                                 {
                                     <li>
                                         <strong>
                                             @item.detail
                                         </strong>
                                     </li>
-                                }*@
-                                <li style="text-align:center; padding:20px;">
-                                    <strong style="text-align:center">
-                                        امیدواروں سے گزارش ہے کہ درخواست فارم کو غور اور احتیاط سے مکمل پر کریں۔ فارم مکمل کرنے اور  بھیجنے کے بعد تبدیلیوں کی اجازت نہیں ہو گی
-                                    </strong>
-                                </li>
-                                <li style="text-align: center; padding: 20px;">
-                                    <strong style="text-align:center">
-                                        Candidates are advised to fill in the form carefully and correctly. Once the form is completed and submitted, the changes are not allowed.
-                                    </strong>
-                                </li>
+                                }
                             </ul>
                         </div>
                     </div>
@@ -260,7 +240,7 @@
             <div class="footer">
                 <div class="container">
                     <div class="col-sm-12 text-center tc">
-                        Copyrights@2023 SHC&ME Dept  Powered by: Punjab Health Foundation.
+                        Copyrights@2022 SHC&ME Dept  Powered by: Punjab Health Foundation.
                     </div>
                 </div>
             </div>

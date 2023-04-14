@@ -28,7 +28,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             try
             {
 
-                int inductionId = 13;
+                int inductionId = 12;
                 int phaseId = 1;
 
                 string key = Request.QueryString["key"].TooString();
@@ -36,7 +36,6 @@ namespace Prp.Sln.Areas.nadmin.Controllers
 
                 if (!String.IsNullOrEmpty(key) && !String.IsNullOrWhiteSpace(value))
                 {
-
 
                     Message msg = new ApplicantDAL().GetApplicantIdBySearch(value, key);
                     int applicantId = msg.id.TooInt();
