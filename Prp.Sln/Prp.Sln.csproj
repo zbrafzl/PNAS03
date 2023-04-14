@@ -224,6 +224,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoggedInController.cs" />
     <Compile Include="Controllers\MeritGazatController.cs" />
+    <Compile Include="Controllers\OtpController.cs" />
     <Compile Include="Controllers\PnasAdminController.cs" />
     <Compile Include="Controllers\PrintsController.cs" />
     <Compile Include="Controllers\QaAdminController.cs" />
@@ -414,6 +415,8 @@
     <Content Include="assets\tickerme.min.js" />
     <Content Include="assets\ticker_styles.css" />
     <Content Include="assets\vendor\bootstrap.min.js" />
+    <Content Include="bin\Prp.Sln.dll" />
+    <Content Include="bin\Prp.Sln.pdb" />
     <Content Include="build\css\custom.css" />
     <Content Include="build\css\custom.min.css" />
     <Content Include="build\images\back_disabled.png" />
@@ -1363,7 +1366,6 @@
     <Content Include="html\verificationReject.html" />
     <Content Include="html\wrongPreferenceDelete.html" />
     <Content Include="Images\popupTxt.jpeg" />
-    <Content Include="Images\punjab.png" />
     <Content Include="newpage.html" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -3540,7 +3542,6 @@
     <Content Include="vendors\Flot\examples\series-toggle\index.html" />
     <Content Include="vendors\Flot\examples\series-types\index.html" />
     <Content Include="vendors\Flot\examples\shared\jquery-ui\jquery-ui.min.css" />
-    <Content Include="vendors\Flot\examples\shared\jquery-ui\jquery-ui.min.js" />
     <Content Include="vendors\Flot\examples\stacking\index.html" />
     <Content Include="vendors\Flot\examples\symbols\index.html" />
     <Content Include="vendors\Flot\examples\threshold\index.html" />
@@ -3720,9 +3721,6 @@
     <Content Include="vendors\gauge.js\dist\gauge.min.js" />
     <Content Include="vendors\gauge.js\favicon.ico" />
     <Content Include="vendors\gauge.js\index.html" />
-    <Content Include="vendors\google-code-prettify\bin\prettify.min.css" />
-    <Content Include="vendors\google-code-prettify\bin\prettify.min.js" />
-    <Content Include="vendors\google-code-prettify\bin\run_prettify.min.js" />
     <Content Include="vendors\google-code-prettify\CHANGES.html" />
     <Content Include="vendors\google-code-prettify\examples\quine.html" />
     <Content Include="vendors\google-code-prettify\README-zh-Hans.html" />
@@ -5682,7 +5680,6 @@
     <Content Include="vendors\DateJS\LICENSE" />
     <Content Include="vendors\DateJS\package.json" />
     <Content Include="vendors\DateJS\README.md" />
-    <Content Include="vendors\DateJS\reports\coverage.json" />
     <Content Include="vendors\DateJS\reports\lcov.info" />
     <Content Include="vendors\devbridge-autocomplete\.bower.json" />
     <Content Include="vendors\devbridge-autocomplete\bower.json" />
@@ -6397,6 +6394,7 @@
     <Content Include="Views\Home\LandingPage.cshtml" />
     <Content Include="Views\Home\PNAS.cshtml" />
     <Content Include="Views\LoggedIn\VerifyRegister.cshtml" />
+    <Content Include="Views\Otp\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -6406,6 +6404,7 @@
     <Folder Include="Images\Applicant\profile\" />
     <Folder Include="Images\Beds\" />
     <Folder Include="Images\contact\" />
+    <Folder Include="vendors\google-code-prettify\bin\" />
     <Folder Include="Views\AdminBasedControllerr\" />
     <Folder Include="Views\AdminBased\" />
     <Folder Include="Views\Base\" />
