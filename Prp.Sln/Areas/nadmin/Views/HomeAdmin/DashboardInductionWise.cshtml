@@ -90,7 +90,7 @@
                 //var typeId = 52
                 //var id = 8;
                 //var typeId = 53;
-                //var url = "/admin/applicant-search-induction-" + inductionId + "?statusTypeId=" + typeId + "&statusId=" + id;
+                var url = "/admin/applicant-search-induction-" + inductionId + "?statusTypeId=" + typeId + "&statusId=" + id;
 
                 if (userTypeId == 1) { }
                 window.open(url, "_blank");
@@ -333,7 +333,7 @@
             }
             try
             {
-                experience = listProfileStatus.Where(x => x.statusId == ProjConstant.Constant.ApplicationStatus.experience).FirstOrDefault().totalCount;
+                //experience = listProfileStatus.Where(x => x.statusId == ProjConstant.Constant.ApplicationStatus.experience).FirstOrDefault().totalCount;
             }
             catch (Exception)
             {

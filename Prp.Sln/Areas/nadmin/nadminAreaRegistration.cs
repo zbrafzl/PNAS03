@@ -411,6 +411,12 @@ namespace Prp.Sln.Areas.nadmin
            );
 
             context.MapRoute(
+               name: "VerificationTeamCON",
+               url: "admin/applicant/verify-con",
+               defaults: new { controller = "ApplicationReviewAdmin", action = "ApplicantDetailVerify", id = UrlParameter.Optional }
+           );
+
+            context.MapRoute(
               name: "VerificationTeamPhf",
               url: "admin/applicant/verify",
               defaults: new { controller = "ApplicationReviewAdmin", action = "ApplicantDetail", id = UrlParameter.Optional }
