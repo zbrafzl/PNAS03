@@ -395,7 +395,11 @@ namespace Prp.Sln.Areas.nadmin
              url: "admin/application-view",
              defaults: new { controller = "ApplicationReviewAdmin", action = "ApplicantView", id = UrlParameter.Optional }
          );
-
+            context.MapRoute(
+               name: "ApplicantDatailViewSupport",
+               url: "admin/applicant-support",
+               defaults: new { controller = "ApplicationReviewAdmin", action = "ApplicantSupportView", id = UrlParameter.Optional }
+           );
 
             context.MapRoute(
                 name: "ApplicantDatailViewCallCenter",

@@ -1571,6 +1571,9 @@
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\ApplicantSearchJoin.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicationReviewAdmin\AmendmentsApplicantNursing.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\ApplicantSearchToVeify.cshtml" />
+    <Content Include="Areas\nadmin\Views\ApplicationReviewAdmin\ApplicantSupportView.cshtml" />
+    <Content Include="Areas\nadmin\Views\ApplicationReviewAdmin\ApplicationViewAnPrint.cshtml" />
+    <Content Include="Areas\nadmin\Views\Shared\_LayoutView.cshtml" />
     <None Include="Properties\PublishProfiles\PRP.UI.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\chosen\chosen-sprite.png" />
