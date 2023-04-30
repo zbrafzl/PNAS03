@@ -580,6 +580,7 @@ namespace Prp.Sln
 
         public ApplicantVoucher voucher { get; set; }
 
+        public AmendmentsApplicantNursing amendmentsData { get; set; }
         public ApplicantApprovalStatus statusApproval { get; set; }
 
         public ApplicantApprovalStatus statusAmendment { get; set; }

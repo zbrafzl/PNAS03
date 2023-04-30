@@ -149,19 +149,29 @@ namespace Prp.Data
 
         public Message UpdatePassword(User obj)
         {
+
             Message msg = new Message();
+
             try
             {
-                var objt = db.spUserChangePassword(obj.userId, obj.password, obj.passwordNew).FirstOrDefault();
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spUserChangePassword]"
+                };
+                cmd.Parameters.AddWithValue("@userId", obj.userId);
+                cmd.Parameters.AddWithValue("@password", obj.password);
+                cmd.Parameters.AddWithValue("@passwordNew", obj.passwordNew);
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
 
-                msg = MapUser.ToEntity(objt);
-
+                msg = dt.ConvertToEnitityMessage();
             }
             catch (Exception ex)
             {
+                msg.status = false;
                 msg.msg = ex.Message;
-                msg.id = 0;
             }
+
             return msg;
         }
 

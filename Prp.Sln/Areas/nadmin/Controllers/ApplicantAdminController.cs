@@ -64,6 +64,28 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return View(model);
         }
 
+        public ActionResult ApplicantSearchToVeify()
+        {
+
+            ApplicantStatusModel model = new ApplicantStatusModel();
+
+            model.inductionId = 12;
+            model.phaseId = 1;
+            model.statusTypeId = Request.QueryString["statusTypeId"].TooInt();
+            model.statusId = Request.QueryString["statusId"].TooInt();
+            Session["SelectedStatusID"] = model.statusId;
+            if (model.statusTypeId == 0)
+                model.statusTypeId = 52;
+
+            DDLConstants ddlConstant = new DDLConstants();
+            ddlConstant.typeId = model.statusTypeId;
+            ddlConstant.condition = "ByType";
+            model.listStatus = new ConstantDAL().GetConstantDDL(ddlConstant);
+            model.listApplicant = getListApplicant(model.statusTypeId, model.statusId);
+
+            return View(model);
+        }
+
         public ActionResult ApplicantSearchVerify()
         {
             ApplicantStatusModel model = new ApplicantStatusModel();
@@ -145,6 +167,15 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         public ActionResult ApplicantSearchSimple(ApplicantSearch obj)
         {
             DataTable dataTable = new ApplicantAdminDAL().ApplicantSearchSimple(obj);
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Content(json, "application/json");
+        }
+
+        [HttpPost]
+        public ActionResult ApplicantSearchSimpleToVerify(ApplicantSearch obj)
+        {
+            obj.userId = loggedInUser.userId;
+            DataTable dataTable = new ApplicantAdminDAL().ApplicantSearchSimpleToVerify(obj);
             string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
             return Content(json, "application/json");
         }

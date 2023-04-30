@@ -347,6 +347,12 @@ namespace Prp.Sln.Areas.nadmin
             );
 
             context.MapRoute(
+               name: "ApplicantAdminSearchToVerify",
+               url: "admin/applicant-search-to-verify",
+               defaults: new { controller = "ApplicantAdmin", action = "ApplicantSearchToVeify", id = UrlParameter.Optional }
+            );
+
+            context.MapRoute(
              name: "ApplicantAdminSearchInducion",
              url: "admin/applicant-search-induction-{induction}",
              defaults: new { controller = "ApplicantAdmin", action = "ApplicantSearch", id = UrlParameter.Optional }
@@ -401,6 +407,12 @@ namespace Prp.Sln.Areas.nadmin
                name: "ApplicantDatailViewCallCenterInduction",
                url: "admin/applicant-detail-induction-{induction}",
                defaults: new { controller = "ApplicationReviewAdmin", action = "ApplicantDetail", id = UrlParameter.Optional }
+           );
+
+            context.MapRoute(
+               name: "ApplicantAmendmentsNursing",
+               url: "admin/applicant-verification-nursing",
+               defaults: new { controller = "ApplicationReviewAdmin", action = "AmendmentsApplicantNursing", id = UrlParameter.Optional }
            );
 
 

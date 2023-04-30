@@ -170,6 +170,11 @@ namespace Prp.Data
             Message msg = ApplicantUpdateByAdmin(obj);
             return msg;
         }
+        public Message ApplicantUpdateVerificationNursing(AmendmentsApplicantNursing obj)
+        {
+            Message msg = AmendmentsApplicantNursingByAdmin(obj);
+            return msg;
+        }
 
         public Message ApplicantDelete(Applicant obj)
         {
@@ -177,6 +182,94 @@ namespace Prp.Data
             return msg;
         }
 
+        public Message AmendmentsApplicantNursingByAdmin(AmendmentsApplicantNursing obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantUpdateVerificationNursingByAdmin]"
+            };
+
+            Message msg = new Message();
+
+            cmd.Parameters.AddWithValue("@adminId", obj.adminId.TooInt());
+            cmd.Parameters.AddWithValue("@applicantId", obj.applicantId.TooInt());
+            cmd.Parameters.AddWithValue("@isAdmin", obj.isAdmin.TooInt());
+            cmd.Parameters.AddWithValue("@isApplicant", obj.isApplicant.TooInt());
+            cmd.Parameters.AddWithValue("@dated", obj.dated.TooDate());
+            cmd.Parameters.AddWithValue("@txtNameValidty", obj.txtNameValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtFatherNameValidty", obj.txtFatherNameValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtDobValidty", obj.txtDobValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@ddlDistrictValidty", obj.ddlDistrictValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@ddlcnicSelectValidty", obj.ddlcnicSelectValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtCNICValidty", obj.txtCNICValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtCNICExpiryDateValidty", obj.txtCNICExpiryDateValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@ddlDomicileDistrictValidty", obj.ddlDomicileDistrictValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtAddressValidty", obj.txtAddressValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@imgPicValidty", obj.imgPicValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@imgCnicFrontValidty", obj.imgCnicFrontValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@imgCnicBackValidty", obj.imgCnicBackValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@imgDomicileFrontValidty", obj.imgDomicileFrontValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@ddlMatricBoardValidty", obj.ddlMatricBoardValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtRowDegree1MarksObtainValidty", obj.txtRowDegree1MarksObtainValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtRowDegree1MarksTotalValidty", obj.txtRowDegree1MarksTotalValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtDateOfPassingMatricValidty", obj.txtDateOfPassingMatricValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@imgRowDegree1Validty", obj.imgRowDegree1Validty.TooBoolean());
+            cmd.Parameters.AddWithValue("@ddlFABoardValidty", obj.ddlFABoardValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtRowDegree2MarksObtainValidty", obj.txtRowDegree2MarksObtainValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtRowDegree2MarksTotalValidty", obj.txtRowDegree2MarksTotalValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtDateOfPassingInterValidty", obj.txtDateOfPassingInterValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@imgRowDegree2Validty", obj.imgRowDegree2Validty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtBranchCodeValidty", obj.txtBranchCodeValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtSubmittedDateVoucherValidty", obj.txtSubmittedDateVoucherValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@imgVoucherValidty", obj.imgVoucherValidty.TooBoolean());
+            cmd.Parameters.AddWithValue("@txtNameRemarks", obj.txtNameRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtFatherNameRemarks", obj.txtFatherNameRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtDobRemarks", obj.txtDobRemarks.TooString());
+            cmd.Parameters.AddWithValue("@ddlDistrictRemarks", obj.ddlDistrictRemarks.TooString());
+            cmd.Parameters.AddWithValue("@ddlcnicSelectRemarks", obj.ddlcnicSelectRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtCNICRemarks", obj.txtCNICRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtCNICExpiryDateRemarks", obj.txtCNICExpiryDateRemarks.TooString());
+            cmd.Parameters.AddWithValue("@ddlDomicileDistrictRemarks", obj.ddlDomicileDistrictRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtAddressRemarks", obj.txtAddressRemarks.TooString());
+            cmd.Parameters.AddWithValue("@imgPicRemarks", obj.imgPicRemarks.TooString());
+            cmd.Parameters.AddWithValue("@imgCnicFrontRemarks", obj.imgCnicFrontRemarks.TooString());
+            cmd.Parameters.AddWithValue("@imgCnicBackRemarks", obj.imgCnicBackRemarks.TooString());
+            cmd.Parameters.AddWithValue("@imgDomicileFrontRemarks", obj.imgDomicileFrontRemarks.TooString());
+            cmd.Parameters.AddWithValue("@ddlMatricBoardRemarks", obj.ddlMatricBoardRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtRowDegree1MarksObtainRemarks", obj.txtRowDegree1MarksObtainRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtRowDegree1MarksTotalRemarks", obj.txtRowDegree1MarksTotalRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtDateOfPassingMatricRemarks", obj.txtDateOfPassingMatricRemarks.TooString());
+            cmd.Parameters.AddWithValue("@imgRowDegree1Remarks", obj.imgRowDegree1Remarks.TooString());
+            cmd.Parameters.AddWithValue("@ddlFABoardRemarks", obj.ddlFABoardRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtRowDegree2MarksObtainRemarks", obj.txtRowDegree2MarksObtainRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtRowDegree2MarksTotalRemarks", obj.txtRowDegree2MarksTotalRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtDateOfPassingInterRemarks", obj.txtDateOfPassingInterRemarks.TooString());
+            cmd.Parameters.AddWithValue("@imgRowDegree2Remarks", obj.imgRowDegree2Remarks.TooString());
+            cmd.Parameters.AddWithValue("@txtBranchCodeRemarks", obj.txtBranchCodeRemarks.TooString());
+            cmd.Parameters.AddWithValue("@txtSubmittedDateVoucherRemarks", obj.txtSubmittedDateVoucherRemarks.TooString());
+            cmd.Parameters.AddWithValue("@imgVoucherRemarks", obj.imgVoucherRemarks.TooString());
+            cmd.Parameters.AddWithValue("@approvalStatus", obj.approvalStatus.TooInt());
+            cmd.Parameters.AddWithValue("@approvalRemarks", obj.approvalRemarks.TooString());
+            cmd.Parameters.AddWithValue("@approvedBy", obj.approvedBy.TooInt());
+            cmd.Parameters.AddWithValue("@ddlMaritalStatusValidity", obj.ddlMaritalStatusValidity.TooBoolean());
+            cmd.Parameters.AddWithValue("@ddlMaritalStatusRemarks", obj.ddlMaritalStatusRemarks.TooString());
+            SqlConnection con = new SqlConnection(PrpDbConnectADO.Conn);
+            cmd.Connection = con;
+            con.Open();
+            int i = cmd.ExecuteNonQuery();
+            con.Close();
+            if (i == 0)
+            {
+                msg.status = false;
+            }
+            else
+            {
+                msg.status = true;
+            }
+            return msg;
+        }
+        
         public Message ApplicantUpdateByAdmin(Applicant obj)
         {
             SqlCommand cmd = new SqlCommand

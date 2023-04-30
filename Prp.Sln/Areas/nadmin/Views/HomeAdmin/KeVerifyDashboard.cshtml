@@ -56,15 +56,22 @@
 
         $(document).ready(function () {
 
-            //$(document).on('click', '.sts_account', function () {
-            //    var id = ConvertToInt($(this).attr("id"));
-            //    window.location = "/admin/applicant-search?statusTypeId=52&statusId=" + id;
-            //});
+            $(document).on('click', '.sts_account', function () {
+                var id = ConvertToInt($(this).attr("id"));
+                if (id == 0) {
+                    var url = "/admin/applicant-search-to-verify?statusTypeId=131&statusId=" + id;
+                    window.open(url, "_blank");
+                }
+                
+            });
 
-            //$(document).on('click', '.sts_application', function () {
-            //    var id = ConvertToInt($(this).attr("id"));
-            //    window.location = "/admin/applicant-search?statusTypeId=53&statusId=" + id;
-            //});
+            $(document).on('click', '.sts_application', function () {
+                var id = ConvertToInt($(this).attr("id"));
+                if (id == 0) {
+                    var url = "/admin/applicant-search-to-verify?statusTypeId=131&statusId=" + id;
+                    window.open(url, "_blank");
+                }
+            });
 
         });
 
@@ -76,7 +83,7 @@
 <div class="row col-md-12 col-sm-12">
     <div class="row x_title col-md-12 col-sm-12">
         <div class="col-md-6">
-            <h3>PRP <small>Punjab Residency Program July-2021 </small></h3>
+            <h3>PRP <small>Punjab Nursing Admission System 2023 </small></h3>
         </div>
 
     </div>
@@ -157,19 +164,19 @@
                                                     </td>
                                                     <td>@verifyToal</td>
                                                 </tr>
-                                                <tr class="sts_account" id="2">
+                                                <tr class="sts_account" id="0">
                                                     <td>
                                                         <p><i class="fa fa-square aero"></i>Pending </p>
                                                     </td>
                                                     <td>@verifyPending</td>
                                                 </tr>
-                                                <tr class="sts_account" id="0">
+                                                <tr class="sts_account" id="1">
                                                     <td>
                                                         <p><i class="fa fa-square green"></i>Approved </p>
                                                     </td>
                                                     <td>@verifyApproved</td>
                                                 </tr>
-                                                <tr class="sts_account" id="0">
+                                                <tr class="sts_account" id="2">
                                                     <td>
                                                         <p><i class="fa fa-square  red"></i>Rejected </p>
                                                     </td>

@@ -85,6 +85,58 @@ namespace Prp.Data
             return list;
         }
 
+        public List<EntityCount> GetDashboardCountNursingVerification(int userId, int inductionId, int phaseId)
+        {
+            List<EntityCount> list = new List<EntityCount>();
+            try
+            {
+                SqlConnection con = new SqlConnection();
+                SqlCommand cmd = new SqlCommand("spApplicantStatusGetAllNursingVerification");
+                try
+                {
+                    con = new SqlConnection(PrpDbConnectADO.Conn);
+                    con.Open();
+                    cmd.Connection = con;
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@inductionId", 13);
+                    cmd.Parameters.AddWithValue("@phaseId", 1);
+                    DataTable dt = new DataTable();
+                    using (var da = new SqlDataAdapter(cmd))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        da.Fill(dt);
+                    }
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        EntityCount li = new EntityCount();
+                        li.statusTypeId = dr[0].TooInt();
+                        li.statusType = dr[1].TooString();
+                        li.statusId = dr[2].TooInt();
+                        li.status = dr[3].TooString();
+                        li.totalCount = dr[4].TooInt();
+                        if (li.statusId == 4 || li.statusId == 6)
+                        {
+
+                        }
+                        else
+                        {
+                            list.Add(li);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+                //var listt = db.spApplicantStatusGetAll(inductionId, phaseId).ToList();
+                //list = MapCommon.ToEntityList(listt);
+            }
+            catch (Exception ex)
+            {
+            }
+            return list;
+        }
+
         public List<EntityCount> GetDashboardCountInstituteHospital(int instituteId, int hospitalId, string condition)
         {
             List<EntityCount> list = new List<EntityCount>();

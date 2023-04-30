@@ -29,7 +29,7 @@
 
             $(document).on('click', '.tbRow', function () {
                 //alert(userTypeId);
-                if (userTypeId != 69) {
+                if (0>1) {
 
                     var applicantId = ConvertToInt($(this).attr("id"));
 
@@ -114,7 +114,7 @@
             obj.phaseId = ConvertToInt($("#hfdPhaseId").val());
             obj.search = ConvertToString($("#txtSearch").val());
             //alert('clicked');
-            var url = "/ApplicantAdmin/ApplicantSearchSimple";
+            var url = "/ApplicantAdmin/ApplicantSearchSimpleToVerify";
 
             var list = CallActionPost(url, obj);
 
@@ -254,7 +254,7 @@
         </div>
         <form class="form-horizontal form-label-left input_mask">
             <div class="form-group col-lg-12">
-                
+
                 <div class="col-md-7 col-sm-7 col-xs-7">
                     <label for="heard">Search :</label>
                     <input type="text" id="txtSearch" name="txtSearch" placeholder="Name, CNIC, Applicant Number" class="form-control" />

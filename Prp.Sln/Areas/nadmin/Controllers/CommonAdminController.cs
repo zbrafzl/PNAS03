@@ -406,6 +406,15 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         }
 
         [HttpPost]
+        public JsonResult ApplicantUpdateVerificationNursing(AmendmentsApplicantNursing obj)
+        {
+            obj.adminId = loggedInUser.userId;
+            obj.dated = DateTime.Now;
+            Message msg = new ApplicantDAL().ApplicantUpdateVerificationNursing(obj);
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
         public JsonResult ApplicantDelete(Applicant obj)
         {
             obj.adminId = loggedInUser.userId;

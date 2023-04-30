@@ -130,7 +130,104 @@ namespace Prp.Sln.Areas.nadmin.Controllers
 
             return View(model);
         }
+        public ActionResult AmendmentsApplicantNursing()
+        {
+            ProofReadingAdminModel model = new ProofReadingAdminModel();
+            try
+            {
 
+                int inductionId = 13;
+                int phaseId = 1;
+
+                int applicantId = Request.QueryString["applicantId"].TooInt();
+
+                if (1>0)
+                {
+                    if (applicantId > 0)
+                    {
+                        int applicationStatusId = 0;
+                        try
+                        {
+                            ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(inductionId, ProjConstant.phaseId
+                                              , applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
+
+                            applicationStatusId = objStatus.statusId;
+                        }
+                        catch (Exception)
+                        {
+
+                            applicationStatusId = 0;
+                        }
+
+                        if ((loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
+                            || loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior))
+                        {
+                            if (applicationStatusId == 8)
+                            {
+                                model = AdminFunctions.GenerateModelProofReading(inductionId, phaseId, applicantId);
+                                model.applicantId = applicantId;
+                            }
+                            else
+                            {
+                                model.applicantId = 0;
+                                model.requestType = 2;
+                            }
+                        }
+                        else
+                        {
+                            model = AdminFunctions.GenerateModelProofReading(inductionId, phaseId, applicantId);
+                            model.applicantId = applicantId;
+                        }
+
+                        if (applicationStatusId == 8)
+                        {
+                            try
+                            {
+                                model.statusApproval = new VerificationDAL().GetApplicationApprovalStatusGetByTypeAndId(ProjConstant.inductionId
+                                                                                , ProjConstant.phaseId, 131, model.applicant.applicantId);
+                            }
+                            catch (Exception)
+                            {
+                                model.statusApproval = new ApplicantApprovalStatus();
+                            }
+                            try
+                            {
+                                model.statusAmendment = new VerificationDAL().GetApplicationApprovalStatusGetByTypeAndId(ProjConstant.inductionId
+                                                                                , ProjConstant.phaseId, 132, model.applicant.applicantId);
+                            }
+                            catch (Exception)
+                            {
+                                model.statusAmendment = new ApplicantApprovalStatus();
+                            }
+                        }
+                    }
+
+                    model.applicantId = applicantId;
+                    model.requestType = 1;
+                }
+                else
+                {
+
+                    model.applicantId = 0;
+                    model.requestType = 2;
+                }
+
+                model.inductionId = inductionId;
+            }
+            catch (Exception)
+            {
+                model.applicantId = 0;
+                model.requestType = 3;
+            }
+
+            AmendmentsApplicantNursing data = new ActionDAL().getAmendmentsApplicantNursingData(model.applicantId);
+            model.amendmentsData = data;
+            Session["degreeAchieved"] = model.applicant.facultyId;
+            Session["applicantId"] = model.applicant.applicantId;
+            Session["appliedFor"] = model.applicant.levelId;
+
+            return View(model);
+        }
         public ActionResult ApplicantDetailVerify()
         {
             ProofReadingAdminModel model = new ProofReadingAdminModel();

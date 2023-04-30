@@ -1,0 +1,2124 @@
+﻿
+@{
+    ViewBag.Title = "ApplicantViewDetail";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ProofReadingAdminModel
+@section RenderCss{
+
+    <style type="text/css">
+
+        .btn {
+            padding: 2px 5px !important;
+        }
+
+        .form-group {
+            margin-bottom: 0px !important;
+        }
+
+
+
+        .spnbtn:hover {
+            background-color: #169F85 !important;
+            cursor: pointer;
+        }
+
+        fieldset {
+            margin-bottom: 0px !important;
+        }
+
+        #divprint {
+            width: 100%;
+            margin: 0 auto;
+            font-family: 'Lato', sans-serif !important;
+        }
+
+        .text-center {
+            text-align: center;
+            text-align: -webkit-center;
+            text-align: -moz-center;
+        }
+
+        .top_detail tr td:nth-child(2n) {
+            border-bottom: 1px solid #000;
+        }
+
+        .imgView {
+            height: 40px;
+            width: 70px;
+        }
+
+        .ank {
+            font-style: italic;
+            color: #007bff;
+        }
+
+        .spn-edit {
+            float: right;
+            margin-right: 5px;
+            padding: 1px 6px;
+            background: #fefefe;
+            color: #8b8686;
+        }
+
+            .spn-edit:hover {
+                background: #e9e0e0;
+            }
+
+        .rch-link {
+            max-width: 760px;
+            overflow-wrap: break-word;
+        }
+    </style>
+}
+@section RenderScript{
+    <script>
+
+        var applicantId = 0, statusApproval = 0, statusAmedment = 0, objApplicant = {}, imagesPath = "", key = "", value = "";
+
+        var pageUrl = "", statuAction = "", statusTypeId = 0;
+        $(document).ready(function () {
+
+            try {
+                applicantId = ConvertToInt($("#hfdApplicantId").val());
+            } catch (e) {
+                applicantId = 0;
+            }
+
+            GetApplicantMarksInfo();
+
+            pageUrl = window.location.pathname;
+            statuAction = "";
+            statusTypeId = 0;
+
+            if (pageUrl.indexOf("verify") > -1) {
+
+                statusTypeId = 131;
+                $("#fsUpdateInfo").hide();
+                $("#fsPassword").hide();
+                $(".pnlPreference").hide();
+                //$("#fsVerifyAmmend").hide();
+                statuAction = "AddUpdateVerficationStatus";
+
+                try {
+                    statusApproval = ConvertToInt($("#hfdStatusApproval").val());
+                } catch (e) {
+                    statusApproval = 0;
+                }
+
+                if (statusApproval > 0) {
+
+                    $("#ddlStatusType").val(statusApproval);
+                    if (statusApproval == 2) {
+                        var comments = $("#divCommentVerify").html();
+                        $("#divComments").show();
+                        $("#txtComments").val(comments);
+
+                    }
+                }
+
+            }
+            else if (pageUrl.indexOf("ammendment") > -1) {
+                statusTypeId = 132
+                $("#fsUpdateInfo").hide();
+                $("#fsPassword").hide();
+                $(".pnlPreference").hide();
+                $("#fsVerifyAmmend").show();
+                statuAction = "AddUpdateVerficationAmmenmentStatus";
+
+                try {
+                    statusAmedment = ConvertToInt($("#hfdStatusAmedment").val());
+                } catch (e) {
+                    statusAmedment = 0;
+                }
+
+                if (statusAmedment > 0) {
+
+                    $("#ddlStatusType").val(statusAmedment);
+
+                    $("#ddlStatusType").val(statusAmedment);
+                    if (statusAmedment == 2) {
+                        var comments = $("#divCommentAmmend").html();
+                        $("#divComments").show();
+                        $("#txtComments").val(comments);
+                    }
+                }
+
+
+            }
+            else {
+
+                $("#fsUpdateInfo").show();
+                $("#fsPassword").show();
+                $(".pnlPreference").show();
+                //$("#fsVerifyAmmend").hide();
+
+            }
+
+            $("#ddlType").val("applicantId");
+
+            key = ConvertToString($("#hfdKey").val());
+            if (key.length > 0) {
+                $("#ddlType").val(key);
+            }
+
+            $("#txtSearch").focus();
+
+
+            $(document).on('click', '#btnLoginByDeveloer', function () {
+
+                try {
+                    var resp = CallActionGet("/CommonAdmin/LoginByPhfDeveloperByApplicantId?applicantId=" + applicantId);
+                    if (resp.status == true && resp.id > 0) {
+                        window.open('/application-status', '_blank');
+                    }
+                } catch (e) {
+                }
+
+            });
+
+            $(document).on('click', '#btnLoginByApplicant', function () {
+
+                try {
+
+                    var resp = CallActionGet("/CommonAdmin/LoginByPhfByApplicantId?applicantId=" + applicantId);
+                    if (resp.status == true && resp.id > 0) {
+                        window.open('/ad/applicant-profile', '_blank');
+                    }
+                } catch (e) {
+                }
+
+            });
+
+            $(document).on('change', '#ddlStatusType', function () {
+
+
+                var statusId = ConvertToInt($(this).val());
+
+                $("#divComments").hide();
+
+                if (statusId == 2) {
+
+                    $("#divComments").show();
+
+                }
+
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    SearchApplicant();
+                }
+            });
+
+            $(document).on('click', '#btnSearch', function () {
+
+                SearchApplicant();
+            });
+
+            $(document).on('click', '#btnUpdateInfo', function () {
+
+                UpdateApplicant();
+            });
+
+            $(document).on('click', '#btnDeleteApplicant', function () {
+
+                deleteApplication();
+            });
+
+            $(document).on('click', '#btnSendPassword', function () {
+
+                SendPasswordToApplicant();
+            });
+
+            $(document).on('click', '#btnSendAmmendmentEmailSms', function () {
+
+                SendAmendmentEmailSmsToApplicant();
+            });
+
+            $(document).on('click', '#ankButtonActivate', function () {
+
+                if (applicantId > 0) {
+
+                    var resp = CallActionGet("/CommonAdmin/ApplicantStatusUpdate?applicantId=" + applicantId);
+                    var key = $("#ddlType").val();
+                    var value = $("#txtSearch").val();
+
+
+                    var url = window.location.href;
+                    window.location.href = url;
+                }
+
+            });
+
+            $(document).on('click', '#ankButtonActivationEmail', function () {
+
+                if (applicantId > 0) {
+
+                    var resp = CallActionGet("/CommonAdmin/SendAccountActivationEmail?applicantId=" + applicantId);
+                    var key = $("#ddlType").val();
+                    var value = $("#txtSearch").val();
+
+
+                    var url = window.location.href;
+                    window.location.href = url;
+                }
+
+            });
+            
+            $(document).on('click', '#btnUpdateVerifyNursing', function () {
+
+                UpdateApplicantVerifyNursing();
+            });
+
+            $(document).on('click', '#btnUpdateAmmenment', function () {
+
+                UpdateApplicantAmmenmentStatus();
+            });
+
+            $(document).on('click', '#btnUpdateAmmenmentJoining', function () {
+
+                UpdateApplicantAmmenmentStatusJoining();
+            });
+
+            $(".validityRemarks").append('<option value="Information is Not Correct">Information is Incorrect</option>');
+            $(".validityRemarks").append('<option value="Information does not match the Document">Information does not match the Document</option>');
+            /*$(".validityRemarks").append('<option value="Information is Invalid">Information is Invalid</option>');*/
+            $(".validityRemarks").append('<option value="">Select</option>');
+
+            $(".validityRemarksImage").append('<option value="Image Not Visible">Image Not Visible</option>');
+            $(".validityRemarksImage").append('<option value="Image Not Valid">Image Not Valid</option>');
+            $(".validityRemarksImage").append('<option value="Image is Not Original">Image is Not Original</option>');
+            $(".validityRemarksImage").append('<option value="">Select</option>');
+            //txtDOB
+            if ('@Model.amendmentsData.txtDobValidty' == "False") {
+
+                $("#ddlRemarksDoB").show();
+                $("#ddlRemarksDoB").val('@Model.amendmentsData.txtDobRemarks').change();
+            }
+            else {
+                $("#ddlRemarksDoB").hide();
+                $("#ddlRemarksDoB").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtDobValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDoB").val("").change();
+                    $("#ddlRemarksDoB").hide();
+                }
+                else {
+                    $("#ddlRemarksDoB").show();
+                }
+            });
+
+            //ddlRemarksMaritalStatus
+            if ('@Model.amendmentsData.ddlMaritalStatusValidity' == "False") {
+
+                $("#ddlRemarksMaritalStatus").show();
+                $("#ddlRemarksMaritalStatus").val('@Model.amendmentsData.ddlMaritalStatusRemarks').change();
+            }
+            else {
+                $("#ddlRemarksMaritalStatus").hide();
+                $("#ddlRemarksMaritalStatus").val("").change();
+            }
+
+            $("input[id=amendmentsData_ddlMaritalStatusValidity]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksMaritalStatus").val("").change();
+                    $("#ddlRemarksMaritalStatus").hide();
+                }
+                else {
+                    $("#ddlRemarksMaritalStatus").show();
+                }
+            });
+
+            //cnic number
+            if ('@Model.amendmentsData.txtCNICValidty' == "False") {
+
+                $("#ddlRemarksCNIC").show();
+                $("#ddlRemarksCNIC").val('@Model.amendmentsData.txtCNICRemarks').change();
+            }
+            else {
+                $("#ddlRemarksCNIC").hide();
+                $("#ddlRemarksCNIC").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtCNICValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksCNIC").val("").change();
+                    $("#ddlRemarksCNIC").hide();
+                }
+                else {
+                    $("#ddlRemarksCNIC").show();
+                }
+            });
+
+            //cnic front
+            if ('@Model.amendmentsData.imgCnicFrontValidty' == "False") {
+
+                $("#ddlRemarksCnicFront").show();
+                $("#ddlRemarksCnicFront").val('@Model.amendmentsData.imgCnicFrontRemarks').change();
+            }
+            else {
+                $("#ddlRemarksCnicFront").hide();
+                $("#ddlRemarksCnicFront").val("").change();
+            }
+
+            $("input[id=amendmentsData_imgCnicFrontValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksCnicFront").val("").change();
+                    $("#ddlRemarksCnicFront").hide();
+                }
+                else {
+                    $("#ddlRemarksCnicFront").show();
+                }
+            });
+
+            //cnic back
+            if ('@Model.amendmentsData.imgCnicBackValidty' == "False") {
+
+                $("#ddlRemarksCnicBack").show();
+                $("#ddlRemarksCnicBack").val('@Model.amendmentsData.imgCnicBackRemarks').change();
+            }
+            else {
+                $("#ddlRemarksCnicBack").hide();
+                $("#ddlRemarksCnicBack").val("").change();
+            }
+
+            $("input[id=amendmentsData_imgCnicBackValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksCnicBack").val("").change();
+                    $("#ddlRemarksCnicBack").hide();
+                }
+                else {
+                    $("#ddlRemarksCnicBack").show();
+                }
+            });
+
+            //domicile
+            if ('@Model.amendmentsData.imgDomicileFrontValidty' == "False") {
+
+                $("#ddlRemarksDomicileFront").show();
+                $("#ddlRemarksDomicileFront").val('@Model.amendmentsData.imgDomicileFrontRemarks').change();
+            }
+            else {
+                $("#ddlRemarksDomicileFront").hide();
+                $("#ddlRemarksDomicileFront").val("").change();
+            }
+
+            $("input[id=amendmentsData_imgDomicileFrontValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDomicileFront").val("").change();
+                    $("#ddlRemarksDomicileFront").hide();
+                }
+                else {
+                    $("#ddlRemarksDomicileFront").show();
+                }
+            });
+
+            //address
+            if ('@Model.amendmentsData.txtAddressValidty' == "False") {
+
+                $("#ddlRemarksAddress").show();
+                $("#ddlRemarksAddress").val('@Model.amendmentsData.txtAddressRemarks').change();
+            }
+            else {
+                $("#ddlRemarksAddress").hide();
+                $("#ddlRemarksAddress").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtAddressValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksAddress").val("").change();
+                    $("#ddlRemarksAddress").hide();
+                }
+                else {
+                    $("#ddlRemarksAddress").show();
+                }
+            });
+
+            //father name
+            if ('@Model.amendmentsData.txtFatherNameValidty' == "False") {
+
+                $("#ddlRemarksFatherName").show();
+                $("#ddlRemarksFatherName").val('@Model.amendmentsData.txtFatherNameRemarks').change();
+            }
+            else {
+                $("#ddlRemarksFatherName").hide();
+                $("#ddlRemarksFatherName").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtFatherNameValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksFatherName").val("").change();
+                    $("#ddlRemarksFatherName").hide();
+                }
+                else {
+                    $("#ddlRemarksFatherName").show();
+                }
+            });
+
+            //cnic expiry
+            if ('@Model.amendmentsData.txtCNICExpiryDateValidty' == "False") {
+
+                $("#ddlRemarksCNICExpiry").show();
+                $("#ddlRemarksCNICExpiry").val('@Model.amendmentsData.txtCNICExpiryDateRemarks').change();
+            }
+            else {
+                $("#ddlRemarksCNICExpiry").hide();
+                $("#ddlRemarksCNICExpiry").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtCNICExpiryDateValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksCNICExpiry").val("").change();
+                    $("#ddlRemarksCNICExpiry").hide();
+                }
+                else {
+                    $("#ddlRemarksCNICExpiry").show();
+                }
+            });
+            //domicile district
+            if ('@Model.amendmentsData.ddlDomicileDistrictValidty' == "False") {
+
+                $("#ddlRemarksDomicileDistrict").show();
+                $("#ddlRemarksDomicileDistrict").val('@Model.amendmentsData.ddlDomicileDistrictRemarks').change();
+            }
+            else {
+                $("#ddlRemarksDomicileDistrict").hide();
+                $("#ddlRemarksDomicileDistrict").val("").change();
+            }
+
+            $("input[id=amendmentsData_ddlDomicileDistrictValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDomicileDistrict").val("").change();
+                    $("#ddlRemarksDomicileDistrict").hide();
+                }
+                else {
+                    $("#ddlRemarksDomicileDistrict").show();
+                }
+            });
+
+            //matric obtained marks
+            if ('@Model.amendmentsData.txtRowDegree1MarksObtainValidty' == "False") {
+
+                $("#ddlRemarksDegree1MarksObtain").show();
+                $("#ddlRemarksDegree1MarksObtain").val('@Model.amendmentsData.txtRowDegree1MarksObtainRemarks').change();
+            }
+            else {
+                $("#ddlRemarksDegree1MarksObtain").hide();
+                $("#ddlRemarksDegree1MarksObtain").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtRowDegree1MarksObtainValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDegree1MarksObtain").val("").change();
+                    $("#ddlRemarksDegree1MarksObtain").hide();
+                }
+                else {
+                    $("#ddlRemarksDegree1MarksObtain").show();
+                }
+            });
+
+            //matric total marks
+            if ('@Model.amendmentsData.txtRowDegree1MarksTotalValidty' == "False") {
+
+                $("#ddlRemarksDegree1MarksTotal").show();
+                $("#ddlRemarksDegree1MarksTotal").val('@Model.amendmentsData.txtRowDegree1MarksTotalRemarks').change();
+            }
+            else {
+                $("#ddlRemarksDegree1MarksTotal").hide();
+                $("#ddlRemarksDegree1MarksTotal").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtRowDegree1MarksTotalValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDegree1MarksTotal").val("").change();
+                    $("#ddlRemarksDegree1MarksTotal").hide();
+                }
+                else {
+                    $("#ddlRemarksDegree1MarksTotal").show();
+                }
+            });
+
+            //matric board
+            if ('@Model.amendmentsData.ddlMatricBoardValidty' == "False") {
+
+                $("#ddlRemarksMatricBoard").show();
+                $("#ddlRemarksMatricBoard").val('@Model.amendmentsData.ddlMatricBoardRemarks').change();
+            }
+            else {
+                $("#ddlRemarksMatricBoard").hide();
+                $("#ddlRemarksMatricBoard").val("").change();
+            }
+
+            $("input[id=amendmentsData_ddlMatricBoardValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksMatricBoard").val("").change();
+                    $("#ddlRemarksMatricBoard").hide();
+                }
+                else {
+                    $("#ddlRemarksMatricBoard").show();
+                }
+            });
+
+            //matric degree
+            if ('@Model.amendmentsData.imgRowDegree1Validty' == "False") {
+
+                $("#ddlRemarksDegree1").show();
+                $("#ddlRemarksDegree1").val('@Model.amendmentsData.imgRowDegree1Remarks').change();
+            }
+            else {
+                $("#ddlRemarksDegree1").hide();
+                $("#ddlRemarksDegree1").val("").change();
+            }
+
+            $("input[id=amendmentsData_imgRowDegree1Validty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDegree1").val("").change();
+                    $("#ddlRemarksDegree1").hide();
+                }
+                else {
+                    $("#ddlRemarksDegree1").show();
+                }
+            });
+
+
+            //fsc obtained marks
+            if ('@Model.amendmentsData.txtRowDegree2MarksObtainValidty' == "False") {
+
+                $("#ddlRemarksDegree2MarksObtain").show();
+                $("#ddlRemarksDegree2MarksObtain").val('@Model.amendmentsData.txtRowDegree2MarksObtainRemarks').change();
+            }
+            else {
+                $("#ddlRemarksDegree2MarksObtain").hide();
+                $("#ddlRemarksDegree2MarksObtain").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtRowDegree2MarksObtainValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDegree2MarksObtain").val("").change();
+                    $("#ddlRemarksDegree2MarksObtain").hide();
+                }
+                else {
+                    $("#ddlRemarksDegree2MarksObtain").show();
+                }
+            });
+
+            //fsc total marks
+            if ('@Model.amendmentsData.txtRowDegree2MarksTotalValidty' == "False") {
+
+                $("#ddlRemarksDegree2MarksTotal").show();
+                $("#ddlRemarksDegree2MarksTotal").val('@Model.amendmentsData.txtRowDegree2MarksTotalRemarks').change();
+            }
+            else {
+                $("#ddlRemarksDegree2MarksTotal").hide();
+                $("#ddlRemarksDegree2MarksTotal").val("").change();
+            }
+
+            $("input[id=amendmentsData_txtRowDegree2MarksTotalValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDegree2MarksTotal").val("").change();
+                    $("#ddlRemarksDegree2MarksTotal").hide();
+                }
+                else {
+                    $("#ddlRemarksDegree2MarksTotal").show();
+                }
+            });
+
+            //fsc board
+            if ('@Model.amendmentsData.ddlFABoardValidty' == "False") {
+
+                $("#ddlRemarksFABoard").show();
+                $("#ddlRemarksFABoard").val('@Model.amendmentsData.ddlFABoardRemarks').change();
+            }
+            else {
+                $("#ddlRemarksFABoard").hide();
+                $("#ddlRemarksFABoard").val("").change();
+            }
+
+            $("input[id=amendmentsData_ddlFABoardValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksFABoard").val("").change();
+                    $("#ddlRemarksFABoard").hide();
+                }
+                else {
+                    $("#ddlRemarksFABoard").show();
+                }
+            });
+
+            //fsc degree
+            if ('@Model.amendmentsData.imgRowDegree2Validty' == "False") {
+
+                $("#ddlRemarksDegree2").show();
+                $("#ddlRemarksDegree2").val('@Model.amendmentsData.imgRowDegree2Remarks').change();
+            }
+            else {
+                $("#ddlRemarksDegree2").hide();
+                $("#ddlRemarksDegree2").val("").change();
+            }
+
+            $("input[id=amendmentsData_imgRowDegree2Validty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksDegree2").val("").change();
+                    $("#ddlRemarksDegree2").hide();
+                }
+                else {
+                    $("#ddlRemarksDegree2").show();
+                }
+            });
+
+
+            //fsc degree
+            if ('@Model.amendmentsData.imgVoucherValidty' == "False") {
+
+                $("#ddlRemarksVoucher").show();
+                $("#ddlRemarksVoucher").val('@Model.amendmentsData.imgVoucherRemarks').change();
+            }
+            else {
+                $("#ddlRemarksVoucher").hide();
+                $("#ddlRemarksVoucher").val("").change();
+            }
+
+            $("input[id=amendmentsData_imgVoucherValidty]").change(function () {
+                var value = $(this).val();
+                if (value == 'True') {
+                    $("#ddlRemarksVoucher").val("").change();
+                    $("#ddlRemarksVoucher").hide();
+                }
+                else {
+                    $("#ddlRemarksVoucher").show();
+                }
+            });
+
+        });
+
+        function GetApplicantMarksInfo() {
+            //alert("GetApplicantInfo");
+            if (1>0) {
+                if (1>0) {
+                    var resp = CallActionGet("/CommonAdmin/GetApplicantTentativeMarks?applicantId=" + applicantId
+                        + "&fsc=100&gn=0&mw=0&bsn=0&extraQ=0&minExp=0&exp=0&entryTest=0");
+                    console.log(resp);
+                    $(".fsc").show();
+                    $(".gn").hide();
+                    $(".bsn").hide();
+                    $(".postRn").hide();
+                    $(".minExp").hide();
+                    $(".exper").hide();
+                    $(".entry").hide();
+                    $(".total").show();
+                    $("#fsc").html(resp.fscObtained);
+                    $("#total").html(resp.fscObtained);
+                    $(".obtainedAllQualification").html(resp.fscObtained);
+                    $(".totalAllQualification").html("100");
+                }
+            }
+            else if (@Convert.ToInt32(Session["degreeAchieved"]) == 12) {
+                if (@Convert.ToInt32(Session["appliedFor"]) == 12) {
+                    var resp = CallActionGet("/CommonAdmin/GetApplicantTentativeMarks?applicantId=" + applicantId
+                        + "&fsc=0&gn=0&mw=0&bsn=90&extraQ=0&minExp=2&exp=10&entryTest=0");
+                    console.log(resp);
+                    $(".fsc").hide();
+                    $(".gn").hide();
+                    $(".bsn").show();
+                    $(".postRn").hide();
+                    $(".minExp").show();
+                    $(".exper").show();
+                    $(".entry").hide();
+                    $(".total").show();
+                    $("#minExp").html("2 Years Post Qualification");
+                    $("#bsn").html(resp.bsnObtained);
+                    $("#exper").html(resp.expObtained);
+                    $("#total").html(parseFloat(resp.bsnObtained + resp.expObtained).toFixed(2));
+                    //$("#total").html(resp.bsnObtained + resp.expObtained);
+                    $(".obtainedQualification").html(resp.bsnObtained);
+                    $(".totalQualification").html("90");
+                    $(".obtainedAllQualification").html(resp.bsnObtained);
+                    $(".totalAllQualification").html("90");
+                    $(".obtainedExperience").html(resp.expObtained);
+                    $(".totalExperience").html("10");
+                }
+            }
+            else if (@Convert.ToInt32(Session["degreeAchieved"]) == 11) {
+                //alert('here');
+                if (@Convert.ToInt32(Session["appliedFor"]) == 11) {
+                    //alert('jere');
+                    var resp = CallActionGet("/CommonAdmin/GetApplicantTentativeMarks?applicantId=" + applicantId
+                        + "&fsc=0&gn=25&mw=25&bsn=0&extraQ=2&minExp=2&exp=8&entryTest=40");
+                    console.log(resp);
+                    $(".fsc").hide();
+                    $(".gn").show();
+                    $(".bsn").hide();
+                    $(".postRn").show();
+                    $(".minExp").show();
+                    $(".exper").show();
+                    $(".entry").show();
+                    $(".total").show();
+                    $("#minExp").html("2 Years Post Qualification");
+                    $("#gn").html(parseFloat(resp.gnObtained + resp.mwObtained).toFixed(2));
+                    $("#postRn").html(resp.extraObtained);
+                    $("#exper").html(resp.expObtained);
+                    $("#entry").html("0");
+                    $("#entryTotal").html("40");
+                    $("#total").html(parseFloat(resp.gnObtained + resp.mwObtained + resp.extraObtained + resp.expObtained).toFixed(2));
+                    $(".obtainedQualification").html(parseFloat(resp.gnObtained + resp.mwObtained).toFixed(2));
+                    $(".totalQualification").html("50");
+                    $(".obtainedExtraQualification").html(resp.extraObtained);
+                    $(".totalExtraQualification").html("2");
+                    $(".obtainedAllQualification").html(parseFloat(resp.gnObtained + resp.mwObtained + resp.extraObtained).toFixed(2));
+                    $(".totalAllQualification").html("52");
+                    $(".obtainedExperience").html(resp.expObtained);
+                    $(".totalExperience").html("8");
+                }
+                else if (@Convert.ToInt32(Session["appliedFor"]) == 12) {
+                    var resp = CallActionGet("/CommonAdmin/GetApplicantTentativeMarks?applicantId=" + applicantId
+                        + "&fsc=0&gn=42.5&mw=42.5&bsn=0&extraQ=5&minExp=2&exp=10&entryTest=0");
+                    console.log(resp);
+                    $(".fsc").hide();
+                    $(".gn").show();
+                    $(".bsn").hide();
+                    $(".postRn").show();
+                    $(".minExp").show();
+                    $(".exper").show();
+                    $(".entry").hide();
+                    $(".total").show();
+                    $("#minExp").html("2 Years Post Qualification");
+                    $("#gn").html(resp.gnObtained + resp.mwObtained);
+                    $("#postRn").html(resp.extraObtained);
+                    $("#exper").html(resp.expObtained);
+                    $("#total").html(parseFloat(resp.gnObtained + resp.mwObtained + resp.extraObtained + resp.expObtained).toFixed(2));
+                    //$("#total").html(resp.gnObtained + resp.mwObtained + resp.extraObtained + resp.expObtained);
+                    $(".obtainedQualification").html(parseFloat(resp.gnObtained + resp.mwObtained).toFixed(2));
+                    $(".totalQualification").html("85");
+                    $(".obtainedExtraQualification").html(resp.extraObtained);
+                    $(".totalExtraQualification").html("5");
+                    $(".obtainedAllQualification").html(parseFloat(resp.gnObtained + resp.mwObtained + resp.extraObtained).toFixed(2));
+                    $(".totalAllQualification").html("90");
+                    $(".obtainedExperience").html(resp.expObtained);
+                    $(".totalExperience").html("10");
+                }
+            }
+            else
+            {
+                var resp = CallActionGet("/CommonAdmin/GetApplicantTentativeMarks?applicantId=" + applicantId
+                    + "&fsc=0&gn=0&mw=0&bsn=0&extraQ=0&minExp=0&exp=0&entryTest=0");
+                console.log(resp);
+            }
+
+            try {
+
+            } catch (e) {
+            }
+        }
+
+        function SearchApplicant() {
+
+            var key = $("#ddlType").val();
+            var value = ConvertToString($("#txtSearch").val());
+
+
+            var url = window.location.pathname;
+
+
+            //var url = "/admin/applicant-detail?key=" + key + "&value=" + value;
+
+            var url = url + "?key=" + key + "&value=" + value;
+
+
+            if (value.length > 0)
+                //window.location.href = url;
+                window.location.assign(url);
+            else { alert("Please enter something which you want to search"); }
+        }
+
+        function SendPasswordToApplicant() {
+
+            var resp = CallActionGet("/CommonAdmin/ApplicantSendMessage?applicantId=" + applicantId);
+            if (resp != null && resp.status == true) {
+                $("#divSmsSuccess").show();
+                $("#divSmsDanger").hide();
+            }
+            else {
+                $("#divSmsSuccess").hide();
+                $("#divSmsDanger").show();
+            }
+
+        }
+
+        function SendAmendmentEmailSmsToApplicant() {
+
+            var resp = CallActionGet("/CommonFunctionsAdmin/SendAmendmentEmailSmsAdminByApplicant?applicantId=" + applicantId);
+            if (resp != null && resp.status == true) {
+                $("#divSmsSuccess").show();
+                $("#divSmsDanger").hide();
+            }
+            else {
+                $("#divSmsSuccess").hide();
+                $("#divSmsDanger").show();
+            }
+
+        }
+
+        function UpdateApplicant() {
+
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+                var isError = ValidateForm();
+                if (isError == false) {
+
+                    if (IsExistPMDC() == true) {
+                        isError = true;
+                        errorMsg = "<li>This PMDC No already exists. Please try another.</li>"
+                    }
+
+                    if (IsExistEmail() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>This emaild  already exists. Please try another.</li>"
+                    }
+
+                    if (isError == false) {
+
+                        var resp = CallActionPost("/CommonAdmin/ApplicantUpdate", objApplicant);
+                        if (resp != null && resp.status == true) {
+                            $("#divError").hide();
+                            $("#spnMsg").html("");
+
+                            var url = window.location.href;
+                            window.location.href = url;
+                        }
+                        else {
+                            $("#divError").show();
+                            $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                        }
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html(errorMsg);
+                    }
+                }
+
+            } catch (e) {
+
+            }
+        }
+
+        function deleteApplication() {
+
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+                var isError = ValidateForm();
+                if (isError == false) {
+
+                    if (IsExistPMDC() == true) {
+                        isError = true;
+                        errorMsg = "<li>This PMDC No already exists. Please try another.</li>"
+                    }
+
+                    if (IsExistEmail() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>This emaild  already exists. Please try another.</li>"
+                    }
+
+                    if (isError == false) {
+                        var r = confirm("Are you sure you want to delete this applicant?");
+
+                        if (r == true) {
+
+                            var resp = CallActionPost("/CommonAdmin/ApplicantDelete", objApplicant);
+                            if (resp != null && resp.status == true) {
+                                $("#divError").hide();
+                                $("#spnMsg").html("");
+
+                                var url = window.location.href;
+                                window.location.href = "/admin/index";
+                            }
+                            else {
+                                $("#divError").show();
+                                $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                            }
+                        }
+
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html(errorMsg);
+                    }
+                }
+
+            } catch (e) {
+
+            }
+        }
+
+        function ValidateFormJoining() {
+
+            var isError = false, ctrl = "";
+
+            obj = {};
+            obj.applicantId = ConvertToInt($("#hfdApplicantId").val());
+            obj.approvalStatus = ConvertToInt($("#ddlStatusType").val());
+
+            var remarks;
+            if (ConvertToString($("#ddlStatusType").val()) == '2') {
+                remarks = ConvertToString($("#txtComments").val());
+                if (remarks == null) {
+                    $("#txtComments").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtComments";
+                }
+                if (remarks.trim() == "") {
+                    $("#txtComments").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtComments";
+                }
+            }
+            else {
+                remarks = 'Accepted';
+            }
+
+            if (1>0) {
+                obj.approvalRemarks = remarks;
+                obj.approvedBy = @Model.loggedInUser.userId;
+                obj.adminId = obj.approvedBy;
+                obj.isAdmin = 1;
+                obj.isApplicant = 0;
+                //obj.dated = new Date();
+
+                //obj.txtNameValidty = $("input[id=amendmentsData_txtNameValidty]:checked").val();
+                obj.txtFatherNameValidty = $("input[id=amendmentsData_txtFatherNameValidty]:checked").val();
+                obj.txtDobValidty = $("input[id=amendmentsData_txtDobValidty]:checked").val();
+                //obj.ddlDistrictValidty = $("input[id=amendmentsData_ddlDistrictValidty]:checked").val();
+                //obj.ddlcnicSelectValidty = $("input[id=amendmentsData_ddlcnicSelectValidty]:checked").val();
+                obj.txtCNICValidty = $("input[id=amendmentsData_txtCNICValidty]:checked").val();
+                obj.txtCNICExpiryDateValidty = $("input[id=amendmentsData_txtCNICExpiryDateValidty]:checked").val();
+                obj.ddlDomicileDistrictValidty = $("input[id=amendmentsData_ddlDomicileDistrictValidty]:checked").val();
+                obj.txtAddressValidty = $("input[id=amendmentsData_txtAddressValidty]:checked").val();
+                //obj.imgPicValidty = $("input[id=amendmentsData_imgPicValidty]:checked").val();
+                obj.imgCnicFrontValidty = $("input[id=amendmentsData_imgCnicFrontValidty]:checked").val();
+                obj.imgCnicBackValidty = $("input[id=amendmentsData_imgCnicBackValidty]:checked").val();
+                obj.imgDomicileFrontValidty = $("input[id=amendmentsData_imgDomicileFrontValidty]:checked").val();
+                obj.ddlMatricBoardValidty = $("input[id=amendmentsData_ddlMatricBoardValidty]:checked").val();
+                obj.txtRowDegree1MarksObtainValidty = $("input[id=amendmentsData_txtRowDegree1MarksObtainValidty]:checked").val();
+                obj.txtRowDegree1MarksTotalValidty = $("input[id=amendmentsData_txtRowDegree1MarksTotalValidty]:checked").val();
+                //obj.txtDateOfPassingMatricValidty = $("input[id=amendmentsData_txtDateOfPassingMatricValidty]:checked").val();
+                obj.imgRowDegree1Validty = $("input[id=amendmentsData_imgRowDegree1Validty]:checked").val();
+                obj.ddlFABoardValidty = $("input[id=amendmentsData_ddlFABoardValidty]:checked").val();
+                obj.txtRowDegree2MarksObtainValidty = $("input[id=amendmentsData_txtRowDegree2MarksObtainValidty]:checked").val();
+                obj.txtRowDegree2MarksTotalValidty = $("input[id=amendmentsData_txtRowDegree2MarksTotalValidty]:checked").val();
+                //obj.txtDateOfPassingInterValidty = $("input[id=amendmentsData_txtDateOfPassingInterValidty]:checked").val();
+                obj.imgRowDegree2Validty = $("input[id=amendmentsData_imgRowDegree2Validty]:checked").val();
+                //obj.txtBranchCodeValidty = $("input[id=amendmentsData_txtBranchCodeValidty]:checked").val();
+                //obj.txtSubmittedDateVoucherValidty = $("input[id=amendmentsData_txtSubmittedDateVoucherValidty]:checked").val();
+                obj.imgVoucherValidty = $("input[id=amendmentsData_imgVoucherValidty]:checked").val();
+                //obj.ddlMaritalStatusValidity = $("input[id=amendmentsData_ddlMaritalStatusValidity]:checked").val();
+
+                //obj.txtNameRemarks = $("#").val();
+                obj.txtFatherNameRemarks = $("#ddlRemarksFatherName").val();
+                obj.txtDobRemarks = $("#ddlRemarksDoB").val();
+                //obj.ddlDistrictRemarks = $("#").val();
+                //obj.ddlcnicSelectRemarks = $("#").val();
+                obj.txtCNICRemarks = $("#ddlRemarksCNIC").val();
+                obj.txtCNICExpiryDateRemarks = $("#ddlRemarksCNICExpiry").val();
+                obj.ddlDomicileDistrictRemarks = $("#ddlRemarksDomicileDistrict").val();
+                obj.txtAddressRemarks = $("#ddlRemarksAddress").val();
+                //obj.imgPicRemarks = $("#").val();
+                obj.imgCnicFrontRemarks = $("#ddlRemarksCnicFront").val();
+                obj.imgCnicBackRemarks = $("#ddlRemarksCnicBack").val();
+                obj.imgDomicileFrontRemarks = $("#ddlRemarksDomicileFront").val();
+                obj.ddlMatricBoardRemarks = $("#ddlRemarksMatricBoard").val();
+                obj.txtRowDegree1MarksObtainRemarks = $("#ddlRemarksDegree1MarksObtain").val();
+                obj.txtRowDegree1MarksTotalRemarks = $("#ddlRemarksDegree1MarksTotal").val();
+                //obj.txtDateOfPassingMatricRemarks = $("#").val();
+                obj.imgRowDegree1Remarks = $("#ddlRemarksDegree1").val();
+                obj.ddlFABoardRemarks = $("#ddlRemarksFABoard").val();
+                obj.txtRowDegree2MarksObtainRemarks = $("#ddlRemarksDegree2MarksObtain").val();
+                obj.txtRowDegree2MarksTotalRemarks = $("#ddlRemarksDegree2MarksTotal").val();
+                //obj.txtDateOfPassingInterRemarks = $("#").val();
+                obj.imgRowDegree2Remarks = $("#ddlRemarksDegree2").val();
+                //obj.txtBranchCodeRemarks = $("#").val();
+                //obj.txtSubmittedDateVoucherRemarks = $("#").val();
+                obj.imgVoucherRemarks = $("#ddlRemarksVoucher").val();
+                obj.ddlMaritalStatusRemarks = $("#ddlRemarksMaritalStatus").val();
+                console.log(obj);
+            }
+
+            return isError;
+        }
+
+        function ValidateForm() {
+
+
+            $(".req-fld").removeClass("req-fld");
+
+
+            $("#divError").hide();
+            $("#idErrorMsg").html("");
+
+            var isError = false, ctrl = "", errorMessage = "";
+
+
+            if (applicantId > 0) {
+                objApplicant = {};
+
+                objApplicant.applicantId = applicantId;
+                objApplicant.name = $("#txtName").val();
+                objApplicant.pmdcNo = $("#txtPMDCNo").val();
+                objApplicant.emailId = $("#txtEmail").val().toLowerCase();
+                objApplicant.contactNumber = $("#txtContactNumber").val();
+
+
+                if (objApplicant.name == "") {
+                    $("#txtName").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtName";
+                }
+
+                if (objApplicant.pmdcNo == "") {
+                    $("#txtPMDCNo").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtPMDCNo";
+                }
+
+                if (objApplicant.contactNumber == "") {
+                    $("#txtContactNumber").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtContactNumber";
+                }
+                else if (objApplicant.contactNumber.length < 11) {
+
+                    isError = true;
+                    $("#txtContactNumber").addClass("req-fld");
+                    errorMessage = errorMessage + "<li>Please enter valid contact no</li>"
+                    if (ctrl == "")
+                        ctrl = "txtContactNumber";
+                }
+
+                if (objApplicant.emailId == "") {
+                    $("#txtEmail").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtEmail";
+                }
+                else {
+
+                    if (ValidateEmail(objApplicant.emailId) == false) {
+                        isError = true;
+                        errorMessage = errorMessage + "<li>Invalid email id. Please enter valid email id</li>"
+                    }
+                }
+            }
+            else {
+
+                isError = true;
+                errorMessage = errorMessage + "<li>Applicant not exists.</li>"
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            if (errorMessage.length > 0) {
+                $("#divError").show();
+                $("#idErrorMsg").html(errorMessage);
+            }
+
+            return isError;
+
+        }
+
+        function IsExistPMDC() {
+
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+
+                obj.id = applicantId;
+                obj.search = $("#txtPMDCNo").val();
+                obj.condition = "PMDCNO";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+
+        function IsExistEmail() {
+
+            var isExist = true;
+
+            try {
+
+                var obj = {};
+
+                obj.id = applicantId;
+                obj.search = $("#txtEmail").val();
+                obj.condition = "emailId";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+
+        function UpdateApplicantVerifyNursing() {
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+                var isError = ValidateFormJoining();
+                if (isError == false) {
+
+                    
+                    if (isError == false) {
+
+                        var resp = CallActionPost("/CommonAdmin/ApplicantUpdateVerificationNursing", obj);
+                        if (resp != null && resp.status == true) {
+                            $("#divError").hide();
+                            $("#spnMsg").html("");
+                            window.location.href = "/admin/applicant-search-to-verify?statusTypeId=131&statusId=0";
+                        }
+                        else {
+                            $("#divError").show();
+                            $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                        }
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html(errorMsg);
+                    }
+                }
+
+            } catch (e) {
+
+            }
+        }
+
+        function UpdateApplicantAmmenmentStatus() {
+
+            
+
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+
+                var isError = false;
+                var obj = {};
+
+                obj.applicantId = ConvertToInt($("#hfdApplicantId").val());
+                obj.approvalStatusTypeId = statusTypeId;
+                obj.approvalStatusId = ConvertToInt($("#ddlStatusType").val());
+                obj.comments = ConvertToString($("#txtComments").val());
+
+                if (isError == false) {
+                    //alert(statuAction);
+                    statuAction = "AddUpdateVerficationStatus";
+                    var resp = CallActionPost("/VerficationProcess/" + statuAction, obj);
+                    if (resp != null && resp.status == true) {
+                        $("#divError").hide();
+                        $("#spnMsg").html("");
+                        var url = "/admin/applicant-search-verify?statusTypeId=52&statusId=-1";
+                        window.open(url);
+                        //var url = window.location.pathname;
+                        //window.location.assign(url);
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                    }
+                }
+                else {
+                    $("#divError").show();
+                    $("#idErrorMsg").html(errorMsg);
+                }
+
+            } catch (e) {
+
+            }
+        }
+
+
+        function UpdateApplicantAmmenmentStatusJoining() {
+
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+
+                var isError = false;
+                var obj = {};
+
+                obj.applicantId = ConvertToInt($("#hfdApplicantId").val());
+                obj.approvalStatusTypeId = statusTypeId;
+                obj.approvalStatusId = ConvertToInt($("#ddlStatusTypeJoining").val());
+                obj.comments = '';
+
+                if (isError == false) {
+                    //alert(statuAction);
+                    statuAction = "AddUpdateVerficationStatusJoining";
+                    var resp = CallActionPost("/VerficationProcess/" + statuAction, obj);
+                    if (resp != null && resp.status == true) {
+                        $("#divError").hide();
+                        $("#spnMsg").html("");
+                        var url = "/admin/applicant-search-join?statusTypeId=52&statusId=-1";
+                        window.open(url);
+                        //var url = window.location.pathname;
+                        //window.location.assign(url);
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                    }
+                }
+                else {
+                    $("#divError").show();
+                    $("#idErrorMsg").html(errorMsg);
+                }
+
+            } catch (e) {
+
+            }
+        }
+
+
+    </script>
+}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <div class="form-group col-lg-12">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <fieldset style="display:none">
+                        <legend> Applicant Search  </legend>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <input type="hidden" id="hfdKey" value="@(Model.search.key)" />
+                            <select id="ddlType" name="ddlType" class="form-control">
+                                <option value="applicantId" selected="selected"> Applicant Id </option>
+                                <option value="pmdcNo"> CNIC No </option>
+                                <option value="emailId"> Email Id </option>
+                                <option value="contactNumber"> Contact Number </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <input id="txtSearch" name="txtSearch" class="form-control" value="@(Model.search.value)" />
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <input type="button" id="btnSearch" class="btn btn-success" value="Search" />
+                        </div>
+                    </fieldset>
+                </div>
+                @if (Model.applicantId > 0 && Model.applicant.statusId == 1)
+                {
+                    if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper
+
+                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.phfITManager
+                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.callCenter)
+                    {
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <fieldset style="display:none">
+                                <legend> Functions </legend>
+                                @if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper)
+                                {
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <input type="button" id="btnLoginByDeveloer" value="Login By Developer" class="btn btn-success" />
+                                    </div>
+                                }
+                                @if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper
+                                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.phfITManager
+                                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.callCenter)
+                                {
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <input type="button" id="btnLoginByApplicant" value="Login By Admin" class="btn btn-success" />
+                                    </div>
+                                }
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <a href="@("/admin/applicant-status?applicantid=" + Model.applicantId)" class="btn btn-success" target="_blank">View Status</a>
+
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <input type="button" id="btnSendPassword" class="btn btn-success" value="Send Password" />
+                                    <input type="button" id="btnSendAmmendmentEmailSms" class="btn btn-success" value="Send Email & SMS" style="display:none;" />
+                                    <div>
+                                        <div id="divSmsSuccess" class="alert alert-success alert-dismissible show" role="alert" style="clear:both; display:none">
+                                            <span> Message Sent</span>
+                                            <a href="#" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </a>
+                                        </div>
+                                        <div id="divSmsDanger" class="alert alert-danger alert-dismissible show" role="alert" style="clear:both; display:none">
+                                            <span> Some thing went wrong!</span>
+                                            <a href="#" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    }
+
+                }
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                @if (Model.applicantId > 0)
+                {
+                    <input type="hidden" id="hfdApplicantId" value="@(Model.applicant.applicantId)" />
+                    if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper
+                    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.phfITManager
+                    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter
+                     || Model.loggedInUser.userId == 6)
+                    {
+                        <fieldset id="fsUpdateInfo">
+                            <legend> Applicant Info Update Panel  </legend>
+                            <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                                <div class="form-group col-lg-12">
+                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                        <label for="heard">Name *:</label>
+                                        <input type="text" class="form-control" maxlength="50" required="required" name="txtName" id="txtName" placeholder="Full Name" value="@(Model.applicant.name)" />
+                                    </div>
+                                    
+                                </div>
+                            </form>
+                        </fieldset>
+                    }
+                    if (Model.applicant.statusId == 1)
+                    {
+
+
+                        <fieldset>
+                            <legend> Applicant Information Verification  </legend>
+                            <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
+                                @{
+                                    var applicant = Model.applicant;
+
+                                    if (Model.applicantInfo != null && Model.applicantInfo.applicantDetailId > 0 && Model.applicant.applicationStatusId > 0)
+                                    {
+                                        var info = Model.applicantInfo;
+
+                                        decimal marksDegree = 0;
+                                        decimal marksGradation = 0;
+                                        decimal marksDMC = 0;
+
+                                        decimal marksHouseJob = 0;
+                                        decimal marksExperience = 0;
+                                        decimal marksExperienceDistinction = 0;
+                                        decimal marksDistinction = 0;
+                                        decimal marksResearchPaper = 0;
+                                        <fieldset>
+                                            <div class="form-group col-lg-12">
+                                                <table style="width: 100%;" cellspacing="0px">
+                                                    <tbody>
+                                                        <tr style="float: left; width:100%;">
+                                                            <td style="float: left; width:90%;">
+                                                                <div style="float: left; width: 100%; margin-top: 15px ">
+
+
+
+                                                                </div>
+                                                                <div style="float: left; width:100%; margin-top:15px">
+                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;">Form No. : @applicant.applicantId</span>
+                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Application for BSN Generic (4 Years Degree Program) </span>
+                                                                </div>
+                                                            </td>
+                                                            <td style="float: left; width:9%;">
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" style="width:90px; height:80px;" />
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                                <table border="1" style="width:100%;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <span>Name: </span>
+                                                                <span style="text-decoration:underline;">@applicant.name</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span>Email: </span>
+                                                                <span style="text-decoration:underline;">@applicant.emailId</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span>Mobile Number: </span>
+                                                                <span style="text-decoration:underline;">@Model.applicant.contactNumber</span>
+                                                            </td>
+                                                        </tr>
+                                                        @*<tr>
+                                                            <td>
+                                                                <span>Gender: </span>
+                                                                <span style="text-decoration:underline;">@Model.applicant.contactNumber</span>
+                                                            </td>
+                                                        </tr>*@
+                                                    </tbody>
+                                                </table>
+                                                <table border="1" style="width:100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:50%"></th>
+                                                            <th style="width:25%; text-align:center">Validity</th>
+                                                            <th style="width:25%">Remarks</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> DOB : @info.dob.ToString("dd MMM yyyy")</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtDobValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtDobValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDoB" name="ddlRemarksDoB" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        @*<tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Merital Status : @info.meritalStatus</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksMaritalStatus" name="ddlRemarksMaritalStatus" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>*@
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> CNIC : @info.cnicNo</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtCNICValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtCNICValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksCNIC" name="ddlRemarksCNIC" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                CNIC Front:
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.cnicPicFront)" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.cnicPicFront)" alt="pdf" />
+                                                                </a>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgCnicFrontValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgCnicFrontValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksCnicFront" name="ddlRemarksCnicFront" class="form-control validityRemarksImage" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                CNIC Back:
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.cnicPicBack)" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.cnicPicBack)" alt="pdf" />
+                                                                </a>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgCnicBackValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgCnicBackValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksCnicBack" name="ddlRemarksCnicBack" class="form-control validityRemarksImage" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                Domicile:
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.domicilePicFront)" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.domicilePicFront)" alt="pdf" />
+                                                                </a>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgDomicileFrontValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgDomicileFrontValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDomicileFront" name="ddlRemarksDomicileFront" class="form-control validityRemarksImage" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Address : @info.address</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtAddressValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtAddressValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksAddress" name="ddlRemarksAddress" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+
+
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Father's Name : @info.fatherName</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtFatherNameValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtFatherNameValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksFatherName" name="ddlRemarksFatherName" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> CNIC Expiry Date : @info.cnicExpiryDate.ToString("dd/MM/yyyy")</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtCNICExpiryDateValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtCNICExpiryDateValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksCNICExpiry" name="ddlRemarksCNICExpiry" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Domicile District : @info.domicileDistrict</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlDomicileDistrictValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlDomicileDistrictValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDomicileDistrict" name="ddlRemarksDomicileDistrict" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Matric Obtained Marks : @Model.listDegreeMark.Where(i => i.degreeName == "Matric (Science)").Select(i => i.obtainMarks).FirstOrDefault()</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtRowDegree1MarksObtainValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtRowDegree1MarksObtainValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDegree1MarksObtain" name="ddlRemarksDegree1MarksObtain" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Matric Total Marks : @Model.listDegreeMark.Where(i => i.degreeName == "Matric (Science)").Select(i => i.totalMarks).FirstOrDefault()</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtRowDegree1MarksTotalValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtRowDegree1MarksTotalValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDegree1MarksTotal" name="ddlRemarksDegree1MarksTotal" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Matric Board : @Model.listDegreeMark.Where(i => i.degreeName == "Matric (Science)").Select(i => i.degreeInstitute).FirstOrDefault()</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlMatricBoardValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlMatricBoardValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksMatricBoard" name="ddlRemarksMatricBoard" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                Matric Certificate:
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.listDegreeMark.Where(i => i.degreeName == "Matric (Science)").Select(i => i.imageDMC).FirstOrDefault())" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.listDegreeMark.Where(i => i.degreeName == "Matric (Science)").Select(i => i.imageDMC).FirstOrDefault())" alt="pdf" />
+                                                                </a>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgRowDegree1Validty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgRowDegree1Validty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDegree1" name="ddlRemarksDegree1" class="form-control validityRemarksImage" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> FSc Obtained Marks : @Model.listDegreeMark.Where(i => i.degreeName == "FSc").Select(i => i.obtainMarks).FirstOrDefault()</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtRowDegree2MarksObtainValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtRowDegree2MarksObtainValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDegree2MarksObtain" name="ddlRemarksDegree2MarksObtain" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Matric Total Marks : @Model.listDegreeMark.Where(i => i.degreeName == "FSc").Select(i => i.totalMarks).FirstOrDefault()</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtRowDegree2MarksTotalValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.txtRowDegree2MarksTotalValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDegree2MarksTotal" name="ddlRemarksDegree2MarksTotal" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Intermediate Board : @Model.listDegreeMark.Where(i => i.degreeName == "FSc").Select(i => i.degreeInstitute).FirstOrDefault()</span>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlFABoardValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlFABoardValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksFABoard" name="ddlRemarksFABoard" class="form-control validityRemarks" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                FSc Certificate:
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.listDegreeMark.Where(i => i.degreeName == "FSc").Select(i => i.imageDMC).FirstOrDefault())" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.listDegreeMark.Where(i => i.degreeName == "FSc").Select(i => i.imageDMC).FirstOrDefault())" alt="pdf" />
+                                                                </a>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgRowDegree2Validty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgRowDegree2Validty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksDegree2" name="ddlRemarksDegree2" class="form-control validityRemarksImage" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                Voucher:
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.voucher.voucherImage)" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.voucher.voucherImage)" alt="pdf" />
+                                                                </a>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgVoucherValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgVoucherValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="ddlRemarksVoucher" name="ddlRemarksVoucher" class="form-control validityRemarksImage" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset id="fsVerifyAmmend">
+                                            <legend>
+
+                                                Verification  Action
+                                            </legend>
+                                            <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                                                <div class="form-group col-lg-12">
+                                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                                        <label for="heard">Status Type *:</label>
+                                                        <select id="ddlStatusType" name="ddlStatusType" class="form-control">
+                                                            <option value="1" selected="selected">Accepted</option>
+                                                            <option value="2">Rejected</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div id="divComments" class="form-group col-lg-12" style="display:none; margin-top:20px;">
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                        <label for="heard">Comments *:</label>
+                                                        <div id="divCommentValue" style="display:none;">
+                                                            @Model.statusApproval.comments
+                                                        </div>
+                                                        <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="margin-top:20px;">
+                                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                                        <label for="heard">&nbsp;</label>
+                                                        <input type="button" id="btnUpdateVerifyNursing" value="Update" class="btn btn-success" />
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </fieldset>
+
+                                    }
+                                    else
+                                    {
+                                        <table style="width: 100%;" cellspacing="0px">
+                                            <tbody>
+                                                <tr style="float: left">
+                                                    <th>
+                                                        <h4 style="margin: 0px; font-size: 35px; border-bottom: 2px solid #000;">@applicant.name</h4>
+                                                        <h4 style="margin: 0px; font-size: 20px; margin-top:10px; ">Form No. : @applicant.applicantId</h4>
+                                                    </th>
+                                                </tr>
+                                                <tr style="float: right">
+                                                    <th>
+                                                        <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
+                                                            <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" style="width:90px; height:80px;" />
+                                                        </a>
+                                                    </th>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <table style="width: 100%;" cellspacing="0px">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <table class="top_detail" style="width: 48%; float: left; margin-right:2%">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>Name</td>
+                                                                    <td>@applicant.name</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>PMDC Number</td>
+                                                                    <td> @applicant.pmdcNo <a class="ank" href="@("https://pmc.gov.pk/Doctors/Details?regNo=" + @applicant.pmdcNo)" target="_blank"> View </a></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <table class="top_detail" style="width: 49%; float: left;">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>Email</td>
+                                                                    <td>@applicant.emailId</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Mobile No</td>
+                                                                    <td>@applicant.contactNumber</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                            </div>
+                        </fieldset>
+
+                        //if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.phfITManager
+                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter
+                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
+                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior)
+                        if (Model.loggedInUser.typeId == -1)
+                        {
+                            <fieldset id="fsVerifyAmmend">
+                                <legend>
+
+                                    Verification  Action
+                                </legend>
+                                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                                    <div class="form-group col-lg-12">
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <label for="heard">Status Type *:</label>
+                                            <select id="ddlStatusType" name="ddlStatusType" class="form-control">
+                                                <option value="1" selected="selected">Accepted</option>
+                                                <option value="2">Rejected</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="divComments" class="form-group col-lg-12" style="display:none;">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <label for="heard">Comments *:</label>
+                                            <div id="divCommentValue" style="display:none;">
+                                                @Model.statusApproval.comments
+                                            </div>
+                                            <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-12">
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <label for="heard">&nbsp;</label>
+                                            <input type="button" id="btnUpdateAmmenment" value="Update" class="btn btn-success" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </fieldset>
+                        }
+
+                        else if (1>2)
+                        //else if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.institute)
+                        {
+                            <fieldset id="fsVerifyAmmend">
+                                <legend>
+                                    Joining  Action
+                                </legend>
+                                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                                    <div class="form-group col-lg-12">
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <label for="heard">Status Type *:</label>
+                                            <select id="ddlStatusTypeJoining" name="ddlStatusTypeJoining" class="form-control">
+                                                <option value="0" selected="selected">Not Joined</option>
+                                                <option value="1">Joined</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="divComments" class="form-group col-lg-12" style="display:none;">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <label for="heard">Comments *:</label>
+                                            <div id="divCommentValue" style="display:none;">
+                                                @Model.statusApproval.comments
+                                            </div>
+                                            <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-12">
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <label for="heard">&nbsp;</label>
+                                            <input type="button" id="btnUpdateAmmenmentJoining" value="Update" class="btn btn-success" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </fieldset>
+                        }
+                    }
+                    else
+                    {
+                        if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
+                            || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior)
+                        {
+                            <div>
+                                <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                    <span> Applicant not exists</span>
+                                </div>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <fieldset>
+                                <legend> Applicant Information </legend>
+                                <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
+
+                                    <div>
+                                        <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                            <span> Applicant Account Status</span>
+                                            <br />
+
+                                            <span> Application Name : @Model.applicant.name</span>
+                                            <br />
+                                            <span> Contact No : @Model.applicant.contactNumber</span>
+                                            <br />
+                                            <span> Applicant ID : @Model.applicant.applicantId</span>
+                                            <br />
+                                            <span> Email Id : @Model.applicant.emailId</span>
+                                            <br />
+                                            <span> CNIC : @Model.applicantInfo.cnicNo</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        }
+                    }
+                }
+                else
+                {
+                    if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
+                            || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior)
+                    {
+                        <div>
+                            <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                <span> Applicant not exists</span>
+                            </div>
+                        </div>
+
+                    }
+                    else
+                    {
+                        if (Model.requestType == 1)
+                        {
+                            <fieldset>
+                                <legend> Search Result   </legend>
+                                <div>
+                                    <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                        <span> Applicant not exists</span>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        }
+                        else if (Model.requestType == 3)
+                        {
+
+                            <fieldset>
+                                <legend> Search Result  </legend>
+                                <div>
+                                    <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                        <span> Some thing went wrong</span>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        }
+                        else
+                        {
+                            <div>
+                                <div class="alert alert-danger alert-dismissible show" role="alert" style="clear:both;">
+                                    <span> Applicant not exists</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

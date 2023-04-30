@@ -69,6 +69,12 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                 model.listDashBoard = new CommonDAL().GetDashboardCount(ProjConstant.inductionId, ProjConstant.phaseId);
                 return View("KeVerifyDashboard", model);
             }
+            else if (loggedInUser.typeId == 69)
+            {
+                int userId = loggedInUser.userId;
+                model.listDashBoard = new CommonDAL().GetDashboardCountNursingVerification(userId,13, 1);
+                return View("KeVerifyDashboard", model);
+            }
             else if (loggedInUser.typeId == ProjConstant.Constant.UserType.phfAccountant)
             {
                 model.listDashBoard = new CommonDAL().GetDashboardCount(ProjConstant.inductionId, ProjConstant.phaseId);

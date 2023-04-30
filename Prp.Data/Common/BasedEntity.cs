@@ -404,6 +404,72 @@ namespace Prp.Data
         public string search { get; set; }
     }
 
+    public class AmendmentsApplicantNursing
+    {
+        public int amendmentId { get; set; }
+        public int adminId { get; set; }
+        public int applicantId { get; set; }
+        public int isAdmin { get; set; }
+        public int isApplicant { get; set; }
+        public DateTime dated { get; set; }
+        public bool txtNameValidty { get; set; }
+        public bool txtFatherNameValidty { get; set; }
+        public bool txtDobValidty { get; set; }
+        public bool ddlDistrictValidty { get; set; }
+        public bool ddlcnicSelectValidty { get; set; }
+        public bool txtCNICValidty { get; set; }
+        public bool txtCNICExpiryDateValidty { get; set; }
+        public bool ddlDomicileDistrictValidty { get; set; }
+        public bool txtAddressValidty { get; set; }
+        public bool imgPicValidty { get; set; }
+        public bool imgCnicFrontValidty { get; set; }
+        public bool imgCnicBackValidty { get; set; }
+        public bool imgDomicileFrontValidty { get; set; }
+        public bool ddlMatricBoardValidty { get; set; }
+        public bool txtRowDegree1MarksObtainValidty { get; set; }
+        public bool txtRowDegree1MarksTotalValidty { get; set; }
+        public bool txtDateOfPassingMatricValidty { get; set; }
+        public bool imgRowDegree1Validty { get; set; }
+        public bool ddlFABoardValidty { get; set; }
+        public bool txtRowDegree2MarksObtainValidty { get; set; }
+        public bool txtRowDegree2MarksTotalValidty { get; set; }
+        public bool txtDateOfPassingInterValidty { get; set; }
+        public bool imgRowDegree2Validty { get; set; }
+        public bool txtBranchCodeValidty { get; set; }
+        public bool txtSubmittedDateVoucherValidty { get; set; }
+        public bool imgVoucherValidty { get; set; }
+        public string txtNameRemarks { get; set; }
+        public string txtFatherNameRemarks { get; set; }
+        public string txtDobRemarks { get; set; }
+        public string ddlDistrictRemarks { get; set; }
+        public string ddlcnicSelectRemarks { get; set; }
+        public string txtCNICRemarks { get; set; }
+        public string txtCNICExpiryDateRemarks { get; set; }
+        public string ddlDomicileDistrictRemarks { get; set; }
+        public string txtAddressRemarks { get; set; }
+        public string imgPicRemarks { get; set; }
+        public string imgCnicFrontRemarks { get; set; }
+        public string imgCnicBackRemarks { get; set; }
+        public string imgDomicileFrontRemarks { get; set; }
+        public string ddlMatricBoardRemarks { get; set; }
+        public string txtRowDegree1MarksObtainRemarks { get; set; }
+        public string txtRowDegree1MarksTotalRemarks { get; set; }
+        public string txtDateOfPassingMatricRemarks { get; set; }
+        public string imgRowDegree1Remarks { get; set; }
+        public string ddlFABoardRemarks { get; set; }
+        public string txtRowDegree2MarksObtainRemarks { get; set; }
+        public string txtRowDegree2MarksTotalRemarks { get; set; }
+        public string txtDateOfPassingInterRemarks { get; set; }
+        public string imgRowDegree2Remarks { get; set; }
+        public string txtBranchCodeRemarks { get; set; }
+        public string txtSubmittedDateVoucherRemarks { get; set; }
+        public string imgVoucherRemarks { get; set; }
+        public int approvalStatus { get; set; }
+        public string approvalRemarks { get; set; }
+        public int approvedBy { get; set; }
+        public bool ddlMaritalStatusValidity { get; set; }
+        public string ddlMaritalStatusRemarks { get; set; }
+    }
 
     public class VerificationEntity
     {

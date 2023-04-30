@@ -1569,6 +1569,8 @@
     <Content Include="Areas\nadmin\Views\Reportss\TraineeAttachReportHospitalWise.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\ApplicantSearchVerify.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\ApplicantSearchJoin.cshtml" />
+    <Content Include="Areas\nadmin\Views\ApplicationReviewAdmin\AmendmentsApplicantNursing.cshtml" />
+    <Content Include="Areas\nadmin\Views\ApplicantAdmin\ApplicantSearchToVeify.cshtml" />
     <None Include="Properties\PublishProfiles\PRP.UI.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\chosen\chosen-sprite.png" />
