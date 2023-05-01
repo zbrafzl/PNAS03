@@ -12,6 +12,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
     public class ApplicantActionController : BaseAdminController
     {
         public ActionResult ActionSetup()
+
         {
             ApplicantActionAdminModel model = new ApplicantActionAdminModel();
             model.listInstitute = DDLInstitute.GetAll(ProjConstant.DDL.Institute.hasJoinedApplicant);
