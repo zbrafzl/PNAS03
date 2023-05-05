@@ -57,6 +57,26 @@ namespace Prp.Data
             return PrpDbADO.FillDataTable(cmd);
         }
 
+        public DataTable ApplicantSearchSimpleToAmmendment(ApplicantSearch obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantSearchSimpleToAmmendment]"
+            };
+
+            cmd.Parameters.AddWithValue("@pageNum", obj.pageNum);
+            cmd.Parameters.AddWithValue("@top", obj.top);
+            cmd.Parameters.AddWithValue("@inductionId", 13);
+            cmd.Parameters.AddWithValue("@phaseId", 1);
+            cmd.Parameters.AddWithValue("@statusTypeId", obj.statusTypeId);
+            cmd.Parameters.AddWithValue("@userId", obj.userId);
+            cmd.Parameters.AddWithValue("@statusId", obj.statusId);
+            cmd.Parameters.AddWithValue("@search", obj.search.TooString());
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+
         public DataTable ApplicantSearchSimpleVerify(ApplicantSearch obj)
         {
             if (obj.statusTypeId == 73 && obj.statusId == 3)

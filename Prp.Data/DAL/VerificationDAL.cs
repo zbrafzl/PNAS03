@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -104,6 +105,53 @@ namespace Prp.Data
             return msg;
         }
 
+        public Message AddUpdateAmmendmentsStatus(AmmendmentsEntitymodel obj)
+        {
+            var date = DateTime.UtcNow;
+            Message msg = new Message();
+            try
+            {
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spNursingAmendmentByAdmin]"
+                };
+                DateTime dts = obj.dOB.TooDate();
+                DateTime cnicExpirtyDate = obj.cnicExpiryDate.TooDate();
+
+                cmd.Parameters.AddWithValue("@dob", dts);
+                cmd.Parameters.AddWithValue("@imgCnicFront", Convert.ToString(obj.imgCnicFront.TooString()));
+                cmd.Parameters.AddWithValue("@imgCnicBack", Convert.ToString(obj.imgCnicBack.TooString()));
+                cmd.Parameters.AddWithValue("@imgDomicile", Convert.ToString(obj.imgDomicile.TooString()));
+                cmd.Parameters.AddWithValue("@address", Convert.ToString(obj.address.TooString()));
+                cmd.Parameters.AddWithValue("@fatherName", Convert.ToString(obj.fatherName.TooString()));
+                cmd.Parameters.AddWithValue("@cnicExpiryDate", cnicExpirtyDate);
+                cmd.Parameters.AddWithValue("@domicileDistrict", Convert.ToInt32(obj.domicileDistrictId.TooInt()));
+                cmd.Parameters.AddWithValue("@matricObtainedMarks", Convert.ToInt32(obj.matricMarksObtain.TooInt()));
+                cmd.Parameters.AddWithValue("@matricTotalMarks", Convert.ToInt32(obj.matricTotalMarks.TooInt()));
+                cmd.Parameters.AddWithValue("@matricBoard", Convert.ToString(obj.matricBoard.TooString()));
+                cmd.Parameters.AddWithValue("@imgMatricDegree", Convert.ToString(obj.imgMatricDegree.TooString()));
+                cmd.Parameters.AddWithValue("@fscObtainedMarks", Convert.ToInt32(obj.fscObtainedMarks.TooInt()));
+                cmd.Parameters.AddWithValue("@fscTotalMarks", Convert.ToInt32(obj.fscTotalMarks.TooInt()));
+                cmd.Parameters.AddWithValue("@fscBoard", Convert.ToString(obj.fscBoard.TooString()));
+                //cmd.Parameters.AddWithValue("@imgCnicFront", obj.imgCnicFront);
+                //cmd.Parameters.AddWithValue("@imgCnicFront", obj.imgCnicBack);
+                cmd.Parameters.AddWithValue("@imgFscDegree", Convert.ToString(obj.imgFscDegree.TooString()));
+                cmd.Parameters.AddWithValue("@imgVoucher", Convert.ToString(obj.imgVoucher.TooString()));
+                cmd.Parameters.AddWithValue("@applicantId", obj.applicantId.TooInt());
+                cmd.Parameters.AddWithValue("@adminId", obj.adminId.TooInt());
+                cmd.Parameters.AddWithValue("@dated", Convert.ToDateTime(date));
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                msg = dt.ConvertToEnitityMessage();
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            return msg;
+        }
         public Message AddUpdateVerficationStatusJoining(VerificationEntity obj)
         {
             Message msg = new Message();

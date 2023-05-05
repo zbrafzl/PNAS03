@@ -341,7 +341,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                 Applicant applicant = new ApplicantDAL().GetApplicant(ProjConstant.inductionId, obj.applicantId);
                 string message = "";
                 int smsId = 0;
-                
+
 
 
                 //if (obj.approvalStatusId == 1)
@@ -515,7 +515,175 @@ namespace Prp.Sln.Areas.nadmin.Controllers
 
         }
 
+        [HttpPost]
+        public JsonResult AmmendmetsProcess(AmmendmentsEntitymodel obj)
+        {
+            obj.adminId = loggedInUser.userId;
+            obj.inductionId = ProjConstant.inductionId;
+            obj.phaseId = ProjConstant.phaseId;
+            Message msg = new VerificationDAL().AddUpdateAmmendmentsStatus(obj);
 
+            int emailTypeId = 0;
+            try
+            {
+                Applicant applicant = new ApplicantDAL().GetApplicant(ProjConstant.inductionId, obj.applicantId);
+                string message = "";
+                int smsId = 0;
+
+
+
+
+
+                ////if (obj.approvalStatusId == 1)
+                ////{
+                ////    emailTypeId = ProjConstant.EmailTemplateType.ammendmentAccepted;
+
+                ////    #region SMS Body
+                ////    try
+                ////    {
+                ////        SMS sms = new SMSDAL().GetByTypeForApplicant(applicant.applicantId, ProjConstant.SMSType.amendmentApproved);
+                ////        message = sms.detail;
+                ////        smsId = sms.smsId;
+                ////    }
+                ////    catch (Exception)
+                ////    {
+                ////        message = "";
+                ////    }
+                ////    if (String.IsNullOrWhiteSpace(message))
+                ////    {
+                ////        smsId = 0;
+                ////        message = "Your application form has been amended as per request presented before the Grievances Committee. For detail please visit portal PRP.";
+                ////    }
+
+                ////    #endregion
+                ////}
+                ////else if (obj.approvalStatusId == 2)
+                ////{
+                ////    emailTypeId = ProjConstant.EmailTemplateType.ammendmentRejected;
+
+                ////    #region Rejection Process
+                ////    try
+                ////    {
+                ////        #region SMS Body
+
+                ////        try
+                ////        {
+                ////            SMS sms = new SMSDAL().GetByTypeForApplicant(applicant.applicantId, ProjConstant.SMSType.amendmentReject);
+                ////            message = sms.detail;
+                ////            smsId = sms.smsId;
+                ////        }
+                ////        catch (Exception)
+                ////        {
+                ////            smsId = 0;
+                ////            message = "Your application form has been amended as per request presented before the Grievances Committee. For detail please visit portal PRP.";
+                ////        }
+
+                ////        #endregion
+                ////    }
+                ////    catch (Exception)
+                ////    {
+
+                ////    }
+                ////    #endregion
+                ////}
+
+
+                ////#region Email Body
+
+
+                ////try
+                ////{
+                ////    EmailProcess objEmailProcess = new EmailProcess();
+
+                ////    objEmailProcess.applicantId = obj.applicantId;
+                ////    objEmailProcess.keyword = "";
+                ////    objEmailProcess.typeId = emailTypeId;
+                ////    objEmailProcess.adminId = loggedInUser.adminId;
+                ////    Message mmss = new EmailDAL().EmailProcessAdd(objEmailProcess);
+                ////}
+                ////catch (Exception)
+                ////{
+                ////}
+
+
+                ////#endregion
+
+                ////#region SMS Sending And DB Process
+
+                ////try
+                ////{
+                ////    Message msgSms = new Message();
+                ////    try
+                ////    {
+                ////        msgSms = FunctionUI.SendSms(applicant.contactNumber, message);
+                ////    }
+                ////    catch (Exception)
+                ////    {
+                ////    }
+
+
+                ////    try
+                ////    {
+                ////        SmsProcess objProcess = msgSms.status.SmsProcessMakeDefaultObject(obj.applicantId, smsId);
+                ////        new SMSDAL().AddUpdateSmsProcess(objProcess);
+                ////    }
+                ////    catch (Exception)
+                ////    {
+
+
+                ////    }
+                ////}
+                ////catch (Exception)
+                ////{
+
+                ////}
+
+                ////#endregion
+
+                ////EmailProcess objProcessEmail = new EmailDAL().EmailProcessGetByApplicantAndType(obj.applicantId, emailTypeId);
+
+                ////#region Email Sending And DB Process
+
+
+                ////Message msgEmail = new Message();
+                ////try
+                ////{
+                ////    objProcessEmail.emailId = applicant.emailId;
+                ////    objProcessEmail.isProcess = 1;
+                ////    msgEmail = objProcessEmail.SendEmail();
+
+                ////}
+                ////catch (Exception ex)
+                ////{
+                ////    msgEmail.status = false;
+                ////    msgEmail.msg = ex.Message;
+                ////}
+
+                ////try
+                ////{
+
+                ////    objProcessEmail.isSent = 0;
+                ////    if (msgEmail.status == true)
+                ////        objProcessEmail.isSent = 1;
+                ////    new EmailDAL().EmailStatusAddUpdate(objProcessEmail);
+                ////}
+                ////catch (Exception)
+                ////{
+                ////}
+
+                ////#endregion
+
+            }
+            catch (Exception)
+            {
+
+            }
+
+
+            return Json(msg, JsonRequestBehavior.AllowGet);
+
+
+        }
         [ValidateInput(false)]
         public ActionResult ExportDataToExcelAndDownload(VerificationModel ModelSave)
         {

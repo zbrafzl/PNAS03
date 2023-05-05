@@ -353,6 +353,12 @@ namespace Prp.Sln.Areas.nadmin
             );
 
             context.MapRoute(
+               name: "ApplicantAdminSearchToAmmendment",
+               url: "admin/applicant-search-to-ammendment",
+               defaults: new { controller = "ApplicantAdmin", action = "ApplicantSearchToAmmendment", id = UrlParameter.Optional }
+            );
+
+            context.MapRoute(
              name: "ApplicantAdminSearchInducion",
              url: "admin/applicant-search-induction-{induction}",
              defaults: new { controller = "ApplicantAdmin", action = "ApplicantSearch", id = UrlParameter.Optional }
@@ -417,6 +423,12 @@ namespace Prp.Sln.Areas.nadmin
                name: "ApplicantAmendmentsNursing",
                url: "admin/applicant-verification-nursing",
                defaults: new { controller = "ApplicationReviewAdmin", action = "AmendmentsApplicantNursing", id = UrlParameter.Optional }
+           );
+
+            context.MapRoute(
+               name: "ApplicantAmendmentsNursingAfterVerification",
+               url: "admin/applicant-amendment-nursing",
+               defaults: new { controller = "ApplicationReviewAdmin", action = "AmendmentsNursing", id = UrlParameter.Optional }
            );
 
 

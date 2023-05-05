@@ -109,7 +109,7 @@ namespace Prp.Data
         public string key { get; set; }
         public string value { get; set; }
         public int typeId { get; set; }
-       
+
     }
 
 
@@ -392,7 +392,7 @@ namespace Prp.Data
     {
         public int top { get; set; }
         public int pageNum { get; set; }
-       
+
         public int hospitalId { get; set; }
 
         public int genderId { get; set; }
@@ -488,6 +488,45 @@ namespace Prp.Data
         public int approvalStatusTypeId { get; set; }
         public int approvalStatusId { get; set; }
         public string comments { get; set; }
+        public int adminId { get; set; }
+    }
+
+    public class AmmendmentsEntitymodel
+    {
+        public int inductionId { get; set; }
+        public int phaseId { get; set; }
+        public int top { get; set; }
+        public int userId { get; set; }
+        public string dOB { get; set; }
+        public int applicantId { get; set; }
+        public string cnicExpiryDate { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        public string imgCnicFront { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        public string imgCnicBack { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+
+        public string imgDomicile { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+
+        public int domicileProvinceId { get; set; }
+        public int domicileDistrictId { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        public string address { get; set; }
+        public string fatherName { get; set; }
+        public int matricMarksObtain { get; set; }
+        public int matricTotalMarks { get; set; }
+        public string matricBoard { get; set; }
+        public string imgMatricDegree { get; set; }
+
+        public int fscObtainedMarks { get; set; }
+        public int fscTotalMarks { get; set; }
+        public string fscBoard { get; set; }
+        public string imgFscDegree { get; set; }
+
+        public string imgVoucher { get; set; }
+
+        public string dated { get; set; }
         public int adminId { get; set; }
     }
 

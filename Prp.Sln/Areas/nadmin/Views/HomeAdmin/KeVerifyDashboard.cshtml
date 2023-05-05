@@ -68,7 +68,7 @@
             $(document).on('click', '.sts_application', function () {
                 var id = ConvertToInt($(this).attr("id"));
                 if (id == 0) {
-                    var url = "/admin/applicant-search-to-verify?statusTypeId=131&statusId=" + id;
+                    var url = "/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=" + id;
                     window.open(url, "_blank");
                 }
             });
@@ -181,6 +181,98 @@
                                                         <p><i class="fa fa-square  red"></i>Rejected </p>
                                                     </td>
                                                     <td>@verifyReject</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+
+                var listAmmendment = Model.listDashBoard.Where(x => x.statusTypeId == 132).ToList();
+                if (listAmmendment != null && listAmmendment.Count > 0)
+                {
+
+                    var verifyToal = 0;
+                    var verifyPending = 0;
+                    var verifyApproved = 0;
+                    var verifyReject = 0;
+                    try
+                    {
+                        verifyToal = listAmmendment.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+                        verifyToal = 0;
+                    }
+
+                    try
+                    {
+                        verifyPending = listAmmendment.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        verifyApproved = listAmmendment.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    try
+                    {
+                        verifyReject = listAmmendment.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    <div class="col-md-3 col-sm-3 ">
+                        <div class="x_panel tile fixed_height_320 overflow_hidden">
+                            <div class="x_title">
+                                <h2>Ammendment Status</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <table style="width:100%">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="sts_application" id="-1">
+                                                    <td>
+                                                        <p><i class="fa fa-square black"></i>Total </p>
+                                                    </td>
+                                                    <td>@verifyToal</td>
+                                                </tr>
+                                                <tr class="sts_application" id="0">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Pending </p>
+                                                    </td>
+                                                    <td>@verifyPending</td>
+                                                </tr>
+                                                <tr class="sts_application" id="1">
+                                                    <td>
+                                                        <p><i class="fa fa-square green"></i>Approved </p>
+                                                    </td>
+                                                    <td>@verifyApproved</td>
                                                 </tr>
                                             </table>
                                         </td>
