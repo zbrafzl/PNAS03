@@ -416,7 +416,7 @@
 
                 $("#ddlRemarksDoB").show();
                 $("#ddlRemarksDoB").val('@Model.amendmentsData.txtDobRemarks').change();
-                $("#DOBammendments").show();
+                $("#DOBammendments").hide();
             }
             else {
                 $("#ddlRemarksDoB").hide();
@@ -486,7 +486,7 @@
 
                 $("#ddlRemarksCnicFront").show();
                 $("#ddlRemarksCnicFront").val('@Model.amendmentsData.imgCnicFrontRemarks').change();
-                $("#cnicFrontammendmens").show();
+                $("#cnicFrontammendmens").hide();
             }
             else {
                 $("#ddlRemarksCnicFront").hide();
@@ -512,7 +512,7 @@
 
                     $("#ddlRemarksCnicBack").show();
                     $("#ddlRemarksCnicBack").val('@Model.amendmentsData.imgCnicBackRemarks').change();
-                        $("#cnicBackammendmens").show();
+                    $("#cnicBackammendmens").hide();
                 }
                 else {
                     $("#ddlRemarksCnicBack").hide();
@@ -552,7 +552,7 @@
 
                 $("#ddlRemarksDomicileFront").show();
                 $("#ddlRemarksDomicileFront").val('@Model.amendmentsData.imgDomicileFrontRemarks').change();
-                $("#domicileFrontImageammendments").show();
+                $("#domicileFrontImageammendments").hide();
 
             }
             else {
@@ -579,7 +579,7 @@
 
                 $("#ddlRemarksAddress").show();
                 $("#ddlRemarksAddress").val('@Model.amendmentsData.txtAddressRemarks').change();
-                $("#addressAmmendments").show();
+                $("#addressAmmendments").hide();
             }
             else {
                 $("#ddlRemarksAddress").hide();
@@ -605,7 +605,7 @@
 
                 $("#ddlRemarksFatherName").show();
                 $("#ddlRemarksFatherName").val('@Model.amendmentsData.txtFatherNameRemarks').change();
-                $("#fatherNameAmmendments").show();
+                $("#fatherNameAmmendments").hide();
             }
             else {
                 $("#ddlRemarksFatherName").hide();
@@ -631,7 +631,7 @@
 
                 $("#ddlRemarksCNICExpiry").show();
                 $("#ddlRemarksCNICExpiry").val('@Model.amendmentsData.txtCNICExpiryDateRemarks').change();
-                $("#cnicExpiryammendments").show();
+                $("#cnicExpiryammendments").hide();
             }
             else {
                 $("#ddlRemarksCNICExpiry").hide();
@@ -656,7 +656,7 @@
 
                 $("#ddlRemarksDomicileDistrict").show();
                 $("#ddlRemarksDomicileDistrict").val('@Model.amendmentsData.ddlDomicileDistrictRemarks').change();
-                $("#domicilDistrictammendments").show();
+                $("#domicilDistrictammendments").hide();
             }
             else {
                 $("#ddlRemarksDomicileDistrict").hide();
@@ -687,7 +687,7 @@
             else {
                 $("#ddlRemarksDegree1MarksObtain").hide();
                 $("#ddlRemarksDegree1MarksObtain").val("").change();
-                $("#matricMarksObtained").hide();
+                $("#matricMarksObtained").show();
             }
 
             $("input[id=amendmentsData_txtRowDegree1MarksObtainValidty]").change(function () {
@@ -713,7 +713,7 @@
             else {
                 $("#ddlRemarksDegree1MarksTotal").hide();
                 $("#ddlRemarksDegree1MarksTotal").val("").change();
-                $("#matricTotalMarksObtained").hide();
+                $("#matricTotalMarksObtained").show();
             }
 
             $("input[id=amendmentsData_txtRowDegree1MarksTotalValidty]").change(function () {
@@ -734,7 +734,7 @@
 
                 $("#ddlRemarksMatricBoard").show();
                 $("#ddlRemarksMatricBoard").val('@Model.amendmentsData.ddlMatricBoardRemarks').change();
-                $("#MatricBoardName").show();
+                $("#MatricBoardName").hide();
             }
             else {
                 $("#ddlRemarksMatricBoard").hide();
@@ -760,7 +760,7 @@
 
                 $("#ddlRemarksDegree1").show();
                 $("#ddlRemarksDegree1").val('@Model.amendmentsData.imgRowDegree1Remarks').change();
-                $("#matricCertificateImage").show();
+                $("#matricCertificateImage").hide();
             }
             else {
                 $("#ddlRemarksDegree1").hide();
@@ -792,7 +792,7 @@
             else {
                 $("#ddlRemarksDegree2MarksObtain").hide();
                 $("#ddlRemarksDegree2MarksObtain").val("").change();
-                $("#FscObtainMarks").hide();
+                $("#FscObtainMarks").show();
             }
 
             $("input[id=amendmentsData_txtRowDegree2MarksObtainValidty]").change(function () {
@@ -820,7 +820,7 @@
             else {
                 $("#ddlRemarksDegree2MarksTotal").hide();
                 $("#ddlRemarksDegree2MarksTotal").val("").change();
-                $("#matricTotalMarks").hide();
+                $("#matricTotalMarks").show();
             }
 
             $("input[id=amendmentsData_txtRowDegree2MarksTotalValidty]").change(function () {
@@ -839,7 +839,7 @@
 
                 $("#ddlRemarksFABoard").show();
                 $("#ddlRemarksFABoard").val('@Model.amendmentsData.ddlFABoardRemarks').change();
-                $("#FABoardAmmendments").show();
+                $("#FABoardAmmendments").hide();
             }
             else {
                 $("#ddlRemarksFABoard").hide();
@@ -865,7 +865,7 @@
 
                 $("#ddlRemarksDegree2").show();
                 $("#ddlRemarksDegree2").val('@Model.amendmentsData.imgRowDegree2Remarks').change();
-                $("#fscDegreeCertificate").show();
+                $("#fscDegreeCertificate").hide();
             }
             else {
                 $("#ddlRemarksDegree2").hide();
@@ -893,7 +893,7 @@
                 $("#ddlRemarksVoucher").show();
                 $("#ddlRemarksVoucher").val('@Model.amendmentsData.imgVoucherRemarks').change();
 
-                $("#voucherUpload").show();
+                $("#voucherUpload").hide();
             }
             else {
                 $("#ddlRemarksVoucher").hide();
@@ -1517,7 +1517,15 @@
             objApplicantInfo.cnicExpiryDate = ConvertToString($("#txtCNICExpiryDate").val());
 
             objApplicantInfo.domicileDistrictId = $("#ddlDomicileDistrict").val();
+            if ('@Model.amendmentsData.txtCNICValidty' == "False") {
 
+                objApplicantInfo.cnicNo = ConvertToString($("#txtCNIC").val());
+
+
+            }
+            else {
+                objApplicantInfo.cnicNo = '@Model.applicantInfo.cnicNo';
+            }
             //matric
 
             objApplicantInfo.matricMarksObtain = ConvertToString($("#txtRowDegree1MarksObtain").val());
@@ -1622,7 +1630,7 @@
                 }
             }
             objApplicantInfo.imgVoucher = ConvertToString($("#hfdVoucher").val());
-
+            debugger;
             statuAction = "AmmendmetsProcess";
             if (isError == false) {
                 var resp = CallActionPost("/VerficationProcess/" + statuAction, objApplicantInfo);
@@ -1822,35 +1830,71 @@
                                         <fieldset>
                                             <div class="form-group col-lg-12">
                                                 <table style="width: 100%;" cellspacing="0px">
-                                                    <tbody>
-                                                        <tr style="float: left; width:100%;">
-                                                            <td style="float: left; width:90%;">
-                                                                <div style="float: left; width: 100%; margin-top: 15px ">
+                                                                                    <tbody>
+                                                                                        <tr style="float: left; width:100%;">
+                                                                                            <td style="float: left; width:90%;">
+                                                                                                <div style="float: left; width: 100%; margin-top: 15px ">
 
 
 
-                                                                </div>
-                                                                <div style="float: left; width:100%; margin-top:15px">
-                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;">Form No. : @applicant.applicantId</span>
-                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Application for BSN Generic (4 Years Degree Program) </span>
-                                                                </div>
-                                                            </td>
-                                                            <td style="float: left; width:9%;">
-                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
-                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" style="width:90px; height:80px;" />
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="2" style="padding:20px; margin-bottom:30px">
-                                                                <fieldset>
-                                                                    <legend>Rejection Remarks</legend>
-                                                                    @Model.amendmentsData.approvalRemarks
-                                                                </fieldset>
-                                                                
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
+                                                                                                </div>
+                                                                                                <div style="float: left; width:100%; margin-top:15px">
+                                                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;">Form No. : @applicant.applicantId</span>
+                                                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Application for BSN Generic (4 Years Degree Program) </span>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                            <td style="float: left; width:9%;">
+                                                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
+                                                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" style="width:90px; height:80px;" />
+                                                                                                </a>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <td colspan="2" style="padding:20px; margin-bottom:30px">
+                                                                                                <fieldset>
+                                                                                                    <legend>Rejection Remarks</legend>
+                                                                                                    @Model.amendmentsData.approvalRemarks
+                                                                                                </fieldset>
+
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        @if (Model.amendmentsData.amendmentStatus == 0)
+                                                                                        {
+                                                                                            <tr>
+                                                                                                <td colspan="2" style="padding:20px; margin-bottom:30px">
+                                                                                                    <fieldset>
+                                                                                                        <legend>Amendment Status</legend>
+                                                                                                        Open Amendment
+                                                                                                    </fieldset>
+
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        }
+                                                                                        else if (Model.amendmentsData.amendmentStatus == 1)
+                                                                                        {
+                                                                                            <tr>
+                                                                                                <td colspan="2" style="padding:20px; margin-bottom:30px">
+                                                                                                    <fieldset>
+                                                                                                        <legend>Amendment Status</legend>
+                                                                                                        Approved after Amendments
+                                                                                                    </fieldset>
+
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        }
+                                                                                        else if (Model.amendmentsData.amendmentStatus == 2)
+                                                                                        {
+                                                                                            <tr>
+                                                                                                <td colspan="2" style="padding:20px; margin-bottom:30px">
+                                                                                                    <fieldset>
+                                                                                                        <legend>Amendment Status</legend>
+                                                                                                        Rejected
+                                                                                                    </fieldset>
+
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        }
+                                                                                    </tbody>
                                                 </table>
                                                 <table border="1" style="width:100%;">
                                                     <tbody>
@@ -2495,7 +2539,7 @@
                                                 <div class="form-group col-lg-12" style="margin-top:20px;">
                                                     <div class="col-md-3 col-sm-3 col-xs-3">
                                                         <label for="heard">&nbsp;</label>
-                                                        <input type="button" id="btnUpdateAmmenment" value="Update" class="btn btn-success" />
+                                                        @*<input type="button" id="btnUpdateAmmenment" value="Update" class="btn btn-success" />*@
                                                     </div>
                                                 </div>
                                             </form>
@@ -2592,7 +2636,7 @@
                                     <div class="form-group col-lg-12">
                                         <div class="col-md-3 col-sm-3 col-xs-3">
                                             <label for="heard">&nbsp;</label>
-                                            <input type="button" id="btnUpdateAmmenment" value="Update" class="btn btn-success" />
+                                            @*<input type="button" id="btnUpdateAmmenment" value="Update" class="btn btn-success" />*@
                                         </div>
                                     </div>
                                 </form>

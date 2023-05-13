@@ -149,6 +149,7 @@ namespace Prp.Data
                     data.approvedBy = dr[++i].TooInt();
                     data.ddlMaritalStatusValidity = dr[++i].TooBoolean();
                     data.ddlMaritalStatusRemarks = dr[++i].TooString();
+                    data.amendmentStatus = dr[i++].TooInt();
                 }
             }
             catch (Exception ex)

@@ -313,7 +313,7 @@ namespace Prp.Sln
 
             routes.MapRoute(
                 name: "MeritGazatFCPS",
-                url: preUrl + "/gazatte-fcps",
+                url: preUrl + "/gazatte",
                 defaults: new { controller = "MeritGazat", action = "GazatFCPS", id = UrlParameter.Optional }
             );
 

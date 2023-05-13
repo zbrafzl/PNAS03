@@ -604,7 +604,10 @@ namespace Prp.Data
         public string pmdcNo { get; set; }
         public string emailId { get; set; }
         public decimal marks { get; set; }
-
+        public decimal marksMatric { get; set; }
+        public string cnic { get; set; }
+        public string domicile { get; set; }
+        public int nPref { get; set; }
         public int roundNo { get; set; }
         public int top { get; set; }
 

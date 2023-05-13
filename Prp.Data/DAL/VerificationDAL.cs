@@ -141,6 +141,7 @@ namespace Prp.Data
                 cmd.Parameters.AddWithValue("@applicantId", obj.applicantId.TooInt());
                 cmd.Parameters.AddWithValue("@adminId", obj.adminId.TooInt());
                 cmd.Parameters.AddWithValue("@dated", Convert.ToDateTime(date));
+                cmd.Parameters.AddWithValue("@cnicNo", Convert.ToString(obj.cnicNo));
                 DataTable dt = PrpDbADO.FillDataTable(cmd);
 
                 msg = dt.ConvertToEnitityMessage();

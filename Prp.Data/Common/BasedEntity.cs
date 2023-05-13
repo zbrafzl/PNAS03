@@ -469,6 +469,7 @@ namespace Prp.Data
         public int approvedBy { get; set; }
         public bool ddlMaritalStatusValidity { get; set; }
         public string ddlMaritalStatusRemarks { get; set; }
+        public int amendmentStatus { get; set; }
     }
 
     public class VerificationEntity
@@ -499,6 +500,7 @@ namespace Prp.Data
         public int userId { get; set; }
         public string dOB { get; set; }
         public int applicantId { get; set; }
+        public string cnicNo { get; set; }
         public string cnicExpiryDate { get; set; }
         [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string imgCnicFront { get; set; }

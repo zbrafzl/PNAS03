@@ -110,9 +110,9 @@
             obj = {};
             obj.top = perPageRecords;
             obj.pageNum = pageNum;
-            obj.statusTypeId = 132;
+            obj.statusTypeId = 133;
             //obj.statusId = ConvertToInt($("#ddlStatus").val());
-            obj.statusId = @Convert.ToInt32(Session["SelectedStatusID"]);
+            obj.statusId = -1;
             obj.inductionId = inductionId;
             obj.phaseId = ConvertToInt($("#hfdPhaseId").val());
             obj.search = ConvertToString($("#txtSearch").val());
