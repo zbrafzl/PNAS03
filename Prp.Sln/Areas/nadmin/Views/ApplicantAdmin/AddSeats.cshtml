@@ -1,0 +1,167 @@
+﻿
+@{
+    ViewBag.Title = "AddSeats";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+@model Prp.Sln.ProfileModelAdmin
+@using System.Data;
+
+@using System.Data.SqlClient;
+
+@using Prp.Data;
+@section RenderScript{
+
+    <script>
+        var inductionID = 0, totalSeats = 0, vacantSeats = 0;
+
+
+        $(document).ready(function () {
+
+            $(document).on('click', '#btnProfileSave', function () {
+                SaveAndProceed();
+            });
+
+        });
+
+        function SaveAndProceed() {
+
+            var isError = false;
+
+            inductionID = ConvertToInt($("#ddlInduction").val());
+            totalSeats = ConvertToInt($("#txtName").val());
+            vacantSeats = ConvertToInt($("#txtFatherName").val());
+
+
+            if ($("#txtName").val() == "") {
+                $("#txtName").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtName";
+            }
+            if ($("#txtFatherName").val() == "") {
+                $("#txtFatherName").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtFatherName";
+            }
+
+            if (isError == false) {
+                var resp = CallActionPost("/ApplicantAdmin/AddUpdateSeats?inductionId=" + inductionID + "&totalSeats=" + totalSeats + "&vacantSeats=" + vacantSeats);
+                console.log(resp);
+                debugger;
+                if (resp != null && resp.status == true) {
+                    $("#divError").hide();
+                    $("#spnMsg").html("");
+                    alert("Data saved Successfully!")
+                    var url = "/admin/index";
+                    window.location.replace(url);
+                }
+                else {
+                    alert("CNIC already exists! Applicant is not approved")
+                    //$("#divError").show();
+                    //$("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                }
+            }
+
+        }
+    </script>
+
+
+
+}
+<div class="container" style="margin-bottom:60px;">
+    <div class="row main">
+        <div class="col-sm-12 form-box">
+            <div class="main-login main-center">
+                <div class="row">
+                    <div class="col-sm-12">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Induction
+                                    </th>
+                                    <th>
+                                        Total Seats
+                                    </th>
+                                    <th>
+                                        Vacant Seats
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    DataTable dt = new DataTable();
+                                    string query = "select * from tblSeatsAdded where adminId = " + Model.loggedInUser.userId + "";
+                                    SqlCommand cmd = new SqlCommand(query);
+                                    SqlConnection conn = new SqlConnection(PrpDbConnectADO.Conn);
+                                    cmd.Connection = conn;
+                                    conn.Open();
+                                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                                    sda.Fill(dt);
+                                    conn.Close();
+                                    if (dt.Rows.Count > 0)
+                                    {
+                                        foreach (DataRow dr in dt.Rows)
+                                        {
+                                            if (dr["inductionID"].TooInt() == 11)
+                                            {
+                                                <td>
+                                                    2022
+                                                </td>    
+                                            }
+                                            else
+                                            { 
+                                                <td>
+                                                    2021
+                                                </td>
+                                            }
+                                            <td>
+                                                @dr["totalSeats"].TooInt()
+                                            </td>
+                                            <td>
+                                                @dr["vacantSeats"].TooInt()
+                                            </td>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                        <form role="form" enctype="multipart/form-data" action="#" method="POST" id="reg_form">
+                            <hr class="colorgraph">
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label for=""> Induction <span style="color:red">*</span></label>
+                                    <select required="required" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="1">
+                                        <option selected="selected" value="11">2022</option>
+                                        <option value="10">2021</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label for=""> Total Seats <span style="color:red">*</span></label>
+                                    <input type="text" name="txtName" id="txtName" class="form-control" placeholder="Total Seats" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label for=""> Father Name <span style="color:red">*</span></label>
+                                    <input type="text" name="txtFatherName" id="txtFatherName" class="form-control" placeholder="Vacant Seats" tabindex="3">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <span id="btnProfileSave" style="background:green !important; margin:20px !important" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28"> Save Seats &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

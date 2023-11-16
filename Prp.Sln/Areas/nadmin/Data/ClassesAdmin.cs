@@ -71,6 +71,7 @@ namespace Prp.Sln.Areas.nadmin
                 }
                 else
                 {
+                    applicationStatusId = model.applicant.applicationStatusId;
                     inductionIdParam = inductionId;
                 }
 
@@ -108,7 +109,6 @@ namespace Prp.Sln.Areas.nadmin
             }
             return model;
         }
-
 
         public static HardshipAdminModel GenerateModelHardship(int applicantId)
         {

@@ -73,6 +73,47 @@ namespace Prp.Data
 
     }
 
+
+    public class MigrationCandidateData
+    {
+        public int applicantId { get; set; }
+        public int inductionId { get; set; }
+        public string name { get; set; }
+        public string fatherName { get; set; }
+        public int genderId { get; set; }
+        public string dOB { get; set; }
+        public DateTime dateOfBirth { get; set; }
+        public string joiningDate { get; set; }
+        public DateTime dateOfJoining { get; set; }
+        public string contactNo { get; set; }
+        public string cnicNo { get; set; }
+        public DateTime cnicExpiryDate { get; set; }
+        public int domicileDistrictId { get; set; }
+        public int religionId { get; set; }
+        public string emailId { get; set; }
+        public int districtId { get; set; }
+        public string address { get; set; }
+        public string matricBoard { get; set; }
+        public int matricMarksObtain { get; set; }
+        public int matricTotalMarks { get; set; }
+        public string dateOfPassingMatric { get; set; }
+        public DateTime dateOfPassingMatricDegree { get; set; }
+        public string fscBoard { get; set; }
+        public int fscObtainedMarks { get; set; }
+        public int fscTotalMarks { get; set; }
+        public string dateOfPassingInter { get; set; }
+        public DateTime dateOfPassingInterDegree { get; set; }
+        public string img { get; set; }
+        public string cnicFront { get; set; }
+        public string cnicBack { get; set; }
+        public string imgDomicile { get; set; }
+        public string domicilePicFront { get; set; }
+        public string imgMatricDegree { get; set; }
+        public string imgFscDegree { get; set; }
+        public int adminID { get; set; }
+        public DateTime dated { get; set; }
+    }
+
     public class Applicant
     {
             public int inductionId { get; set; }
@@ -195,6 +236,7 @@ namespace Prp.Data
         public int levelTypeId { get; set; }
         public string instituteName { get; set; }
         public int instituteId { get; set; }
+        public int religionId { get; set; }
     }
 
 

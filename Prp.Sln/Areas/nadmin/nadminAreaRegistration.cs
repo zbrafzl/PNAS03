@@ -304,6 +304,18 @@ namespace Prp.Sln.Areas.nadmin
              );
 
             context.MapRoute(
+                 name: "ApplicantAddMigrationCandidate",
+                 url: "admin/addMigrationCandidate",
+                 defaults: new { controller = "ApplicantAdmin", action = "MigrationCandidateAddition", id = UrlParameter.Optional }
+             );
+
+            context.MapRoute(
+                 name: "AddSeats",
+                 url: "admin/addSeats",
+                 defaults: new { controller = "ApplicantAdmin", action = "AddSeats", id = UrlParameter.Optional }
+             );
+
+            context.MapRoute(
                 name: "ApplicantActionStatus",
                 url: "admin/applicant-status-update",
                 defaults: new { controller = "ApplicantAdmin", action = "ApplicantActionStatus", id = UrlParameter.Optional }

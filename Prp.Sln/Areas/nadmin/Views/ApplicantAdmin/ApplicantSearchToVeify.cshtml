@@ -21,7 +21,7 @@
         $(document).ready(function () {
 
             statusId = ConvertToInt($("#hfdStatusId").val());
-            inductionId = 13;
+            inductionId = 15;
             $("#ddlStatus").val(statusId);
 
             SearchApplicant();
@@ -113,6 +113,7 @@
             obj.inductionId = inductionId;
             obj.phaseId = ConvertToInt($("#hfdPhaseId").val());
             obj.search = ConvertToString($("#txtSearch").val());
+            console.log(obj);
             //alert('clicked');
             var url = "/ApplicantAdmin/ApplicantSearchSimpleToVerify";
 

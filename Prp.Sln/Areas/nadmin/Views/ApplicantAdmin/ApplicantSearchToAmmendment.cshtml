@@ -45,16 +45,14 @@
                         url = "/admin/applicant-detail-induction-" + inductionId + "?key=applicantId&value=" + applicantId;
 
                     }
-                    window.location.replace(url);
-                    //window.open(url, '_blank');
+                    window.open(url, '_blank');
                 }
                 else {
                     var url = "";
                     var applicantId = ConvertToInt($(this).attr("id"));
                     url = "/admin/applicant-amendment-nursing?applicantId=" + applicantId;
-
-                    window.location.replace(url);
                     //window.open(url, '_blank');
+					window.location.replace(url);
                 }
             });
 
@@ -110,12 +108,15 @@
             obj = {};
             obj.top = perPageRecords;
             obj.pageNum = pageNum;
-            obj.statusTypeId = 133;
+            obj.statusTypeId = 132;
+			//obj.statusTypeId = 133;
             //obj.statusId = ConvertToInt($("#ddlStatus").val());
-            obj.statusId = -1;
+            //obj.statusId = @Convert.ToInt32(Session["SelectedStatusID"]);
+			obj.statusId = @Convert.ToInt32(Session["statusId"]);
             obj.inductionId = inductionId;
             obj.phaseId = ConvertToInt($("#hfdPhaseId").val());
             obj.search = ConvertToString($("#txtSearch").val());
+            console.log(obj);
             //alert('clicked');
             var url = "/ApplicantAdmin/ApplicantSearchSimpleToAmmendment";
 
@@ -252,7 +253,7 @@
         @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionId" })
         @Html.HiddenFor(m => m.phaseId, new { @id = "hfdPhaseId" })
         <div class="x_title">
-            <h2>Applicant List </h2>
+            <h2>Applications Amendments </h2>
             <div class="clearfix"></div>
         </div>
         <form class="form-horizontal form-label-left input_mask">

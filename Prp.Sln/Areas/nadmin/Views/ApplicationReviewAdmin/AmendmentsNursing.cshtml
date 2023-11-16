@@ -248,13 +248,13 @@
             $(document).keypress(function (event) {
                 var keycode = (event.keyCode ? event.keyCode : event.which);
                 if (keycode == '13') {
-                    SearchApplicant();
+                    //SearchApplicant();
                 }
             });
 
             $(document).on('click', '#btnSearch', function () {
 
-                SearchApplicant();
+                //SearchApplicant();
             });
 
             $(document).on('click', '#btnUpdateInfo', function () {
@@ -385,7 +385,8 @@
             $("#txtRowDegree2MarksTotal").val('@Model.listDegreeMark.Where(i => i.degreeName == "FSc").Select(i => i.totalMarks).FirstOrDefault()');
             $("#txtRowDegree1MarksTotal").val('@Model.listDegreeMark.Where(i => i.degreeName == "Matric (Science)").Select(i => i.totalMarks).FirstOrDefault()');
             $("#txtDob").val(ToDateFormatDDMMYYYWithSlash('@Model.applicantInfo.dob'));
-            $("#txtAddress").val('@Model.applicantInfo.address');
+            $("#txtAddress").val('@Model.applicantInfo.address.Replace("\r\n", "").Replace("\n", "").Replace("\r", "")');
+              $("#txtCNIC").val('@Model.applicantInfo.cnicNo');
             $("#txtFatherName").val('@Model.applicantInfo.fatherName');
             $("#txtCNICExpiryDate").val(ToDateFormatDDMMYYYWithSlash('@Model.applicantInfo.cnicExpiryDate'));
             $("#ddlDomicileDistrict").val('@Model.applicantInfo.domicileDistrictId');
@@ -416,7 +417,7 @@
 
                 $("#ddlRemarksDoB").show();
                 $("#ddlRemarksDoB").val('@Model.amendmentsData.txtDobRemarks').change();
-                $("#DOBammendments").hide();
+                $("#DOBammendments").show();
             }
             else {
                 $("#ddlRemarksDoB").hide();
@@ -464,10 +465,14 @@
 
                 $("#ddlRemarksCNIC").show();
                 $("#ddlRemarksCNIC").val('@Model.amendmentsData.txtCNICRemarks').change();
+                $("#cnicAmmend").show();
+
             }
             else {
                 $("#ddlRemarksCNIC").hide();
                 $("#ddlRemarksCNIC").val("").change();
+                $("#cnicAmmend").hide();
+
             }
 
             $("input[id=amendmentsData_txtCNICValidty]").change(function () {
@@ -475,9 +480,11 @@
                 if (value == 'True') {
                     $("#ddlRemarksCNIC").val("").change();
                     $("#ddlRemarksCNIC").hide();
+
                 }
                 else {
                     $("#ddlRemarksCNIC").show();
+
                 }
             });
 
@@ -486,7 +493,7 @@
 
                 $("#ddlRemarksCnicFront").show();
                 $("#ddlRemarksCnicFront").val('@Model.amendmentsData.imgCnicFrontRemarks').change();
-                $("#cnicFrontammendmens").hide();
+                $("#cnicFrontammendmens").show();
             }
             else {
                 $("#ddlRemarksCnicFront").hide();
@@ -512,7 +519,7 @@
 
                     $("#ddlRemarksCnicBack").show();
                     $("#ddlRemarksCnicBack").val('@Model.amendmentsData.imgCnicBackRemarks').change();
-                    $("#cnicBackammendmens").hide();
+                        $("#cnicBackammendmens").show();
                 }
                 else {
                     $("#ddlRemarksCnicBack").hide();
@@ -552,7 +559,7 @@
 
                 $("#ddlRemarksDomicileFront").show();
                 $("#ddlRemarksDomicileFront").val('@Model.amendmentsData.imgDomicileFrontRemarks').change();
-                $("#domicileFrontImageammendments").hide();
+                $("#domicileFrontImageammendments").show();
 
             }
             else {
@@ -579,7 +586,7 @@
 
                 $("#ddlRemarksAddress").show();
                 $("#ddlRemarksAddress").val('@Model.amendmentsData.txtAddressRemarks').change();
-                $("#addressAmmendments").hide();
+                $("#addressAmmendments").show();
             }
             else {
                 $("#ddlRemarksAddress").hide();
@@ -605,7 +612,7 @@
 
                 $("#ddlRemarksFatherName").show();
                 $("#ddlRemarksFatherName").val('@Model.amendmentsData.txtFatherNameRemarks').change();
-                $("#fatherNameAmmendments").hide();
+                $("#fatherNameAmmendments").show();
             }
             else {
                 $("#ddlRemarksFatherName").hide();
@@ -631,7 +638,7 @@
 
                 $("#ddlRemarksCNICExpiry").show();
                 $("#ddlRemarksCNICExpiry").val('@Model.amendmentsData.txtCNICExpiryDateRemarks').change();
-                $("#cnicExpiryammendments").hide();
+                $("#cnicExpiryammendments").show();
             }
             else {
                 $("#ddlRemarksCNICExpiry").hide();
@@ -656,7 +663,7 @@
 
                 $("#ddlRemarksDomicileDistrict").show();
                 $("#ddlRemarksDomicileDistrict").val('@Model.amendmentsData.ddlDomicileDistrictRemarks').change();
-                $("#domicilDistrictammendments").hide();
+                $("#domicilDistrictammendments").show();
             }
             else {
                 $("#ddlRemarksDomicileDistrict").hide();
@@ -687,7 +694,7 @@
             else {
                 $("#ddlRemarksDegree1MarksObtain").hide();
                 $("#ddlRemarksDegree1MarksObtain").val("").change();
-                $("#matricMarksObtained").show();
+                $("#matricMarksObtained").hide();
             }
 
             $("input[id=amendmentsData_txtRowDegree1MarksObtainValidty]").change(function () {
@@ -713,7 +720,7 @@
             else {
                 $("#ddlRemarksDegree1MarksTotal").hide();
                 $("#ddlRemarksDegree1MarksTotal").val("").change();
-                $("#matricTotalMarksObtained").show();
+                $("#matricTotalMarksObtained").hide();
             }
 
             $("input[id=amendmentsData_txtRowDegree1MarksTotalValidty]").change(function () {
@@ -734,7 +741,7 @@
 
                 $("#ddlRemarksMatricBoard").show();
                 $("#ddlRemarksMatricBoard").val('@Model.amendmentsData.ddlMatricBoardRemarks').change();
-                $("#MatricBoardName").hide();
+                $("#MatricBoardName").show();
             }
             else {
                 $("#ddlRemarksMatricBoard").hide();
@@ -760,7 +767,7 @@
 
                 $("#ddlRemarksDegree1").show();
                 $("#ddlRemarksDegree1").val('@Model.amendmentsData.imgRowDegree1Remarks').change();
-                $("#matricCertificateImage").hide();
+                $("#matricCertificateImage").show();
             }
             else {
                 $("#ddlRemarksDegree1").hide();
@@ -792,7 +799,7 @@
             else {
                 $("#ddlRemarksDegree2MarksObtain").hide();
                 $("#ddlRemarksDegree2MarksObtain").val("").change();
-                $("#FscObtainMarks").show();
+                $("#FscObtainMarks").hide();
             }
 
             $("input[id=amendmentsData_txtRowDegree2MarksObtainValidty]").change(function () {
@@ -820,7 +827,7 @@
             else {
                 $("#ddlRemarksDegree2MarksTotal").hide();
                 $("#ddlRemarksDegree2MarksTotal").val("").change();
-                $("#matricTotalMarks").show();
+                $("#matricTotalMarks").hide();
             }
 
             $("input[id=amendmentsData_txtRowDegree2MarksTotalValidty]").change(function () {
@@ -839,7 +846,7 @@
 
                 $("#ddlRemarksFABoard").show();
                 $("#ddlRemarksFABoard").val('@Model.amendmentsData.ddlFABoardRemarks').change();
-                $("#FABoardAmmendments").hide();
+                $("#FABoardAmmendments").show();
             }
             else {
                 $("#ddlRemarksFABoard").hide();
@@ -865,7 +872,7 @@
 
                 $("#ddlRemarksDegree2").show();
                 $("#ddlRemarksDegree2").val('@Model.amendmentsData.imgRowDegree2Remarks').change();
-                $("#fscDegreeCertificate").hide();
+                $("#fscDegreeCertificate").show();
             }
             else {
                 $("#ddlRemarksDegree2").hide();
@@ -893,7 +900,7 @@
                 $("#ddlRemarksVoucher").show();
                 $("#ddlRemarksVoucher").val('@Model.amendmentsData.imgVoucherRemarks').change();
 
-                $("#voucherUpload").hide();
+                $("#voucherUpload").show();
             }
             else {
                 $("#ddlRemarksVoucher").hide();
@@ -1511,12 +1518,6 @@
 
 
             objApplicantInfo.address = ConvertToString($("#txtAddress").val());
-
-            objApplicantInfo.fatherName = ToMaxLength(ConvertToString($("#txtFatherName").val()), 70);
-
-            objApplicantInfo.cnicExpiryDate = ConvertToString($("#txtCNICExpiryDate").val());
-
-            objApplicantInfo.domicileDistrictId = $("#ddlDomicileDistrict").val();
             if ('@Model.amendmentsData.txtCNICValidty' == "False") {
 
                 objApplicantInfo.cnicNo = ConvertToString($("#txtCNIC").val());
@@ -1524,28 +1525,29 @@
 
             }
             else {
-                objApplicantInfo.cnicNo = '@Model.applicantInfo.cnicNo';
+                objApplicantInfo.cnicNo = ConvertToString($("#txtCNIC").val());
+                //objApplicantInfo.cnicNo = ConvertToString("0");
             }
+            //objApplicantInfo.cnicNo = ConvertToString($("#txtCNIC").val());
+
+            objApplicantInfo.fatherName = ToMaxLength(ConvertToString($("#txtFatherName").val()), 70);
+
+            objApplicantInfo.cnicExpiryDate = ConvertToString($("#txtCNICExpiryDate").val());
+
+            objApplicantInfo.domicileDistrictId = $("#ddlDomicileDistrict").val();
+
             //matric
 
             objApplicantInfo.matricMarksObtain = ConvertToString($("#txtRowDegree1MarksObtain").val());
 
             objApplicantInfo.matricTotalMarks = ConvertToString($("#txtRowDegree1MarksTotal").val());
 
-            if (objApplicantInfo.matricMarksObtain.length < 1) {
-                isError = true;
-                alert('Obtained Marks Cannot be Empty');
-            }
 
-            if (objApplicantInfo.matricTotalMarks.length < 1) {
-                isError = true;
-                alert('Total Marks Cannot be Empty');
-            }
+            //if (objApplicantInfo.cnicNo.length < 13) {
+            //    isError = true;
+            //    alert("Please enter complete 13 digits");
+            //}
 
-            if (objApplicantInfo.matricMarksObtain > objApplicantInfo.matricTotalMarks) {
-                isError = true;
-                alert('Obtained Marks Cannot be more than Total Marks');
-            }
 
             objApplicantInfo.matricBoard = $("#ddlMatricBoard option:selected").text();
 
@@ -1577,20 +1579,9 @@
 
             objApplicantInfo.fscTotalMarks = ConvertToString($("#txtRowDegree2MarksTotal").val());
 
-            if (objApplicantInfo.fscObtainedMarks.length < 1) {
-                isError = true;
-                alert('Obtained Marks Cannot be Empty');
-            }
 
-            if (objApplicantInfo.fscTotalMarks.length < 1) {
-                isError = true;
-                alert('Total Marks Cannot be Empty');
-            }
 
-            if (objApplicantInfo.fscObtainedMarks > objApplicantInfo.fscTotalMarks) {
-                isError = true;
-                alert('Obtained Marks Cannot be more than Total Marks');
-            }
+
 
             objApplicantInfo.fscBoard = $("#ddlFABoard option:selected").text();
 
@@ -1630,11 +1621,12 @@
                 }
             }
             objApplicantInfo.imgVoucher = ConvertToString($("#hfdVoucher").val());
-            debugger;
+			debugger;
             statuAction = "AmmendmetsProcess";
             if (isError == false) {
                 var resp = CallActionPost("/VerficationProcess/" + statuAction, objApplicantInfo);
                 console.log(resp);
+                debugger;
                 if (resp != null && resp.status == true) {
                     $("#divError").hide();
                     $("#spnMsg").html("");
@@ -1645,8 +1637,9 @@
                     //window.location.assign(url);
                 }
                 else {
-                    $("#divError").show();
-                    $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                    alert("CNIC already exists! Applicant is not approved")
+                    //$("#divError").show();
+                    //$("#idErrorMsg").html("<li>" + resp.message + "</li>");
                 }
             }
 
@@ -1797,7 +1790,7 @@
                                 <div class="form-group col-lg-12">
                                     <div class="col-md-3 col-sm-3 col-xs-3">
                                         <label for="heard">Name *:</label>
-                                        <input type="text" class="form-control" maxlength="50" required="required" name="txtName" id="txtName" placeholder="Full Name" value="@(Model.applicant.name)" readonly/>
+                                        <input type="text" class="form-control" maxlength="50" required="required" name="txtName" id="txtName" placeholder="Full Name" value="@(Model.applicant.name)" readonly />
                                     </div>
 
                                 </div>
@@ -1830,71 +1823,35 @@
                                         <fieldset>
                                             <div class="form-group col-lg-12">
                                                 <table style="width: 100%;" cellspacing="0px">
-                                                                                    <tbody>
-                                                                                        <tr style="float: left; width:100%;">
-                                                                                            <td style="float: left; width:90%;">
-                                                                                                <div style="float: left; width: 100%; margin-top: 15px ">
+                                                    <tbody>
+                                                        <tr style="float: left; width:100%;">
+                                                            <td style="float: left; width:90%;">
+                                                                <div style="float: left; width: 100%; margin-top: 15px ">
 
 
 
-                                                                                                </div>
-                                                                                                <div style="float: left; width:100%; margin-top:15px">
-                                                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;">Form No. : @applicant.applicantId</span>
-                                                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Application for BSN Generic (4 Years Degree Program) </span>
-                                                                                                </div>
-                                                                                            </td>
-                                                                                            <td style="float: left; width:9%;">
-                                                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
-                                                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" style="width:90px; height:80px;" />
-                                                                                                </a>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        <tr>
-                                                                                            <td colspan="2" style="padding:20px; margin-bottom:30px">
-                                                                                                <fieldset>
-                                                                                                    <legend>Rejection Remarks</legend>
-                                                                                                    @Model.amendmentsData.approvalRemarks
-                                                                                                </fieldset>
+                                                                </div>
+                                                                <div style="float: left; width:100%; margin-top:15px">
+                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;">Form No. : @applicant.applicantId</span>
+                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Application for BSN Generic (4 Years Degree Program) </span>
+                                                                </div>
+                                                            </td>
+                                                            <td style="float: left; width:9%;">
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + applicant.pic)" style="width:90px; height:80px;" />
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="2" style="padding:20px; margin-bottom:30px">
+                                                                <fieldset>
+                                                                    <legend>Verification Remarks</legend>
+                                                                    @Model.amendmentsData.approvalRemarks
+                                                                </fieldset>
 
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        @if (Model.amendmentsData.amendmentStatus == 0)
-                                                                                        {
-                                                                                            <tr>
-                                                                                                <td colspan="2" style="padding:20px; margin-bottom:30px">
-                                                                                                    <fieldset>
-                                                                                                        <legend>Amendment Status</legend>
-                                                                                                        Open Amendment
-                                                                                                    </fieldset>
-
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        }
-                                                                                        else if (Model.amendmentsData.amendmentStatus == 1)
-                                                                                        {
-                                                                                            <tr>
-                                                                                                <td colspan="2" style="padding:20px; margin-bottom:30px">
-                                                                                                    <fieldset>
-                                                                                                        <legend>Amendment Status</legend>
-                                                                                                        Approved after Amendments
-                                                                                                    </fieldset>
-
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        }
-                                                                                        else if (Model.amendmentsData.amendmentStatus == 2)
-                                                                                        {
-                                                                                            <tr>
-                                                                                                <td colspan="2" style="padding:20px; margin-bottom:30px">
-                                                                                                    <fieldset>
-                                                                                                        <legend>Amendment Status</legend>
-                                                                                                        Rejected
-                                                                                                    </fieldset>
-
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        }
-                                                                                    </tbody>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
                                                 </table>
                                                 <table border="1" style="width:100%;">
                                                     <tbody>
@@ -1953,28 +1910,28 @@
                                                             <td>
                                                                 <div class="col-xs-12 col-sm-4 col-md-4">
                                                                     <div class="form-group">
-                                                                        <label for="lbl-err"> Date of Birth <span style="color:red">*</span> <span id="spnDob" class="lbl-err" >Invalid date</span> </label>
+                                                                        <label for="lbl-err"> Date of Birth <span style="color:red">*</span> <span id="spnDob" class="lbl-err">Invalid date</span> </label>
                                                                         <input type="text" name="dob" id="txtDob" class="form-control datepicker dated" tabindex="6">
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                         </tr>
                                                         @*<tr>
-            <td>
-                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Merital Status : @info.meritalStatus</span>
-            </td>
-            <td style="text-align:center">
-                @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, true, new { @class = "form-check-input" })
-                @Html.Label("Valid", new { @class = "form-check-label" })
-                <label style="width: 120px;"></label>
-                @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, false, new { @class = "form-check-input" })
-                @Html.Label("Invalid", new { @class = "form-check-label" })
-            </td>
-            <td>
-                <select id="ddlRemarksMaritalStatus" name="ddlRemarksMaritalStatus" class="form-control validityRemarks" tabindex="2">
-                </select>
-            </td>
-        </tr>*@
+                                                                <td>
+                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Merital Status : @info.meritalStatus</span>
+                                                                </td>
+                                                                <td style="text-align:center">
+                                                                    @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, true, new { @class = "form-check-input" })
+                                                                    @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                    <label style="width: 120px;"></label>
+                                                                    @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, false, new { @class = "form-check-input" })
+                                                                    @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                                </td>
+                                                                <td>
+                                                                    <select id="ddlRemarksMaritalStatus" name="ddlRemarksMaritalStatus" class="form-control vValidityRemarks" tabindex="2">
+                                                                    </select>
+                                                                </td>
+                                                            </tr>*@
                                                         <tr>
                                                             <td>
                                                                 <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> CNIC : @info.cnicNo</span>
@@ -1989,6 +1946,16 @@
                                                             <td>
                                                                 <select id="ddlRemarksCNIC" name="ddlRemarksCNIC" class="form-control validityRemarks" tabindex="2" readonly>
                                                                 </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr id="cnicAmmend">
+                                                            <td>
+                                                                <div class="col-xs-12 col-sm-4 col-md-4">
+                                                                    <div class="form-group">
+                                                                        <label for=""><span class="spnCnic"> CNIC / Form B Number</span> <span style="color:red">*</span>  <small>(Without dashes) </small></label>
+                                                                        <input required="required" type="text" name="txtCNIC" id="txtCNIC" class="form-control lenth numeric" len="13" placeholder="CNIC" tabindex="13" />
+                                                                    </div>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -2017,7 +1984,7 @@
                                                                         <label for=""> <span class="spnCnic"> CNIC / Form B </span> <span> Front Picture</span> <span style="color:red">*</span>  </label>
                                                                         <input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="19" />
                                                                         <input type="hidden" id="hfdCnicFront" value="" />
-                                                                        <img id="imgCnicFront" class="flup-img" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.cnicPicFront)" alt=""  />
+                                                                        <img id="imgCnicFront" class="flup-img" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.cnicPicFront)" alt="" />
                                                                         <a id="rmvCnicFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
                                                                     </div>
                                                                 </div>
@@ -2049,7 +2016,7 @@
                                                                         <label for=""> <span id="spnCnicUpload2"> <span class="spnCnic">CNIC</span> Back Picture</span> <span style="color:red">*</span>  </label>
                                                                         <input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="20" />
                                                                         <input type="hidden" id="hfdCnicBack" value="" />
-                                                                        <img id="imgCnicBack" class="flup-img" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.cnicPicBack)" alt=""  />
+                                                                        <img id="imgCnicBack" class="flup-img" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.cnicPicBack)" alt="" />
                                                                         <a id="rmvCnicBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
                                                                     </div>
                                                                 </div>
@@ -2138,7 +2105,7 @@
                                                                         <input type="text" name="txtFatherName" id="txtFatherName" maxlength="70" class="form-control" tabindex="3">
                                                                     </div>
                                                                 </div>
-                                                                        </td>
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td>
@@ -2502,7 +2469,7 @@
                                                                         <label for="flVoucher"> Voucher Image </label>
                                                                         <input type="file" class="form-control flup" name="flVoucher" id="flVoucher" tabindex="18" />
                                                                         <input type="hidden" id="hfdVoucher" value="" />
-                                                                        <img id="imgVoucher" class="flup-img" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.voucher.voucherImage)" alt=""  />
+                                                                        <img id="imgVoucher" class="flup-img" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.voucher.voucherImage)" alt="" />
                                                                         <a id="rmvVoucher" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
                                                                     </div>
                                                                 </div>
@@ -2519,27 +2486,30 @@
                                             </legend>
                                             <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
                                                 @*<div class="form-group col-lg-12">
-                                                    <div class="col-md-3 col-sm-3 col-xs-3">
-                                                        <label for="heard">Status Type *:</label>
-                                                        <select id="ddlStatusType" name="ddlStatusType" class="form-control">
-                                                            <option value="1" selected="selected">Accepted</option>
-                                                            <option value="2">Rejected</option>
-                                                        </select>
-                                                    </div>
-                                                </div>*@
-                                                @*<div id="divComments" class="form-group col-lg-12" style="display:none; margin-top:20px;">
-                                                    <div class="col-md-12 col-sm-12 col-xs-12">
-                                                        <label for="heard">Comments *:</label>
-                                                        <div id="divCommentValue" style="display:none;">
-                                                            @Model.statusApproval.comments
+                                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                                            <label for="heard">Status Type *:</label>
+                                                            <select id="ddlStatusType" name="ddlStatusType" class="form-control">
+                                                                <option value="1" selected="selected">Accepted</option>
+                                                                <option value="2">Rejected</option>
+                                                            </select>
                                                         </div>
-                                                        <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
-                                                    </div>
-                                                </div>*@
+                                                    </div>*@
+                                                @*<div id="divComments" class="form-group col-lg-12" style="display:none; margin-top:20px;">
+                                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                                            <label for="heard">Comments *:</label>
+                                                            <div id="divCommentValue" style="display:none;">
+                                                                @Model.statusApproval.comments
+                                                            </div>
+                                                            <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
+                                                        </div>
+                                                    </div>*@
+                                                @*<div class="form-group col-lg-12" style="margin-top:20px;">
+                                                        <label for="heard">Only if all rejections are removed and required changes updated, Proceed to approve/accept the candidate.</label>
+                                                    </div>*@
                                                 <div class="form-group col-lg-12" style="margin-top:20px;">
                                                     <div class="col-md-3 col-sm-3 col-xs-3">
                                                         <label for="heard">&nbsp;</label>
-                                                        @*<input type="button" id="btnUpdateAmmenment" value="Update" class="btn btn-success" />*@
+                                                        <input type="button" id="btnUpdateAmmenment" value="Approve/Accept" class="btn btn-success" />
                                                     </div>
                                                 </div>
                                             </form>
@@ -2616,23 +2586,23 @@
                                 </legend>
                                 <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
                                     @*<div class="form-group col-lg-12">
-                                        <div class="col-md-3 col-sm-3 col-xs-3">
-                                            <label for="heard">Status Type *:</label>
-                                            <select id="ddlStatusType" name="ddlStatusType" class="form-control">
-                                                <option value="1" selected="selected">Accepted</option>
-                                                <option value="2">Rejected</option>
-                                            </select>
-                                        </div>
-                                    </div>*@
-                                    @*<div id="divComments" class="form-group col-lg-12" style="display:none;">
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <label for="heard">Comments *:</label>
-                                            <div id="divCommentValue" style="display:none;">
-                                                @Model.statusApproval.comments
+                                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                                <label for="heard">Status Type *:</label>
+                                                <select id="ddlStatusType" name="ddlStatusType" class="form-control">
+                                                    <option value="1" selected="selected">Accepted</option>
+                                                    <option value="2">Rejected</option>
+                                                </select>
                                             </div>
-                                            <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
-                                        </div>
-                                    </div>*@
+                                        </div>*@
+                                    @*<div id="divComments" class="form-group col-lg-12" style="display:none;">
+                                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                                <label for="heard">Comments *:</label>
+                                                <div id="divCommentValue" style="display:none;">
+                                                    @Model.statusApproval.comments
+                                                </div>
+                                                <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
+                                            </div>
+                                        </div>*@
                                     <div class="form-group col-lg-12">
                                         <div class="col-md-3 col-sm-3 col-xs-3">
                                             <label for="heard">&nbsp;</label>
@@ -2669,12 +2639,12 @@
                                             <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
                                         </div>
                                     </div>
-                                    <div class="form-group col-lg-12">
-                                        <div class="col-md-3 col-sm-3 col-xs-3">
-                                            <label for="heard">&nbsp;</label>
-                                            <input type="button" id="btnUpdateAmmenmentJoining" value="Update" class="btn btn-success" />
-                                        </div>
-                                    </div>
+                                    @*<div class="form-group col-lg-12">
+                                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                                <label for="heard">&nbsp;</label>
+                                                <input type="button" id="btnUpdateAmmenmentJoining" value="Update" class="btn btn-success" />
+                                            </div>
+                                        </div>*@
                                 </form>
                             </fieldset>
                         }

@@ -39,6 +39,8 @@ namespace Prp.Data
                     obj.password = dr["password"].TooString();
                     obj.userId = dr["userId"].TooInt();
                     obj.typeId = dr["typeId"].TooInt();
+                    obj.displayName = dr["firstName"].TooString();
+                    obj.firstName = dr["firstName"].TooString();
                 }
 
                 //var dbt = db.spApplicantLogin(userName, password).FirstOrDefault();

@@ -71,8 +71,8 @@
             }
             //alert(@listOfObjects);
             //console.log(@listOfObjects);
-            inductionId = 13;
-            //inductionId = ConvertToInt($("#hfdInductionIdDashboard").val());
+            //inductionId = $('#ddlInduction').val();;
+            inductionId = ConvertToInt($("#hfdInductionIdDashboard").val());
             debugger;
 
 
@@ -81,6 +81,7 @@
             $(document).on('change', '#ddlInduction', function () {
                 inductionId = $(this).val();
                 window.location.href = "/admin/dashboard-status?inductionId=" + inductionId;
+                $("#ddlInduction").val(inductionId).change();
             });
 
             $(document).on('click', '.trclick', function () {
@@ -90,10 +91,29 @@
                 //var typeId = 52
                 //var id = 8;
                 //var typeId = 53;
-                var url = "/admin/applicant-search-induction-" + inductionId + "?statusTypeId=" + typeId + "&statusId=" + id;
+                inductionId = @Model.inductionId;
+                if (@Model.loggedInUser.userId == 55 || @Model.loggedInUser.userId == 56) {
+                    if (id == 0 && typeId == 132) {
+                        var url = "/admin/applicant-search-to-ammendment?statusTypeId=133&statusId=" + id;
+                        window.open(url, "_blank");
+                    }
+					else if(id == -1 && typeId == 131){
+						var url = "/admin/applicant-search-to-verify?statustypeid=131&statusid=" + id;
+						window.open(url, "_blank");
+					}
+					else {
+						var url = "/admin/applicant-search-induction-" + inductionId + "?statusTypeId=" + typeId + "&statusId=" + id;
 
-                if (userTypeId == 1) { }
-                window.open(url, "_blank");
+						if (userTypeId == 1) { }
+						window.open(url, "_blank");
+					}
+                }
+                else {
+                    var url = "/admin/applicant-search-induction-" + inductionId + "?statusTypeId=" + typeId + "&statusId=" + id;
+
+                    if (userTypeId == 1) { }
+                    window.open(url, "_blank");
+                }
             });
 
 
@@ -109,24 +129,18 @@
         <div class="col-md-12">
             <h3>PNAS <small>Punjab Nursing Admission System 2023 </small></h3>
         </div>
-        @*<div class="col-md-3">
+        <div class="col-md-3">
             @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionIdDashboard" })
             <select id="ddlInduction" name="ddlInduction" class="form-control">
-                <option value="0" selected="selected"> Select One </option>
-                @if (Model != null && (Model.listInduction != null && Model.listInduction.Count > 0))
-                {
-                    foreach (var u in Model.listInduction)
-                    {
-                        <option value="@u.value"> @u.key </option>
-                    }
-                }
+                <option value="13"> July 23 Morning </option>
+                <option value="14"> July 23 Afternoon </option>
             </select>
-        </div>*@
+        </div>
 
     </div>
 </div>
 @{
-    if (Model.listDashBoard != null && Model.listDashBoard.Count > 0)
+    if (Model.listDashBoard != null && Model.listDashBoard.Count > 0 && (Model.loggedInUser.userId < 12 || Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 57 || Model.loggedInUser.userId == 58 || Model.loggedInUser.userId == 61 || Model.loggedInUser.userId == 62 || Model.loggedInUser.userId == 63))
     {
 
 
@@ -414,17 +428,17 @@
                                             <td>@education</td>
                                         </tr>
                                         @*<tr class="trclick" id="3" typeid="53">
-                                            <td>
-                                                <p><i class="fa fa-square purple"></i>Experience</p>
-                                            </td>
-                                            <td>@experience</td>
-                                        </tr>*@
+                                                <td>
+                                                    <p><i class="fa fa-square purple"></i>Experience</p>
+                                                </td>
+                                                <td>@experience</td>
+                                            </tr>*@
                                         @*<tr class="trclick" id="4" typeid="53">
-                                            <td>
-                                                <p><i class="fa fa-square aero"></i>Research Paper</p>
-                                            </td>
-                                            <td>@researchPaper</td>
-                                        </tr>*@
+                                                <td>
+                                                    <p><i class="fa fa-square aero"></i>Research Paper</p>
+                                                </td>
+                                                <td>@researchPaper</td>
+                                            </tr>*@
 
                                     </table>
                                 </td>
@@ -451,11 +465,11 @@
                                             <td>@specility</td>
                                         </tr>
                                         @*<tr class="trclick" id="6" typeid="53">
-                                            <td>
-                                                <p><i class="fa fa-square black"></i>Payment Due </p>
-                                            </td>
-                                            <td>@paymentDone</td>
-                                        </tr>*@
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Payment Due </p>
+                                                </td>
+                                                <td>@paymentDone</td>
+                                            </tr>*@
                                         <tr class="trclick" id="7" typeid="53">
                                             <td>
                                                 <p><i class="fa fa-square red"></i>Proof Reading </p>
@@ -760,12 +774,12 @@
                                                 </td>
                                                 <td>@approved</td>
                                             </tr>
-                                            <tr class="trclick" id="2" typeid="132">
-                                                <td>
-                                                    <p><i class="fa fa-square  red"></i>Rejected </p>
-                                                </td>
-                                                <td>@reject</td>
-                                            </tr>
+                                            @*<tr class="trclick" id="2" typeid="132">
+                                                    <td>
+                                                        <p><i class="fa fa-square  red"></i>Rejected </p>
+                                                    </td>
+                                                    <td>@reject</td>
+                                                </tr>*@
                                         </table>
                                     </td>
                                 </tr>
@@ -1167,6 +1181,7 @@
             var total = 0;
             var join = 0;
             var notjoin = 0;
+            var releaved = 0;
             try
             {
                 total = listJoin.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
@@ -1195,10 +1210,18 @@
                 {
 
                 }
+                try
+                {
+                    releaved = listJoin.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
                 <div class="col-md-3 col-sm-3 ">
                     <div class="x_panel tile fixed_height_320 overflow_hidden">
                         <div class="x_title">
-                            <h2>Joining Status</h2>
+                            <h2>Joining Status Round 1</h2>
                             <div class="clearfix"></div>
                         </div>
                         <div class="x_content">
@@ -1229,6 +1252,180 @@
                                                 <td>@join</td>
                                             </tr>
                                             <tr class="trclick" id="2" typeid="191">
+                                                <td>
+                                                    <p><i class="fa fa-square  red"></i>Not Joined </p>
+                                                </td>
+                                                <td>@notjoin</td>
+                                            </tr>
+                                            <tr class="trclick" id="3" typeid="191">
+                                                <td>
+                                                    <p><i class="fa fa-square  red"></i>Releaved </p>
+                                                </td>
+                                                <td>@releaved</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        var listJoin2 = Model.listDashBoard.Where(x => x.statusTypeId == 192).ToList();
+        if (listJoin2 != null && listJoin2.Count > 0)
+        {
+
+            var total = 0;
+            var join = 0;
+            var notjoin = 0;
+            try
+            {
+                total = listJoin2.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+            }
+            catch (Exception)
+            {
+                total = 0;
+            }
+
+            if (total > 0)
+            {
+
+                try
+                {
+                    join = listJoin2.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    notjoin = listJoin2.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Joining Status Round 2</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 txt">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 cnt">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="trclick" id="-1" typeid="192">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@total</td>
+                                            </tr>
+                                            <tr class="trclick" id="1" typeid="192">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Joined </p>
+                                                </td>
+                                                <td>@join</td>
+                                            </tr>
+                                            <tr class="trclick" id="2" typeid="192">
+                                                <td>
+                                                    <p><i class="fa fa-square  red"></i>Not Joined </p>
+                                                </td>
+                                                <td>@notjoin</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        var lisltJoin3 = Model.listDashBoard.Where(x => x.statusTypeId == 194).ToList();
+        if (lisltJoin3 != null && lisltJoin3.Count > 0)
+        {
+
+            var total = 0;
+            var join = 0;
+            var notjoin = 0;
+            try
+            {
+                total = lisltJoin3.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+            }
+            catch (Exception)
+            {
+                total = 0;
+            }
+
+            if (total > 0)
+            {
+
+                try
+                {
+                    join = lisltJoin3.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    notjoin = lisltJoin3.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Joining Status Round 3</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 txt">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 cnt">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="trclick" id="-1" typeid="194">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@total</td>
+                                            </tr>
+                                            <tr class="trclick" id="1" typeid="194">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Joined </p>
+                                                </td>
+                                                <td>@join</td>
+                                            </tr>
+                                            <tr class="trclick" id="2" typeid="194">
                                                 <td>
                                                     <p><i class="fa fa-square  red"></i>Not Joined </p>
                                                 </td>

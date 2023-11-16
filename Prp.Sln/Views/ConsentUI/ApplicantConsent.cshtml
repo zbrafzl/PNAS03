@@ -23,14 +23,13 @@
 }
 <div class="container content">
     <div class="row main">
-        @Html.Partial("_ApplicantLinks")
         <div class="col-sm-12 form-box">
             <div class="main-login main-center">
-                <h3 class="heading">Consent - Application Merit - (Round - @Model.roundId.ToString("00"))</h3>
+                <h3 class="heading">Application Merit - (Round - 01)</h3>
                 <hr class="colorgraph">
                 <div class="row">
                     <div class="col-md-12" style="text-align:center;">
-                        <h3> Dear @Model.applicant.name, PMDC No. @Model.applicant.pmdcNo, Form No : @Model.applicant.applicantId <br /></h3>
+                        <h3> Dear @Model.applicant.name, Form No : @Model.applicant.applicantId <br /></h3>
                     </div>
                 </div>
                 <hr class="colorgraph">
@@ -41,23 +40,23 @@
                     var hasConsent = 0;
                     try
                     {
-                        hasConsent = Model.listConsent.FirstOrDefault(x => x.roundId == 3).roundId;
+                        //hasConsent = Model.listConsent.FirstOrDefault(x => x.roundId == 3).roundId;
                     }
                     catch (Exception)
                     {
                         hasConsent = 0;
                     }
 
-                    if (Model.listType != null && Model.listType.Count > 0)
+                    if (1 > 0)
                     {
-                        if (Model.roundId == 3 && hasConsent == 0 || Model.consent.consentId > 0)
+                        if (1>0)
                         {
                             using (Html.BeginForm("SaveConsentData", "ConsentUI", FormMethod.Post, new { enctype = "multipart/form-data" }))
                             {
                                 <div class="row">
                                     <div class="col-md-12" style="text-align:center;">
                                         <h3>
-                                            Dear Candidate you chosen the following in the Round- @Model.roundId.ToString("00")
+                                            Dear Candidate you chosen the following in the Round- 01
                                         </h3>
                                     </div>
                                 </div>
@@ -66,40 +65,15 @@
                                         <div class="main-login main-center">
                                             <form class="form-horizontal">
                                                 <h3 class="heading">&nbsp;</h3>
+                                                
                                                 <div class="">
-                                                    <label for="email" class="cols-sm-2 control-label">Program</label>
+                                                    <label for="password" class="cols-sm-2 control-label">You are selected in</label>
                                                     <div class="cols-sm-10">
-                                                        @Html.DropDownListFor(a => a.consent.typeId, new SelectList(Model.listType, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlType", @tabindex = "1" })
+                                                        @Model.listConsent.Select(i=>i.consentType).FirstOrDefault()
                                                     </div>
                                                 </div>
-                                                <div class="">
-                                                    <label for="password" class="cols-sm-2 control-label">Consent Type</label>
-                                                    <div class="cols-sm-10">
-                                                        @Html.DropDownListFor(a => a.consent.consentTypeId, new SelectList(Model.listConsentStatus, "id", "value"), "Select One", new { @class = "form-control", @id = "ddlConsentStatus", @tabindex = "2" })
-                                                    </div>
-                                                </div>
-                                                <div class="">
-                                                    <div class="col-sm-12">
-                                                        <div class="col-sm-3">
-                                                        </div>
-                                                        <div class="col-sm-6">
-                                                            <label for="password" class="cols-sm-2 control-label">&nbsp;</label>
-                                                            <input id="btnLogin" type="submit" class="btn btn-app animated-button" value="Save Data" style="width:100%" />
-                                                        </div>
-                                                        <div class="col-sm-3">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div id="errDivLogin" class="col-sm-12" style="margin-top:10px; display:none;">
-                                                    <div class="panel panel-danger">
-                                                        <div class="panel-heading">
-                                                            <label>
-                                                                <span id="spnError" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                
+                                                
                                             </form>
                                         </div>
                                     </div>
@@ -107,127 +81,7 @@
                             }
                         }
 
-                        if (Model.listConsent != null && Model.listConsent.Count > 0)
-                        {
-                            var listConsent = Model.listConsent.OrderByDescending(x => x.roundId).ToList();
-                            if (listConsent != null && listConsent.Count > 0)
-                            {
-                                foreach (var cn in listConsent)
-                                {
-                                    if (cn.typeId > 0)
-                                    {
-                                        <div class="row">
-                                            <div class="col-md-12" style="text-align:center;">
-                                                <h3>
-                                                    CONSENT STATUS OF ROUND –  @cn.roundId.ToString("00")
-                                                </h3>
-                                                <h3>
-                                                    You have choosen the following option in Round @cn.roundId.ToString("00")
-                                                </h3>
-                                            </div>
-                                        </div>
-                                        <hr class="colorgraph">
-                                        <div class="main-login main-center">
-                                            <div class="row" style="margin: 0px 0px;">
-                                                <table class="table mt10">
-                                                    <thead class="job-th">
-                                                        <tr>
-                                                            <th>Round</th>
-                                                            <th>Program</th>
-                                                            <th>Status</th>
-                                                            @if (Model.roundId < 4)
-                                                            {
-                                                                if (Model.roundId == @cn.roundId)
-                                                                {
-                                                                    <th>Action</th>
-                                                                }
-                                                            }
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="job-tb">
-                                                            <td>@cn.roundId</td>
-                                                            <td>@cn.typeName  </td>
-                                                            <td>@cn.consentType  </td>
-                                                            @if (Model.roundId < 4)
-                                                            {
-                                                                if (cn.roundId == Model.roundId)
-                                                                {
-                                                                    <td><a class="ank" href=@("/"+ProjConstant.preUrl+ "/applicant/consent?consentId=" + cn.consentId)><i class="fa fa-pencil-square-o"></i></a>  </td>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <td>&nbsp;  </td>
-                                                                }
-                                                            }
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    }
-                                }
-                            }
-                        }
 
-                    }
-                    else
-                    {
-                        if (Model.listConsent != null && Model.listConsent.Count > 0)
-                        {
-                            var listConsent = Model.listConsent.OrderByDescending(x => x.roundId).ToList();
-                            if (listConsent != null && listConsent.Count > 0)
-                            {
-                                foreach (var cn in listConsent)
-                                {
-                                    if (cn.typeId > 0)
-                                    {
-                                        <div class="row">
-                                            <div class="col-md-12" style="text-align:center;">
-                                                <h3>
-                                                    CONSENT STATUS OF ROUND –  @cn.roundId.ToString("00")
-                                                </h3>
-                                                <h3>
-                                                    You have choosen the following option in Round @cn.roundId.ToString("00")
-                                                </h3>
-                                            </div>
-                                        </div>
-                                        <hr class="colorgraph">
-                                        <div class="main-login main-center">
-                                            <div class="row" style="margin: 0px 0px;">
-                                                <table class="table mt10">
-                                                    <thead class="job-th">
-                                                        <tr>
-                                                            <th>Round</th>
-                                                            <th>Program</th>
-                                                            <th>Status</th>
-
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="job-tb">
-                                                            <td>@cn.roundId</td>
-                                                            <td>@cn.typeName  </td>
-                                                            <td>@cn.consentType  </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h5>
-                                        Your merit  not matched in any prgram and speciality.
-                                    </h5>
-                                </div>
-                            </div>
-                        }
                     }
                 }
                 else

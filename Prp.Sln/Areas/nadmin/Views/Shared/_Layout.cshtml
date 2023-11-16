@@ -221,36 +221,40 @@
                             <ul class="nav side-menu" style="">
                                 <li>
                                     <a href="/admin/index"><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
-                                    @*<ul class="nav child_menu" style="display: none">
-                                        <li>
-                                            <a href="/admin/index">Dashboad</a>
-                                        </li>
-                                    </ul>*@
-
                                 </li>
-                                
-                                @*<li>
-                                    <a><i class="fa fa-file-code-o"></i> Verification <span class="fa fa-chevron-down"></span></a>
-                                    <ul class="nav child_menu" style="display: none">
-                                        <li>
-                                            <a href="/admin/applicant/verify-list-view">Download List</a>
-                                        </li>
-                                        <li>
-                                            <a href="/admin/applicant/verify-ke">Application</a>
-                                        </li>
-                                        <li>
-                                            <a href="/admin/applicant/verify-ke-view">Applicant View</a>
-                                        </li>
-                                    </ul>
+                                @if (Model.loggedInUser.typeId == 69 && Model.loggedInUser.userId != 64)
+                                {
+                                    <li>
+                                        <a href="/admin/addMigrationCandidate"><i class="fa fa-home"></i> Add Candidate <span class="fa fa-chevron-down"></span></a>
+                                    </li>
+                                    <li>
+                                        <a href="/admin/addSeats"><i class="fa fa-home"></i> Add Seats <span class="fa fa-chevron-down"></span></a>
+                                    </li>
+                                }
 
-                                </li>*@
-                                
+
+                                @*<li>
+            <a><i class="fa fa-file-code-o"></i> Verification <span class="fa fa-chevron-down"></span></a>
+            <ul class="nav child_menu" style="display: none">
+                <li>
+                    <a href="/admin/applicant/verify-list-view">Download List</a>
+                </li>
+                <li>
+                    <a href="/admin/applicant/verify-ke">Application</a>
+                </li>
+                <li>
+                    <a href="/admin/applicant/verify-ke-view">Applicant View</a>
+                </li>
+            </ul>
+
+        </li>*@
+
                                 <li class="active">
                                     <a><i class="fa fa-user"></i> User <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: block;">
                                         @*<li class="current-page">
-                                            <a href="/admin/user-manage">Manage</a>
-                                        </li>*@
+                    <a href="/admin/user-manage">Manage</a>
+                </li>*@
                                         <li>
                                             <a href="/admin/change-password">Change Password</a>
                                         </li>

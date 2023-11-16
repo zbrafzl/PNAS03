@@ -81,7 +81,30 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             try
             {
                 objJoin.joiningDate = objJoin.dateJoining.TooDate();
+                objJoin.jobs = loggedInUser.userId;
                 msg = new JoiningDAL().AddUpdate(objJoin);
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+
+            }
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult ApplicantReleavingAddUpdate(ApplicantJoined objJoin)
+        {
+            Message msg = new Message();
+
+            objJoin.adminId = loggedInUser.userId;
+
+            try
+            {
+                objJoin.joiningDate = objJoin.dateJoining.TooDate();
+                objJoin.jobs = loggedInUser.userId;
+                msg = new JoiningDAL().AddUpdateReleaving(objJoin);
             }
             catch (Exception ex)
             {

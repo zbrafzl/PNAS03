@@ -279,7 +279,7 @@
 
             $(document).on('click', '#btnUpdateAmmenmentJoining', function () {
 
-                UpdateApplicantAmmenmentStatusJoining();
+                UpdateApplicantAmmenmentStatus();
             });
 
             $(".validityRemarks").append('<option value="Information is Not Correct">Information is Incorrect</option>');
@@ -1320,13 +1320,13 @@
 
                 if (isError == false) {
                     //alert(statuAction);
-                    statuAction = "AddUpdateVerficationStatusJoining";
+                    statuAction = "AddUpdateVerficationStatus";
                     var resp = CallActionPost("/VerficationProcess/" + statuAction, obj);
                     if (resp != null && resp.status == true) {
                         $("#divError").hide();
                         $("#spnMsg").html("");
-                        var url = "/admin/applicant-search-join?statusTypeId=52&statusId=-1";
-                        window.open(url);
+                        //var url = "/admin/applicant-search-join?statusTypeId=52&statusId=-1";
+                        //window.open(url);
                         //var url = window.location.pathname;
                         //window.location.assign(url);
                     }

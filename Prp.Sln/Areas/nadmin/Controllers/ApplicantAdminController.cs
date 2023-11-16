@@ -4,6 +4,7 @@ using Prp.Data.DAL;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -49,6 +50,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
 
             model.inductionId = 12;
             model.phaseId = 1;
+            model.inductionId = AdminHelper.GetInductionId();
             model.statusTypeId = Request.QueryString["statusTypeId"].TooInt();
             model.statusId = Request.QueryString["statusId"].TooInt();
             Session["SelectedStatusID"] = model.statusId;
@@ -296,9 +298,103 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             }
             return View(model);
         }
+        public ActionResult AddSeats()
+        {
+            ProfileModelAdmin model = new ProfileModelAdmin();
+            return View(model);
+        }
+        public ActionResult MigrationCandidateAddition()
+        {
+            ProfileModelAdmin model = new ProfileModelAdmin();
+            Applicant objApp = new Applicant();
+            objApp.adminId = loggedInUser.userId;
+            objApp.contactNumber = "03000000000";
+            objApp.emailId = "aaa@aaa.aaa";
+            objApp.password = "123456";
+            objApp.name = "abcd";
+            objApp.pncNo = "";
+            objApp.network = 1;
+            objApp.genderID = 0;
+            objApp.levelId = 13;
+            objApp.facultyId = 1;
+            objApp.pic = "";
+            objApp.inductionId = 0;
 
+            Message msgg = new ApplicantDAL().Registration(objApp);
+            model.applicantId = msgg.id;
+            return View(model);
+        }
 
-        
+        [HttpPost]
+        public JsonResult UpdateMigrationCandidate(MigrationCandidateData obj)
+        {
+            
+            obj.adminID = loggedInUser.userId;
+            Message msg = new ApplicantDAL().UpdateMigrationCandidate(obj);
+            string smsBody = "";
+            int smsId = 0;
+            try
+            {
+                SMS sms = new SMSDAL().GetByTypeForApplicant(obj.applicantId, ProjConstant.SMSType.registration);
+                smsBody = sms.detail;
+                smsId = sms.smsId;
+            }
+            catch (Exception)
+            {
+                smsBody = "";
+            }
+            if (String.IsNullOrWhiteSpace(smsBody))
+            {
+                smsBody = "Dear Candidate, You can login using your email id: "+obj.emailId +" , CNIC: "+ obj.cnicNo + " and Mobile Number: " +obj.contactNo + " and password: 123456";
+
+            }
+            if (1 > 0)
+            {
+                
+
+                try
+                {
+                    Message msgSms = FunctionUI.SendSms(obj.contactNo, smsBody);
+                    SmsProcess objProcess = msgSms.status.SmsProcessMakeDefaultObject(obj.applicantId, smsId);
+                    try
+                    {
+                        new SMSDAL().AddUpdateSmsProcess(objProcess);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    //System.Threading.Thread.Sleep(1000);
+                }
+                catch (Exception)
+                {
+                }
+            }
+            if (2 > 1)
+            {
+                Message message = new Message();
+                string str1 = "";
+                str1 = "Dear Candidate, You can login using your email id: " + obj.emailId + " , CNIC: " + obj.cnicNo + " , Mobile Number" + obj.contactNo + " and password: 123456";
+                try
+                {
+                    obj.emailId.SendEmail(ProjConstant.Email.Subject.registration, ProjConstant.Email.Title.registration, str1);
+                }
+                catch (Exception exception)
+                {
+                }
+            }
+            return Json(msg, JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpPost]
+        public JsonResult AddUpdateSeats(int inductionId, int totalSeats, int vacantSeats)
+        {
+
+            int adminID = loggedInUser.userId;
+            Message msg = new ApplicantDAL().AddUpdateSeats(inductionId, totalSeats, vacantSeats, adminID);
+            return Json(msg, JsonRequestBehavior.AllowGet);
+
+        }
 
 
         [HttpPost]
@@ -336,18 +432,6 @@ namespace Prp.Sln.Areas.nadmin.Controllers
 
             if (applicantId > 0)
             {
-                //try
-                //{
-                //    ApplicantInfo objInfo = obj.applicantInfo;
-                //    objInfo.applicantId = applicantId;
-                //    new ApplicantDAL().ApplicantInfoAddUpdate(objInfo);
-                //}
-                //catch (Exception ex)
-                //{
-
-                //    msg.status = false;
-                //    msg.message = msg.message + " - " + ex.Message;
-                //}
 
                 try
                 {
@@ -404,6 +488,14 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             DataTable dataTable = new ApplicantDAL().GetApplicantById(applicantId);
             string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
             return Content(json, "application/json");
+        }
+
+        public JsonResult GetMigrantApplicantById(int applicantId)
+        {
+            DataTable dataTable = new ApplicantDAL().GetApplicantById(applicantId);
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            Message msg = new Message(); 
+            return Json(msg, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]

@@ -480,7 +480,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             +" FORMAT (av.dated, 'dd/MM/yyyy ') submitDate, av.amount amount from"
             +" tblApplicantVoucherBank av"
             +" inner join tblApplicant a on av.applicantId = a.applicantId"
-            + " inner join tblApplicantInfo ai on a.applicantId = ai.applicantId order by av.dated";
+            + " inner join tblApplicantInfo ai on a.applicantId = ai.applicantId where av.inductionId = "+ProjConstant.inductionId+" order by av.dated";
 
             JavaScriptSerializer jsSerializer = new JavaScriptSerializer();
 

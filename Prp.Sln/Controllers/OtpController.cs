@@ -17,7 +17,31 @@ namespace Prp.Sln.Controllers
         {
             return View();
         }
+        private string GenerateRandomOTP(int iOTPLength, string[] saAllowedCharacters)
 
+        {
+
+            string sOTP = String.Empty;
+
+            string sTempChars = String.Empty;
+
+            Random rand = new Random();
+
+            for (int i = 0; i < iOTPLength; i++)
+
+            {
+
+                int p = rand.Next(0, saAllowedCharacters.Length);
+
+                sTempChars = saAllowedCharacters[rand.Next(0, saAllowedCharacters.Length)];
+
+                sOTP += sTempChars;
+
+            }
+
+            return sOTP;
+
+        }
         public string GetCode(string PhoneNumber)
         {
            
@@ -36,10 +60,21 @@ namespace Prp.Sln.Controllers
                 {
                     // read the first row and retrieve the code value
                     reader.Read();
-                     code = reader.GetString(0);
-                    return code;
+                    code = reader.GetString(0);
                 }
-                return code;
+                else {
+                    string[] saAllowedCharacters = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+                    string sRandomOTP = string.Empty;
+                    int randomNumber = 0;
+                    sRandomOTP = GenerateRandomOTP(6, saAllowedCharacters);
+                    randomNumber = Convert.ToInt32(sRandomOTP);
+                    code = randomNumber.ToString();
+                    string query1 = "insert into tblOtps values ((select top 1 applicantId from tblApplicant where contactNumber = '"+ PhoneNumber + "'),'" + PhoneNumber + "'," + randomNumber + ",getdate(),0)";
+                    SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+                    connection.Open();
+                    SqlCommand cmd = new SqlCommand(query1, connection);
+                    cmd.ExecuteNonQuery();
+                }
             }
             catch (Exception ex)
             {
@@ -49,6 +84,8 @@ namespace Prp.Sln.Controllers
             {
                 con.Close();
             }
+            string smsBody = "Dear Candidate, Your OTP is : " + code + ".";
+            Message msgSms = FunctionUI.SendSms(Convert.ToString(PhoneNumber), smsBody);
             return code;
        
         }

@@ -62,7 +62,93 @@ namespace Prp.Data
             return obj;
         }
 
+        public Message AddUpdateSeats(int inductionId, int totalSeats, int vacantSeats, int adminId)
+        {
+            Message msg = new Message();
+            try
+            {
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spAddUpdateSeats]"
+                };
+                DateTime dts = DateTime.Now;
 
+                cmd.Parameters.AddWithValue("@inductionId", inductionId);
+                cmd.Parameters.AddWithValue("@totalSeats", totalSeats);
+                cmd.Parameters.AddWithValue("@vacantSeats", vacantSeats);
+                cmd.Parameters.AddWithValue("@adminId", adminId);
+
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                msg = dt.ConvertToEnitityMessage();
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            return msg;
+        }
+
+        public Message UpdateMigrationCandidate(MigrationCandidateData obj)
+        {
+            var date = DateTime.UtcNow;
+            Message msg = new Message();
+            try
+            {
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spUpdateMigrationCandidate]"
+                };
+                DateTime dts = obj.dOB.TooDate();
+                DateTime cnicExpirtyDate = DateTime.Now.TooDate();
+
+                cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+                cmd.Parameters.AddWithValue("@inductionId", obj.inductionId);
+                cmd.Parameters.AddWithValue("@name", obj.name);
+                cmd.Parameters.AddWithValue("@fatherName", Convert.ToString(obj.fatherName.TooString()));
+                cmd.Parameters.AddWithValue("@genderId", obj.genderId);
+                cmd.Parameters.AddWithValue("@dob", dts);
+                cmd.Parameters.AddWithValue("@joiningDate", obj.joiningDate.TooDate());
+
+                cmd.Parameters.AddWithValue("@contactNo", obj.contactNo);
+                cmd.Parameters.AddWithValue("@cnicNo", obj.cnicNo);
+                cmd.Parameters.AddWithValue("@domicileDistrictId", obj.domicileDistrictId);
+                cmd.Parameters.AddWithValue("@religionId", obj.religionId);
+                cmd.Parameters.AddWithValue("@emailId", obj.emailId);
+                cmd.Parameters.AddWithValue("@districtId", obj.districtId);
+                cmd.Parameters.AddWithValue("@address", obj.address);
+                cmd.Parameters.AddWithValue("@matricBoard", obj.matricBoard);
+                cmd.Parameters.AddWithValue("@matricMarksObtain", obj.matricMarksObtain);
+                cmd.Parameters.AddWithValue("@matricTotalMarks", obj.matricTotalMarks);
+                cmd.Parameters.AddWithValue("@dateOfPassingMatric", obj.dateOfPassingMatric.TooDate());
+                cmd.Parameters.AddWithValue("@fscBoard", obj.fscBoard);
+                cmd.Parameters.AddWithValue("@fscObtainedMarks", obj.fscObtainedMarks);
+                cmd.Parameters.AddWithValue("@fscTotalMarks", obj.fscTotalMarks);
+                cmd.Parameters.AddWithValue("@dateOfPassingInter", obj.dateOfPassingInter.TooDate());
+                cmd.Parameters.AddWithValue("@img", obj.img);
+                cmd.Parameters.AddWithValue("@cnicFront", obj.cnicFront);
+                cmd.Parameters.AddWithValue("@cnicBack", obj.cnicBack);
+                cmd.Parameters.AddWithValue("@imgDomicile", obj.imgDomicile);
+                cmd.Parameters.AddWithValue("@domicilePicFront", obj.domicilePicFront);
+                cmd.Parameters.AddWithValue("@imgMatricDegree", obj.imgMatricDegree);
+                cmd.Parameters.AddWithValue("@imgFscDegree", obj.imgFscDegree);
+                cmd.Parameters.AddWithValue("@adminId", obj.adminID);
+                cmd.Parameters.AddWithValue("@dated", DateTime.Now);
+
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                msg = dt.ConvertToEnitityMessage();
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            return msg;
+        }
         public Applicant LoginByPhfDeveloper(string userName, int typeId)
         {
             Applicant obj = new Applicant();
@@ -641,7 +727,7 @@ namespace Prp.Data
             {
                 string query = "";
                 query = "update tblApplicationStatus set statusId = "+status+" " +
-                    " where applicantId = "+ applicantId + " and statusTypeId = "+ statusTypeId + "";
+                    " where inductionId = 15 and applicantId = "+ applicantId + " and statusTypeId = "+ statusTypeId + "";
                 SqlCommand cmdUpdate = new SqlCommand(query);
                 con.Open();
                 cmdUpdate.Connection = con;
@@ -669,13 +755,13 @@ namespace Prp.Data
             {
                 string query = "";
                 query = "IF NOT EXISTS (SELECT * FROM tblApplicationStatus "
-                   + " WHERE inductionId = 13"
+                   + " WHERE inductionId = 15"
                    + " AND applicantId = " + applicantId + ""
                    + " AND statusTypeId = 53) "
                    //+ "AND statusId = 1) "
                    + " BEGIN "
                     + "INSERT INTO tblApplicationStatus(inductionId, applicantId, statusTypeId, statusId, dated) "
-                    + " VALUES(13, " + applicantId + ", 53, 1, GETDATE()) "
+                    + " VALUES(15, " + applicantId + ", 53, 1, GETDATE()) "
                    + " END";
                 SqlCommand cmdUpdate = new SqlCommand(query);
                 con.Open();
@@ -815,7 +901,8 @@ namespace Prp.Data
                     cmd.Parameters.AddWithValue("@domicilePicBack", obj.domicilePicBack);
                     cmd.Parameters.AddWithValue("@pic", obj.pic);
                     cmd.Parameters.AddWithValue("@disableImage", obj.disableImage);
-                    
+                    cmd.Parameters.AddWithValue("@religionId", obj.religionId);
+
 
 
                     if (obj.pncExpiryDate.ToString() == "1/1/0001 12:00:00 AM")
@@ -975,6 +1062,7 @@ namespace Prp.Data
                         obj.midWiferyPassingDate = Convert.ToDateTime(dr[45]);
                         obj.genericBSNPassingDate = Convert.ToDateTime(dr[46]);
                         obj.meritalStatus = Convert.ToInt32(dr[47]);
+                        obj.religionId = Convert.ToInt32(dr["religionId"]);
                         obj.nocCertificate = dr["nocCertificate"].TooString();
                         obj.nicCertificate = dr["nicCertificate"].TooString();
                         obj.recommendationLetter = dr["recommendationLetter"].TooString();
@@ -1034,7 +1122,7 @@ namespace Prp.Data
             ApplicantInfo obj = new ApplicantInfo();
             try
             {
-                string query = "select a.*, b.*, r.name as disName, rdom.name as domDisName from tblApplicant a left join tblApplicantInfo b on b.applicantId = a.applicantId left join tblRegion r on b.districtId = r.regionId left join tblRegion rdom on b.domicileDistrictId = rdom.regionId  ";
+                string query = "select a.*, b.*, r.name as disName, rdom.name as domDisName from tblApplicant a left join (select * from tblApplicantInfo union select * from tblApplicantInfoMigrants) b on b.applicantId = a.applicantId left join tblRegion r on b.districtId = r.regionId left join tblRegion rdom on b.domicileDistrictId = rdom.regionId  ";
                 query += "where a.applicantId = " + applicantId + "";
                 SqlConnection con = new SqlConnection();
                 Message msg = new Message();
@@ -2096,7 +2184,7 @@ namespace Prp.Data
 
         public ApplicantVoucher GetApplicantVoucher(int inductionId, int phaseId, int applicantId)
         {
-            inductionId = 13;
+            inductionId = 15;
             ApplicantVoucher obj = new ApplicantVoucher();
             SqlConnection con = new SqlConnection();
             try

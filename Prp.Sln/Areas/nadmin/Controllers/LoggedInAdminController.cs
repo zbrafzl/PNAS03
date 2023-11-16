@@ -28,6 +28,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         }
 
 
+
         [HttpPost]
         public JsonResult LoggedInUser(LoginUser login)
         {

@@ -30,7 +30,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             try
             {
 
-                int inductionId = 13;
+                int inductionId = AdminHelper.GetInductionId();
                 int phaseId = 1;
 
                 string key = Request.QueryString["key"].TooString();
@@ -82,8 +82,13 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                         {
                             try
                             {
-                                model.statusApproval = new VerificationDAL().GetApplicationApprovalStatusGetByTypeAndId(ProjConstant.inductionId
-                                                                                , ProjConstant.phaseId, 131, model.applicant.applicantId);
+                                var obj = new ApplicantDAL().GetApplicationStatus(inductionId, ProjConstant.phaseId
+                                        , applicantId, 1131).FirstOrDefault();
+                                model.statusApproval.applicantId = obj.applicantId;
+                                model.statusApproval.approvalStatus =  obj.statusId == 1 ? "Accepted" : "Rejected";
+                                model.statusApproval.approvalStatusId = obj.statusId;
+                                //= new VerificationDAL().GetApplicationApprovalStatusGetByTypeAndId(ProjConstant.inductionId
+                                  //                                              , ProjConstant.phaseId, 131, model.applicant.applicantId);
                             }
                             catch (Exception)
                             {
@@ -91,8 +96,25 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                             }
                             try
                             {
-                                model.statusAmendment = new VerificationDAL().GetApplicationApprovalStatusGetByTypeAndId(ProjConstant.inductionId
-                                                                                , ProjConstant.phaseId, 132, model.applicant.applicantId);
+                                //model.statusAmendment = new VerificationDAL().GetApplicationApprovalStatusGetByTypeAndId(ProjConstant.inductionId
+                                //                                                , ProjConstant.phaseId, 132, model.applicant.applicantId);
+
+                                var obj = new ApplicantDAL().GetApplicationStatus(inductionId, ProjConstant.phaseId
+                                        , applicantId, 1132).FirstOrDefault();
+                                model.statusAmendment.applicantId = obj.applicantId;
+                                if (obj.statusId == 0)
+                                {
+                                    model.statusAmendment.approvalStatus = "Pending Amendment";
+                                }
+                                else if (obj.statusId == 1)
+                                {
+                                    model.statusAmendment.approvalStatus = "Approved";
+                                }
+                                else
+                                {
+                                    model.statusAmendment.approvalStatus = "Rejected";
+                                }
+                                model.statusAmendment.approvalStatusId = obj.statusId.TooInt();
                             }
                             catch (Exception)
                             {
@@ -232,7 +254,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             try
             {
 
-                int inductionId = 13;
+                int inductionId = 15;
                 int phaseId = 1;
 
                 int applicantId = Request.QueryString["applicantId"].TooInt();

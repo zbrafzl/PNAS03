@@ -521,6 +521,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             obj.adminId = loggedInUser.userId;
             obj.inductionId = ProjConstant.inductionId;
             obj.phaseId = ProjConstant.phaseId;
+            //Message msg = new Message();
             Message msg = new VerificationDAL().AddUpdateAmmendmentsStatus(obj);
 
             int emailTypeId = 0;

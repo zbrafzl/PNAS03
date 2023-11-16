@@ -530,6 +530,7 @@ namespace Prp.Data
 
         public string dated { get; set; }
         public int adminId { get; set; }
+        public string name { get; set; }
     }
 
     public class VoucherSearch

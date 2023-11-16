@@ -4,6 +4,10 @@
     Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
 }
 @model Prp.Sln.ProofReadingAdminModel
+@using System.Data;
+@using System.Data.Sql;
+@using System.Data.SqlClient;
+@using Prp.Data;
 @section RenderCss{
 
     <style type="text/css">
@@ -534,7 +538,7 @@
                                 $("#idErrorMsg").html("<li>" + resp.message + "</li>");
                             }
                         }
-                        
+
                     }
                     else {
                         $("#divError").show();
@@ -979,25 +983,118 @@
                                     var applicant = Model.applicant;
                                     <table style="width: 100%;" cellspacing="0px">
                                         <tbody>
-                                            <tr style="float: left; width:100%">
-                                                <th style="float: left; width:20%">
-                                                    <h4 style="margin: 0px; font-size: 20px; "> Induction :   <span class="spnbtn">May 2023</span></h4>
-                                                </th>
-                                                <th style="float: left; width:25%">
-                                                    <h4 style="margin: 0px; font-size: 20px; "> Account Status :   <span class="spnbtn"> Active</span></h4>
+                                                                            <tr style="float: left; width:100%">
+                                                                                <th style="float: left; width:20%">
+                                                                                    <h4 style="margin: 0px; font-size: 20px; "> Induction :   <span class="spnbtn">May 2023</span></h4>
+                                                                                </th>
+                                                                                <th style="float: left; width:25%">
+                                                                                    <h4 style="margin: 0px; font-size: 20px; "> Account Status :   <span class="spnbtn"> Active</span></h4>
 
-                                                </th>
-                                                <th style="float: left; width:27%">
-                                                    <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> @applicant.applicationStatus</span> </h4>
-                                                </th>
+                                                                                </th>
+                                                                                @if (applicant.applicationStatusId == 8)
+                                                                                {
+                                                                                    <th style="float: left; width:27%">
+                                                                                        <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Submitted </span> </h4>
+                                                                                    </th>
+                                                                                }
+                                                                                else if (applicant.applicationStatusId == 8)
+                                                                                {
+                                                                                    <th style="float: left; width:27%">
+                                                                                        <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Proof Reading</span> </h4>
+                                                                                    </th>
+                                                                                }
+                                                                                else if (applicant.applicationStatusId == 8)
+                                                                                {
+                                                                                    <th style="float: left; width:27%">
+                                                                                        <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> @applicant.applicationStatusId</span> </h4>
+                                                                                    </th>
+                                                                                }
+                                                                                else if (applicant.applicationStatusId == 8)
+                                                                                {
+                                                                                    <th style="float: left; width:27%">
+                                                                                        <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> @applicant.applicationStatusId</span> </h4>
+                                                                                    </th>
+                                                                                }
+                                                                                else if (applicant.applicationStatusId == 8)
+                                                                                {
+                                                                                    <th style="float: left; width:27%">
+                                                                                        <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> @applicant.applicationStatusId</span> </h4>
+                                                                                    </th>
+                                                                                }
 
-                                                @if (Model.statusApproval != null && Model.statusApproval.approvalStatusId == 1)
-                                                {
-                                                    <th style="float: left; width:28%">
-                                                        <h4 style="margin: 0px; font-size: 20px; "> Verification : <span class="spnbtn"> Accepted</span> </h4>
-                                                    </th>
-                                                }
-                                            </tr>
+
+                                                                                @if (Model.statusApproval != null && Model.statusApproval.approvalStatusId == 1)
+                                                                                {
+                                                                                    <th style="float: left; width:28%">
+                                                                                        <h4 style="margin: 0px; font-size: 20px; "> Verification : <span class="spnbtn"> Accepted</span> </h4>
+                                                                                    </th>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <th style="float: left; width:28%">
+                                                                                        <h4 style="margin: 0px; font-size: 20px; "> Verification : <span class="spnbtn"> Rejected</span> </h4>
+                                                                                    </th>
+                                                                                    if (Model.statusAmendment != null && Model.statusAmendment.approvalStatusId == 1)
+                                                                                    {
+                                                                                        <th style="float: left; width:28%">
+                                                                                            <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Accepted</span> </h4>
+                                                                                        </th>
+                                                                                    }
+                                                                                    else if (Model.statusAmendment != null && Model.statusAmendment.approvalStatusId == 2)
+                                                                                    {
+                                                                                        <th style="float: left; width:28%">
+                                                                                            <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Rejected</span> </h4>
+                                                                                        </th>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <th style="float: left; width:28%">
+                                                                                            <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Pending</span> </h4>
+                                                                                        </th>
+                                                                                    }
+
+                                                                                }
+                                                                                @{
+                                                                                                var query = @"select * from tbGazzForMerit14_female  where applicantID = " + Model.applicant.applicantId + " union  select * from tbGazzForMerit14_male  where applicantID = " + Model.applicant.applicantId + " ";
+                                                                                                var query2 = @"select applicantID, specialtyJobId, prefNo from tblMeritTableFemale14 where applicantId = " + Model.applicant.applicantId + " union select applicantID, specialtyJobId, prefNo from tblMeritTablemale14 where applicantId = " + Model.applicant.applicantId + "  ";
+                                                                                                SqlConnection con = new SqlConnection();
+                                                                                                con = new SqlConnection(PrpDbConnectADO.Conn);
+                                                                                                SqlCommand cmd = new SqlCommand(query, con);
+                                                                                                SqlCommand cmd2 = new SqlCommand(query2, con);
+                                                                                                DataTable dt = new DataTable();
+                                                                                                DataTable dt2 = new DataTable();
+                                                                                                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                                                                                                SqlDataAdapter sda2 = new SqlDataAdapter(cmd2);
+                                                                                                con.Open();
+                                                                                                sda.Fill(dt);
+                                                                                                sda2.Fill(dt2);
+                                                                                                con.Close();
+                                                                                                if (dt.Rows.Count > 0)
+                                                                                                {
+                                                                                        <th style="float: left; width:28%">
+                                                                                            <h4 style="margin: 0px; font-size: 20px; "> Gazzet : <span class="spnbtn"> Included</span> </h4>
+                                                                                        </th>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <th style="float: left; width:28%">
+                                                                                            <h4 style="margin: 0px; font-size: 20px; "> Gazzet : <span class="spnbtn"> Not Included</span> </h4>
+                                                                                        </th>
+                                                                                    }
+                                                                                    if (dt2.Rows.Count > 0)
+                                                                                    {
+                                                                                        <th style="float: left; width:28%">
+                                                                                            <h4 style="margin: 0px; font-size: 20px; "> Merit Round 1 : <span class="spnbtn"> Selected in Preference No, @Convert.ToInt32(dt.Rows[0][2]) </span> </h4>
+                                                                                        </th>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <th style="float: left; width:28%">
+                                                                                            <h4 style="margin: 0px; font-size: 20px; "> Merit Round 1 : <span class="spnbtn"> Not Selected</span> </h4>
+                                                                                        </th>
+                                                                                    }
+                                                                                }
+                                                                            </tr>
                                         </tbody>
                                     </table>
 
@@ -1109,23 +1206,23 @@
                                                                 </tr>
 
                                                                 @*<tr>
-                                                            <td>Disability Quota</td>
-                                                            @if (!String.IsNullOrWhiteSpace(info.disableImage))
-                                                            {
-                                                                <td>
-                                                                    @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
-                                                                        <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
-                                                                    </a>
-                                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
-                                                                        <span class="ank spn-img-view">View</span>
-                                                                    </a>
-                                                                </td>
-                                                            }
-                                                            else
-                                                            {
-                                                                <td> @info.disable</td>
-                                                            }
-                                                        </tr>*@
+                                                                        <td>Disability Quota</td>
+                                                                        @if (!String.IsNullOrWhiteSpace(info.disableImage))
+                                                                        {
+                                                                            <td>
+                                                                                @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
+                                                                                </a>
+                                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                                                                                    <span class="ank spn-img-view">View</span>
+                                                                                </a>
+                                                                            </td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td> @info.disable</td>
+                                                                        }
+                                                                    </tr>*@
                                                                 <tr>
                                                                     @if (info.countryId == 132)
                                                                     {
@@ -1595,8 +1692,6 @@
                                                         @{int i = 1;}
                                                         @foreach (var item in Model.listDegreeMark)
                                                         {
-
-
                                                             <tr>
                                                                 <td class="th_center">@i</td>
                                                                 @if (item.degreeName == "Midwifery")
@@ -1649,181 +1744,39 @@
                                                 </table>
                                             }
                                         }
-                                        @*if (Model.applicant.applicationStatusId > ProjConstant.Constant.ApplicationStatus.experience)
-                                {
 
-                                    <table style="margin-top: 15px; width: 100%;" cellspacing="0">
-                                        <tbody>
-                                            <tr>
-                                                <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                    <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                        Work Experience (Exprience Marks : <label style="font-weight:bold" class="obtainedExperience"></label>
-                                                        / <label style="font-weight:bold" class="totalExperience"></label>)
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    if (Model.listExprince != null && Model.listExprince.Count > 0)
-                                    {
-                                        var sr = 0;
-                                        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
-                                            <tbody>
-                                                <tr>
-                                                    <th>Sr.#</th>
-                                                    <th>Institute</th>
-                                                    <th>From</th>
-                                                    <th>To</th>
-                                                    <th>Duration</th>
-                                                    <th>Province</th>
-                                                    <th>Type of Employment</th>
-                                                    <th>Certificate</th>
-                                                </tr>
-                                                @foreach (var exp in Model.listExprince)
-                                                {
-                                                    sr = sr + 1;
-                                                    <tr>
-                                                        <td> @sr</td>
-                                                        <td>@exp.instituteName</td>
-                                                        <td>@exp.startDated.ToString("dd MMM yyyy")</td>
-                                                        <td>@exp.endDate.ToString("dd MMM yyyy")</td>
-                                                        <td>@(exp.noOfMonth + " Month")</td>
-                                                        <td>@(exp.provinceName )</td>
-                                                        <td>@(exp.typeName )</td>
-                                                        <td>
-                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + exp.imageExperience)" target="_blank" title="Click to view">
-                                                                <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + exp.imageExperience)" alt="No Image" />
-                                                            </a>
-                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + exp.imageExperience)" target="_blank" title="Click to view">
-                                                                <span class="ank spn-img-view">View</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    }
-                                    else
-                                    {
-                                        <table style="margin-top: 5px; width: 100%;" cellspacing="0">
-                                            <tbody>
-                                                <tr>
-                                                    <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                        <p style="margin: 6px;color: #fff;font-size: 16px;">
-                                                            Expreience not exists
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-
-                                    }
-                                }
-                                if (Model.applicant.applicationStatusId > ProjConstant.Constant.ApplicationStatus.paymentDone)
-                                {
-                                    if (Model.loggedInUser.typeId != ProjConstant.Constant.UserType.keVerification
-                                                                && Model.loggedInUser.typeId != ProjConstant.Constant.UserType.keSenior)
-                                    {
-
-                                        if (Model.listSpecility != null && Model.listSpecility.Count > 0)
+                                        if (Model.applicant.applicationStatusId > ProjConstant.Constant.ApplicationStatus.paymentDone)
                                         {
-                                            decimal marksType = 0;
-                                            foreach (var typ in Model.listType)
+                                            if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56)
                                             {
-                                                var listSpecility = Model.listSpecility.Where(x => x.typeId == typ.id).ToList();
-                                                if (listSpecility != null && listSpecility.Count > 0)
-                                                {
-                                                    try
-                                                    {
-                                                        marksType = listSpecility.Where(x => x.typeId == typ.id).FirstOrDefault().marksType;
-                                                    }
-                                                    catch (Exception)
-                                                    {
-                                                    }
-
-                                                    decimal MarksTotal = 0;
-                                                    <table style="margin-top: 15px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
-                                                        <tbody>
-                                                            <tr>
-                                                                <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                                    <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                        @typ.value Preference  (@marksType.ToString("0.00"))
-                                                                    </p>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-
-
-                                                    <table border="1" style="font-size:14px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
-                                                        <thead> <tr><th>Preference No.</th> <th> Specillaty</th><th> Institute</th> <th> Institute Marks</th>  <th> Total Marks</th>  </tr></thead>
-                                                        <tbody>
-                                                            @foreach (var spc in listSpecility.OrderBy(x => x.preferenceNo))
-                                                            {
-                                                                MarksTotal = marksDegree + marksGradation + marksDMC + marksHouseJob + marksType + marksExperienceDistinction + marksResearchPaper + spc.marks;
-                                                                <tr>
-                                                                    <td>@spc.preferenceNo</td>
-                                                                    <td>@spc.specialityName</td>
-                                                                    <td>@spc.hospitalName</td>
-                                                                    @if (spc.marks > 0)
-                                                                    {
-                                                                        <td><b> @spc.marks.ToString("0.00")</b></td>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <td>@spc.marks.ToString("0.00")</td>
-                                                                    }
-                                                                    <td>@MarksTotal.ToString("0.00") </td>
-                                                                </tr>
-                                                            }
-
-                                                        </tbody>
-                                                    </table>
-                                                }
-                                            }
 
                                                 if (Model.listSpecility != null && Model.listSpecility.Count > 0)
                                                 {
-                                                    if (Model.listSpecility != null && Model.listSpecility.Count > 0)
+                                                    var listSpecility = Model.listSpecility.ToList();
+                                                    if (listSpecility != null && listSpecility.Count > 0)
                                                     {
                                                         <table style="margin-top: 15px; width: 100%;" cellspacing="0">
                                                             <tbody>
                                                                 <tr>
                                                                     <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
                                                                         <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                            Preference
+                                                                            Preferences
                                                                         </p>
                                                                     </td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
-                                                        <table border="1" style="font-size:14px; width: 100%;" cellspacing="0">
+                                                        <table border="1" style="font-size:14px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
                                                             <thead>
-                                                                <tr>
-                                                                    <th>Preference No.</th>
-                                                                    @if (Convert.ToString(Session["appliedFor"]) == "11")
-                                                                    {
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <th> Specillaty</th>
-                                                                    }
-                                                                    <th> Institute</th>
-                                                                </tr>
+
+                                                                <tr><th>Preference No.</th> <th> Institute</th>
                                                             </thead>
                                                             <tbody>
-                                                                @foreach (var spc in Model.listSpecility.OrderBy(x => x.preferenceNo))
+                                                                @foreach (var spc in listSpecility.OrderBy(x => x.preferenceNo))
                                                                 {
+
                                                                     <tr>
                                                                         <td>@spc.preferenceNo</td>
-                                                                        @if (Convert.ToString(Session["appliedFor"]) == "11")
-                                                                        {
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            <td>@spc.specialityName</td>
-                                                                        }
-
                                                                         <td>@spc.hospitalName</td>
                                                                     </tr>
                                                                 }
@@ -1831,25 +1784,24 @@
                                                             </tbody>
                                                         </table>
                                                     }
-                                                    <P style="page-break-before: always" />
+
                                                 }
+                                                else
+                                                {
+                                                    <table style="margin-top: 5px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                                    <p style="margin: 6px;color: #fff;font-size: 16px;">
+                                                                        Specility not exists
+                                                                    </p>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                            }
                                         }
-                                        else
-                                        {
-                                            <table style="margin-top: 5px; width: 100%; display:none;" cellspacing="0" class="pnlPreference">
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                            <p style="margin: 6px;color: #fff;font-size: 16px;">
-                                                                Specility not exists
-                                                            </p>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        }
-                                    }
-                                }*@
                                         if (Model.applicant.applicationStatusId >= ProjConstant.Constant.ApplicationStatus.proofReading)
                                         {
                                             if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
@@ -2007,12 +1959,12 @@
                             </div>
                         </fieldset>
 
-                                                            //if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.phfITManager
-                                                            //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter
-                                                            //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
-                                                            //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior)
-                            if (Model.loggedInUser.typeId == -1)
-                            {
+                        //if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.phfITManager
+                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter
+                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
+                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior)
+                        if (Model.loggedInUser.typeId == -1)
+                        {
                             <fieldset id="fsVerifyAmmend">
                                 <legend>
 

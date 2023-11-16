@@ -20,6 +20,7 @@ namespace Prp.Sln
 
         public int typeId { get; set; }
         public string fatherName { get; set; }
+        public string applicantName { get; set; }
         public int genderId { get; set; }
         public int disableId { get; set; }
         public string dob { get; set; }
@@ -78,6 +79,7 @@ namespace Prp.Sln
         public int levelTypeId { get; set; }
         public string instituteName { get; set; }
         public int instituteId { get; set; }
+        public int religionId { get; set; }
     }
 
     public class ApplicantDegreeSpecialityParam

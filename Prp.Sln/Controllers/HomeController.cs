@@ -10,6 +10,7 @@ namespace Prp.Sln.Controllers
     public class HomeController : BaseController
     {
         public ActionResult Index()
+        
         {
             HomeModel model = new HomeModel();
             return View(model);

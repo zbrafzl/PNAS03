@@ -235,11 +235,11 @@
                     string query = "select avb.applicantNo appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
                     + "avb.transactionIdBank bankTransId, avb.amount amount, avb.dated dateVerified from tblApplicant a "
                     + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId "
-                    + "inner join tblApplicantVoucherBank avb on av.applicantId = avb.applicantId and avb.inductionId = 13";
+                    + "inner join tblApplicantVoucherBank avb on av.applicantId = avb.applicantId and avb.inductionId = 15";
 
-                    string query2 = "select CONCAT('135',av.applicantId) appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
+                    string query2 = "select CONCAT('145',av.applicantId) appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
                     + "av.submittedDate submitDate, '500' amount from tblApplicant a "
-                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId and av.inductionId = 13";
+                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId and av.inductionId = 15";
 
                     SqlConnection con = new SqlConnection();
                     SqlCommand cmd = new SqlCommand(query);

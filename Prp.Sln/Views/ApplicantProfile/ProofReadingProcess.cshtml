@@ -102,12 +102,12 @@
 
                 var isConfirm = $("#chkConfirm").is(':checked');
                 if (isConfirm) {
+                    test = true;
                     if (test) {
-
                         var valReturn = CallActionGet("/ApplicantProfile/UpdateApplicantStatus?applicantId=" + applicantId
                             + "&applicationStatus=8&condition=applicationStatus");
-
-                        $('#myModal').modal('show');
+                        window.location = "/application-completed";
+                        //$('#myModal').modal('show');
                         //
                     }
                     else {
@@ -432,7 +432,7 @@
                                                 <h4 style="margin: 0px; font-size: 20px; margin-bottom:8px; ">
                                                     @if (1 > 0)
                                                     {
-                                                        <label style="margin: 0px; font-size: 20px; margin-top: 8px; border-bottom: 2px solid #000">Form No: 135@(applicant.applicantId) : Application for BSN Generic (4 Years Degree Program) </label>
+                                                        <label style="margin: 0px; font-size: 20px; margin-top: 8px; border-bottom: 2px solid #000">Form No: 145@(applicant.applicantId) : Application for BSN Generic (4 Years Degree Program) </label>
                                                     }
                                                     else if (Convert.ToInt32(Session["appliedFor"]) == 12)
                                                     {
@@ -1216,7 +1216,7 @@
                                 </tbody>
                             </table>
 
-                            <table style="width: 100%; " cellspacing="0px">
+                            @*<table style="width: 100%; " cellspacing="0px">
                                 <tbody>
                                     <tr style="float: left">
               
@@ -1237,25 +1237,16 @@
                                                         </span>
                                                     </p>
                                                 </div>
-                                                @*<div class="col-md-12" id="otpregenrate" style="display:none">
-                                                    <p>
-                                                        Please wait 10 minutes for Verification Code then click on ReGenerate Verification Code <span>
-
-                                                            <a id="ankReGenerateOtpCode" class="pull-right">&nbsp;<i class="fa fa-external-link"></i> ReGenerate Verification Code</a>
-
-                                                        </span>
-                                                    </p>
-                                                </div>*@
                                             </div>
                                         </fieldset>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </table>*@
                         </div>
                     </div>
                   
                     <div class="col-sm-12">
-                        <a id="ankSubmit" class="btn btn-lg btn-red mb10 pull-right">&nbsp;<i class="fa fa-save"></i> &nbsp; Accept &amp; Submit </a>
+                        <a id="ankSubmit" class="btn btn-lg btn-red mb10 pull-right" >&nbsp;<i class="fa fa-save"></i> &nbsp; Accept &amp; Submit </a>
                     </div>
                 </form>
 

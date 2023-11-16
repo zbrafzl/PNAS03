@@ -64,7 +64,7 @@
 
 
                     var info = CallActionGet("/ApplicantProfile/GetApplicantProfileData?applicantId=" + applicantId);
-
+                    console.log(info.genderId);
                     if (info != null && info.applicantDetailId > 0) {
 
 
@@ -93,7 +93,7 @@
                             var amountInWords;
                             if (@Convert.ToInt32(Session["degreeAchieved"]) == 13) {
                                 digit = 8;
-                                appliedFor = "BSN Generic";
+                                appliedFor = "BSN Gen";
                                 amount = "500";
                                 amountInWords = "Five Hundred Only";
                             }
@@ -111,13 +111,14 @@
 
                             htmlVoucher = htmlVoucher + htmlSingle.replace(/{#copyType#}/g, copyType)
                                 .replace(/#width#/g, width).replace(/{#currentDate#}/g, printDate)
-                                .replace(/{#applicantId#}/g, "135" + FormatNumberToLength(app.applicantId, 5)).replace(/{#applicantName#}/g, app.name)
+                                .replace(/{#applicantId#}/g, "515" + FormatNumberToLength(app.applicantId, 5)).replace(/{#applicantName#}/g, app.name)
                                 .replace(/{#applicantCNIC#}/g, info.cnicNo)
                                 .replace(/{#amount#}/g, '500')
                                 .replace(/{#amountInWords#}/g, 'Five Hundred Only')
-                                .replace(/{#appliedFor#}/g, 'BSN Generic (F)')
+                                .replace(/{#appliedFor#}/g, 'BSN Gen')
                                 .replace(/{#applicantPMDC#}/g, app.pncNo);
                         }
+
 
                         $("#divVoucher").html(htmlVoucher);
 
@@ -230,7 +231,15 @@
                                                         Applied For
                                                     </td>
                                                     <td style="">
-                                                        <span class="spnAppliedFor"> {#appliedFor#} </span>
+                                                        <span class="spnAppliedFor"> {#appliedFor#} 2024-28</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 50%;">
+                                                        Session
+                                                    </td>
+                                                    <td style="">
+                                                        <span> Morning/Evening</span>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -264,16 +273,16 @@
                                                     </td>
                                                 </tr>
                                                 @*@if(Convert.ToInt32(Session["degreeAchieved"]) != 13)
-                                                {
-                                                    <tr>
-                                                        <td>
-                                                            Candidate PNC
-                                                        </td>
-                                                        <td>
-                                                            <span> {#applicantPMDC#} </span>
-                                                        </td>
-                                                    </tr>
-                                                }*@
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                Candidate PNC
+                                                            </td>
+                                                            <td>
+                                                                <span> {#applicantPMDC#} </span>
+                                                            </td>
+                                                        </tr>
+                                                    }*@
                                             </tbody>
                                         </table>
                                     </td>
@@ -320,7 +329,7 @@
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0px;width: 100%;">
-                                        <span style="border:1px solid #000;padding:5px;">Due Date : 18 April 2023</span>
+                                        <span style="border:1px solid #000;padding:5px;">Due Date : 10 December 2023</span>
                                     </td>
                                 </tr>
                             </tbody>

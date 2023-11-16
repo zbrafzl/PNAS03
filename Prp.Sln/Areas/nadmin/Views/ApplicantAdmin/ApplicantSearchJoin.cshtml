@@ -31,21 +31,21 @@
 
             $(document).on('click', '.tbRow', function () {
                 //alert(userTypeId);
-                if (userTypeId != 69) {
+                if (userTypeId == 69) {
 
                     var applicantId = ConvertToInt($(this).attr("id"));
 
                     var statusTypeId = ConvertToInt($("#hfdStatusTypeId").val())
 
                     var url = "";
-                    //alert(statusTypeId);
+
                     if (statusTypeId == 73) {
 
                         url = "/admin/voucher-detail?applicantId=" + applicantId;
                     }
                     else {
 
-                        url = "/admin/applicant-detail-induction-" + inductionId + "?key=applicantId&value=" + applicantId;
+                        url = "/admin/applicant-join-add?applicantId=" + applicantId;
 
                     }
                     window.open(url, '_blank');
@@ -108,7 +108,7 @@
             //obj.statusId = ConvertToInt($("#ddlStatus").val());
             obj.statusId = @Convert.ToInt32(Session["SelectedStatusID"]);
             obj.inductionId = inductionId;
-            obj.phaseId = ConvertToInt($("#hfdPhaseId").val());
+            obj.phaseId = @Model.loggedInUser.userId;
             obj.search = ConvertToString($("#txtSearch").val());
             //alert('clicked');
             var url = "/ApplicantAdmin/ApplicantSearchSimpleJoin";

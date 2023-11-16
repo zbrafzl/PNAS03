@@ -101,7 +101,7 @@ namespace Prp.Data
                     obj = MapApplicantJoining.ToEntity(objt);
                 else obj = new ApplicantJoined();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 obj = new ApplicantJoined();
             }
@@ -176,7 +176,7 @@ namespace Prp.Data
                     obj = list.FirstOrDefault(x => x.applicantId == applicantId);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 obj = new ApplicantJoined();
             }
@@ -256,21 +256,50 @@ namespace Prp.Data
             Message msg = new Message();
             try
             {
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spJoiningAddUpdate]"
+                };
+                cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+                cmd.Parameters.AddWithValue("@joiningDate", obj.joiningDate);
+                cmd.Parameters.AddWithValue("@image", obj.image);
+                cmd.Parameters.AddWithValue("@adminId", obj.jobs);
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
 
-                var objt = db.spJoiningAddUpdate(obj.applicantId, obj.specialityJobId, obj.joiningDate, obj.image, obj.adminId).FirstOrDefault();
-                msg = MapApplicantJoining.ToEntity(objt);
+                msg = dt.ConvertToEnitityMessage();
             }
             catch (Exception ex)
             {
+                msg.status = false;
                 msg.msg = ex.Message;
-                msg.id = 0;
             }
+            return msg;
+        }
 
-            if (msg == null)
+        public Message AddUpdateReleaving(ApplicantJoined obj)
+        {
+            Message msg = new Message();
+            try
             {
-                msg = new Message();
-            }
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spReleavingAddUpdate]"
+                };
+                cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+                cmd.Parameters.AddWithValue("@joiningDate", obj.joiningDate);
+                cmd.Parameters.AddWithValue("@image", obj.image);
+                cmd.Parameters.AddWithValue("@adminId", obj.jobs);
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
 
+                msg = dt.ConvertToEnitityMessage();
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
             return msg;
         }
 

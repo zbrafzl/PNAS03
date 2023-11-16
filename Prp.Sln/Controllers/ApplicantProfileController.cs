@@ -197,7 +197,6 @@ namespace Prp.Sln.Controllers
         public ActionResult ProfileProcess()
         
         {
-            //Session["applicantExist"] = 0;
             ProfileModel model = new ProfileModel();
             string picSource = "";
             try
@@ -207,7 +206,7 @@ namespace Prp.Sln.Controllers
                 int facultyId = loggedInUser.facultyId;
 
                 DataTable dtCheckStatus = new DataTable();
-                string query = "Select top(1) tas.applicationStatusId, tas.inductionId, tas.applicantId,tas.statusTypeId, tas.statusId, tas.dated , a.facultyId,  a.levelId, a.pncNo, a.pic, a.contactNumber from tblApplicationStatus tas inner join tblApplicant a on tas.applicantId = a.applicantId where a.applicantId = " + loggedInUser.applicantId + " order by dated DESC";
+                string query = "Select top(1) tas.applicationStatusId, tas.inductionId, tas.applicantId,tas.statusTypeId, tas.statusId, tas.dated , a.facultyId,  a.levelId, a.pncNo, a.pic, a.contactNumber, a.name from tblApplicationStatus tas inner join tblApplicant a on tas.applicantId = a.applicantId where a.applicantId = " + loggedInUser.applicantId + " order by dated DESC";
                 SqlConnection con = new SqlConnection();
                 Message msg = new Message();
                 SqlCommand cmd = new SqlCommand(query);
@@ -223,7 +222,7 @@ namespace Prp.Sln.Controllers
                         Session["applicantExist"] = 1;
                         Session["profilePic"] = dtCheckStatus.Rows[0]["pic"].ToString();
                         Session["applicantExist"] = 0;
-                        Session["Name"] = loggedInUser.name;
+                        Session["Name"] = dtCheckStatus.Rows[0]["name"].ToString();
                         Session["email"] = loggedInUser.emailId;
                         Session["pncNumber"] = dtCheckStatus.Rows[0]["pncNo"].ToString();
                         Session["contactNumber"] = dtCheckStatus.Rows[0]["contactNumber"].ToString();
@@ -659,6 +658,16 @@ namespace Prp.Sln.Controllers
         public ActionResult ApplicationProcessComplete()
         {
             LoginModel model = new LoginModel();
+            Applicant obj = loggedInUser;
+            try
+            {
+                obj.emailId.SendEmail("Registration Completed"
+              , "PNAS", "Dear "+obj.name+", Your application ("+obj.applicantId+") is completed. You are advised to follow the portal for the updates. " );
+            }
+            catch (Exception)
+            {
+            }
+
             return View(model);
         }
 
@@ -817,6 +826,28 @@ namespace Prp.Sln.Controllers
         [HttpPost]
         public JsonResult ApplicantInfoAddUpdate(ApplicantInfoParam objApplicantInfo)
         {
+            Applicant apppp = loggedInUser;
+            string name = apppp.name;
+            if (objApplicantInfo.applicantName != name)
+            {
+                Session["Name"] = objApplicantInfo.applicantName;
+                loggedInUser.name = objApplicantInfo.applicantName;
+                SqlConnection con = new SqlConnection(PrpDbConnectADO.Conn);
+                string query = "";
+                query = "update tblApplicant set name = '"+ objApplicantInfo.applicantName + "' where applicantID = "+loggedInUser.applicantId+" ";
+                SqlCommand cmdUpdate = new SqlCommand(query, con);
+                con.Open();
+                cmdUpdate.ExecuteNonQuery();
+                con.Close();
+                try
+                {
+                    ProjFunctions.RemoveCookies(ProjConstant.Cookies.loggedInApplicant);
+                }
+                catch (Exception)
+                {
+                }
+
+            }
             Message msg = new Message();
             string objeeect = JsonConvert.SerializeObject(objApplicantInfo).ToString();
             objApplicantInfo.applicantId = loggedInUser.applicantId;
@@ -881,6 +912,7 @@ namespace Prp.Sln.Controllers
                     obj.levelTypeId = objApplicantInfo.levelTypeId;
                     obj.instituteId = objApplicantInfo.instituteId;
                     obj.instituteName = objApplicantInfo.instituteName;
+                    obj.religionId = objApplicantInfo.religionId;
                     if (loggedInUser.facultyId == 11)
                     {
                         obj.midWiferyPassingDate = DateTime.Now;
@@ -1422,7 +1454,8 @@ namespace Prp.Sln.Controllers
             objSpecility.dated = DateTime.Now;
             objSpecility.inductionId = ProjConstant.inductionId;
             objSpecility.phaseId = ProjConstant.phaseId;
-            Message msg = new ApplicantDAL().ApplicantSpecilityCheckPreferenceNo(objSpecility);
+            Message msg = new Message();
+            msg.status = true;
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
 
@@ -1437,7 +1470,40 @@ namespace Prp.Sln.Controllers
             Message msg = new ApplicantDAL().ApplicantSpecilityAddUpdate(objSpecility);
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet]
+        public JsonResult addPrefAsMorning(int applicantId)
+        {
+            string query = "delete from tblApplicantSpecility where applicantId = "+applicantId+" and inductionId = 15 and typeId = 10 ";
+            query += "insert into tblApplicantSpecility ";
+            query += "select 15,1,t1.applicantId, t1.preferenceNo, 10, t1.specialityId, t1.hospitalId, t2.specialityJobId, getdate() from tblApplicantSpecility t1 ";
+            query += "inner join tblSpecialityJob t2 on t1.hospitalId = t2.hospitalId ";
+            query += "where t2.typeId = 10 and t1.applicantId = "+applicantId+" and t2.inductionId = 15";
+            SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+            SqlCommand cmd = new SqlCommand(query, connection);
+            connection.Open();
+            cmd.ExecuteNonQuery();
+            connection.Close();
+            Message msg = new Message();
+            msg.status = true;
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public JsonResult addPrefAsEvening(int applicantId)
+        {
+            string query = "delete from tblApplicantSpecility where applicantId = " + applicantId + " and inductionId = 15 and typeId = 9 ";
+            query += "insert into tblApplicantSpecility ";
+            query += "select 15,1,t1.applicantId, t1.preferenceNo, 9, t1.specialityId, t1.hospitalId, t2.specialityJobId, getdate() from tblApplicantSpecility t1 ";
+            query += "inner join tblSpecialityJob t2 on t1.hospitalId = t2.hospitalId ";
+            query += "where t2.typeId = 9 and t1.applicantId = " + applicantId + " and t2.inductionId = 15";
+            SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+            SqlCommand cmd = new SqlCommand(query, connection);
+            connection.Open();
+            cmd.ExecuteNonQuery();
+            connection.Close();
+            Message msg = new Message();
+            msg.status = true;
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet]
         public JsonResult ApplicantSpecilityDeleteSingle(int applicantSpecilityId)
         {
@@ -1448,6 +1514,12 @@ namespace Prp.Sln.Controllers
         public JsonResult GetApplicantSpecilityData(int applicantId)
         {
             List<ApplicantSpecility> list = new ApplicantDAL().GetApplicantSpecilityList(0, 0, applicantId);
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public JsonResult GetApplicantSpecilityDataEvening(int applicantId)
+        {
+            List<ApplicantSpecility> list = new ApplicantDAL().GetApplicantSpecilityList(0, 1, applicantId);
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 

@@ -120,6 +120,7 @@ namespace Prp.Data
                 DateTime cnicExpirtyDate = obj.cnicExpiryDate.TooDate();
 
                 cmd.Parameters.AddWithValue("@dob", dts);
+                cmd.Parameters.AddWithValue("@name", obj.name);
                 cmd.Parameters.AddWithValue("@imgCnicFront", Convert.ToString(obj.imgCnicFront.TooString()));
                 cmd.Parameters.AddWithValue("@imgCnicBack", Convert.ToString(obj.imgCnicBack.TooString()));
                 cmd.Parameters.AddWithValue("@imgDomicile", Convert.ToString(obj.imgDomicile.TooString()));

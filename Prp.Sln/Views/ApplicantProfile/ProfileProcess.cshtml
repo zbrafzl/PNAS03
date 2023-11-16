@@ -27,7 +27,7 @@
 
             }
             $("#ddlGender").val(ConvertToInt(@Session["genderID"]));
-            $('#ddlGender').attr("disabled", true);
+            //$('#ddlGender').attr("disabled", true);
 
             applicantId = ConvertToInt($("#hfdApplicantId").val());
             imagesPath = "/Images/Applicant/" + applicantId + "/";
@@ -347,7 +347,7 @@
 
             } catch (e) {
             }
-
+            objApplicantInfo.applicantName = ToMaxLength(ConvertToString($("#txtName").val()), 70);
             objApplicantInfo.fatherName = ToMaxLength(ConvertToString($("#txtFatherName").val()), 70);
             objApplicantInfo.genderId = ConvertToInt($("#ddlGender").val());
             objApplicantInfo.maritalStatus = ConvertToInt($("#ddlMerital").val());
@@ -356,6 +356,7 @@
             objApplicantInfo.currentDesignation = ToMaxLength(ConvertToString($("#ddlDesignation").val()), 70);
             objApplicantInfo.currentBPS = ToMaxLength(ConvertToString($("#ddlBPS").val()), 70);
             objApplicantInfo.currentPosting = ToMaxLength(ConvertToString($("#txtPosting").val()), 70);
+            objApplicantInfo.religionId = ConvertToInt($("#ddlReligion").val());
 
             objApplicantInfo.dob = "";
             if (ValidateDate("txtDob")) {
@@ -448,7 +449,7 @@
             else {
                 objApplicantInfo.cnicExpiryDate = "";
             }
-            
+
             //alert($("#flCnicFront").val());
             if ($("#flCnicFront").val()) {
                 objApplicantInfo.cnicPicFront = UploadImage("flCnicFront", applicantId, "CnicFront");
@@ -468,7 +469,7 @@
                 objApplicantInfo.cnicPicBack = "";
             }
 
-            
+
 
 
             //
@@ -767,7 +768,7 @@
                 objApplicantInfo.cnicExpiryDate = "";
             }
 
-            
+
 
 
             if (objApplicantInfo.cnicPicFront == "") {
@@ -790,7 +791,7 @@
             else {
                 objApplicantInfo.cnicPicBack == ""
             }
-            
+
 
             if (@Convert.ToInt32(Session["degreeAchieved"]) != 13) {
                 if (objApplicantInfo.pncPicBack == "") {
@@ -1020,6 +1021,7 @@
 
             //alert("hello");
 
+
             $("#txtName").val("@Convert.ToString(Session["Name"])");
             $("#txtEmail").val("@Convert.ToString(Session["email"])");
             $("#txtPNCNo").val("@Convert.ToString(Session["pncNumber"])");
@@ -1044,6 +1046,8 @@
 
             $("#ddlGender").val("@Convert.ToString(Session["genderId"])");
             $("#ddlMerital").val("@Convert.ToString(Session["meritalStatus"])");
+
+            -$("#ddlReligion").val(objApplicantInfo.religionId);
 
             //alert(objApplicantInfo.dob);
             //alert("@Session["pncExpiryDate"]");
@@ -1148,7 +1152,7 @@
                 //$("#ddlcnicSelect select").val("2");
                 $("#ddlcnicSelect").val(2);
                 $("#txtCNICExpiryDate").val("");
-                
+
                 //document.getElementById('ddlcnicSelect').selectedIndex = "Form B";
             }
 
@@ -1525,6 +1529,7 @@
 }
 <div class="container" style="margin-bottom:60px;">
     <div class="row main">
+        <input type="hidden" id="hfdApplicantId" class="hfdApplicantId" value="@Model.loggedInUser.applicantId" />
         <div class="col-sm-12 form-box">
             <div class="main-login main-center">
                 <div class="row">
@@ -1790,11 +1795,11 @@
                                 </div>
                             </div>
                             @*<div id="divTxtDistrict" class="col-xs-12 col-sm-4 col-md-4">
-                                <div class="form-group">
-                                    <label for=""> District of Resident <span style="color:red">*</span></label>
-                                    <input required="required" type="text" name="txtDistrict" id="txtDistrict" class="form-control lenth" len="100" placeholder="District" tabindex="12" />
-                                </div>
-                            </div>*@
+            <div class="form-group">
+                <label for=""> District of Resident <span style="color:red">*</span></label>
+                <input required="required" type="text" name="txtDistrict" id="txtDistrict" class="form-control lenth" len="100" placeholder="District" tabindex="12" />
+            </div>
+        </div>*@
                             <div id="cnicSelectDiv" class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Select CNIC OR From B <span style="color:red">*</span></label>
@@ -1835,13 +1840,22 @@
                                     </select>
                                 </div>
                             </div>
-                            @*<div id="divDisableRadio" class="col-xs-12 col-sm-4 col-md-4 divDisable" style="display:none;">
+                            <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
-                                    <label for=""> Do you want to apply for disability quota?  <span style="color:red">*</span></label> <br>
-                                    <label><input type="radio" name="rbtndisable" id="rbtnDisableYes" value="Y"> Yes &nbsp;&nbsp;</label>
-                                    <label><input type="radio" name="rbtndisable" id="rbtnDisableNo" value="N" checked=""> No  &nbsp;&nbsp;</label>
+                                    <label for=""> Religion   <span style="color:red">*</span></label>
+                                    <select required="required" name="ddlReligion" id="ddlReligion" class="form-control" tabindex="4">
+                                        <option selected="selected" value="1">Muslim</option>
+                                        <option value="2">Non Muslim</option>
+                                    </select>
                                 </div>
-                            </div>*@
+                            </div>
+                            @*<div id="divDisableRadio" class="col-xs-12 col-sm-4 col-md-4 divDisable" style="display:none;">
+            <div class="form-group">
+                <label for=""> Do you want to apply for disability quota?  <span style="color:red">*</span></label> <br>
+                <label><input type="radio" name="rbtndisable" id="rbtnDisableYes" value="Y"> Yes &nbsp;&nbsp;</label>
+                <label><input type="radio" name="rbtndisable" id="rbtnDisableNo" value="N" checked=""> No  &nbsp;&nbsp;</label>
+            </div>
+        </div>*@
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
                                     <label for=""> Address  <span style="color:red">*</span></label>
@@ -1958,32 +1972,32 @@
                                     </div>
                                 </div>
                                 @*<div id="divnicCertificate" class="col-sm-4 divDisable">
-                                    <div class="form-group">
-                                        <label for=""> No Enquiry Certificate <span style="color:red">*</span> </label>
-                                        <input type="file" class="form-control flup" name="flnicCertificate" id="flnicCertificate" tabindex="23" />
-                                        <input type="hidden" id="hfdnicCertificate" value="" />
-                                        <img id="imgnicCertificate" class="flup-img" src="" alt="" style="display:none;" />
-                                        <a id="rmvnicCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                                    </div>
-                                </div>*@
+                <div class="form-group">
+                    <label for=""> No Enquiry Certificate <span style="color:red">*</span> </label>
+                    <input type="file" class="form-control flup" name="flnicCertificate" id="flnicCertificate" tabindex="23" />
+                    <input type="hidden" id="hfdnicCertificate" value="" />
+                    <img id="imgnicCertificate" class="flup-img" src="" alt="" style="display:none;" />
+                    <a id="rmvnicCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                </div>
+            </div>*@
                                 @*<div id="divrecommendationLetter" class="col-sm-4 divDisable">
-                                    <div class="form-group">
-                                        <label for=""> Recommendation Letter <span style="color:red">*</span> </label>
-                                        <input type="file" class="form-control flup" name="flrecommendationLetter" id="flrecommendationLetter" tabindex="23" />
-                                        <input type="hidden" id="hfdrecommendationLetter" value="" />
-                                        <img id="imgrecommendationLetter" class="flup-img" src="" alt="" style="display:none;" />
-                                        <a id="rmvrecommendationLetter" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                                    </div>
-                                </div>*@
+                <div class="form-group">
+                    <label for=""> Recommendation Letter <span style="color:red">*</span> </label>
+                    <input type="file" class="form-control flup" name="flrecommendationLetter" id="flrecommendationLetter" tabindex="23" />
+                    <input type="hidden" id="hfdrecommendationLetter" value="" />
+                    <img id="imgrecommendationLetter" class="flup-img" src="" alt="" style="display:none;" />
+                    <a id="rmvrecommendationLetter" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                </div>
+            </div>*@
                                 @*<div id="divrecommendationLetter2" class="col-sm-4 divDisable">
-                                    <div class="form-group">
-                                        <label for=""> Charge Assumption Report (Regular) <span style="color:red">*</span> </label>
-                                        <input type="file" class="form-control flup" name="flrecommendationLetter2" id="flrecommendationLetter2" tabindex="23" />
-                                        <input type="hidden" id="hfdrecommendationLetter2" value="" />
-                                        <img id="imgrecommendationLetter2" class="flup-img" src="" alt="" style="display:none;" />
-                                        <a id="rmvrecommendationLetter2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                                    </div>
-                                </div>*@
+                <div class="form-group">
+                    <label for=""> Charge Assumption Report (Regular) <span style="color:red">*</span> </label>
+                    <input type="file" class="form-control flup" name="flrecommendationLetter2" id="flrecommendationLetter2" tabindex="23" />
+                    <input type="hidden" id="hfdrecommendationLetter2" value="" />
+                    <img id="imgrecommendationLetter2" class="flup-img" src="" alt="" style="display:none;" />
+                    <a id="rmvrecommendationLetter2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                </div>
+            </div>*@
                             }
                             <div class="col-sm-4 divDual" style="display:none;">
                                 <div class="form-group">
@@ -2051,8 +2065,8 @@
 
                                     <p>
                                         <label class="text-center">
-                                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>                            
-                                            <img src="~/Images/popupTxt.jpeg" />         
+                                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                            <img src="~/Images/popupTxt.jpeg" />
                                         </label>
                                     </p>
                                     <div class="col-sm-12">

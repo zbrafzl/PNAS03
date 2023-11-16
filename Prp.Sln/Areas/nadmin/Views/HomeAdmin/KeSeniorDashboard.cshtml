@@ -97,7 +97,7 @@
                 sum(case when verificationStatus = -1 then 1 else 0 end) AS pending,
                 sum(case when verificationStatus = 0 then 1 else 0 end) AS rejected,
                 sum(case when verificationStatus = 1 then 1 else 0 end) AS approved 
-                FROM tblApplicantVerifyStatus";
+                FROM tblApplicantVerifyStatus where assignedTo = "+Model.loggedInUser.userId+"";
                 SqlConnection con = new SqlConnection();
                 con = new SqlConnection(PrpDbConnectADO.Conn);
                 SqlCommand cmd = new SqlCommand(query, con);
