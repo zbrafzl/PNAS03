@@ -936,7 +936,7 @@ namespace Prp.Data
 
 
 
-                    if (obj.pncExpiryDate.ToString() == "1/1/0001 12:00:00 AM")
+                    if (obj.pncExpiryDate.Year == 1)
                     {
                         obj.pncExpiryDate = DateTime.Now;
                         obj.joiningDate = DateTime.Now;
