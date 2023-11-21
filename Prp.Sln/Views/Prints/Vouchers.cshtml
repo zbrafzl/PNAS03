@@ -43,19 +43,15 @@
         function PageInit() {
 
             var applicantId = ConvertToInt($('#hfdApplicantIdVoucher').val());
-            //var applicantId = 1257;
-
             if (applicantId > 0) {
 
                 var printDate = "";
-
                 try {
 
                     var currentDate = GetCurrentDate();
                     printDate = ToDateFormatDDMMYYY(currentDate);
 
                 } catch (e) {
-
                 }
 
                 var app = CallActionGet("/ApplicantProfile/GetApplicantInfo?applicantId=" + applicantId);
@@ -111,7 +107,7 @@
 
                             htmlVoucher = htmlVoucher + htmlSingle.replace(/{#copyType#}/g, copyType)
                                 .replace(/#width#/g, width).replace(/{#currentDate#}/g, printDate)
-                                .replace(/{#applicantId#}/g, "515" + FormatNumberToLength(app.applicantId, 5)).replace(/{#applicantName#}/g, app.name)
+                                .replace(/{#applicantId#}/g, "55" + FormatNumberToLength(app.applicantId, 6)).replace(/{#applicantName#}/g, app.name)
                                 .replace(/{#applicantCNIC#}/g, info.cnicNo)
                                 .replace(/{#amount#}/g, '500')
                                 .replace(/{#amountInWords#}/g, 'Five Hundred Only')
@@ -215,7 +211,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="">
-                                                        <span class="" style=""><strong> (Through Cash Management Solution only) <span style="font-size:10px;"></span></strong>  </span>
+                                                        <span class="" style="font-size:14px;"><strong> (Through Cash Management Solution only) <span style="font-size:10px;"></span></strong>  </span>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -231,7 +227,7 @@
                                                         Applied For
                                                     </td>
                                                     <td style="">
-                                                        <span class="spnAppliedFor"> {#appliedFor#} 2024-28</span>
+                                                        <span class="spnAppliedFor"> {#appliedFor#} 2024-27</span>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -329,7 +325,7 @@
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0px;width: 100%;">
-                                        <span style="border:1px solid #000;padding:5px;">Due Date : 10 December 2023</span>
+                                        <span style="border:1px solid #000;padding:5px;">Due Date : 30 November 2023</span>
                                     </td>
                                 </tr>
                             </tbody>

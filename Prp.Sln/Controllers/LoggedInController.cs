@@ -12,6 +12,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Prp.Data.DAL;
 using Newtonsoft.Json;
+using System.ComponentModel;
 
 namespace Prp.Sln.Controllers
 {
@@ -327,7 +328,7 @@ namespace Prp.Sln.Controllers
 
         [HttpPost]
         public JsonResult ApplicantRegistration(Applicant obj)
-        
+
         {
             Message msg = new Message();
             int applicantId = 0;
@@ -345,82 +346,95 @@ namespace Prp.Sln.Controllers
                 if (msg.status)
                 {
                     applicantId = msg.id;
-                    string path = ProjConstant.Email.Path.registration;
-
-                    string filePath = Path.Combine(Server.MapPath(path));
-                    string body = filePath.ReadFile();
-
                     msg.id = msg.id + 10011;
-
                     string key = msg.id.TooString().Encrypt();
 
-                    body = body.Replace("{#name#}", obj.name).Replace("{#key#}", key);
-
-                    //try
-                    //{
-
-                    //    obj.emailId.SendEmail(ProjConstant.Email.Subject.registration
-                    //  , ProjConstant.Email.Title.registration, body);
-                    //}
-                    //catch (Exception)
-                    //{
-                    //}
-
+                    string otp = "";
                     try
                     {
-                        string smsBody = "";
-                        int smsId = 0;
-                        try
-                        {
-                            SMS sms = new SMSDAL().GetByTypeForApplicant(applicantId, ProjConstant.SMSType.registration);
-                            smsBody = sms.detail;
-                            smsId = sms.smsId;
-                        }
-                        catch (Exception)
-                        {
-                            smsBody = "";
-                        }
-                        if (String.IsNullOrWhiteSpace(smsBody))
-                        {
-                            smsId = 0;
-                            string[] saAllowedCharacters = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-
-                            string sRandomOTP = GenerateRandomOTP(6, saAllowedCharacters);
-                            randomNumber = Convert.ToInt32(sRandomOTP);
-                            //smsBody = "With reference to your application regarding recruitment in Punjab Health Foundation, you are requested to send 03 copies of all your relevant documents for scrutiny within two days positively. "
-                            //+"\nBest regards,"
-                            //+"\nManager (ADMN & HR)"
-                            //+"\nPunjab Health Foundation"
-                            //+"\nFor any information Contact: 042 - 99213785 between 9:00 A.M to 5:00 P.M.";
-                            smsBody = "Dear Candidate, You have successfully registered in Punjab Nursing Admission System. Your OTP is : "+randomNumber+".";
-                            
-                        }
-                        if (0>1)
-                        {
-                        }
-                        else
-                        {
-                            Message msgSms = FunctionUI.SendSms(obj.contactNumber, smsBody);
-
-                            try
-                            {
-                                SmsProcess objProcess = msgSms.status.SmsProcessMakeDefaultObject(applicantId, smsId);
-                                new SMSDAL().AddUpdateSmsProcess(objProcess);
-                                string query = "insert into tblOtps values ("+applicantId+",'" + obj.contactNumber + "'," + randomNumber + ",getdate(),0)";
-                                SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
-                                connection.Open();
-                                SqlCommand cmd = new SqlCommand(query, connection);
-                                cmd.ExecuteNonQuery();
-                                connection.Close();
-                            }
-                            catch (Exception)
-                            {
-                            }
-                        }
+                        DataTable dtOTP = new ApplicantDAL().OtpGetByMobileNo(obj.contactNumber);
+                        DataRow dr = dtOTP.Rows[0];
+                        otp = dr["otpCode"].TooString();
                     }
                     catch (Exception)
                     {
+                        otp = "";
                     }
+
+                    if (!String.IsNullOrEmpty(otp))
+                    {
+                      
+
+                        #region Email Process
+
+                        try
+                        {
+                            string path = ProjConstant.Email.Path.registration;
+                            string filePath = Path.Combine(Server.MapPath(path));
+                            string body = filePath.ReadFile();
+                            body = body.Replace("{#name#}", obj.name).Replace("{#otp#}", otp);
+
+                            obj.emailId.SendEmail(ProjConstant.Email.Subject.registration
+                          , ProjConstant.Email.Title.registration, body);
+                        }
+                        catch (Exception)
+                        {
+                        }
+
+                        #endregion
+
+                        #region SMS Process
+                        string smsBody = "";
+                        try
+                        {
+                        
+                            //int smsId = 0;
+                            //try
+                            //{
+                            //    SMS sms = new SMSDAL().GetByTypeForApplicant(applicantId, ProjConstant.SMSType.registration);
+                            //    smsBody = sms.detail;
+                            //    smsId = sms.smsId;
+                            //}
+                            //catch (Exception)
+                            //{
+                            //    smsBody = "";
+                            //}
+                            //if (String.IsNullOrWhiteSpace(smsBody))
+                            //{
+                            //    smsId = 0;
+                            //    smsBody = "Dear Candidate, You have successfully registered in Punjab Nursing Admission System. Your OTP is : " + randomNumber + ".";
+
+                            //}
+                            smsBody = "Dear Candidate, You have successfully registered in Punjab Nursing Admission System. Your OTP is : " + otp + ".";
+                            //Message msgSms = FunctionUI.SendSms(obj.contactNumber, smsBody);
+                            //try
+                            //{
+                            //    SmsProcess objProcess = msgSms.status.SmsProcessMakeDefaultObject(applicantId, smsId);
+                            //    new SMSDAL().AddUpdateSmsProcess(objProcess);
+                            //    string query = "insert into tblOtps values (" + applicantId + ",'" + obj.contactNumber + "'," + randomNumber + ",getdate(),0)";
+                            //    SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+                            //    connection.Open();
+                            //    SqlCommand cmd = new SqlCommand(query, connection);
+                            //    cmd.ExecuteNonQuery();
+                            //    connection.Close();
+                            //}
+                            //catch (Exception)
+                            //{
+                            //}
+
+                           
+                        }
+                        catch (Exception)
+                        {
+                        }
+                        #endregion
+
+                        msg.value = obj.contactNumber.TooString();
+                        msg.msg = smsBody;
+                    }
+
+
+
                 }
             }
             catch (Exception ex)
@@ -609,12 +623,10 @@ namespace Prp.Sln.Controllers
             Message msg = new Message();
             try
             {
-
                 obj.emailId = obj.emailId.TooString();
                 Applicant applicant = new ApplicantDAL().GetApplicantByEmail(obj.emailId);
                 if (applicant != null && applicant.applicantId > 0)
                 {
-
                     if (applicant.statusId == 0)
                     {
                         string path = ProjConstant.Email.Path.registration;
@@ -636,7 +648,6 @@ namespace Prp.Sln.Controllers
                     }
                     else
                     {
-
                         #region Email
 
                         string path = ProjConstant.Email.Path.forgotPassword;
@@ -653,7 +664,6 @@ namespace Prp.Sln.Controllers
 
                         #endregion
                     }
-
                 }
                 else
                 {

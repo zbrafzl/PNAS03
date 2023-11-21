@@ -5289,7 +5289,6 @@
     <Content Include="Views\ApplicantProfile\ProfileProcess.cshtml" />
     <Content Include="Views\ApplicantProfile\EducationProcess.cshtml" />
     <Content Include="Views\ApplicantProfile\ExprienceProcess.cshtml" />
-    <Content Include="Views\ApplicantProfile\ResearchPaperProcess.cshtml" />
     <Content Include="Views\ApplicantProfile\SpecialityProcess.cshtml" />
     <Content Include="Views\ApplicantProfile\ProofReadingProcess.cshtml" />
     <Content Include="Views\ContentPage\PrivatePolicy.cshtml" />
@@ -6404,6 +6403,7 @@
     <Content Include="Views\Home\PNAS.cshtml" />
     <Content Include="Views\LoggedIn\VerifyRegister.cshtml" />
     <Content Include="Views\Otp\Index.cshtml" />
+    <Content Include="Views\Otp\SendOTP.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -6473,7 +6473,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>52148</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:9100/</IISUrl>
+          <IISUrl>http://localhost:9500/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

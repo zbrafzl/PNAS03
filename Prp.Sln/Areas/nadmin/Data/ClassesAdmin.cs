@@ -37,7 +37,12 @@ namespace Prp.Sln.Areas.nadmin
                 {
                     try
                     {
-                        new ApplicantDAL().ApplicantStatusUpdate(applicantId, ProjConstant.Constant.statusApplicantAccount, 0);
+                        ApplicationStatus objss = new ApplicationStatus();
+                        objss.applicantId = applicantId;
+                        objss.statusTypeId = ProjConstant.Constant.statusApplicantAccount;
+                        objss.statusId = 0;
+
+                        new ApplicantDAL().ApplicantStatusUpdate(objss);
                         model.applicant = new ApplicantDAL().GetApplicant(inductionId, applicantId);
                     }
                     catch (Exception ex)

@@ -6,6 +6,9 @@ using System.Web.Mvc;
 using System.Data.SqlClient;
 using System.Configuration;
 using Prp.Data;
+using System.Windows.Interop;
+using System.Web.Services.Description;
+using Message = Prp.Data.Message;
 
 namespace Prp.Sln.Controllers
 {
@@ -17,8 +20,13 @@ namespace Prp.Sln.Controllers
         {
             return View();
         }
-        private string GenerateRandomOTP(int iOTPLength, string[] saAllowedCharacters)
 
+        public ActionResult SendOTP()
+        {
+            return View();
+        }
+
+        private string GenerateRandomOTP(int iOTPLength, string[] saAllowedCharacters)
         {
 
             string sOTP = String.Empty;
@@ -41,10 +49,12 @@ namespace Prp.Sln.Controllers
 
             return sOTP;
 
-        }
-        public string GetCode(string PhoneNumber)
+       }
+
+        [HttpGet]
+        public JsonResult GetCode(string PhoneNumber)
         {
-           
+       
             string code = string.Empty;
             // set up connection string to your database
             string connectionString = ConfigurationManager.ConnectionStrings["DbPrpConn"].ConnectionString;
@@ -86,8 +96,17 @@ namespace Prp.Sln.Controllers
             }
             string smsBody = "Dear Candidate, Your OTP is : " + code + ".";
             Message msgSms = FunctionUI.SendSms(Convert.ToString(PhoneNumber), smsBody);
-            return code;
-       
+
+            msgSms.message = msgSms.message + " sms : ["+ smsBody+"]" ;
+
+            OTP otp = new OTP();
+            otp.number =  "92" + PhoneNumber.Substring(1, PhoneNumber.Length - 1);
+            otp.msg = smsBody;
+            otp.result = msgSms.message;
+
+
+            return Json(otp, JsonRequestBehavior.AllowGet);
+
         }
     }
 }

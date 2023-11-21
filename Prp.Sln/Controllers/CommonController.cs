@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -7,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
 using Newtonsoft.Json;
+using prp.fn;
 using Prp.Data;
 using Prp.Model;
 
@@ -25,13 +28,30 @@ namespace Prp.Sln.Controllers
             return Json(date, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public ActionResult GetSmsInfoByCellNo(string contactNumber)
+        {
+            DataTable dataTable = new ApplicantDAL().OtpGetByMobileNo(contactNumber);
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Content(json, "application/json");
+        }
+
+        [HttpPost]
+        public ActionResult SMSProcessGetInfo(SmsProcess obj)
+        {
+            DataTable dataTable = new SMSDAL().SMSProcessGetInfo(obj);
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Content(json, "application/json");
+        }
+
+
         public FileResult GetCaptchaImage()
         {
             Message msg = CaptchaGenerate();
             string text = msg.msg;
 
             //first, create a dummy bitmap just to get a graphics object
-            Image img = new Bitmap(1, 1);
+            System.Drawing.Image img = new Bitmap(1, 1);
             Graphics drawing = Graphics.FromImage(img);
 
             Font font = new Font("Arial", 15);

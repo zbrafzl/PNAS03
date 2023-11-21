@@ -226,7 +226,14 @@
                         if (resp != null && resp.status == true) {
                             $("#divError").hide();
                             $("#spnMsg").html("");
+
+
+                            SendSMS(resp.value, resp.msg);
+
+                            // verify-registration 
+                             ///register-complete 
                             window.location = "/register-complete";
+                           
                         }
                         else {
                             $("#divError").show();
@@ -494,21 +501,21 @@
         }
     </script>
     @*<script>
-        Ladda.bind('button', {
-            callback: function (instance) {
-                var progress = 0;
-                var interval = setInterval(function () {
-                    progress = Math.min(progress + Math.random() * 0.1, 1);
-                    instance.setProgress(progress);
+            Ladda.bind('button', {
+                callback: function (instance) {
+                    var progress = 0;
+                    var interval = setInterval(function () {
+                        progress = Math.min(progress + Math.random() * 0.1, 1);
+                        instance.setProgress(progress);
 
-                    if (progress === 1) {
-                        instance.stop();
-                        clearInterval(interval);
-                    }
-                }, 200);
-            }
-        });
-    </script>*@
+                        if (progress === 1) {
+                            instance.stop();
+                            clearInterval(interval);
+                        }
+                    }, 200);
+                }
+            });
+        </script>*@
 }
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

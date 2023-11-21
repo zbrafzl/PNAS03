@@ -75,10 +75,10 @@ namespace Prp.Sln.Controllers
                 model.levelId = dr[8].ToString();
                 Session["appliedFor"] = model.levelId.ToString();
                 Session["degreeAchieved"] = model.degreeAcheived.ToString();
-                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
-                          , loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
 
-                //ApplicantStatus objStatus = new ApplicantDAL().GetApplicantStatus(loggedInUser.applicantId);
+                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(loggedInUser.applicantId
+                   , ProjConstant.Constant.statusApplicantApplication);
+
                 if (objStatus.statusId == ProjConstant.Constant.ApplicationStatus.profile)
                 {
                     Session["applicantExist"] = 0;
@@ -140,59 +140,7 @@ namespace Prp.Sln.Controllers
             }
         }
 
-        public JsonResult removeBsc(int applicantId)
-        {
-            Message message = new Message();
-            string query = "delete from tblNursingApplicantDegreeData where degreeTypeID = 6 and applicantID = "+applicantId+"";
-            SqlConnection con = new SqlConnection();
-            SqlCommand cmd = new SqlCommand(query);
-            try
-            {
-                con = new SqlConnection(PrpDbConnectADO.Conn);
-                con.Open();
-                cmd.Connection = con;
-                cmd.ExecuteNonQuery();
-                message.status = true;
-                message.message = "Removed BSc Degree";
-            }
-            catch (Exception ex)
-            {
-                message.status = false;
-                message.msg = ex.Message;
-            }
-            finally
-            {
-                con.Close();
-            }
-            return Json(message, JsonRequestBehavior.AllowGet);
-        }
-
-        public JsonResult removeMsc(int applicantId)
-        {
-            Message message = new Message();
-            string query = "delete from tblNursingApplicantDegreeData where degreeTypeID = 7 and applicantID = " + applicantId + "";
-            SqlConnection con = new SqlConnection();
-            SqlCommand cmd = new SqlCommand(query);
-            try
-            {
-                con = new SqlConnection(PrpDbConnectADO.Conn);
-                con.Open();
-                cmd.Connection = con;
-                cmd.ExecuteNonQuery();
-                message.status = true;
-                message.message = "Removed MSc Degree";
-            }
-            catch (Exception ex)
-            {
-                message.status = false;
-                message.msg = ex.Message;
-            }
-            finally
-            {
-                con.Close();
-            }
-            return Json(message, JsonRequestBehavior.AllowGet);
-        }
+       
 
         public ActionResult ProfileProcess()
         
@@ -201,8 +149,10 @@ namespace Prp.Sln.Controllers
             string picSource = "";
             try
             {
-                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
-                     , loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
+
+                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(loggedInUser.applicantId
+                   , ProjConstant.Constant.statusApplicantApplication);
+
                 int facultyId = loggedInUser.facultyId;
 
                 DataTable dtCheckStatus = new DataTable();
@@ -385,10 +335,8 @@ namespace Prp.Sln.Controllers
             model.levelId = dr[7].ToString();
             try
             {
-                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
-                     , loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
-
-                //ApplicantStatus objStatus = new ApplicantDAL().GetApplicantStatus(loggedInUser.applicantId);
+                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(loggedInUser.applicantId
+                   , ProjConstant.Constant.statusApplicantApplication);
 
                 if (objStatus.statusId >= ProjConstant.Constant.ApplicationStatus.completed)
                 {
@@ -424,10 +372,8 @@ namespace Prp.Sln.Controllers
             model.listInstituteType = new ConstantDAL().GetAll(ProjConstant.Constant.instituteType);
             try
             {
-                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
-                     , loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
-
-                //ApplicantStatus objStatus = new ApplicantDAL().GetApplicantStatus(loggedInUser.applicantId);
+                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(loggedInUser.applicantId
+                    , ProjConstant.Constant.statusApplicantApplication);
 
                 if (objStatus.statusId >= ProjConstant.Constant.ApplicationStatus.completed)
                 {
@@ -446,79 +392,16 @@ namespace Prp.Sln.Controllers
             }
         }
 
-        public ActionResult ResearchPaperProcess()
-
-        {
-            DataTable dtCheckStatus = new DataTable();
-            string query = "Select top(1) tas.applicationStatusId, tas.inductionId, tas.applicantId,tas.statusTypeId, tas.statusId, tas.dated , a.facultyId, a.levelId, a.pncNo, a.contactNumber from tblApplicationStatus tas inner join tblApplicant a on tas.applicantId = a.applicantId where a.applicantId = " + loggedInUser.applicantId + " order by dated DESC";
-            SqlConnection con = new SqlConnection();
-            Message msg = new Message();
-            SqlCommand cmd = new SqlCommand(query);
-            try
-            {
-                con = new SqlConnection(PrpDbConnectADO.Conn);
-                con.Open();
-                cmd.Connection = con;
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                sda.Fill(dtCheckStatus);
-                cmd.ExecuteNonQuery();
-
-                msg.status = true;
-            }
-            catch (Exception ex)
-            {
-                msg.status = false;
-                msg.msg = ex.Message;
-            }
-            finally
-            {
-                con.Close();
-            }
-
-            DataRow dr = dtCheckStatus.Rows[0];
-            ProjConstant.Constant.statusApplicantApplication = Convert.ToInt32(dr[3]);
-            #region Profile Model
-
-
-            ProfileModel model = new ProfileModel();
-            model.listProvince = new RegionDAL().RegionGetByCondition(ProjConstant.Constant.Region.province
-                , ProjConstant.Constant.pakistan);
-
-            model.listCountry = new RegionDAL().RegionGetByCondition(ProjConstant.Constant.Region.country
-              , 0, ProjConstant.Constant.Condition.GetAllCountry);
-            model.countryJson = JsonConvert.SerializeObject(model.listCountry);
-
-            model.listDegree = new ConstantDAL().GetAll(ProjConstant.Constant.degree);
-
-            model.listInstituteType = new ConstantDAL().GetAll(ProjConstant.Constant.instituteType);
-            model.listInstituteLevel = new ConstantDAL().GetAll(ProjConstant.Constant.instituteLevel);
-            model.listInstitute = new InstitueDAL().GetAll(ProjConstant.Constant.InstituteType.govt);
-            model.listSpeciality = new SpecialityDAL().GetAll();
-            model.listDiscipline = new CommonDAL().DisciplineGetAll();
-
-            #endregion
-
-            //model.degreeAcheived = dr[6].ToString();
-            //model.levelId = dr[7].ToString();
-
-            ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
-                      , loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
-
-            return View("SpecialityProcess", model);
-        }
+        
 
         public ActionResult SpecialityProcess()
         {
             ProfileModel model = new ProfileModel();
-
-
             try
             {
 
-                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
-                     , loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
-
-                //ApplicantStatus objStatus = new ApplicantDAL().GetApplicantStatus(loggedInUser.applicantId);
+                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(loggedInUser.applicantId
+                   , ProjConstant.Constant.statusApplicantApplication);
 
                 if (objStatus.statusId >= ProjConstant.Constant.ApplicationStatus.completed)
                 {
@@ -558,10 +441,8 @@ namespace Prp.Sln.Controllers
 
             try
             {
-                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
-                                    , loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
-
-                //ApplicantStatus objStatus = new ApplicantDAL().GetApplicantStatus(loggedInUser.applicantId);
+                ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(loggedInUser.applicantId
+                    , ProjConstant.Constant.statusApplicantApplication);
 
                 if (objStatus.statusId >= ProjConstant.Constant.ApplicationStatus.completed)
                 {
@@ -631,6 +512,60 @@ namespace Prp.Sln.Controllers
             return View(model);
         }
 
+
+        public JsonResult removeBsc(int applicantId)
+        {
+            Message message = new Message();
+            string query = "delete from tblNursingApplicantDegreeData where degreeTypeID = 6 and applicantID = " + applicantId + "";
+            SqlConnection con = new SqlConnection();
+            SqlCommand cmd = new SqlCommand(query);
+            try
+            {
+                con = new SqlConnection(PrpDbConnectADO.Conn);
+                con.Open();
+                cmd.Connection = con;
+                cmd.ExecuteNonQuery();
+                message.status = true;
+                message.message = "Removed BSc Degree";
+            }
+            catch (Exception ex)
+            {
+                message.status = false;
+                message.msg = ex.Message;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return Json(message, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult removeMsc(int applicantId)
+        {
+            Message message = new Message();
+            string query = "delete from tblNursingApplicantDegreeData where degreeTypeID = 7 and applicantID = " + applicantId + "";
+            SqlConnection con = new SqlConnection();
+            SqlCommand cmd = new SqlCommand(query);
+            try
+            {
+                con = new SqlConnection(PrpDbConnectADO.Conn);
+                con.Open();
+                cmd.Connection = con;
+                cmd.ExecuteNonQuery();
+                message.status = true;
+                message.message = "Removed MSc Degree";
+            }
+            catch (Exception ex)
+            {
+                message.status = false;
+                message.msg = ex.Message;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return Json(message, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult ApplicantMerit()
         {
             ProofReadingModel model = GenerateModelProofReading();
@@ -738,9 +673,9 @@ namespace Prp.Sln.Controllers
                 model.listExprince = new ApplicantDAL().GetApplicantExperienceListDetail(0, 0, loggedInUser.applicantId);
                 //model.listDistinction = new ApplicantDAL().GetApplicantDistinctionList(0, 0, loggedInUser.applicantId);
                 //model.listResearchPaper = new ApplicantDAL().GetApplicantResearchPaperListDetail(0, 0, loggedInUser.applicantId);
-                model.listSpecility = new ApplicantDAL().GetApplicantSpecilityList(12, 0, loggedInUser.applicantId);
+                model.listSpecility = new ApplicantDAL().GetApplicantSpecilityList(inductionId, 0, loggedInUser.applicantId);
                 model.voucher = new ApplicantDAL().GetApplicantVoucher(0, 0, loggedInUser.applicantId);
-                model.listMarks = new MarksDAL().GetMarksDetaikByApplicant(12,loggedInUser.applicantId);
+                model.listMarks = new MarksDAL().GetMarksDetaikByApplicant(inductionId, loggedInUser.applicantId);
 
             }
             catch (Exception)
@@ -1470,26 +1405,31 @@ namespace Prp.Sln.Controllers
             Message msg = new ApplicantDAL().ApplicantSpecilityAddUpdate(objSpecility);
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
-        [HttpGet]
-        public JsonResult addPrefAsMorning(int applicantId)
+        [HttpPost]
+        public JsonResult ApplicantSpecialityDuplicateByType(ApplicantSpecility obj)
         {
-            string query = "delete from tblApplicantSpecility where applicantId = "+applicantId+" and inductionId = 15 and typeId = 10 ";
-            query += "insert into tblApplicantSpecility ";
-            query += "select 15,1,t1.applicantId, t1.preferenceNo, 10, t1.specialityId, t1.hospitalId, t2.specialityJobId, getdate() from tblApplicantSpecility t1 ";
-            query += "inner join tblSpecialityJob t2 on t1.hospitalId = t2.hospitalId ";
-            query += "where t2.typeId = 10 and t1.applicantId = "+applicantId+" and t2.inductionId = 15";
-            SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
-            SqlCommand cmd = new SqlCommand(query, connection);
-            connection.Open();
-            cmd.ExecuteNonQuery();
-            connection.Close();
-            Message msg = new Message();
-            msg.status = true;
+            Message msg = new ApplicantDAL().ApplicantSpecialityDuplicateByType(obj);
             return Json(msg, JsonRequestBehavior.AllowGet);
+
+            //string query = "delete from tblApplicantSpecility where applicantId = "+applicantId+" and inductionId = 15 and typeId = 10 ";
+            //query += "insert into tblApplicantSpecility ";
+            //query += "select 15,1,t1.applicantId, t1.preferenceNo, 10, t1.specialityId, t1.hospitalId, t2.specialityJobId, getdate() from tblApplicantSpecility t1 ";
+            //query += "inner join tblSpecialityJob t2 on t1.hospitalId = t2.hospitalId ";
+            //query += "where t2.typeId = 10 and t1.applicantId = "+applicantId+" and t2.inductionId = 15";
+            //SqlConnection connection = new SqlConnection(PrpDbConnectADO.Conn);
+            //SqlCommand cmd = new SqlCommand(query, connection);
+            //connection.Open();
+            //cmd.ExecuteNonQuery();
+            //connection.Close();
+            //Message msg = new Message();
+            //msg.status = true;
+            //return Json(msg, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
         public JsonResult addPrefAsEvening(int applicantId)
         {
+
+            //spApplicantSpecialityDuplicateByType
             string query = "delete from tblApplicantSpecility where applicantId = " + applicantId + " and inductionId = 15 and typeId = 9 ";
             query += "insert into tblApplicantSpecility ";
             query += "select 15,1,t1.applicantId, t1.preferenceNo, 9, t1.specialityId, t1.hospitalId, t2.specialityJobId, getdate() from tblApplicantSpecility t1 ";
@@ -1510,6 +1450,25 @@ namespace Prp.Sln.Controllers
             Message msg = new ApplicantDAL().ApplicantSpecilityDeleteSingle(ProjConstant.inductionId, ProjConstant.phaseId, applicantSpecilityId);
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult ApplicantSpecilityGet(ApplicantSpecility obj)
+        {
+            
+            DataSet dataSet = new ApplicantDAL().ApplicantSpecilityGet(obj);
+
+            string json = JsonConvert.SerializeObject(dataSet, Formatting.Indented);
+            return Content(json, "application/json");
+
+        }
+
+        [HttpPost]
+        public JsonResult ApplicantSpecilityDeleteByType(ApplicantSpecility obj)
+        {
+            Message msg = new ApplicantDAL().ApplicantSpecilityDeleteByType(obj);
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet]
         public JsonResult GetApplicantSpecilityData(int applicantId)
         {
@@ -1557,6 +1516,17 @@ namespace Prp.Sln.Controllers
                 ApplicantStatusUpdate(loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication, ProjConstant.Constant.ApplicationStatus.paymentDone);
 
             return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult ApplicantVoucherInfoGetAll(ApplicantVoucher obj)
+        {
+
+            DataSet dataSet = new ApplicantDAL().ApplicantVoucherInfoGetAll(obj);
+
+            string json = JsonConvert.SerializeObject(dataSet, Formatting.Indented);
+            return Content(json, "application/json");
+
         }
 
         #endregion
@@ -1860,20 +1830,27 @@ namespace Prp.Sln.Controllers
             return Json(tm, JsonRequestBehavior.AllowGet);
         }
 
+        
+
+        [HttpPost]
+        public JsonResult ApplicationStatusAddUpdate(ApplicationStatus obj)
+        {
+            Message msg = new ApplicantDAL().ApplicantStatusUpdate(obj);
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
         public Message ApplicantStatusUpdate(int applicantId, int statusTypeId, int statusId)
         {
-            Message msg = new Message();
-            try
-            {
-                msg = new ApplicantDAL().ApplicantStatusUpdate(applicantId, statusTypeId, statusId);
-            }
-            catch (Exception ex)
-            {
-                msg.status = false;
-                msg.message = ex.Message;
-            }
+            ApplicationStatus obj = new ApplicationStatus();
+            obj.applicantId = applicantId;
+            obj.statusTypeId = statusTypeId;
+            obj.statusId = statusId;
+
+            Message msg = new ApplicantDAL().ApplicantStatusUpdate(obj);
             return msg;
         }
+
+
         public int CheckOtp(string mobileNumber, int otp)
         {
             int result;

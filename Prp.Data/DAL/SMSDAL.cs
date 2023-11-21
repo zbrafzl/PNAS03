@@ -11,6 +11,24 @@ namespace Prp.Data
 {
     public class SMSDAL : PrpDBConnect
     {
+        public DataTable SMSProcessGetInfo(SmsProcess obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spSMSProcessGetInfo]"
+            };
+            cmd.Parameters.AddWithValue("@inductionid", obj.inductionid);
+            cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+            cmd.Parameters.AddWithValue("@reffIds1", obj.reffIds1.TooString());
+            cmd.Parameters.AddWithValue("@reffIds2", obj.reffIds2.TooString());
+            cmd.Parameters.AddWithValue("@reffIds3", obj.reffIds3.TooString());
+            cmd.Parameters.AddWithValue("@reffIds4", obj.reffIds4.TooString());
+            cmd.Parameters.AddWithValue("@reffIds5", obj.reffIds5.TooString());
+            cmd.Parameters.AddWithValue("@search", obj.search);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
         public DataTable SearchSMSByApplicant(SmsEntity obj)
         {
             SqlCommand cmd = new SqlCommand

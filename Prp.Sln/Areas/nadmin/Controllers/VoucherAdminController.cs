@@ -104,9 +104,9 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         public JsonResult UpdateStatus(ApplicationStatus obj)
         {
             obj.inductionId = ProjConstant.inductionId;
+            obj.statusTypeId = ProjConstant.Constant.ApplicationStatusType.voucherPhf;
 
-            Message msg = new ApplicantDAL().ApplicantStatusUpdate(obj.applicantId
-                , ProjConstant.Constant.ApplicationStatusType.voucherPhf, obj.statusId);
+            Message msg = new ApplicantDAL().ApplicantStatusUpdate(obj);
            return Json(msg, JsonRequestBehavior.AllowGet);
         }
 

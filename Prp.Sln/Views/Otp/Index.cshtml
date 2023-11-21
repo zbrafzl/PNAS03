@@ -1,6 +1,7 @@
 ﻿
 @{
-    Layout = null;
+    ViewBag.Title = "SMS Sender";
+    Layout = "~/Views/Shared/_LayoutPrint.cshtml";
 }
 
 <!DOCTYPE html>
@@ -9,7 +10,6 @@
     <title>Search Phone Number</title>
     <style>
         #result {
-            display: none;
             font-size: 1.5rem;
             margin-top: 1rem;
         }
@@ -19,39 +19,53 @@
     <h1>Search Phone Number</h1>
     <form>
         <label for="search-box">Search for Phone Number:</label>
-        <input type="number" id="search-box" maxlength ="11 "name="search-box">
-        <button type="button" onclick="searchPhoneNumber()">Search</button>
+        <input type="number" id="search-box" maxlength="11 " name="search-box">
+        <button type="button" onclick="GetAndSendCode()">Get And Send Code</button>
     </form>
-    <div id="result" style="display:none"></div>
+    <div id="result"></div>
     <script>
-        function searchPhoneNumber() {
-            debugger;
-          const phoneNumber = document.getElementById('search-box').value;
-            getCode(phoneNumber);
-        // Perform search logic here using phoneNumber variable
-        // var Code CallActionGet("/Otp/GetCode?PhoneNumber=" + phoneNumber );
-        //// Display result
-        //const resultDiv = document.getElementById('result');
-        //  resultDiv.textContent = 'Opt Code is  ' + Code + ';
-        //resultDiv.style.display = 'block';
+        function GetAndSendCode() {
+            try {
+                const contactNumber = document.getElementById('search-box').value;
+                var url = "/Common/GetSmsInfoByCellNo?contactNumber=" + contactNumber;
+                var resp = CallActionGet(url)[0];
+                if (resp.statusId > 0) {
+                    SendSMS(resp.contactNumber, resp.msg);
+                    $("#result").html("Messege Sent");
+                }
+                else
+
+                    $("#result").html(resp.msg);
+            } catch (e) {
+                $("#result").html("Some Thing went wrong");
+            }
         }
+
         function getCode(phoneNumber) {
-            debugger;
-            fetch('/Otp/GetCode?PhoneNumber=' + phoneNumber)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const resultDiv = document.getElementById('result');
-                    resultDiv.textContent = 'Opt Code is  ' + data + '';
-                    resultDiv.style.display = 'block';
-                })
-                .catch(error => {
-                    console.error('Error fetching verification code:', error);
-                });
+
+            var url = "/otp/GetCode?PhoneNumber=" + phoneNumber
+
+            var resp = CallActionGet(url);
+            $("#result").html(resp.result);
+
+            resp.msg = resp.msg + " Jquery";
+
+            SendSMS(resp.number, resp.msg);
+            //fetch('/Otp/GetCode?PhoneNumber=' + phoneNumber)
+            //    .then(response => {
+            //        if (!response.ok) {
+            //            throw new Error('Network response was not ok');
+            //        }
+            //        return response.json();
+            //    })
+            //    .then(data => {
+            //        const resultDiv = document.getElementById('result');
+            //        resultDiv.textContent = 'Opt Code is  ' + data + '';
+            //        resultDiv.style.display = 'block';
+            //    })
+            //    .catch(error => {
+            //        console.error('Error fetching verification code:', error);
+            //    });
         }
 
     </script>

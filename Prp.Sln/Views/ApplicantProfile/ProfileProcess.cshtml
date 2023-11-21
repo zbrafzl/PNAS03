@@ -160,7 +160,7 @@
 
             $(document).on('click', '#btnProfileSave', function () {
                 $('#myModal').modal('show');
-                //SaveAndProceed();
+                SaveAndProceed();
             });
 
             $(document).on('click', '#btnSaveModal', function () {
@@ -307,20 +307,15 @@
             objApplicantInfo.midWiferyPassingDate = objApplicantInfo.gnmPassingDate;
             console.log(objApplicantInfo);
             if (objApplicantInfo.isError == false) {
-
                 if (IsExistCNIC() == false) {
-
                     var resp = CallActionPost("/ApplicantProfile/ApplicantInfoAddUpdate", objApplicantInfo);
                     console.log(resp);
                     if (resp != null && resp.status == true) {
-
                         window.location = "/applicant-education";
                     }
-                    else {
-                        alert("CNIC already registered");
-                        //window.location = "/applicant-profile-create";
-                    }
-
+                }
+                else {
+                    alert("CNIC already registered");
                 }
             }
 

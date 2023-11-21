@@ -55,7 +55,11 @@ namespace Prp.Sln
                 try
 
                 {
-                    string link = "https://pk.eocean.us/APIManagement/API/RequestAPI";
+                    string link = ConfigurationManager.AppSettings["SmsApiLink"];
+                    if (String.IsNullOrWhiteSpace(link))
+                    {
+                        link = "https://pk.eocean.net/APIManagement/API/RequestAPI";
+                    }
                     string password = "";
                     try
                     {
@@ -114,6 +118,8 @@ namespace Prp.Sln
                         {
                             msg.status = true;
                             msg.msg = "Sent";
+
+                            msgBody = msgBody + " if";
                         }
                         else
                         {
@@ -126,6 +132,8 @@ namespace Prp.Sln
                         Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
                         msg.status = false;
                         msg.msg = "2.Error!!";
+
+                        msgBody = msg.msg;
                     }
                     //Dispose once all HttpClient calls are complete. This is not necessary if the containing object will be disposed of; for example in this case the HttpClient instance will be disposed automatically when the application terminates so the following call is superfluous.
                     client.Dispose();

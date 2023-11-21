@@ -132,6 +132,7 @@
         <div class="col-md-3">
             @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionIdDashboard" })
             <select id="ddlInduction" name="ddlInduction" class="form-control">
+                <option value="15" selected> January 24 Both(Morning,Afternoon) </option>
                 <option value="13"> July 23 Morning </option>
                 <option value="14"> July 23 Afternoon </option>
             </select>
@@ -142,8 +143,6 @@
 @{
     if (Model.listDashBoard != null && Model.listDashBoard.Count > 0 && (Model.loggedInUser.userId < 12 || Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 57 || Model.loggedInUser.userId == 58 || Model.loggedInUser.userId == 61 || Model.loggedInUser.userId == 62 || Model.loggedInUser.userId == 63))
     {
-
-
         var listAccountType = Model.listDashBoard.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.accountType).ToList();
         if (listAccountType != null && listAccountType.Count > 0)
         {

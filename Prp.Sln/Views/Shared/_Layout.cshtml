@@ -91,108 +91,110 @@
     <div id="divBgImage" class="bg-img bg-container">
         <header>
             <div class="container" style="width: 100%;">
-            <div class="container" style="width: 100%;">
-                <div class="col-sm-12 col-md-4 logo"> <a href="/"><img src="~/Images/punjab.png" style="height: auto; margin: 10px !important; width: 90px;" /><span style="color: white; font-size: large;">Punjab Nursing Admission System</span></a> </div>
-                <div class="col-sm-12 col-md-8 navigation" style="top: 16px;">
-                    <nav class="navbar navbar-default">
-                        <div>
-                            <!-- Brand and toggle get grouped for better mobile display -->
-                            <div class="navbar-header time">
-                                <div class="timeHeader blink">
+                <div class="container" style="width: 100%;">
+                    <div class="col-sm-12 col-md-4 logo"> <a href="/"><img src="~/Images/punjab.png" style="height: auto; margin: 10px !important; width: 90px;" /><span style="color: white; font-size: large;">Punjab Nursing Admission System</span></a> </div>
+                    <div class="col-sm-12 col-md-8 navigation" style="top: 16px;">
+                        <nav class="navbar navbar-default">
+                            <div>
+                                <!-- Brand and toggle get grouped for better mobile display -->
+                                <div class="navbar-header time">
+                                    <div class="timeHeader blink">
 
+                                    </div>
+                                    <div class="timmerId">
+
+                                    </div>
                                 </div>
-                                <div class="timmerId">
+                                <!-- Collect the nav links, forms, and other content for toggling -->
+                                <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1" aria-expanded="false">
+                                    <ul class="nav navbar-nav navbar-right red ul-link" style="margin:auto;height: 20px;margin-top: -23px;width: 75%;">
 
-                                </div>
-                            </div>
-                            <!-- Collect the nav links, forms, and other content for toggling -->
-                            <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1" aria-expanded="false" >
-                                <ul class="nav navbar-nav navbar-right red ul-link" style="margin:auto;height: 20px;margin-top: -23px;width: 75%;">
-
-                                    @if (Model.loggedInUser != null && Model.loggedInUser.applicantId > 0)
-                                    {
-                                        if (Model.applicationStatusId == 8)
+                                        @if (Model.loggedInUser != null && Model.loggedInUser.applicantId > 0)
                                         {
-                                            @*<li>
-                                                <a href="/application-status">View Status</a>
-                                            </li>
-                                            <li class="blink">
-                                                <a href="/nett/grievance-verification-application">Apply Grievance</a>
-                                            </li>*@
-                                            @* <li class="blink">
-                                                    <a href="/applicant/joining">Joining</a>
-                                                </li>*@
-                                            <li>
-                                                <a href="/profile-view-print">View Profile</a>
-                                                <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
-                                            </li>
-                                            @*<li class="blink">
-                                                    <a href="@("/"+ProjConstant.preUrl + "/applicant/consent")">Give Consent</a>
-                                                </li>*@
+                                            if (Model.applicationStatusId == 8)
+                                            {
+                                                @*<li>
+                                                        <a href="/application-status">View Status</a>
+                                                    </li>
+                                                    <li class="blink">
+                                                        <a href="/nett/grievance-verification-application">Apply Grievance</a>
+                                                    </li>*@
+                                                @* <li class="blink">
+                                                        <a href="/applicant/joining">Joining</a>
+                                                    </li>*@
+                                                <li>
+                                                    <a href="/profile-view-print">View Profile</a>
+                                                    <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
+                                                </li>
+                                                @*<li class="blink">
+                                                        <a href="@("/"+ProjConstant.preUrl + "/applicant/consent")">Give Consent</a>
+                                                    </li>*@
+                                            }
+                                            else
+                                            {
+                                                <li class="blink">
+                                                    <a href="/applicant-profile-create">Profile Builder <i class="fa fa-edit"> </i></a>
+                                                    <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
+                                                </li>
+                                                <li>
+                                                    &nbsp;
+                                                </li>
+                                                if (Model.applicationStatusId > 1)
+                                                {
+                                                    <li class="blink">
+                                                        <a href="/print/voucher" target="_blank">Download Challan Form <i class="fa fa-download"> </i></a>
+                                                    </li>
+                                                }
+                                            }
                                         }
                                         else
                                         {
-                                            <li class="blink">
-                                                <a href="/applicant-profile-create">Profile Builder <i class="fa fa-edit"> </i></a>
-                                                <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
-                                            </li>
-                                            <li>
-                                                &nbsp;
-                                            </li>
-                                            if (Model.applicationStatusId > 1)
-                                            {
-                                                <li class="blink">
-                                                    <a href="/print/voucher" target="_blank">Download Challan Form <i class="fa fa-download"> </i></a>
-                                                </li>
-                                            }
                                         }
-                                    }
-                                    else
-                                    {
-                                    }
-                                </ul>
-                                <ul class="nav navbar-nav navbar-right red ul-link " style="margin-top: 20px;">
-                                    <li class="red">
-                                        <a href="#"> <i class="fa fa-phone" aria-hidden="true"></i>Help Line: 03041111972  &nbsp;&nbsp; (10 AM to 4 PM)</a>
-                                    </li>
-                                    <li class="red" style="display:none;">
-                                        <a href="#" style="text-transform:lowercase;"> <i class="fa fa-envelope" aria-hidden="true"></i>  support@phf.gop.pk </a>
-                                    </li>
-
-                                    @if (Model.loggedInUser != null && Model.loggedInUser.applicantId > 0)
-                                    {
-                                        <li style="display:none">
-                                            <a href="/contact-us">Contact Us</a>
-                                        </li>
+                                    </ul>
+                                    <ul class="nav navbar-nav navbar-right red ul-link " style="margin-top: 20px;">
                                         <li class="red">
-                                            <a href="#"> Welcome </a>
+                                            <a href="#"> <i class="fa fa-phone" aria-hidden="true"></i>Help Line: 03041111972  &nbsp;&nbsp; (10 AM to 4 PM)</a>
                                         </li>
-                                        <li class="red"><a href="/logout">Logout</a></li>
-                                        <li>
-                                            <img src="@(Model.loggedInUser.pathProfilePic)" style="width:40px; height:40px;" class="img-circle mt10 dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" alt="">
-                                            <ul class="dropdown-menu">
-                                                <li><a href="/applicant-profile-create">View Profile</a></li>
-                                                <li><a href="/change-password">Change Password</a></li>
-                                                <li><a href="/logout">Logout</a></li>
-                                            </ul>
+                                        <li class="red" style="display:none;">
+                                            <a href="#" style="text-transform:lowercase;"> <i class="fa fa-envelope" aria-hidden="true"></i>  support@phf.gop.pk </a>
                                         </li>
 
-                                    }
-                                    else
-                                    {
-                                        @*<li><a href="/contactus">Contact Us</a> </li>*@
-                                        <li class="red"><a href="/login">Login</a></li>
-                                        <li class="red"><a href="/register"> Register </a></li>
-                                    }
-                                </ul>
-                            </div>
-                            <!-- /.navbar-collapse -->
-                        </div><!-- /.container-fluid -->
-                    </nav>
+                                        @if (Model.loggedInUser != null && Model.loggedInUser.applicantId > 0)
+                                        {
+                                            <li style="display:none">
+                                                <a href="/contact-us">Contact Us</a>
+                                            </li>
+                                            <li class="red">
+                                                <a href="#"> Welcome </a>
+                                            </li>
+                                            <li class="red"><a href="/logout">Logout</a></li>
+                                            <li>
+                                                <img src="@(Model.loggedInUser.pathProfilePic)" style="width:40px; height:40px;" class="img-circle mt10 dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" alt="">
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="/applicant-profile-create">View Profile</a></li>
+                                                    <li><a href="/change-password">Change Password</a></li>
+                                                    <li><a href="/logout">Logout</a></li>
+                                                </ul>
+                                            </li>
+
+                                        }
+                                        else
+                                        {
+                                            @*<li><a href="/contactus">Contact Us</a> </li>*@
+                                            <li class="red"><a href="/login">Login</a></li>
+                                            <li class="red"><a href="/register"> Register </a></li>
+                                        }
+                                    </ul>
+                                </div>
+                                <!-- /.navbar-collapse -->
+                            </div><!-- /.container-fluid -->
+                        </nav>
+                    </div>
                 </div>
-            </div>
         </header>
         @{
+            var totalCount = Model.listTicker.Count;
+            <div style="display:none;"> Total Ticker  are  @totalCount</div>
 
             try
             {

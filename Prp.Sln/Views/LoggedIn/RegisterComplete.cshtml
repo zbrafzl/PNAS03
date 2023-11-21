@@ -5,12 +5,10 @@
 @model Prp.Sln.LoginModel
 @section RenderCss{
     <style>
-
         .ank-lbl {
             width: 100%;
             margin-top: 15px;
         }
-
         .ank {
             cursor: pointer;
             padding: 10px 15px;
@@ -18,16 +16,16 @@
             border-radius: 5px;
             color: #fff;
         }
-
-            .ank:hover {
-                background: #5bb06e;
-                color: #fff;
-                text-decoration: none;
-            }
+        .ank:hover {
+            background: #5bb06e;
+            color: #fff;
+            text-decoration: none;
+        }
     </style>
 }
 @section RenderScript{
     <script>
+
         var mobilenumber = null, otp = null;
         $(document).ready(function () {
 
@@ -44,7 +42,6 @@
                 checkOtp(mobilenumber, otp)
             }
         });
-
 
         function checkOtp(mobilenumber, otp) {
             var valReturn = CallActionGet("/LoggedIn/CheckOtp?mobileNumber=" + mobilenumber + "" + "&otp=" + otp);
@@ -72,7 +69,6 @@
                         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                         Your Registration process is almost completed, we just need your mobile number verification, please verify your mobile number and OTP sent to your mobile number.
                     </label>
-
                 </p>
                 <div class="col-md-12">
                     <div class="col-sm-2"></div>
@@ -86,12 +82,9 @@
                     <div class="col-sm-4"><input type="text" name="txtOtp" maxlength="6" id="txtOtp" class="form-control" tabindex="0"></div>
                     <div class="col-sm-4"></div>
                 </div>
-
                 <div class="col-sm-12">
                     <span id="btnSave" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28">Verify &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
                 </div>
-
-
             </div>
         </div>
     </div>

@@ -43,6 +43,7 @@ namespace Prp.Data
     }
 
 
+   
 
     public class SMS : tblSM
     {
@@ -54,6 +55,17 @@ namespace Prp.Data
     public class SmsProcess : tvwSmsProcess
     {
         public string contactNumber { get; set; }
+        public string search { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        public string reffIds1 { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        public string reffIds2 { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        public string reffIds3 { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        public string reffIds4 { get; set; }
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        public string reffIds5 { get; set; }
     }
 
     public class EmailProcess : tblEmailProcess
@@ -748,7 +760,14 @@ namespace Prp.Data
 
     }
 
-    public class Grievance : tblGrievance
+    public class OTP 
+    {
+        public int id { get; set; }
+        public string number { get; set; }
+        public string msg { get; set; }
+        public string result { get; set; }
+    }
+        public class Grievance : tblGrievance
     {
         public int grievanceTypeId { get; set; }
         public string subject { get; set; }

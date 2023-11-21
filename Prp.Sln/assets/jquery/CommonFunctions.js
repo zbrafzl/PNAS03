@@ -68,6 +68,31 @@ function GetCurrentDate() {
     return JsonToDate(CallActionGet("/Common/GetCurrentDateTime"));
 }
 
+function SendSMS(number, msg) {
+    var resp = {};
+    try {
+        var url = "https://pk.eocean.net/APIManagement/API/RequestAPI?user=phf&pwd=AHL%2fcJw8rwobY9hd2XefAq84EdiM8lf4GtDI08ob%2f2SciwVUqiYHKgN%2fNoFgo65deg%3d%3d&sender=PHF&reciever=#number#&msg-data=#msg#.&response=string"
+        url = url.replace(/#number#/g, number).replace(/#msg#/g, msg);
+        $.ajax({
+            url: url,
+            dataType: 'jsonp',
+            async: false,
+            success: function (data) {
+                resp = data;
+            }
+        });
+        //$.getJSON(url,
+        //    function (data) {
+        //        resp = data;
+        //    });
+    } catch (e) {
+        resp = {};
+    }
+    return resp;
+}
+
+
+
 function CreateGuid() {
 
 

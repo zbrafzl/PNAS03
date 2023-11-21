@@ -86,8 +86,34 @@ namespace Prp.Data
             return dt;
         }
 
+        public static System.Data.DataSet FillDataSet(SqlCommand cmd)
+        {
+            SqlConnection con = new SqlConnection();
+            System.Data.DataSet  ds = new System.Data.DataSet();
 
-      
+            try
+            {
+                con = new SqlConnection(PrpDbConnectADO.Conn);
+                con.Open();
+                cmd.Connection = con;
+                SqlDataAdapter da = new SqlDataAdapter();
+                da.SelectCommand = cmd;
+                da.Fill(ds);
+               
+            }
+            catch (Exception ex)
+            {
+             
+            }
+            finally
+            {
+                con.Close();
+            }
+            return ds;
+        }
+
+
+
 
         public static Message FillDataTableMessage(SqlCommand cmd, int timeOut = 0)
         {
