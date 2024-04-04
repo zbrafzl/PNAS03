@@ -114,11 +114,12 @@ namespace Prp.Data
                 SqlCommand cmd = new SqlCommand
                 {
                     CommandType = CommandType.StoredProcedure,
-                    CommandText = "[dbo].[spNursingAmendmentByAdmin]"
+                    CommandText = "[dbo].[spNursingAmendmentByAdmin2]"
                 };
                 DateTime dts = obj.dOB.TooDate();
                 DateTime cnicExpirtyDate = obj.cnicExpiryDate.TooDate();
-
+                cmd.Parameters.AddWithValue("@amendmentApprovalStatus", obj.amendmentApprovalStatus);
+                cmd.Parameters.AddWithValue("@amendmentApprovalRemarks", obj.amendmentApprovalRemarks);
                 cmd.Parameters.AddWithValue("@dob", dts);
                 cmd.Parameters.AddWithValue("@name", obj.name);
                 cmd.Parameters.AddWithValue("@imgCnicFront", Convert.ToString(obj.imgCnicFront.TooString()));

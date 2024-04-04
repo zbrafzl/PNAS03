@@ -16,84 +16,43 @@
 @section RenderScript{
 
     <script>
-        var countryTypeId = 0, perPageRecords = 10, statusId = 0, statusTypeId = 0
-            , pageNum = 1, totalCount = 0, obj = {}, inductionId = 0;
+        var countryTypeId = 0, perPageRecords = 10, statusId = 0
+            , pageNum = 1, totalCount = 0, obj = {}, inductionId = 0, statusTypeId;
         $(document).ready(function () {
 
             statusId = ConvertToInt($("#hfdStatusId").val());
-            inductionId = ConvertToInt($("#hfdInductionId").val());
+            inductionId = 13;
             $("#ddlStatus").val(statusId);
 
             SearchApplicant();
 
-            if (![151, 152, 153, 161, 191, 192, 197, 198, 201, 202].includes(ConvertToInt($("#hfdInductionId").val()))) {
-                $("#divDownload").hide().change();
-            }
-            else {
-                $("#divDownload").show().change();
-            }
-            
-
-            $('#exportButton').click(function () {
-                // Get the values of the hidden fields
-                var id1 = ConvertToInt($("#hfdInductionId").val());
-                var id2 = ConvertToInt($("#hfdStatusTypeId").val());
-                var id3 = ConvertToInt($("#hfdStatusId").val());
-                var id4 = ConvertToInt($("#hfdPhaseId").val());
-                var id5 = ConvertToString($("#txtSearch").val());
-
-                // Make AJAX request to controller action with all three IDs
-                
-
-                var resp = CallActionGet("/ApplicantAdmin/GetDataForExport?inductionId=" + id1 + "&statusTypeId=" + id2 + "&statusId=" + id3 + "&phaseId=" + id4 +"&option="+id5);
-
-                exportToExcel(resp);
-
-                debugger;
-
-            });
 
             $(document).on('click', '.tbRow', function () {
                 //alert(userTypeId);
-                if (userTypeId != 69) {
+                if (2>1) {
 
                     var applicantId = ConvertToInt($(this).attr("id"));
 
-                    var statusTypeId = ConvertToInt($("#hfdStatusTypeId").val())
+                    statusTypeId = ConvertToInt($("#hfdStatusTypeId").val())
 
                     var url = "";
-                    if (statusTypeId == 74) {
+                    if (statusTypeId == 131) {
 
-                        url = "/admin/voucher-detail?applicantId=" + applicantId;
+                        url = "/admin/applicant-list?userId=" + @Model.loggedInUser.userId;
                     }
-                    else {
-
-                        url = "/admin/applicant-detail-induction-" + inductionId + "?key=applicantId&value=" + applicantId;
-
-                    }
-                    window.open(url, '_blank');
-                }
-                else {
-                    var url = "";
-                    var applicantId = ConvertToInt($(this).attr("id"));
-                    url = "/admin/applicant-verification-nursing?applicantId=" + applicantId;
                     window.open(url, '_blank');
                 }
             });
 
 
             $(document).on('click', '#btnSearch', function () {
-                $("#divDownload").hide();
                 SearchApplicant();
-                $("#divDownload").show();
             });
 
             $(document).keypress(function (event) {
                 var keycode = (event.keyCode ? event.keyCode : event.which);
                 if (keycode == '13') {
-                    $("#divDownload").hide();
                     SearchApplicant();
-                    $("#divDownload").show();
                 }
             });
 
@@ -126,18 +85,6 @@
 
         });
 
-        function exportToExcel(data) {
-            // Convert JSON data to Excel format
-            // For simplicity, let's assume data is already in Excel format
-            // You can replace this with appropriate code to format and export data
-            // Example:
-            var blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            var link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = 'data.xlsx';
-            link.click();
-        }
-
         function SearchApplicant() {
 
             var rowHtml = "";
@@ -149,22 +96,25 @@
             obj = {};
             obj.top = perPageRecords;
             obj.pageNum = pageNum;
-            obj.statusTypeId = ConvertToInt($("#hfdStatusTypeId").val());
+            obj.statusTypeId = @Model.statusTypeId;
+			//obj.statusTypeId = 133;
             //obj.statusId = ConvertToInt($("#ddlStatus").val());
-            obj.statusId = @Convert.ToInt32(Session["SelectedStatusID"]);
-            obj.inductionId = ConvertToInt($("#hfdInductionId").val());
+            //obj.statusId = @Convert.ToInt32(Session["SelectedStatusID"]);
+			obj.statusId = @Convert.ToInt32(Session["statusId"]);
+            obj.inductionId = inductionId;
             obj.phaseId = ConvertToInt($("#hfdPhaseId").val());
             obj.search = ConvertToString($("#txtSearch").val());
+            console.log(obj);
             //alert('clicked');
-            var url = "/ApplicantAdmin/ApplicantSearchSimple";
+            var url = "/ApplicantAdmin/GetApplicantsCollegeWise";
 
             var list = CallActionPost(url, obj);
 
             var html = "";
 
             var singleHtml = "", objItem = {};
-
-            if (obj.statusTypeId != 131) {
+            $(".displayComments").hide();
+            if (obj.statusTypeId != 132) {
                 $(".displayComments").hide();
             }
 
@@ -181,7 +131,7 @@
 
                     objItem = list[i];
                     singleHtml = rowHtml;
-
+                    debugger;
                     //var _date = new Date(objItem.dated);
                     //dated = ToDateFormatDDMMYYY(_date);
 
@@ -195,18 +145,14 @@
                         objItem.levelName = "BSN Generic";
                     }
 
-                    html = html + singleHtml.replace(/{#rowNum#}/g, objItem.rowNum)
-                        .replace(/{#applicantId#}/g, objItem.applicantId)
-                        .replace(/{#pic#}/g, objItem.pic)
-                        .replace(/{#name#}/g, objItem.name)
-                        .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
-                        .replace(/{#emailId#}/g, objItem.emailId)
-                        .replace(/{#contactNumber#}/g, objItem.contactNumber)
-                        .replace(/{#facultyName#}/g, objItem.levelName)
-                        .replace(/{#dated#}/g, objItem.dated)
-                        .replace(/{#status#}/g, objItem.status)
-                        .replace(/{#dateStatus#}/g, objItem.dateStatus)
-                        .replace(/{#comments#}/g, objItem.comments);
+                    html = html + singleHtml
+                        .replace(/{#induction#}/g, objItem.induction)
+                        .replace(/{#phase#}/g, objItem.phase)
+                        .replace(/{#collegeName#}/g, objItem.collegeName)
+                        .replace(/{#totalCount#}/g, objItem.totalCount)
+                        .replace(/{#totalCountPending#}/g, objItem.totalCountPending)
+                        .replace(/{#totalCountApproved#}/g, objItem.totalCountApproved)
+                        .replace(/{#totalCountRejected#}/g, objItem.totalCountRejected);
                 }
 
                 $("#tblPanel").show();
@@ -291,7 +237,7 @@
         @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionId" })
         @Html.HiddenFor(m => m.phaseId, new { @id = "hfdPhaseId" })
         <div class="x_title">
-            <h2>Applicant List </h2>
+            <h2>Verification Status </h2>
             <div class="clearfix"></div>
         </div>
         <form class="form-horizontal form-label-left input_mask">
@@ -299,19 +245,12 @@
 
                 <div class="col-md-7 col-sm-7 col-xs-7">
                     <label for="heard">Search :</label>
-                    <input type="text" id="txtSearch" name="txtSearch" placeholder="Name, CNIC, Applicant Number" class="form-control" />
+                    <input type="text" id="txtSearch" name="txtSearch" placeholder="Search by CNIC Number" class="form-control" />
                 </div>
                 <div class="col-md-2 col-sm-2 col-xs-2">
                     <label for="heard" style="width:100%;">&nbsp;</label>
                     <input type="button" id="btnSearch" name="btnSearch" value="Search" class="btn btn-success" />
                 </div>
-                @if (Model.loggedInUser.typeId != 69)
-                {
-                    <div class="col-md-2 col-sm-2 col-xs-2" style="display:none" id="divDownload">
-                        <label for="heard" style="width:100%;">&nbsp;</label>
-                        <input type="button" id="exportButton" value="Export to Excel" class="btn btn-success" />
-                    </div>
-                }
             </div>
             <div class="clearfix"></div>
             <div class="ln_solid"></div>
@@ -321,61 +260,30 @@
                 <table id="tblPanel" class="table table-striped jambo_table bulk_action" style="display:none;">
                     <thead>
                         <tr class="headings">
-                            <th class="column-title">Sr. </th>
-                            <th class="column-title">Pic </th>
-                            <th class="column-title">ID </th>
-                            <th class="column-title">Name </th>
-                            <th class="column-title">PMDC </th>
-                            <th class="column-title">Email </th>
-                            <th class="column-title">Number </th>
-                            <th class="column-title">Applied For</th>
-                            <th class="column-title">Status </th>
-                            <th class="column-title displayComments">Comments </th>
-                            <th class="column-title">Dated </th>
-                            <th class="column-title">Status Date </th>
+                            <th class="column-title">Induction </th>
+                            <th class="column-title">Phase </th>
+                            <th class="column-title">College Name </th>
+                            <th class="column-title">Total Applications </th>
+                            <th class="column-title">Pending </th>
+                            <th class="column-title">Approved</th>
+                            <th class="column-title">Rejected </th>
 
                         </tr>
                     </thead>
                     <tbody id="tbPanel">
                     </tbody>
                 </table>
-                <div id="divPagination" style="display:none;">
-                    <div id="msgPagination" class="col-md-4">
-                        <div class="dataTables_info" id="divShowingResult">
-                            Showing
-                            <span id="shStart"> </span> to <span id="shEnd"> </span> of <span id="shTotal"></span>
-                            entries
-                        </div>
-                    </div>
-                    <div id="liPagination" class="col-md-8">
-                        <ul class="list_pagination">
-                        </ul>
-                    </div>
-                    <ul id="templatePagination" style="display:none;">
-                        <li class='liPage' id='0' type="first"> First Page</li>
-                        {#Pagination#}
-                        <li class='liPage' id='0' type="last"> Last Page</li>
-                    </ul>
-                </div>
                 <div style="display:none;">
                     <table>
                         <tbody id="tbTempHtml">
-                            <tr class="tbRow" id="{#applicantId#}">
-                                <td>{#rowNum#}</td>
-                                <td>
-                                    <img class="imgView" src="/Images/Applicant/{#applicantId#}/{#pic#}" />
-                                    <a class="ank" href="/Images/Applicant/{#applicantId#}/{#pic#}" target="_blank" title="Click to view"></a>
-                                </td>
-                                <td>{#applicantId#}</td>
-                                <td>{#name#}</td>
-                                <td>{#pmdcNo#}  </td>
-                                <td>{#emailId#}</td>
-                                <td>{#contactNumber#}</td>
-                                <td>{#facultyName#}</td>
-                                <td>{#status#} </td>
-                                <td class="displayComments">{#comments#}</td>
-                                <td>{#dated#}  </td>
-                                <td>{#dateStatus#}</td>
+                            <tr>
+                                <td>{#induction#}</td>
+                                <td>{#phase#}</td>
+                                <td>{#collegeName#}</td>
+                                <td>{#totalCount#}</td>
+                                <td>{#totalCountPending#}</td>
+                                <td>{#totalCountApproved#} </td>
+                                <td>{#totalCountRejected#}</td>
                             </tr>
                         </tbody>
                     </table>

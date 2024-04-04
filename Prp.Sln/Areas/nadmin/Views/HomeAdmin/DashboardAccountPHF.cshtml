@@ -149,12 +149,8 @@
         function getTotalList128() {
             //alert('jere');
             var resp = CallActionGet("/HomeAdmin/GetTotalApplicantsWithVoucher128");
-            var request_data = resp;
-            console.log(resp);
-            if (request_data == '')
-                return;
-
-            JSONToCSVConvertor(request_data, "Applicants Voucher Data", true);
+            //debugger;
+            JSONToCSVConvertor(resp, "Applicants Voucher Data", true);
         }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
@@ -179,9 +175,9 @@
         }
 
         function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
-            if (ShowLabel) {
-                JSONData.unshift(ShowLabel);
-            }
+            //if (ShowLabel) {
+            //    JSONData.unshift(ShowLabel);
+            //}
 
             // Convert Object to JSON
             var jsonObject = JSON.stringify(JSONData);
@@ -232,107 +228,6 @@
                 var listVerification = Model.listDashBoard.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.voucherPhf).ToList();
                 if (listVerification != null && listVerification.Count > 0)
                 {
-                    string query = "select avb.applicantNo appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
-                    + "avb.transactionIdBank bankTransId, avb.amount amount, avb.dated dateVerified from tblApplicant a "
-                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId "
-                    + "inner join tblApplicantVoucherBank avb on av.applicantId = avb.applicantId and avb.inductionId = 15";
-
-                    string query2 = "select CONCAT('145',av.applicantId) appNo, a.name Name, av.branchCode branchCode, av.voucherImage Voucher, "
-                    + "av.submittedDate submitDate, '500' amount from tblApplicant a "
-                    + "inner join tblApplicantVoucher av on a.applicantId = av.applicantId and av.inductionId = 15";
-
-                    SqlConnection con = new SqlConnection();
-                    SqlCommand cmd = new SqlCommand(query);
-                    SqlCommand cmd2 = new SqlCommand(query2);
-                    DataTable table = new DataTable();
-                    DataTable table2 = new DataTable();
-                    var JSONString = new StringBuilder();
-                    var JSONString2 = new StringBuilder();
-
-                    try
-                    {
-                        string Conn = ConfigurationManager.ConnectionStrings["DbPrpConn"].ConnectionString;
-                        con = new SqlConnection(Conn);
-                        con.Open();
-                        cmd.Connection = con;
-                        cmd2.Connection = con;
-                        SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                        SqlDataAdapter sda2 = new SqlDataAdapter(cmd2);
-                        sda.Fill(table);
-                        sda2.Fill(table2);
-
-                        if (table.Rows.Count > 0)
-                        {
-                            JSONString.Append("[");
-                            for (int i = 0; i < table.Rows.Count; i++)
-                            {
-                                JSONString.Append("{");
-                                for (int j = 0; j < table.Columns.Count; j++)
-                                {
-                                    if (j < table.Columns.Count - 1)
-                                    {
-                                        JSONString.Append("\"" + table.Columns[j].ColumnName.ToString() + "\":" + "\"" + table.Rows[i][j].ToString() + "\",");
-                                    }
-                                    else if (j == table.Columns.Count - 1)
-                                    {
-                                        JSONString.Append("\"" + table.Columns[j].ColumnName.ToString() + "\":" + "\"" + table.Rows[i][j].ToString() + "\"");
-                                    }
-                                }
-                                if (i == table.Rows.Count - 1)
-                                {
-                                    JSONString.Append("}");
-                                }
-                                else
-                                {
-                                    JSONString.Append("},");
-                                }
-                            }
-                            JSONString.Append("]");
-                            JavaScriptSerializer jk = new JavaScriptSerializer();
-                            //a = 
-                            Session["submitted"] = jk.Deserialize(JSONString.ToString(), typeof(object)).ToString();
-                        }
-                        if (table2.Rows.Count > 0)
-                        {
-                            JSONString2.Append("[");
-                            for (int i = 0; i < table2.Rows.Count; i++)
-                            {
-                                JSONString2.Append("{");
-                                for (int j = 0; j < table2.Columns.Count; j++)
-                                {
-                                    if (j < table2.Columns.Count - 1)
-                                    {
-                                        JSONString2.Append("\"" + table2.Columns[j].ColumnName.ToString() + "\":" + "\"" + table2.Rows[i][j].ToString() + "\",");
-                                    }
-                                    else if (j == table2.Columns.Count - 1)
-                                    {
-                                        JSONString2.Append("\"" + table2.Columns[j].ColumnName.ToString() + "\":" + "\"" + table2.Rows[i][j].ToString() + "\"");
-                                    }
-                                }
-                                if (i == table2.Rows.Count - 1)
-                                {
-                                    JSONString2.Append("}");
-                                }
-                                else
-                                {
-                                    JSONString2.Append("},");
-                                }
-                            }
-                            JSONString2.Append("]");
-                            JavaScriptSerializer j2 = new JavaScriptSerializer();
-                            //a2 = j2.Deserialize(JSONString2.ToString(), typeof(object));
-                            Session["verified"] = j2.Deserialize(JSONString2.ToString(), typeof(object));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        con.Close();
-                    }
-
                     var verifyToal = 0;
                     var verifyPending = 0;
                     var verifyActive = 0;

@@ -20,6 +20,24 @@ namespace Prp.Data
         public string emailId { get; set; }
     }
 
+    public class fscGrievanceData
+    {
+        public int applicantId { get; set; }
+        public int obtainedMarks { get; set; }
+        public int totalMarks { get; set; }
+        public DateTime passingDate { get; set; }
+        public string dateSelectedString { get; set; }
+        public string boardFsc { get; set; }
+        public string imgFsc { get; set; }
+    }
+    public class GirevanceData
+    {
+        public int applicantId { get; set; }
+        public int isSelf { get; set; }
+        public DateTime dateSelected { get; set; }
+        public string dateSelectedString { get; set; }
+        public int institute { get; set; }
+    }
     public class Message
     {
         public int id { get; set; }
@@ -32,6 +50,17 @@ namespace Prp.Data
         {
             status = false;
         }
+    }
+
+    public class msgFromHisdu
+    {
+        public int id { get; set; }
+        public string mobileNumber { get; set; }
+        public string message { get; set; }
+        public string hospitalId { get; set; }
+        public string hospitalName { get; set; }
+        public int projectId { get; set; }
+        public string masking { get; set; }
     }
 
     public class CaptchaResponse
@@ -531,6 +560,8 @@ namespace Prp.Data
         public string dated { get; set; }
         public int adminId { get; set; }
         public string name { get; set; }
+        public int amendmentApprovalStatus { get; set; }
+        public string amendmentApprovalRemarks { get; set; }
     }
 
     public class VoucherSearch

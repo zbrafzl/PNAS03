@@ -110,6 +110,9 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return View(model);
         }
 
+
+        
+
         public ActionResult ApplicantSearchVerify()
         {
             ApplicantStatusModel model = new ApplicantStatusModel();
@@ -186,7 +189,39 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return list;
         }
 
-      
+        public ActionResult ApplicantListCollegeWise()
+        {
+
+            ApplicantStatusModel model = new ApplicantStatusModel();
+
+            model.inductionId = 12;
+            model.phaseId = 1;
+            model.statusTypeId = Request.QueryString["statusTypeId"].TooInt();
+            if (model.statusTypeId == 130)
+                model.statusTypeId = 131;
+            model.statusId = Request.QueryString["statusId"].TooInt();
+            Session["SelectedStatusID"] = model.statusId;
+            if (model.statusTypeId == 0)
+                model.statusTypeId = 52;
+
+            DDLConstants ddlConstant = new DDLConstants();
+            ddlConstant.typeId = model.statusTypeId;
+            ddlConstant.condition = "ByType";
+            model.listStatus = new ConstantDAL().GetConstantDDL(ddlConstant);
+            model.listApplicant = getListApplicant(model.statusTypeId, model.statusId);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult GetApplicantsCollegeWise(ApplicantSearch obj)
+        {
+            obj.userId = loggedInUser.userId;
+            DataTable dataTable = new ApplicantAdminDAL().GetApplicantsCollegeWise(obj);
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Content(json, "application/json");
+        }
+
         [HttpPost]
         public ActionResult ApplicantSearchSimple(ApplicantSearch obj)
         {
@@ -306,6 +341,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         public ActionResult MigrationCandidateAddition()
         {
             ProfileModelAdmin model = new ProfileModelAdmin();
+            int applicantId = Request.QueryString["applicantId"].TooInt();
             Applicant objApp = new Applicant();
             objApp.adminId = loggedInUser.userId;
             objApp.contactNumber = "03000000000";
@@ -319,12 +355,36 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             objApp.facultyId = 1;
             objApp.pic = "";
             objApp.inductionId = 0;
+            Message msgg = new Message();
+            if(applicantId == 0)
+            {
+                msgg = new ApplicantDAL().Registration(objApp);
+                model.applicantId = msgg.id;
 
-            Message msgg = new ApplicantDAL().Registration(objApp);
-            model.applicantId = msgg.id;
+                model.jsonTable = GetMigrantApplicantById(applicantId);
+            }
+            else
+            {
+                msgg.status = true;
+                msgg.id = 0;
+                model.applicantId = applicantId;
+                model.jsonTable = GetMigrantApplicantById(applicantId);
+                string cnci = model.jsonTable.Rows[0]["cnicNo"].TooString();
+                model.applicantInfo = new ApplicantInfo();
+                model.applicantInfo.cnicNo = model.jsonTable.Rows[0]["cnicNo"].TooString();
+            }
+            //Message msgg = new ApplicantDAL().Registration(objApp);
+            //model.applicantId = msgg.id;
             return View(model);
         }
 
+        [HttpPost]
+        public JsonResult UpdateMigrationSemesterData(MigrationSemesterData semData)
+        {
+            Message msg = new Message();
+            msg = new ApplicantDAL().UpdateMigrationSemesterData(semData.applicantId, semData.semesterDatas);
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
         [HttpPost]
         public JsonResult UpdateMigrationCandidate(MigrationCandidateData obj)
         {
@@ -471,8 +531,41 @@ namespace Prp.Sln.Areas.nadmin.Controllers
 
         //
 
-        
+        [HttpGet]
+        public ActionResult GetDataForExport (int inductionId, int statusTypeId, int statusId, int phaseId, string option)
+        {
+            // Logic to fetch data based on all three IDs
+            // For example:
+            ApplicantSearch appS = new ApplicantSearch();
+            appS.inductionId = inductionId;
+            appS.phaseId = phaseId;
+            appS.statusTypeId = statusTypeId;
+            appS.statusId = statusId;
+            appS.search = option;
+            DataTable dataTable = new ApplicantAdminDAL().ApplicantSearchSimpleDownload(appS);
 
+            //var data = GetDataFromSomewhere(id1, id2, id3);
+
+            // Serialize data to JSON format
+            string jsonData = JsonConvert.SerializeObject(dataTable);
+
+            // Return JSON data
+            return Content(jsonData, "application/json");
+        }
+
+        [HttpGet]
+        public ActionResult GetSemesterDataById(int applicantId, int inductionId)
+        {
+            DataTable dataTable = new ApplicantDAL().GetSemesterDataById(applicantId, inductionId);
+
+            //var data = GetDataFromSomewhere(id1, id2, id3);
+
+            // Serialize data to JSON format
+            string jsonData = JsonConvert.SerializeObject(dataTable);
+
+            // Return JSON data
+            return Content(jsonData, "application/json");
+        }
 
         [HttpGet]
         public ActionResult GetApplicantByIdAdmin(int applicantId)
@@ -490,11 +583,17 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return Content(json, "application/json");
         }
 
-        public JsonResult GetMigrantApplicantById(int applicantId)
+        public DataTable GetMigrantApplicantById(int applicantId)
         {
-            DataTable dataTable = new ApplicantDAL().GetApplicantById(applicantId);
-            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
-            Message msg = new Message(); 
+            DataTable dataTable = new ApplicantDAL().GetMigrationApplicantById(applicantId);
+            return dataTable;
+        }
+
+
+        [HttpGet]
+        public JsonResult DeleteMigrationCandidate(int applicantId)
+        {
+            Message msg = new ApplicantDAL().DeleteMigrationCandidate(applicantId);
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
 

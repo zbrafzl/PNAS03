@@ -75,7 +75,7 @@ function SendSMS(number, msg) {
         url = url.replace(/#number#/g, number).replace(/#msg#/g, msg);
         $.ajax({
             url: url,
-            dataType: 'jsonp',
+            dataType: 'json',
             async: false,
             success: function (data) {
                 resp = data;
@@ -88,6 +88,7 @@ function SendSMS(number, msg) {
     } catch (e) {
         resp = {};
     }
+    console.log(resp);
     return resp;
 }
 

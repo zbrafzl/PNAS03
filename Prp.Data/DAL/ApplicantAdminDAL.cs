@@ -11,6 +11,21 @@ namespace Prp.Data
 {
     public class ApplicantAdminDAL : PrpDBConnect
     {
+        public DataTable ApplicantSearchSimpleDownload(ApplicantSearch obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantSearchSimpleDownload]"
+            };
+
+            cmd.Parameters.AddWithValue("@inductionId", obj.inductionId);
+            cmd.Parameters.AddWithValue("@phaseId", obj.phaseId);
+            cmd.Parameters.AddWithValue("@statusTypeId", obj.statusTypeId);
+            cmd.Parameters.AddWithValue("@statusId", obj.statusId);
+            cmd.Parameters.AddWithValue("@search", obj.search.TooString());
+            return PrpDbADO.FillDataTable(cmd);
+        }
         public DataTable ApplicantSearchSimple(ApplicantSearch obj)
         {
             if (obj.statusTypeId == 73 && obj.statusId == 3)
@@ -22,6 +37,32 @@ namespace Prp.Data
             {
                 CommandType = CommandType.StoredProcedure,
                 CommandText = "[dbo].[spApplicantSearchSimple]"
+            };
+
+            if (Convert.ToInt32(90) == 3 && obj.inductionId == 12)
+            {
+                obj.inductionId = 112;
+            }
+            cmd.Parameters.AddWithValue("@pageNum", obj.pageNum);
+            cmd.Parameters.AddWithValue("@top", obj.top);
+            cmd.Parameters.AddWithValue("@inductionId", obj.inductionId);
+            cmd.Parameters.AddWithValue("@phaseId", obj.phaseId);
+            cmd.Parameters.AddWithValue("@statusTypeId", obj.statusTypeId);
+            cmd.Parameters.AddWithValue("@statusId", obj.statusId);
+            cmd.Parameters.AddWithValue("@search", obj.search.TooString());
+            return PrpDbADO.FillDataTable(cmd);
+        }
+        public DataTable GetApplicantsCollegeWise(ApplicantSearch obj)
+        {
+            if (obj.statusTypeId == 73 && obj.statusId == 3)
+            {
+                obj.statusTypeId = 53;
+                obj.statusId = 8;
+            }
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetCollegeWiseList]"
             };
 
             if (Convert.ToInt32(90) == 3 && obj.inductionId == 12)
@@ -151,7 +192,7 @@ namespace Prp.Data
             SqlCommand cmd = new SqlCommand
             {
                 CommandType = CommandType.StoredProcedure,
-                CommandText = "[dbo].[spHistoryApplicantViewByInduction]"
+                CommandText = "[dbo].[spGetApplicantStatusByApplicantId]"
             };
             cmd.Parameters.AddWithValue("@applicantId", applicantId);
             return PrpDbADO.FillDataTable(cmd);

@@ -70,7 +70,7 @@
                 var resp = CallActionPost("/JoiningAdmin/ApplicantJoiningAddUpdate", objJoining);
                 if (resp != null && resp.status == true) {
                     alert("Data saved successfully")
-                    window.location = "/admin/applicant-search-join?statusTypeId=194&statusId=0";
+                    window.location = "/admin/applicant-search-join?statusTypeId=191&statusId=0";
                 }
             }
         }
@@ -133,7 +133,7 @@
             objJoining.dateJoining = ConvertToString($("#txtJoinigDate").val());
 
             if ($("#flScanImage").val()) {
-                objJoining.image = UploadImageAdmin("flScanImage", applicantId, "JoinigImage");
+                objJoining.image = UploadImage("flScanImage", objJoining.applicantId, "JoinigImage");
                 $("#hfdScanImage").val(objJoining.image);
             }
             objJoining.image = ConvertToString($("#hfdScanImage").val());
@@ -400,7 +400,7 @@
                     </div>
                 </fieldset>
 
-                string queryCheck = "SELECT ISNULL((select applicantId from tblApplicantJoiningStatus where applicantId = " + Model.applicant.applicantId + " and JoiningStatus = 1 and roundId = 2 and applicantId in (select applicantId from tblApplicantJoiningStatus where roundId = 3)), 0)";
+                string queryCheck = "SELECT ISNULL((select applicantId from tblApplicantJoiningStatus where inductionId = 15 and applicantId = " + Model.applicant.applicantId + " and JoiningStatus = 1 and roundId = 1 ), 0)";
                 DataTable dtCheck = new DataTable();
                 SqlCommand cmdCheck = new SqlCommand(queryCheck);
                 SqlConnection connCheck = new SqlConnection(PrpDbConnectADO.Conn);
@@ -412,7 +412,7 @@
                 int hopitalId = 0;
                 if (Convert.ToInt32(dtCheck.Rows[0][0]) > 0)
                 {
-                    string queryCheckIsFirstCollege = "SELECT ISNULL((select hospitalId from tblApplicantJoiningStatus where applicantId = " + Model.applicant.applicantId + " and JoiningStatus = 1 and roundId = 2 and hospitalId = " + Model.loggedInUser.userId + "), 0)";
+                    string queryCheckIsFirstCollege = "SELECT ISNULL((select hospitalId from tblApplicantJoiningStatus where inductionId = 15 and applicantId = " + Model.applicant.applicantId + " and JoiningStatus = 1 and roundId = 1 and hospitalId = " + Model.loggedInUser.userId + "), 0)";
                     cmdCheck = new SqlCommand(queryCheckIsFirstCollege);
                     SqlConnection connCheckIsFirstCollege = new SqlConnection(PrpDbConnectADO.Conn);
                     connCheckIsFirstCollege.Open();
@@ -421,7 +421,7 @@
                     connCheckIsFirstCollege.Close();
                     if (hopitalId > 0)
                     {
-                        string queryCheckIsSecondCollege = "SELECT ISNULL((select hospitalId from tblApplicantJoiningStatus where applicantId = " + Model.applicant.applicantId + " and JoiningStatus = -1 and roundId = 3 and hospitalId = " + Model.loggedInUser.userId + "), 0)";
+                        string queryCheckIsSecondCollege = "SELECT ISNULL((select hospitalId from tblApplicantJoiningStatus where inductionId = 15 and applicantId = " + Model.applicant.applicantId + " and JoiningStatus = -1 and roundId = 1 and hospitalId = " + Model.loggedInUser.userId + "), 0)";
                         cmdCheck = new SqlCommand(queryCheckIsSecondCollege);
                         connCheckIsFirstCollege.Open();
                         cmdCheck.Connection = connCheckIsFirstCollege;

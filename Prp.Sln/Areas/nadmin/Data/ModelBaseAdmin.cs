@@ -7,6 +7,7 @@ using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace Prp.Sln
 {
@@ -447,6 +448,7 @@ namespace Prp.Sln
     }
     public class ProfileModelAdmin : ModelBaseAdmin
     {
+        public DataTable jsonTable { get; set; }
         public int applicantId { get; set; }
         public int hospitalId { get; set; }
 
@@ -463,7 +465,7 @@ namespace Prp.Sln
 
         public List<EntityDDL> listProgram { get; set; }
 
-
+        public List<semesterData> semesterDatas { get; set; }
         public List<EntityDDL> listSpeciality { get; set; }
 
         public List<EntityDDL> listHospital { get; set; }

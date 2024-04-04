@@ -107,6 +107,21 @@ namespace Prp.Data
             return PrpDbADO.FillDataTable(cmd);
         }
 
+        public DataTable GazetteGetAllByTypeView(GazatMerit obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGazatGetAllByTypeViewCopy]"
+            };
+
+            cmd.Parameters.AddWithValue("@top", obj.top);
+            cmd.Parameters.AddWithValue("@pageNum", obj.pageNum);
+            cmd.Parameters.AddWithValue("@typeId", obj.typeId);
+            cmd.Parameters.AddWithValue("@search", obj.search);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
         public DataTable MeritGetAllByTypeView(GazatMerit obj)
         {
             SqlCommand cmd = new SqlCommand

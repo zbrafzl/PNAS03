@@ -158,9 +158,9 @@
                 ProviceDomicelChangeEvent();
             });
 
-            $(document).on('click', '#btnProfileSave', function () {
+            $(document).on('click', '#btnSave', function () {
                 $('#myModal').modal('show');
-                SaveAndProceed();
+                //SaveAndProceed();
             });
 
             $(document).on('click', '#btnSaveModal', function () {
@@ -302,22 +302,46 @@
             //alert('save button');
             objApplicantInfo = ValidateFormInfo();
             console.log(objApplicantInfo);
-            objApplicantInfo.genericBSNPassingDate = objApplicantInfo.bsnPassingDate;
+			debugger;
+			//objApplicantInfo.bsnPassingDate = "01/01/2023";
+			//objApplicantInfo.pncExpiryDate = "01/01/2023";
+			//objApplicantInfo.gnmPassingDate = "01/01/2023";
+            //objApplicantInfo.genericBSNPassingDate = objApplicantInfo.bsnPassingDate;
             objApplicantInfo.pncExpiryDate = objApplicantInfo.pncExpiryDate;
-            objApplicantInfo.midWiferyPassingDate = objApplicantInfo.gnmPassingDate;
+            //objApplicantInfo.midWiferyPassingDate = objApplicantInfo.gnmPassingDate;
             console.log(objApplicantInfo);
             if (objApplicantInfo.isError == false) {
+
                 if (IsExistCNIC() == false) {
+
                     var resp = CallActionPost("/ApplicantProfile/ApplicantInfoAddUpdate", objApplicantInfo);
+					debugger;
                     console.log(resp);
                     if (resp != null && resp.status == true) {
+
                         window.location = "/applicant-education";
                     }
+                    else {
+                        //alert(resp.msg);
+						var resp = CallActionPost("/ApplicantProfile/ApplicantInfoAddUpdate", objApplicantInfo);
+						debugger;
+						console.log(resp);
+						if (resp != null && resp.status == true) {
+
+							window.location = "/applicant-education";
+						}
+						else
+						{
+							alert("try again!");
+						}
+                    }
+
                 }
-                else {
-                    alert("CNIC already exists. Please try another");
-                }
+				else {
+                        alert("CNIC already exists. Please try another");
+                    }
             }
+
         }
 
         function ValidateFormInfo() {
@@ -341,7 +365,7 @@
 
             } catch (e) {
             }
-            objApplicantInfo.applicantName = ToMaxLength(ConvertToString($("#txtName").val()), 70);
+			objApplicantInfo.applicantName = ToMaxLength(ConvertToString($("#txtName").val()), 70);
             objApplicantInfo.fatherName = ToMaxLength(ConvertToString($("#txtFatherName").val()), 70);
             objApplicantInfo.genderId = ConvertToInt($("#ddlGender").val());
             objApplicantInfo.maritalStatus = ConvertToInt($("#ddlMerital").val());
@@ -350,7 +374,8 @@
             objApplicantInfo.currentDesignation = ToMaxLength(ConvertToString($("#ddlDesignation").val()), 70);
             objApplicantInfo.currentBPS = ToMaxLength(ConvertToString($("#ddlBPS").val()), 70);
             objApplicantInfo.currentPosting = ToMaxLength(ConvertToString($("#txtPosting").val()), 70);
-            objApplicantInfo.religionId = ConvertToInt($("#ddlReligion").val());
+
+			objApplicantInfo.religionId = ConvertToInt($("#ddlReligion").val());
 
             objApplicantInfo.dob = "";
             if (ValidateDate("txtDob")) {
@@ -942,6 +967,7 @@
         function GetApplicantProfileInfo() {
             applicantDetailId = 0;
             var resp = CallActionGet("/ApplicantProfile/GetApplicantProfileData?applicantId=" + applicantId);
+            debugger;
             console.log(resp);
             try {
                 applicantDetailId = resp.applicantDetailId;
@@ -1015,7 +1041,6 @@
 
             //alert("hello");
 
-
             $("#txtName").val("@Convert.ToString(Session["Name"])");
             $("#txtEmail").val("@Convert.ToString(Session["email"])");
             $("#txtPNCNo").val("@Convert.ToString(Session["pncNumber"])");
@@ -1025,9 +1050,10 @@
             $("#ddlDomicileProvince").val(196);
 
             applicantDetailId = objApplicantInfo.applicantDetailId;
+            $("#txtAddress").val(objApplicantInfo.address);
 
 
-            $("#txtFatherName").val("@Convert.ToString(Session["fatherName"])");
+            $("#txtFatherName").val(objApplicantInfo.fatherName);
 
             $("#txtDesignation").val("@Convert.ToString(Session["currentPosition"])");
             @*$("#txtBPS").val("@Convert.ToString(Session["currentBPS"])");*@
@@ -1039,9 +1065,15 @@
 
 
             $("#ddlGender").val("@Convert.ToString(Session["genderId"])");
-            $("#ddlMerital").val("@Convert.ToString(Session["meritalStatus"])");
-
-            -$("#ddlReligion").val(objApplicantInfo.religionId);
+            $("#ddlMerital").val(objApplicantInfo.meritalStatus);
+            debugger;
+            if (objApplicantInfo.religionId == 0) {
+                $("#ddlReligion").val(1);
+            }
+            else {
+                $("#ddlReligion").val(objApplicantInfo.religionId);
+            }
+			
 
             //alert(objApplicantInfo.dob);
             //alert("@Session["pncExpiryDate"]");
@@ -1065,7 +1097,7 @@
             NationalityTypeChangeEvent();
 
             $("#ddlCountry").val(132);
-            BindDistrictDDL(0, @Session["districtId"]);
+            BindDistrictDDL(0, objApplicantInfo.districtId);
             CountryChangeEvent();
 
             $("#divDDLDistrict").hide();
@@ -1101,8 +1133,8 @@
                 $("#ddlDomicileProvince").val(objApplicantInfo.domicileProvinceId);
 
                 DDLSetToDefault("ddlDomicileDistrict", 'Select One', 0);
-                BindDistrictDDLDomicile(196, @Convert.ToString(Session["domicileDistrictId"]));
-                $("#ddlDomicileDistrict").val(@Convert.ToString(Session["domicileDistrictId"]));
+                BindDistrictDDLDomicile(196, objApplicantInfo.domicileDistrictId);
+                $("#ddlDomicileDistrict").val(objApplicantInfo.domicileDistrictId);
             }
             else {
 
@@ -1116,27 +1148,26 @@
                 $("#txtDistrict").val(objApplicantInfo.districtName);
             }
 
-            $("#txtAddress").val("@Convert.ToString(Session["address"])");
-            $("#txtCNIC").val("@Convert.ToString(Session["cnicNo"])");
-            $("#txtCNICExpiryDate").val("@Convert.ToDateTime(Session["cnicExpiryDate"]).ToString("dd/M/yyyy")");
-
+            $("#txtCNIC").val(objApplicantInfo.cnicNo);
+            //$("#txtCNICExpiryDate").val("@Convert.ToDateTime(Session["cnicExpiryDate"]).ToString("dd/M/yyyy")");
+            $("#txtCNICExpiryDate").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objApplicantInfo.cnicExpiryDate)));
 
             $("#hfdCnicFront").val("");
-            if (@Convert.ToString(Session["cnicPicFront"]).Length > 0) {
+            if (objApplicantInfo.cnicPicFront.length > 0) {
 
-                $('#imgCnicFront').attr('src', imagesPath + "@Convert.ToString(Session["cnicPicFront"])");
+                $('#imgCnicFront').attr('src', imagesPath + objApplicantInfo.cnicPicFront);
                 $('#imgCnicFront').show();
                 $('#rmvCnicFront').show();
                 $("#hfdCnicFront").val(objApplicantInfo.cnicPicFront);
             }
 
             $("#hfdCnicBack").val("");
-            if (@Convert.ToString(Session["cnicPicBack"]).Length > 0) {
+            if (objApplicantInfo.cnicPicBack.length > 0) {
 
-                $('#imgCnicBack').attr('src', imagesPath + "@Convert.ToString(Session["cnicPicBack"])");
+                $('#imgCnicBack').attr('src', imagesPath + objApplicantInfo.cnicPicBack);
                 $('#imgCnicBack').show();
                 $('#rmvCnicBack').show();
-                $("#hfdCnicBack").val("@Convert.ToString(Session["cnicPicBack"])");
+                $("#hfdCnicBack").val(objApplicantInfo.cnicPicBack);
             }
             else {
                 $("#hfdCnicBack").val("");
@@ -1169,13 +1200,14 @@
                 $("#hfdPncBack").val("@Convert.ToString(Session["pncPicBack"])");
             }
             //
+            debugger;
 
             $("#hfdDomicileFront").val("");
-            if (@Convert.ToString(Session["domicilePicFront"]).Length > 0) {
-                $('#imgDomicileFront').attr('src', imagesPath + "@Convert.ToString(Session["domicilePicFront"])");
+            if (objApplicantInfo.domicilePicFront.length > 0) {
+                $('#imgDomicileFront').attr('src', imagesPath + objApplicantInfo.domicilePicFront);
                 $('#imgDomicileFront').show();
                 $('#rmvDomicileFront').show();
-                $("#hfdDomicileFront").val("@Convert.ToString(Session["domicilePicFront"])");
+                $("#hfdDomicileFront").val(objApplicantInfo.domicilePicFront);
             }
 
             $("#hfdDomicileBack").val("");
@@ -1185,13 +1217,13 @@
             //    $('#rmvDomicileBack').show();
             //    $("#hfdDomicileBack").val(objApplicantInfo.domicilePicBack);
             //}
-
+            debugger;
             $("#hfdPic").val("");
             if (@Convert.ToString(Session["profilePic"]).Length > 0) {
-                $('#imgPic').attr('src', imagesPath + "@Convert.ToString(Session["profilePic"])");
+                $('#imgPic').attr('src', imagesPath + objApplicantInfo.pic);
                 $('#imgPic').show();
                 $('#rmvPic').show();
-                $("#hfdPic").val("@Convert.ToString(Session["profilePic"])");
+                $("#hfdPic").val(objApplicantInfo.pic);
             }
 
             //
@@ -1580,7 +1612,7 @@
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Full Name <span style="color:red">*</span></label>
-                                    <input type="text" name="txtName" maxlength="70" id="txtName" class="form-control lenth alpha" len="70" placeholder="First Name" tabindex="2" readonly="readonly">
+                                    <input type="text" name="txtName" maxlength="70" id="txtName" class="form-control lenth alpha" len="70" placeholder="First Name" tabindex="2">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -1594,7 +1626,7 @@
                                         <label for=""> Father/Husband Name <span style="color:red">*</span></label>
                                     }
 
-                                    <input type="text" name="txtFatherName" id="txtFatherName" maxlength="70" class="form-control" placeholder="Father/Husband Name" tabindex="3">
+                                    <input type="text" name="txtFatherName" id="txtFatherName" maxlength="70" class="form-control alpha" placeholder="Father/Husband Name" tabindex="3">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -1789,11 +1821,11 @@
                                 </div>
                             </div>
                             @*<div id="divTxtDistrict" class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label for=""> District of Resident <span style="color:red">*</span></label>
-                <input required="required" type="text" name="txtDistrict" id="txtDistrict" class="form-control lenth" len="100" placeholder="District" tabindex="12" />
-            </div>
-        </div>*@
+                                    <div class="form-group">
+                                        <label for=""> District of Resident <span style="color:red">*</span></label>
+                                        <input required="required" type="text" name="txtDistrict" id="txtDistrict" class="form-control lenth" len="100" placeholder="District" tabindex="12" />
+                                    </div>
+                                </div>*@
                             <div id="cnicSelectDiv" class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Select CNIC OR From B <span style="color:red">*</span></label>
@@ -1844,12 +1876,12 @@
                                 </div>
                             </div>
                             @*<div id="divDisableRadio" class="col-xs-12 col-sm-4 col-md-4 divDisable" style="display:none;">
-            <div class="form-group">
-                <label for=""> Do you want to apply for disability quota?  <span style="color:red">*</span></label> <br>
-                <label><input type="radio" name="rbtndisable" id="rbtnDisableYes" value="Y"> Yes &nbsp;&nbsp;</label>
-                <label><input type="radio" name="rbtndisable" id="rbtnDisableNo" value="N" checked=""> No  &nbsp;&nbsp;</label>
-            </div>
-        </div>*@
+                                    <div class="form-group">
+                                        <label for=""> Do you want to apply for disability quota?  <span style="color:red">*</span></label> <br>
+                                        <label><input type="radio" name="rbtndisable" id="rbtnDisableYes" value="Y"> Yes &nbsp;&nbsp;</label>
+                                        <label><input type="radio" name="rbtndisable" id="rbtnDisableNo" value="N" checked=""> No  &nbsp;&nbsp;</label>
+                                    </div>
+                                </div>*@
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
                                     <label for=""> Address  <span style="color:red">*</span></label>
@@ -1966,32 +1998,32 @@
                                     </div>
                                 </div>
                                 @*<div id="divnicCertificate" class="col-sm-4 divDisable">
-                <div class="form-group">
-                    <label for=""> No Enquiry Certificate <span style="color:red">*</span> </label>
-                    <input type="file" class="form-control flup" name="flnicCertificate" id="flnicCertificate" tabindex="23" />
-                    <input type="hidden" id="hfdnicCertificate" value="" />
-                    <img id="imgnicCertificate" class="flup-img" src="" alt="" style="display:none;" />
-                    <a id="rmvnicCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                </div>
-            </div>*@
+                                        <div class="form-group">
+                                            <label for=""> No Enquiry Certificate <span style="color:red">*</span> </label>
+                                            <input type="file" class="form-control flup" name="flnicCertificate" id="flnicCertificate" tabindex="23" />
+                                            <input type="hidden" id="hfdnicCertificate" value="" />
+                                            <img id="imgnicCertificate" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvnicCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>*@
                                 @*<div id="divrecommendationLetter" class="col-sm-4 divDisable">
-                <div class="form-group">
-                    <label for=""> Recommendation Letter <span style="color:red">*</span> </label>
-                    <input type="file" class="form-control flup" name="flrecommendationLetter" id="flrecommendationLetter" tabindex="23" />
-                    <input type="hidden" id="hfdrecommendationLetter" value="" />
-                    <img id="imgrecommendationLetter" class="flup-img" src="" alt="" style="display:none;" />
-                    <a id="rmvrecommendationLetter" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                </div>
-            </div>*@
+                                        <div class="form-group">
+                                            <label for=""> Recommendation Letter <span style="color:red">*</span> </label>
+                                            <input type="file" class="form-control flup" name="flrecommendationLetter" id="flrecommendationLetter" tabindex="23" />
+                                            <input type="hidden" id="hfdrecommendationLetter" value="" />
+                                            <img id="imgrecommendationLetter" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvrecommendationLetter" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>*@
                                 @*<div id="divrecommendationLetter2" class="col-sm-4 divDisable">
-                <div class="form-group">
-                    <label for=""> Charge Assumption Report (Regular) <span style="color:red">*</span> </label>
-                    <input type="file" class="form-control flup" name="flrecommendationLetter2" id="flrecommendationLetter2" tabindex="23" />
-                    <input type="hidden" id="hfdrecommendationLetter2" value="" />
-                    <img id="imgrecommendationLetter2" class="flup-img" src="" alt="" style="display:none;" />
-                    <a id="rmvrecommendationLetter2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                </div>
-            </div>*@
+                                        <div class="form-group">
+                                            <label for=""> Charge Assumption Report (Regular) <span style="color:red">*</span> </label>
+                                            <input type="file" class="form-control flup" name="flrecommendationLetter2" id="flrecommendationLetter2" tabindex="23" />
+                                            <input type="hidden" id="hfdrecommendationLetter2" value="" />
+                                            <img id="imgrecommendationLetter2" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvrecommendationLetter2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>*@
                             }
                             <div class="col-sm-4 divDual" style="display:none;">
                                 <div class="form-group">

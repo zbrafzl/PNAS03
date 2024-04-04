@@ -1,0 +1,311 @@
+﻿@model Prp.Sln.ContactModel
+@{
+    ViewBag.Title = "Contact Us";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section RenderCss{
+    <style>
+        .img-responsive {
+            float: left;
+            width: 70%;
+            margin-right: 10px;
+            height: 50px;
+        }
+
+        .imgIcn {
+            height: 30px;
+            cursor: pointer;
+        }
+
+            .imgIcn:hover {
+                border: 1px solid #f0e4e4;
+            }
+    </style>
+
+}
+@section RenderScript{
+
+
+    <script>
+        $(document).ready(function () {
+
+            var msgg = $("#idErrorMsg").val();
+
+            if (msgg.includes("Your Grievance Date")) {
+                $("#divColleges").hide();
+            }
+            else {
+                $("#divColleges").show();
+            }
+
+
+            var enableDays = "09-12-2023, 11-12-2023, 12-12-2023, 13-12-2023, 14-12-2023, 15-12-2023, 16-12-2023, 18-12-2023, 19-12-2023, 20-12-2023".split(', ');
+
+
+            $('#txtGrievanceDate').datepicker({
+                maxViewMode: 2,
+                weekStart: 1,
+                startDate: "+1d",
+                beforeShowDay: function (date) {
+                    if (enableDays.indexOf(formatDate(date)) < 0)
+                        return {
+                            enabled: false
+                        }
+                    else
+                        return {
+                            enabled: true
+                        }
+                },
+                todayHighlight: true,
+                format: "dd-mm-yyyy",
+                clearBtn: true,
+                autoclose: true
+            });
+
+            
+        });
+
+        $(document).on('click', '#btnSave', function () {
+            var isError = false, disableId = 1, ctrl = "";
+
+            $(".req-fld").removeClass("req-fld");
+
+            $(".lbl-err").hide();
+
+            if ($('#txtGrievanceDate').val() != "") {
+                $('#myModal').modal('show');
+            }
+            else {
+                $("#txtGrievanceDate").addClass("req-fld");
+                ctrl = "txtGrievanceDate";
+                isError = true;
+            }
+            //SaveAndProceed();
+        });
+
+        $(document).on('click', '#btnSaveModal', function () {
+            //$('#myModal').modal('show');
+            $('#myModal').modal('hide');
+            SaveAndProceed();
+        });
+
+        function SaveAndProceed() {
+            var objData = {};
+            objData.applicantId = 1;
+            objData.isSelf = 1;
+            objData.dateSelectedString = ConvertToString($("#txtGrievanceDate").val());
+            objData.institute = ConvertToInt($('#ddlLocations').val());
+            console.log(objData);
+            var resp = CallActionPost("/LoggedIn/saveGrievanceData", objData);
+            if (resp.msg == "User has already booked an apointment") {
+                alert("User has already booked an apointment");
+            }
+            else {
+                if (confirm("Congratulations! Grievance appointment booked for selected date and location.")) {
+                    window.location = "/home";
+                }
+            }
+
+        }
+
+        function formatDate(d) {
+            var day = String(d.getDate())
+            //add leading zero if day is is single digit
+            if (day.length == 1)
+                day = '0' + day
+            var month = String((d.getMonth() + 1))
+            //add leading zero if month is is single digit
+            if (month.length == 1)
+                month = '0' + month
+            return day + "-" + month + "-" + d.getFullYear()
+        }
+
+        function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            return [day, month, year].join('-');
+        }
+
+        $(document).on('change', '#ddlLocations', function () {
+            var typeId = $(this).val();
+            $('#txtGrievanceDate').val("");
+            //debugger;
+            var resp = CallActionGet("/LoggedIn/getAppointmentDatesForCollege?collegeId=" + typeId);
+            if (resp.length > 0) {
+                var enableDays = "09-12-2023, 11-12-2023, 12-12-2023, 13-12-2023, 14-12-2023, 15-12-2023, 17-12-2023, 18-12-2023, 19-12-2023, 20-12-2023".split(', ');
+                var NewenableDays = resp.map(function (e) { return formatDate(e) });
+                var delta = enableDays.filter((element) => !NewenableDays.includes(element));
+                $('#txtGrievanceDate').datepicker('setDatesDisabled', false);
+                $('#txtGrievanceDate').datepicker('setDatesDisabled', delta);
+                $("#txtGrievanceDate").datepicker({
+                    filter: function (date, view) {
+                        if (date.getDay() === 0 && view === 'day') {
+                            return false; // Disable all Sundays, but still leave months/years, whose first day is a Sunday, enabled.
+                        }
+                    }
+                });
+                $("#dateRow").show();
+            }
+        });
+
+    </script>
+
+}
+<div class="container content">
+    <div class="row main">
+        <div class="col-sm-12 form-box" style="height:500px;">
+            <h3><center>Apply for Grievance</center></h3>
+            <div class="main-login main-center">
+
+                @if (ViewBag != null && ViewBag.message != null)
+                {
+                    var message = ViewBag.message;
+                    var classType = "panel-success";
+
+                    if (ViewBag.message == "")
+                    {
+                        classType = "panel-danger";
+                        if (String.IsNullOrWhiteSpace(message))
+                        {
+                            message = " Something went wrong.";
+                        }
+                    }
+                    <div class="col-sm-12">
+                        <div id="divMsg" class="@("panel "+ classType )">
+                            <div class="panel-heading">
+                                <label class="text-center">
+                                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                    <ul id="idErrorMsg" class="ul-err">
+                                        @message
+                                    </ul>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="row" style="padding-left: 30px; display:none" id="divColleges">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label> Institute Name <span class="sprq">*</span></label>
+                            <select class="form-control" required="" id="ddlLocations" name="ddlLocations">
+                                <option selected="selected" value="0">Select One</option>
+                                <option value="12">College of Nursing, KEMU / Mayo Hospital, Lahore</option>
+                                <option value="13">College of Nursing, FJMU / Sir Ganga Ram Hospital, Lahore</option>
+                                <option value="14">College of Nursing, Ameer-ud-Din/ Lahore General Hospital, Lahore</option>
+                                <option value="15">College Of Nursing, Allama Iqbal Medical College/ Jinnah Hospital, Lahore</option>
+                                <option value="16">College of Nursing, RMU / Holy Family Hospital, Rawalpindi</option>
+                                <option value="17">College of Nursing, Benazir Bhutto Shaheed Hospital, Rawalpindi</option>
+                                <option value="18">College of Nursing, Allied Hospital, Faisalabad</option>
+                                <option value="19">College of Nursing, Nishtar Hospital, Multan</option>
+                                <option value="20">College of Nursing, Bahawal Victoria Hospital, Bahawalpur</option>
+                                <option value="21">College of Nursing, Services Hospital, Lahore</option>
+                                <option value="22">College of Nursing, Children Hospital &amp; The Institute of Child Health, Lahore</option>
+                                <option value="23">College of Nursing, Allama Iqbal Memorial Hospital, Sialkot</option>
+                                <option value="24">College of Nursing, DHQ Hospital, Dera Ghazi Khan</option>
+                                <option value="25">College of Nursing, DHQ Hospital, Muzaffargarh</option>
+                                <option value="26">College of Nursing, Sheikh Zayed Hospital, Rahim Yar Khan</option>
+                                <option value="27">College of Nursing, DHQ Hospital, Vehari</option>
+                                <option value="28">College of Nursing, DHQ Hospital, Rajanpur</option>
+                                <option value="29">College of Nursing, DHQ Hospital, Layyah</option>
+                                <option value="30">College of Nursing, DHQ Hospital, Bahawalnagar</option>
+                                <option value="31">College of Nursing, DHQ Hospital, Rawalpindi</option>
+                                <option value="32">College of Nursing, DHQ Hospital, Jhelum</option>
+                                <option value="33">College of Nursing, DHQ Hospital, Attock</option>
+                                <option value="34">College of Nursing, DHQ Hospital, Mianwali</option>
+                                <option value="35">College of Nursing, DHQ Hospital, Chakwal</option>
+                                <option value="36">College of Nursing, DHQ Hospital, Sahiwal</option>
+                                <option value="37">College of Nursing, DHQ Hospital, Okara</option>
+                                <option value="38">College of Nursing, DHQ Hospital, Pakpattan</option>
+                                <option value="39">College of Nursing, DHQ Hospital, Gujranwala</option>
+                                <option value="40">College of Nursing, DHQ Hospital, Faisalabad</option>
+                                <option value="41">College of Nursing, DHQ Hospital, Sheikhupura</option>
+                                <option value="42">College of Nursing, DHQ Hospital, Kasur</option>
+                                <option value="43">College of Nursing, DHQ Hospital, Toba Tek Singh</option>
+                                <option value="44">College of Nursing, DHQ Hospital, Lodhran</option>
+                                <option value="45">College of Nursing, Eye Cum General (THQ)  Hospital, Gojra</option>
+                                <option value="46">College of Nursing, DHQ Hospital, Khanewal</option>
+                                <option value="47">College of Nursing, DHQ Hospital, Mandi Bahud Din</option>
+                                <option value="48">College of Nursing, DHQ Hospital, Khushab</option>
+                                <option value="49">College of Nursing, DHQ Hospital, Bhakkar</option>
+                                <option value="50">College of Nursing, DHQ Hospital, Jhang</option>
+                                <option value="51">College of Nursing, DHQ Hospital, Narowal</option>
+                                <option value="52">College of Nursing, DHQ Hospital, Hafizabad</option>
+                                <option value="53">College of Nursing, DHQ Hospital, Gujrat</option>
+                                <option value="54">College of Nursing, DHQ Hospital, Sargodha</option>
+                                <option value="64">College of Nursing, Shahdrh, Lahore</option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="dateRow" style="display:none;padding-left: 30px;">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <span style="color:red">*</span>
+                            <label for=""> Grievance Date </label>
+                            <div class="input-group date">
+                                <input required="required" type="text" name="txtGrievanceDate" id="txtGrievanceDate" class="form-control" readonly="readonly"   ><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12" style="padding-top: 20px;">
+                        <span id="btnSave" type="button" class="btn btn-lg mb10 mt5 btn-red" tabindex="28">Save Grievance Data &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                    </div>
+
+                </div>
+
+
+
+
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Cofirmation</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row main">
+                        <div class="col-sm-1"></div>
+                        <div class="col-sm-10 form-box mn0" style="height:100%; padding:30px">
+                            <div class="main-login main-center">
+                                <p> Are you sure you want to save this date and location for your grievances?</p>
+                                <p>
+                                    <label class="text-center">
+                                        <center>
+                                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                        </center>
+                                    </label>
+                                </p>
+                                <p> Mark this date and location for you grievance, you are required to appear before the grievance committee on your selected date and location for removing your rejection</p>
+                                <div class="col-sm-12">
+                                    <center>
+                                        <span id="btnSaveModal" type="button" class="btn btn-lg mb10 mt5 btn-red" tabindex="28">Save &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                                    </center>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cacel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

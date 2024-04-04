@@ -4,7 +4,7 @@
     Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
 }
 @model Prp.Sln.ApplicantStatusModel
-
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 @section RenderCss{
 
     <style>
@@ -15,8 +15,11 @@
     </style>
 
 }
+
+
 @section RenderScript{
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
     <script>
         var countryTypeId = 0, perPageRecords = 10, statusId = 0
             , pageNum = 1, totalCount = 0, obj = {}, inductionId = 0;
@@ -28,11 +31,32 @@
 
             SearchApplicant();
 
+			$("#divDownload").show().change();
+
+			$('#exportButton').click(function () {
+                // Get the values of the hidden fields
+                var id1 = 12;
+                var id2 = 193;
+                var id3 = 1;
+                var id4 = 1;
+                var id5 = "";
+
+                // Make AJAX request to controller action with all three IDs
+
+
+                var resp = CallActionGet("/ApplicantAdmin/GetDataForExport?inductionId=" + id1 + "&statusTypeId=" + id2 + "&statusId=" + id3 + "&phaseId=" + id4 +"&option="+id5);
+
+                //exportToExcel(resp);
+				downloadExcelFromJson(resp, 'data');
+
+                debugger;
+
+            });
 
             $(document).on('click', '.tbRow', function () {
                 //alert(userTypeId);
                 if (userTypeId == 69) {
-
+					debugger;
                     var applicantId = ConvertToInt($(this).attr("id"));
 
                     var statusTypeId = ConvertToInt($("#hfdStatusTypeId").val())
@@ -43,13 +67,33 @@
 
                         url = "/admin/voucher-detail?applicantId=" + applicantId;
                     }
-                    else {
+					else if (statusTypeId == 193) {
 
-                        url = "/admin/applicant-join-add?applicantId=" + applicantId;
-
+                        url = "/admin/addMigrationCandidate?applicantId=" + applicantId;
                     }
-                    window.open(url, '_blank');
+                    else {
+						if(statusTypeId == 201)
+						{
+							url = "/admin/applicant-join-add?applicantId=" + applicantId;
+						}
+						else if(statusTypeId == 202)
+						{
+							url = "/admin/applicant-join-add?applicantId=" + applicantId;
+						}
+                    }
+					if(url != "")
+					{
+						window.open(url, '_blank');
+					}
+
+
                 }
+				else
+				{
+					var applicantId = ConvertToInt($(this).attr("id"));
+					var statusTypeId = ConvertToInt($("#hfdStatusTypeId").val());
+					debugger;
+				}
             });
 
 
@@ -89,9 +133,111 @@
 
                 SearchApplicant();
 
+				$("#divDownload").show();
+
             });
 
         });
+
+		function jsonToCsv(jsonData) {
+			// Convert JSON data to CSV format
+			let csvContent = '';
+			// Extract column headers from the first object in the array
+			const headers = Object.keys(jsonData[0]);
+			// Join column headers with comma as CSV header row
+			csvContent += headers.join(',') + '\n';
+			// Iterate over JSON data and convert each object to CSV row
+			jsonData.forEach((row) => {
+				// Extract values from the object and join them with comma
+				const values = headers.map((header) => {
+					// Handle cases where values may contain commas or quotes
+					let value = row[header];
+					// If value contains double quotes, escape them
+					if (typeof value === 'string' && value.includes('"')) {
+						value = value.replace(/"/g, '""');
+					}
+					// If value contains commas, enclose it in double quotes
+					if (typeof value === 'string' && value.includes(',')) {
+						value = `"${value}"`;
+					}
+					return value;
+				});
+				csvContent += values.join(',') + '\n';
+			});
+			return csvContent;
+		}
+
+		function downloadExcelFromJson(jsonData, fileName) {
+			// Convert JSON data to CSV format
+			const csvContent = jsonToCsv(jsonData);
+
+			// Create a Blob object from the CSV data
+			const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+			// Create a link element to trigger the download
+			const link = document.createElement('a');
+			if (link.download !== undefined) { // feature detection
+				// Create a link that points to the Blob URL
+				const url = URL.createObjectURL(blob);
+				link.setAttribute('href', url);
+				// Set the download attribute (filename)
+				link.setAttribute('download', fileName + '.csv');
+				// Append the link to the body
+				document.body.appendChild(link);
+				// Trigger the download by simulating a click
+				link.click();
+				// Remove the link from the DOM
+				document.body.removeChild(link);
+			} else {
+				console.error("Downloading is not supported in this browser.");
+			}
+		}
+
+		function exportToExcel() {
+			// Get the selected values from the select lists
+
+			var selectList1Text = document.getElementById('ddlInduction').options[document.getElementById('ddlInduction').selectedIndex].text;
+			var selectList2Text = document.getElementById('ddlCollege').options[document.getElementById('ddlCollege').selectedIndex].text;
+
+			var fileName = selectList1Text + "_" + selectList2Text + "_data.xlsx";
+
+			var selectList1Value = document.getElementById('ddlInduction').value;
+			var selectList2Value = document.getElementById('ddlCollege').value;
+
+			// Create a new Workbook
+			var wb = XLSX.utils.book_new();
+
+			// Get the table element
+			var table = document.getElementById('tblPanel');
+
+			// Convert the table to a worksheet
+			var ws = XLSX.utils.table_to_sheet(table);
+
+			// Add the selected values to the worksheet
+			/*
+			ws['A1'] = { v: 'Induction', t: 's' };
+			ws['B1'] = { v: selectList1Value, t: 's' };
+			ws['A2'] = { v: 'College', t: 's' };
+			ws['B2'] = { v: selectList2Value, t: 's' };
+			*/
+			// Add hidden columns to the worksheet
+			var numColumns = table.rows[0].cells.length;
+			var hiddenColumnIndex = 1; // Adjust the index as per your requirement
+			/*
+			for (var i = 0; i < numColumns; i++) {
+				var headerText = table.rows[0].cells[i].textContent.trim();
+				if (headerText.startsWith('Hidden')) {
+					ws[XLSX.utils.encode_cell({ r: 0, c: hiddenColumnIndex })] = { v: headerText, t: 's' };
+					hiddenColumnIndex++;
+				}
+			}
+			*/
+			// Add the worksheet to the workbook
+			XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+			// Save the workbook as an Excel file
+			XLSX.writeFile(wb, fileName);
+		}
 
         function SearchApplicant() {
 
@@ -109,12 +255,26 @@
             obj.statusId = @Convert.ToInt32(Session["SelectedStatusID"]);
             obj.inductionId = inductionId;
             obj.phaseId = @Model.loggedInUser.userId;
-            obj.search = ConvertToString($("#txtSearch").val());
+
+			if($("#txtSearch").val()!=null && $("#txtSearch").val().length > 0)
+			{
+				debugger;
+				obj.search = ConvertToString($("#txtSearch").val());
+			}
+			else{
+				obj.search = $("#ddlInduction").val() + '-' + $("#ddlCollege").val();
+			}
+
+			console.log(obj);
+			if(obj.search === 'undefined-undefined')
+			{
+				obj.search = '';
+			}
             //alert('clicked');
             var url = "/ApplicantAdmin/ApplicantSearchSimpleJoin";
 
+			//debugger;
             var list = CallActionPost(url, obj);
-
             var html = "";
 
             var singleHtml = "", objItem = {};
@@ -123,7 +283,7 @@
                 //$(".displayComments").hide();
             }
 
-
+			console.log(list);
             if (list != null && list.length > 0) {
 
                 totalCount = list[0].totalCount;
@@ -263,14 +423,94 @@
         <form class="form-horizontal form-label-left input_mask">
             <div class="form-group col-lg-12">
 
-                <div class="col-md-7 col-sm-7 col-xs-7">
-                    <label for="heard">Search :</label>
-                    <input type="text" id="txtSearch" name="txtSearch" placeholder="Name, CNIC, Applicant Number" class="form-control" />
-                </div>
+                @if (Model.loggedInUser.userId == 63 || Model.loggedInUser.userId == 6 || Model.loggedInUser.userId == 62)
+                {
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard">Induction :</label>
+                        <select required="required" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
+                            <option selected="selected" value="2022-26">2022-26</option>
+                            <option selected="selected" value="2021-25">2021-25</option>
+                            <option selected="selected" value="2020-24">2020-24</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5 col-sm-5 col-xs-5">
+                        <label for="heard">College :</label>
+                        <select required="required" name="ddlCollege" id="ddlCollege" class="form-control" tabindex="2">
+                            <option value="College of Nursing( KEMU),Mayo Hospital , Lahore">	College of Nursing( KEMU),Mayo Hospital , Lahore	</option>
+                            <option value="CON ,(FJMU) Sir Ganga Ram Hospital Lhr">	CON ,(FJMU) Sir Ganga Ram Hospital Lhr	</option>
+                            <option value="CON ,Ameer-ud-Din General Hospital Lahore">	CON ,Ameer-ud-Din General Hospital Lahore	</option>
+                            <option value="College of Nursing  AIMC Jinnah Hospital , Lahore">	College of Nursing  AIMC Jinnah Hospital , Lahore	</option>
+                            <option value="CON ,Holy Family Hospital , Rawalpindi">	CON ,Holy Family Hospital , Rawalpindi	</option>
+                            <option value="CON , Benazir Bhutto Shaheed Hospital Rawalpindi ">	CON , Benazir Bhutto Shaheed Hospital Rawalpindi  	</option>
+                            <option value="College of Nursing ,Allied Hospital Faisalabad ">	College of Nursing ,Allied Hospital Faisalabad  	</option>
+                            <option value="College of Nursing ,Nishtar Hospital Multan ">	College of Nursing ,Nishtar Hospital Multan  	</option>
+                            <option value="CON ,Bahawalpur Victoria Hospital Bahawalpur ">	CON ,Bahawalpur Victoria Hospital Bahawalpur  	</option>
+                            <option value="College of Nursing ,Service Hospital Lahore">	College of Nursing ,Service Hospital Lahore	</option>
+                            <option value="College of Nursing ,Children Hospital Lahore">	College of Nursing ,Children Hospital Lahore 	</option>
+                            <option value="CON ,Allama Iqbal Memorial Hospital Sialkot">	CON ,Allama Iqbal Memorial Hospital Sialkot	</option>
+                            <option value="College of Nursing , DHQ Hospital Dera Ghazi Khan">	College of Nursing , DHQ Hospital Dera Ghazi Khan	</option>
+                            <option value="College of Nursing ,DHQ Hospital Muzaffargarh ">	College of Nursing ,DHQ Hospital Muzaffargarh  	</option>
+                            <option value="College of Nursing ,Sheikh Zayed Hospital , RYK">	College of Nursing ,Sheikh Zayed Hospital , RYK	</option>
+                            <option value="College Of Nurisng Vehari">	College Of Nurisng Vehari 	</option>
+                            <option value="College Of Nurisng Rajanpur">	College Of Nurisng Rajanpur 	</option>
+                            <option value="College Of Nurisng Layyah">	College Of Nurisng Layyah 	</option>
+                            <option value="College Of Nurisng Bahawalnagar">	College Of Nurisng Bahawalnagar 	</option>
+                            <option value="College Of Nurisng DHQ Rawalpindi">	College Of Nurisng DHQ Rawalpindi 	</option>
+                            <option value="College Of Nurisng Jhelum">	College Of Nurisng Jhelum 	</option>
+                            <option value="College Of Nurisng Attock">	College Of Nurisng Attock 	</option>
+                            <option value="College Of Nurisng Mainwali">	College Of Nurisng Mainwali 	</option>
+                            <option value="College Of Nurisng Chakwal">	College Of Nurisng Chakwal 	</option>
+                            <option value="College Of Nurisng Sahiwal">	College Of Nurisng Sahiwal 	</option>
+                            <option value="College Of Nurisng Okara">	College Of Nurisng Okara	</option>
+                            <option value="College Of Nurisng Pakpattan">	College Of Nurisng Pakpattan 	</option>
+                            <option value="College Of Nurisng Gujranwala">	College Of Nurisng Gujranwala 	</option>
+                            <option value="College Of Nurisng DHQ Faisalabad">	College Of Nurisng DHQ Faisalabad	</option>
+                            <option value="College Of Nurisng Sheikhupura">	College Of Nurisng Sheikhupura	</option>
+                            <option value="College Of Nurisng  Kasur">	College Of Nurisng  Kasur 	</option>
+                            <option value="College Of Nurisng Toba Take Singh">	College Of Nurisng Toba Take Singh 	</option>
+                            <option value="College Of Nurisng Lodhran">	College Of Nurisng Lodhran 	</option>
+                            <option value="College Of Nurisng  Hospital Gojra">	College Of Nurisng  Hospital Gojra 	</option>
+                            <option value="College Of Nurisng Khanewal">	College Of Nurisng Khanewal 	</option>
+                            <option value="College Of Nurisng Mandi.B. Din">	College Of Nurisng Mandi.B. Din 	</option>
+                            <option value="College Of Nurisng Khushab">	College Of Nurisng Khushab 	</option>
+                            <option value="College Of Nurisng Bhakkar">	College Of Nurisng Bhakkar 	</option>
+                            <option value="College Of Nurisng Jhang">	College Of Nurisng Jhang 	</option>
+                            <option value="College Of Nurisng Narowal">	College Of Nurisng Narowal 	</option>
+                            <option value="College Of Nurisng Hafizabad">	College Of Nurisng Hafizabad	</option>
+                            <option value="College Of Nurisng Gujrat">	College Of Nurisng Gujrat 	</option>
+                            <option value="College Of Nurisng Sargodha">	College Of Nurisng Sargodha 	</option>
+
+                        </select>
+                    </div>
+                    <div class="col-md-7 col-sm-7 col-xs-7">
+                        <label for="heard">Search :</label>
+                        <input type="text" id="txtSearch" name="txtSearch" placeholder="Name, CNIC, Applicant Number" class="form-control" />
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-7 col-sm-7 col-xs-7">
+                        <label for="heard">Search :</label>
+                        <input type="text" id="txtSearch" name="txtSearch" placeholder="Name, CNIC, Applicant Number" class="form-control" />
+                    </div>
+                }
+
                 <div class="col-md-2 col-sm-2 col-xs-2">
                     <label for="heard" style="width:100%;">&nbsp;</label>
                     <input type="button" id="btnSearch" name="btnSearch" value="Search" class="btn btn-success" />
                 </div>
+                @if (Model.loggedInUser.typeId != 69)
+                {
+                    <div class="col-md-2 col-sm-2 col-xs-2" style="display:none" id="divDownload">
+                        <label for="heard" style="width:100%;">&nbsp;</label>
+                        <input type="button" id="btnDownload" onclick="exportToExcel()" name="btnDownload" value="Download" class="btn btn-success" />
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard" style="width:100%;">&nbsp;</label>
+                        <input type="button" id="exportButton" value="Export All" class="btn btn-success" />
+                    </div>
+                }
+
             </div>
             <div class="clearfix"></div>
             <div class="ln_solid"></div>
@@ -281,15 +521,16 @@
                     <thead>
                         <tr class="headings">
                             <th class="column-title">Sr. </th>
-                            <th class="column-title">Pic </th>
                             <th class="column-title">ID </th>
+                            @if (Model.loggedInUser.typeId == 69)
+                            {
+                                <th class="column-title">Pic </th>
+                            }
                             <th class="column-title">Name </th>
-                            <th class="column-title">PMDC </th>
                             <th class="column-title">Email </th>
                             <th class="column-title">Number </th>
                             <th class="column-title">Applied For</th>
                             <th class="column-title">Status </th>
-                            <th class="column-title displayComments">Comments </th>
                             <th class="column-title">Dated </th>
                             @*<th class="column-title">Status Date </th>*@
 
@@ -321,18 +562,20 @@
                         <tbody id="tbTempHtml">
                             <tr class="tbRow" id="{#applicantId#}">
                                 <td>{#rowNum#}</td>
-                                <td>
-                                    <img class="imgView" src="/Images/Applicant/{#applicantId#}/{#pic#}" />
-                                    <a class="ank" href="/Images/Applicant/{#applicantId#}/{#pic#}" target="_blank" title="Click to view"></a>
-                                </td>
                                 <td>{#applicantId#}</td>
+                                @if (Model.loggedInUser.typeId == 69)
+                                {
+                                    <td>
+                                        <img class="imgView" src="/Images/Applicant/{#applicantId#}/{#pic#}" />
+                                        <a class="ank" href="/Images/Applicant/{#applicantId#}/{#pic#}" target="_blank" title="Click to view"></a>
+                                    </td>
+                                }
+
                                 <td>{#name#}</td>
-                                <td>{#pmdcNo#}  </td>
                                 <td>{#emailId#}</td>
                                 <td>{#contactNumber#}</td>
                                 <td>{#facultyName#}</td>
                                 <td>{#status#} </td>
-                                <td class="displayComments">{#comments#}</td>
                                 <td>{#dated#}  </td>
                                 @*<td>{#dateStatus#}</td>*@
                             </tr>

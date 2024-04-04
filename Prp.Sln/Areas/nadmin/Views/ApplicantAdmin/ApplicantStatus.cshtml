@@ -20,65 +20,51 @@
 <div class="col-md-12 col-sm-12  ">
     <div class="x_panel">
         <div class="x_title">
-            <h2>Applicant Status </h2>
+            <h2>Applicant Status : </h2>
+            @if (Model != null && (Model.applicantStatus != null && Model.applicantStatus.Rows.Count > 0))
+            {
+                <h2 style="padding-left:10px">@Model.applicantStatus.Rows[0]["comments"].TooString() , Form Number (@Model.applicantStatus.Rows[0]["applicantId"].TooString())</h2>
+            }
+
             <div class="clearfix"></div>
         </div>
 
         @if (Model != null && (Model.applicantStatus != null && Model.applicantStatus.Rows.Count > 0))
         {
-            var result = Model.applicantStatus.AsEnumerable()
-                                    .Select(row => new
-                                    {
-                                        inductionId = row.Field<int>("inductionId"),
-                                        inductionName = row.Field<string>("inductionName")
-                                    }).Distinct();
+            <div class="table-responsive">
+                <table class="table table-striped jambo_table bulk_action">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Phase </th>
+                            <th class="column-title">Status </th>
+                            <th class="column-title">By </th>
+                            <th class="column-title">Comments </th>
+                            <th class="column-title">Dated </th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-            if (result != null && result.Count() > 0)
-            {
-                foreach (var idr in result)
-                {
+                        @foreach (DataRow dr in Model.applicantStatus.Rows)
+                        {
+                        <tr>
+                            <td>@dr["statusType"].TooString()</td>
+                            <td>@dr["status"].TooString()</td>
+                            <td>@dr["statusBy"].TooString()</td>
+                            @if (Model.applicantStatus.Rows.IndexOf(dr) == 0)
+                            {
+                                <td> </td>
+                            }
+                            else
+                            {
+                                <td>@dr["comments"].TooString()</td>
+                            }
 
-                    <div class="x_content">
-                        <div class="x_title">
-                            <h2>
-                                Induction (@idr.inductionId) : @idr.inductionName
-
-                                @if (idr.inductionId == Model.inductionId)
-                                {
-                                    <span class="spnbtn">Current Induction</span>
-                                }
-
-                            </h2>
-                            <div class="clearfix"></div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped jambo_table bulk_action">
-                                <thead>
-                                    <tr class="headings">
-                                        <th class="column-title">Status Type  </th>
-                                        <th class="column-title">Status </th>
-                                        <th class="column-title">Dated </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    @foreach (DataRow dr in Model.applicantStatus.Rows)
-                                    {
-                                        if (dr["inductionId"].TooInt() == idr.inductionId)
-                                        {
-                                            <tr>
-                                                <td>@dr["statusTypeName"].TooString()</td>
-                                                <td>@dr["status"].TooString()</td>
-                                                <td>@dr["dated"].TooString()</td>
-                                            </tr>
-                                        }
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                }
-            }
+                            <td>@dr["dated"].TooString()</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
 
 

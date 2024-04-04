@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>PNAS | @ViewBag.Title </title>
-    <link href="assets/public/css/bootstrap.css" rel="stylesheet">
+    <link href="/assets/public/css/bootstrap.css" rel="stylesheet">
 
     @*<link href="/assets/css/font-awesome.css" rel="stylesheet" />*@
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -62,6 +62,21 @@
             margin: 0px 10px 0;
         }
 
+        #newscontent {
+            float: none !important;
+            padding: 20px;
+            font-size: 20px;
+            color: red;
+        }
+
+        #ticker_container {
+            background-color: yellow;
+        }
+
+        #controls {
+            display: none !important;
+        }
+
         .ul-link li {
             min-width: 35px;
         }
@@ -81,6 +96,13 @@
         .container-fluid a {
             color: #fff;
             font-size: 15px;
+        }
+
+        .tick-static {
+            background-color: #f30909;
+            color: #fff;
+            margin-top: 5px;
+            text-align: center;
         }
     </style>
 
@@ -108,27 +130,30 @@
                                 <!-- Collect the nav links, forms, and other content for toggling -->
                                 <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1" aria-expanded="false">
                                     <ul class="nav navbar-nav navbar-right red ul-link" style="margin:auto;height: 20px;margin-top: -23px;width: 75%;">
-
+                                        @*<li><a href="/nett/gazatte"> Provisional Gazette </a></li>*@
+                                        @*<li><a href="/docs/First Merit List Pdf.pdf"> 1st Merit List </a></li>*@
+                                        @*<li><a href="/docs/Merit_List_2_24June.pdf"> 2nd Merit List </a></li>*@
                                         @if (Model.loggedInUser != null && Model.loggedInUser.applicantId > 0)
+
                                         {
                                             if (Model.applicationStatusId == 8)
                                             {
                                                 @*<li>
-                                                        <a href="/application-status">View Status</a>
-                                                    </li>
-                                                    <li class="blink">
-                                                        <a href="/nett/grievance-verification-application">Apply Grievance</a>
-                                                    </li>*@
+                                                    <a href="/application-status">View Status</a>
+                                                </li>
+                                                <li class="blink">
+                                                    <a href="/nett/grievance-verification-application">Apply Grievance</a>
+                                                </li>*@
                                                 @* <li class="blink">
-                                                        <a href="/applicant/joining">Joining</a>
-                                                    </li>*@
+                                                    <a href="/applicant/joining">Joining</a>
+                                                </li>*@
                                                 <li>
                                                     <a href="/profile-view-print">View Profile</a>
                                                     <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
                                                 </li>
                                                 @*<li class="blink">
-                                                        <a href="@("/"+ProjConstant.preUrl + "/applicant/consent")">Give Consent</a>
-                                                    </li>*@
+                                                    <a href="@("/"+ProjConstant.preUrl + "/applicant/consent")">Give Consent</a>
+                                                </li>*@
                                             }
                                             else
                                             {
@@ -153,7 +178,7 @@
                                     </ul>
                                     <ul class="nav navbar-nav navbar-right red ul-link " style="margin-top: 20px;">
                                         <li class="red">
-                                            <a href="#"> <i class="fa fa-phone" aria-hidden="true"></i>Help Line: 03041111972  &nbsp;&nbsp; (10 AM to 4 PM)</a>
+                                            <a href="#"> <i class="fa fa-phone" aria-hidden="true"></i>Help Line: 0304-1111972 | 042-99211982&nbsp; (10 AM to 4 PM)</a>
                                         </li>
                                         <li class="red" style="display:none;">
                                             <a href="#" style="text-transform:lowercase;"> <i class="fa fa-envelope" aria-hidden="true"></i>  support@phf.gop.pk </a>
@@ -161,18 +186,18 @@
 
                                         @if (Model.loggedInUser != null && Model.loggedInUser.applicantId > 0)
                                         {
-                                            <li style="display:none">
+                                            @*<li style="display:none">
                                                 <a href="/contact-us">Contact Us</a>
                                             </li>
                                             <li class="red">
                                                 <a href="#"> Welcome </a>
-                                            </li>
+                                            </li>*@
                                             <li class="red"><a href="/logout">Logout</a></li>
                                             <li>
                                                 <img src="@(Model.loggedInUser.pathProfilePic)" style="width:40px; height:40px;" class="img-circle mt10 dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" alt="">
                                                 <ul class="dropdown-menu">
-                                                    <li><a href="/applicant-profile-create">View Profile</a></li>
-                                                    <li><a href="/change-password">Change Password</a></li>
+                                                    @*<li><a href="/applicant-profile-create">View Profile</a></li>
+                                                    <li><a href="/change-password">Change Password</a></li>*@
                                                     <li><a href="/logout">Logout</a></li>
                                                 </ul>
                                             </li>
@@ -180,7 +205,7 @@
                                         }
                                         else
                                         {
-                                            @*<li><a href="/contactus">Contact Us</a> </li>*@
+                                            <li><a href="/contactus">Contact Us</a> </li>
                                             <li class="red"><a href="/login">Login</a></li>
                                             <li class="red"><a href="/register"> Register </a></li>
                                         }
@@ -192,23 +217,49 @@
                     </div>
                 </div>
         </header>
-        @{
-            var totalCount = Model.listTicker.Count;
-            <div style="display:none;"> Total Ticker  are  @totalCount</div>
 
+        @{
             try
             {
+
+                var totalCount = Model.listTicker.Count;
+                <div style="display:none;"> Total Ticker  are  @totalCount</div>
+
+                @*<div class="notifyAlert" style="text-align:center; background-color:yellow !important;">
+                    <div class="container-fluid" style="text-align:center">
+                        <ul id="ticker" style=" text-align:center">
+                            <li style="text-align:center; padding:20px;">
+                                <strong style="text-align:center">
+                                    BSN Generic Admission Program (Morning & Afternoon) 2024-2027 Session Is Live Now
+                                </strong>
+                            </li>
+                            <li style="text-align:center; padding:20px;">
+                                <strong style="text-align:center">
+                                    فیس جمع کروانے کے لیے فیس واؤچر   صرف    اور صرف   پورٹل سے ہی  ڈاؤن لوڈ  کرنا ہو گا۔ بینک کی سلپ، آن لائن یا کسی اور ذریعہ سے جمع کروائی   ہوئی فیس قابل قبول نہ ہو گی
+                                </strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>*@
+
+
+
                 var listTicker = Model.listTicker.Where(x => x.typeId == 1 && x.isActive == true).ToList().OrderBy(x => x.sortOrder).ToList();
+
+
+
                 if (listTicker != null && listTicker.Count > 0)
                 {
                     <div class="notifyAlert">
                         <div class="container-fluid">
-                            <ul id="ticker" style="display: none;">
+                            <ul id="ticker">
                                 @foreach (var item in listTicker)
                                 {
                                     <li>
                                         <strong>
-                                            @item.detail
+                                            <center>
+                                                @item.detail
+                                            </center>
                                         </strong>
                                     </li>
                                 }
@@ -221,14 +272,37 @@
             {
             }
 
+            @*<div class="notifyAlert">
+                <div class="container-fluid tick-static">
+                    <ul id="ticker">
+                        <li>
+                            <strong>
+                                ایک شناختی کارڈ پر ایک دفعہ ہی رجسٹریشن ہو گی۔ اگر آپ نے پہلے کبھی نرسنگ پورٹل پر اپلائی کیا تھا تو  دوبارہ  اپلائی کرنے کے لیے  صرف لاگ ان کرنا ہو گا۔ نئی رجسٹریشن کرنے کی ضرورت نہیں  ہے۔
+                            </strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>*@
+
             try
             {
-                var alert = Model.listTicker.FirstOrDefault(x => x.typeId == 6 && x.isActive == true);
-                if (alert != null && alert.tickerId > 0)
+                var alert = Model.listTicker.Where(x => x.typeId == 6 && x.isActive == true).ToList().OrderBy(x => x.sortOrder).ToList();
+                if (alert != null && alert.Count > 0)
                 {
-                    <div class="col-sm-12">
-                        <div class="panel panel-danger">
-                            @Html.Raw(alert.detail)
+                    <div class="notifyAlert">
+                        <div class="container-fluid">
+                            <ul id="ticker">
+                                @foreach (var item in alert)
+                                {
+                                    <li>
+                                        <strong>
+                                            <center>
+                                                @item.detail
+                                            </center>
+                                        </strong>
+                                    </li>
+                                }
+                            </ul>
                         </div>
                     </div>
                 }
@@ -242,7 +316,7 @@
             <div class="footer">
                 <div class="container">
                     <div class="col-sm-12 text-center tc">
-                        Copyrights@2022 SHC&ME Dept  Powered by: Punjab Health Foundation.
+                        Copyrights@2023 SHC&ME Dept  Powered by: Punjab Health Foundation.
                     </div>
                 </div>
             </div>
@@ -253,7 +327,7 @@
     <script src="/assets/jquery/bootstrapValidator.min.js"></script>
 
     <script src="/assets/vendor/bootstrap.min.js"></script>
-    <script src="/assets/js/index.js"></script>
+    @*<script src="/assets/js/index.js"></script>*@
     @*<link href="/assets/global/plugins/pnotify/pnotify.custom.min.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript" src="/assets/global/plugins/pnotify/pnotify.custom.min.js"></script>*@
 

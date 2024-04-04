@@ -1,5 +1,6 @@
-﻿@{
-    ViewBag.Title = "Gazzette FCPS";
+﻿
+@{
+    ViewBag.Title = "Meirt List";
     Layout = "~/Views/Shared/_GazatMerit.cshtml";
 }
 @model Prp.Sln.MeritGazatModel
@@ -14,7 +15,7 @@
     {
 
     <script>
-        var typeId = 1, perPageRecords = 20, pageNum = 1, lastPageNo = 0, totalCount = 0, totalCountSet = 0, rowHtml = "";
+        var typeId = 4, perPageRecords = 20, pageNum = 1, lastPageNo = 0, totalCount = 0, totalCountSet = 0, rowHtml = "";
 
         $(document).ready(function () {
 
@@ -67,7 +68,7 @@
             obj.typeId = typeId;
             obj.search = ConvertToString($("#txtSearch").val());
             console.log(obj);
-            var url = "/MeritGazat/GazatGetAllByTypeView";
+            var url = "/MeritGazat/GazzetGetAllByTypeView";
             var list = CallActionPost(url, obj);
 
 
@@ -88,13 +89,21 @@
                     singleHtml = rowHtml;
 
                     html = html + singleHtml.replace(/{#sr#}/g, objItem.sr)
-                        .replace(/{#appId#}/g, objItem.applicantId)
-                        .replace(/{#nam#}/g, objItem.name)
-                        .replace(/{#fname#}/g, objItem.fathername)
-                        .replace(/{#cnicNo#}/g, objItem.cnic)
-                        .replace(/{#email#}/g, objItem.Email)
-                        .replace(/{#contactNumber#}/g, objItem.contactNumber)
-                        .replace(/{#reasonForRejection#}/g, objItem.reasonForRejection);
+                        .replace(/{#appId#}/g, objItem.appId)
+                        .replace(/{#nam#}/g, objItem.nam)
+                        .replace(/{#fname#}/g, objItem.fname)
+                        .replace(/{#cnicNo#}/g, objItem.cnicNo)
+                        .replace(/{#email#}/g, objItem.email)
+                        .replace(/{#dom#}/g, objItem.dom)
+                        .replace(/{#matricObtained#}/g, objItem.matricObtained)
+                        .replace(/{#matricTotal#}/g, objItem.matricTotal)
+                        .replace(/{#faObtained#}/g, objItem.faObtained)
+                        .replace(/{#faTotal#}/g, objItem.faTotal)
+                        .replace(/{#matric#}/g, objItem.matric)
+                        .replace(/{#fa#}/g, objItem.fa)
+                        .replace(/{#nPref#}/g, objItem.nPref)
+                        .replace(/{#prefNo#}/g, objItem.prefNo)
+                        .replace(/{#collegeName#}/g, objItem.collegeName);
 
                 }
                 if (totalCountSet > 0)
@@ -169,13 +178,16 @@
 
     </script>
 }
-<div class="container">
+<div class="container" style="width: auto !important;">
     <div class="row">
 
         @if (Model.consentRound == 0)
         {
             <div class="col-xs-12">
-                <h2 class="title-grp">Rejected Candidates List - BSN Generic  (2024)</h2>
+                <h2 class="title-grp">Merit List (2) Female - BSN Generic  (2024) Morning</h2>
+                <div style="color: white;float: left;" class="container">
+                    <h3>Search By your Name, CNIC or Form Number</h3>
+                </div>
                 <div class="clearfix"></div>
                 <div class="dataTables_filter col-md-12">
                     <div class="form-group center-div">
@@ -187,14 +199,22 @@
                 <table class="dataTable paginated" style="font-size:14px; width: 100%;" cellspacing="0">
                     <tbody>
                         <tr>
-                            <th>Sr.</th>
+                            <th>Sr.#</th>
                             <th>Form No.</th>
                             <th>Name</th>
                             <th>Father Name</th>
                             <th>Email Id</th>
-                            <th>Contact Number</th>
+                            <th>Domicile</th>
                             <th>CNIC No</th>
-                            <th>Reason For Rejection</th>
+                            <th>Matric Obtained</th>
+                            <th>Matric Total</th>
+                            <th>Matric %</th>
+                            <th>Fsc Obtained</th>
+                            <th>Fsc Total</th>
+                            <th>FSc %</th>
+                            @*<th>Prf #</th>*@
+                            <th>College</th>
+                            @*<th>Preferences</th>*@
                         </tr>
                     </tbody>
                     <tbody id="tbBody">
@@ -227,7 +247,7 @@
         else
         {
             <div class="col-xs-12">
-                <h2 class="title-grp">Rejected Candidates List - BSN Generic  (2024)</h2>
+                <h2 class="title-grp">Merit List (1) - BSN Generic  (2023)</h2>
             </div>
         }
 
@@ -238,17 +258,27 @@
     <table>
         <tbody id="tbRowTemp">
             <tr>
+
                 <td>{#sr#}</td>
                 <td>{#appId#}</td>
                 <td>{#nam#}</td>
                 <td>{#fname#}</td>
                 <td>{#email#}</td>
-                <td>{#contactNumber#}</td>
+                <td>{#dom#}</td>
                 <td>{#cnicNo#}</td>
-                <td>{#reasonForRejection#}</td>
+                <td>{#matricObtained#}</td>
+                <td>{#matricTotal#}</td>
+                <td>{#matric#}</td>
+                <td>{#faObtained#}</td>
+                <td>{#faTotal#}</td>
+                <td>{#fa#}</td>
+                @*<td>{#prefNo#}</td>*@
+                <td>{#collegeName#}</td>
+                @*<td>{#nPref#}</td>*@
 
             </tr>
         </tbody>
     </table>
 </div>
+
 

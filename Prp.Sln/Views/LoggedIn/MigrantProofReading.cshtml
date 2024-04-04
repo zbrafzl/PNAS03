@@ -1,0 +1,677 @@
+﻿
+@{
+    ViewBag.Title = "MigrationCandidateAddition";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+@model Prp.Sln.ProofReadingModel
+
+@section RenderScript{
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"></script>
+
+    <script>
+        var applicantId = 0, applicantDetailId = 0, objApplicant = {}, objApplicantInfo = {}, objApplicantInfoDualNational = {},
+            imagesPath = "", districtListAll = [], countryList = [], dualNationalityType = 1, countryId = 132;
+
+        var mpdp = {}, dmcs = [], listSpecilties = [];
+
+        var identityType = "CNIC";
+
+        $(document).ready(function () {
+
+            loadData();
+
+            var selectedChoices = [];
+
+            function updateSelectedChoices() {
+                $("#selectedChoices").empty();
+                selectedChoices.forEach(function (choice, index) {
+                    $("#selectedChoices").append(`<div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.name} /div>`);
+                });
+            }
+
+            $("#choices").change(function () {
+                var selectedOption = $(this).find("option:selected");
+                var choice = {
+                    id: parseInt(selectedOption.val()),
+                    name: selectedOption.text()
+                };
+                if (choice.id > 0) {
+                    selectedChoices.push(choice);
+                    selectedOption.hide();
+                    updateSelectedChoices();
+                }
+                $("#choices option[value=0]").prop('selected', true);
+            });
+
+            $("#selectedChoices").sortable({
+                update: function (event, ui) {
+                    updateSelectedChoices();
+                }
+            });
+
+            $("#selectedChoices").on("click", ".delete-btn", function () {
+                debugger;
+                var choiceId = $(this).parent().data("id");
+                var orderId = $(this).parent().data("order");
+                selectedChoices = $.grep(selectedChoices, function (e) {
+                    return e.id != choiceId;
+                });
+                //selectedChoices.splice(selectedChoices.indexOf(choiceId), orderId);
+                updateSelectedChoices();
+                $("#choices").find(`option[value="${choiceId}"]`).show();
+            });
+
+            $("#submitBtn").click(function () {
+
+                if (confirm("Do you confirm you data is accurate!")) {
+                    if (confirm("Your application will be logged out")) {
+                        window.location = "/logout";
+                    }
+                }
+                
+            });
+
+
+            applicantId = ConvertToInt($("#hfdApplicantId").val());
+            imagesPath = "/Images/Applicant/" + applicantId + "/";
+
+            BindDistrictDDL(196, 0);
+            BindDistrictDDLDomicile(196, 0);
+
+            var dateFormatDatePocker = 'dd/mm/yyyy';
+
+            $("#txtDob").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true
+            });
+
+            $("#txtJoiningDate").datepicker(
+                {
+                    format: dateFormatDatePocker,
+                    autoclose: true,
+                    clearBtn: true,
+                    disableTouchKeyboard: true,
+                    todayHighlight: true,
+                    showOnFocus: true,
+                    changeYear: true
+                }
+            );
+
+
+        });
+
+        function loadData() {
+
+            @*var itemsToRemove = @Html.Raw(Json.Serialize(Model.listSpecility));
+
+            // Function to remove items from select list
+            function removeItems() {
+                var selectElement = document.getElementById("choice");
+                for (var i = 0; i < selectElement.options.length; i++) {
+                    for (var j = 0; j < itemsToRemove.length; j++) {
+                        if (selectElement.options[i].value === itemsToRemove[j].Value) {
+                            selectElement.remove(i);
+                            // Since an item is removed, reduce the counter i
+                            i--;
+                            break; // Move to the next option
+                        }
+                    }
+                }
+            }*@
+
+            if (@(Model.jsonTable.Rows.Count.TooInt()) > 0 && "@Model.jsonTable.Rows[0]["name"].TooString()" != "") {
+                try {
+                    $("#ddlInduction").val(@Model.jsonTable.Rows[0]["inductionID"].TooInt()).change();
+                    $("#txtName").val('@Model.jsonTable.Rows[0]["name"].TooString()').change();
+                    $("#txtFatherName").val('@Model.jsonTable.Rows[0]["fatherName"].TooString()').change();
+                    $("#ddlGender").val(@Model.jsonTable.Rows[0]["genderID"].TooInt()).change();
+
+                    $("#txtDob").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["dob"]).ToString("dd/MM/yyyy").ToString())");
+
+                    $("#txtJoiningDate").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["joiningDate"]).ToString("dd/MM/yyyy").ToString())");
+
+                    $("#txtContactNo").val('@Model.jsonTable.Rows[0]["contactNumber"].TooString()').change();
+                    $("#txtCNIC").val('@Model.jsonTable.Rows[0]["cnicNo"].TooString()').change();
+                    $("#ddlDomicileDistrict").val(@Model.jsonTable.Rows[0]["domicileDistrictId"].TooInt()).change();
+
+                    if (@Model.jsonTable.Rows[0]["religionId"].TooInt() == 0) {
+                        $("#ddlReligion").val(1).change();
+                    }
+                    else {
+                        $("#ddlReligion").val(@Model.jsonTable.Rows[0]["religionId"].TooInt()).change();
+                    }
+
+
+                    $("#txtEmail").val('@Model.jsonTable.Rows[0]["emailId"].TooString()').change();
+                    $("#ddlDistrict").val(@Model.jsonTable.Rows[0]["districtId"].TooInt()).change();
+                    $("#txtAddress").val('@Model.jsonTable.Rows[0]["address"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ')').change();
+                    $("#txtCollege").val('@Model.jsonTable.Rows[0]["college"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ')').change();
+
+                    $("#ddlMatricBoard option:selected").text('@Model.jsonTable.Rows[0]["matricBoard"].TooString()');
+                    $("#txtRowDegree1MarksObtain").val(@Model.jsonTable.Rows[0]["matricObt"].TooInt()).change();
+                    $("#txtRowDegree1MarksTotal").val(@Model.jsonTable.Rows[0]["matricTotal"].TooInt()).change();
+                    $("#txtDateOfPassingMatric").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())");
+
+                    $("#ddlFABoard option:selected").text('@Model.jsonTable.Rows[0]["fscBoard"].TooString()');
+                    $("#txtRowDegree2MarksObtain").val(@Model.jsonTable.Rows[0]["fscObt"].TooInt()).change();
+                    $("#txtRowDegree2MarksTotal").val(@Model.jsonTable.Rows[0]["fscTotal"].TooInt()).change();
+                    $("#txtDateOfPassingInter").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["fscPassDate"]).ToString("dd/MM/yyyy").ToString())");
+
+                    $("#hfdPic").val("");
+                    if (("@(Model.jsonTable.Rows[0]["pic"].TooString())") != "") {
+                        $("#imgPic").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["pic"].TooString())");
+                        $("#imgPic").show();
+                        $("#rmvPic").show();
+                        $("#hfdPic").val("@(Model.jsonTable.Rows[0]["pic"].TooString())");
+                        $("#imgPic").val("@(Model.jsonTable.Rows[0]["pic"].TooString())");
+                    }
+
+                    $("#hfdCnicFront").val("");
+                    if (("@(Model.jsonTable.Rows[0]["cnicPicFront"].TooString())") != "") {
+
+                        $("#imgCnicFront").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["cnicPicFront"].TooString())");
+                        $("#imgCnicFront").show();
+                        $("#rmvCnicFront").show();
+                        $("#hfdCnicFront").val("@(Model.jsonTable.Rows[0]["cnicPicFront"].TooString())");
+                        $("#imgCnicFront").val("@(Model.jsonTable.Rows[0]["cnicPicFront"].TooString())");
+                    }
+
+                    $("#hfdCnicBack").val("");
+                    if (("@(Model.jsonTable.Rows[0]["cnicPicBack"].TooString())") != "") {
+
+                        $("#imgCnicBack").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["cnicPicBack"].TooString())");
+                        $("#imgCnicBack").show();
+                        $("#rmvCnicBack").show();
+                        $("#hfdCnicBack").val("@(Model.jsonTable.Rows[0]["cnicPicBack"].TooString())");
+                        $("#imgCnicBack").val("@(Model.jsonTable.Rows[0]["cnicPicBack"].TooString())");
+                    }
+
+                    $("#hfdDomicileFront").val("");
+                    if (("@(Model.jsonTable.Rows[0]["domicilePicFront"].TooString())") != "") {
+                        $("#imgDomicileFront").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["domicilePicFront"].TooString())");
+                        $("#imgDomicileFront").show();
+                        $("#rmvDomicileFront").show();
+                        $("#hfdDomicileFront").val("@(Model.jsonTable.Rows[0]["domicilePicFront"].TooString())");
+                        $("#imgDomicileFront").val("@(Model.jsonTable.Rows[0]["domicilePicFront"].TooString())");
+                    }
+
+                    $("#hfdRowDegree1").val("");
+                    if (("@(Model.jsonTable.Rows[0]["matricPic"].TooString())") != "") {
+                        $("#imgRowDegree1").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["matricPic"].TooString())");
+                        $("#imgRowDegree1").show();
+	                    $("#rmvRowDegree1").show();
+                        $("#hfdRowDegree1").val("@(Model.jsonTable.Rows[0]["matricPic"].TooString())");
+                        $("#imgRowDegree1").val("@(Model.jsonTable.Rows[0]["matricPic"].TooString())");
+                    }
+
+                    $("#hfdRowDegree2").val("");
+                    if (("@(Model.jsonTable.Rows[0]["fscPic"].TooString())") != "") {
+                        $("#imgRowDegree2").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
+                        $("#imgRowDegree2").show();
+                        $("#rmvRowDegree2").show();
+                        $("#hfdRowDegree2").val("@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
+                        $("#imgRowDegree2").val("@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
+                    }
+
+                    $("#hfdResultCard").val("");
+                    if (("@(Model.jsonTable.Rows[0]["picDegree"].TooString())") != "") {
+                        $("#imgResultCard").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["picDegree"].TooString())");
+                        $("#imgResultCard").show();
+                        $("#rmvResultCard").show();
+                        $("#hfdResultCard").val("@(Model.jsonTable.Rows[0]["picDegree"].TooString())");
+                        $("#imgResultCard").val("@(Model.jsonTable.Rows[0]["picDegree"].TooString())");
+                    }
+                }
+                catch (e) {
+                }
+            }
+
+        }
+
+        function BindDistrictDDL(provinceId, districtId) {
+
+            provinceId = 196;
+
+            var list = CallActionGet("/Common/RegionGetByCondition?typeId=4" + "&parentId=" + provinceId + "&condition=GetDistrictAll");
+            console.log(list);
+            if (list != null && list.length > 0) {
+
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (districtId == ddlItem.regionId)
+                        $("#ddlDistrict").append("<option  value='" + ddlItem.regionId + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlDistrict").append("<option  value='" + ddlItem.regionId + "'>" + ddlItem.name + "</option>");
+                }
+            }
+        }
+
+        function BindDistrictDDLDomicile(provinceId, districtId) {
+            provinceId = 196;
+            var list = CallActionGet("/Common/RegionGetByCondition?typeId=4" + "&parentId=" + provinceId + "&condition=GetDistrictByParent");
+
+            if (list != null && list.length > 0) {
+
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (districtId == ddlItem.regionId)
+                        $("#ddlDomicileDistrict").append("<option  value='" + ddlItem.regionId + "' selected='selected'>" + ddlItem.name + "</option>");
+                    else $("#ddlDomicileDistrict").append("<option  value='" + ddlItem.regionId + "'>" + ddlItem.name + "</option>");
+                }
+            }
+        }
+
+    </script>
+
+
+
+
+}
+<div class="container" style="margin-bottom:60px;">
+    <div class="row main">
+        <input type="hidden" id="hfdApplicantId" class="hfdApplicantId" value="@Model.applicant.applicantId" />
+        <div class="col-sm-12 form-box" style="padding:30px">
+            <div class="main-login main-center">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <hr class="colorgraph">
+                        <div class="col-sm-4" style="padding-left:0px; padding-bottom:20px">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for=""> ApplicantId </label>
+                                    <input readonly="readonly" type="text" disabled="disabled" name="txtId" maxlength="70" id="txtId" value="@Model.applicant.applicantId" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8" style="padding-left:0px; padding-bottom:20px">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label for=""> College  <span style="color:red">*</span></label>
+                                    <input type="text" class="form-control" disabled="disabled" readonly="readonly" required="required" name="txtCollege" id="txtCollege">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""> Induction <span style="color:red">*</span></label>
+                                <select required="required" disabled="disabled" readonly="readonly" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
+                                    @*<option value="3">July 2018 (Morning)</option>
+                    <option value="4">July 2018 (Evening)</option>
+                    <option value="5">July 2019 (Morning)</option>
+                    <option value="6">July 2019 (Evening)</option>
+                    <option value="7">July 2020 (Morning)</option>
+                    <option value="8">July 2020 (Evening)</option>
+                    <option value="9">July 2021 (Morning)</option>
+                    <option value="10">July 2021 (Evening)</option>*@
+                                    <option selected="selected" value="11">2022-26</option>
+                                    <option selected="selected" value="10">2021-25</option>
+                                    <option selected="selected" value="9">2020-24</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""> Full Name <span style="color:red">*</span></label>
+                                <input type="text" name="txtName" disabled="disabled" readonly="readonly" id="txtName" class="form-control" placeholder="Full Name" tabindex="3">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""> Father Name <span style="color:red">*</span></label>
+                                <input type="text" name="txtFatherName" disabled="disabled" readonly="readonly" id="txtFatherName" maxlength="70" class="form-control" placeholder="Father Name" tabindex="4">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""> Gender   <span style="color:red">*</span></label>
+                                <select required="required" disabled="disabled" readonly="readonly" name="ddlGender" id="ddlGender" class="form-control" tabindex="5">
+                                    @*<option selected="selected" value="1">Male</option>*@
+                                    <option selected="selected" value="2">Female</option>
+                                    @*<option value="3">Other</option>*@
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for="">Contact Number<span style="color:red">*</span></label>
+                                <input required="required" type="text" disabled="disabled" readonly="readonly" name="txtContactNo" id="txtContactNo" maxlength="11" class="form-control" tabindex="8">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""><span class="spnCnic"> CNIC / Form B Number</span> <span style="color:red">*</span>  <small>(Without dashes) </small></label>
+                                <input required="required" type="text" disabled="disabled" readonly="readonly" name="txtCNIC" id="txtCNIC" class="form-control lenth numeric" len="13" placeholder="CNIC" tabindex="9" />
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4 divDomicile">
+                            <div class="form-group">
+                                <label for=""> District of Domicile <span style="color:red">*</span></label>
+                                <select id="ddlDomicileDistrict" name="ddlDomicileDistrict" disabled="disabled" readonly="readonly" class="form-control" tabindex="10">
+                                    <option value="0" selected="selected"> Select One </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""> Religion   <span style="color:red">*</span></label>
+                                <select required="required" name="ddlReligion" disabled="disabled" readonly="readonly" id="ddlReligion" class="form-control" tabindex="11">
+                                    <option selected="selected" value="1">Islam</option>
+                                    <option value="2">Christianity</option>
+                                    <option value="3">Hinduism</option>
+                                    <option value="4">Buddhism</option>
+                                    <option value="5">Sikhism</option>
+                                    <option value="6">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""> Email <span style="color:red">*</span></label>
+                                <input type="text" maxlength="200" disabled="disabled" readonly="readonly" name="txtEmail" id="txtEmail" class="form-control" tabindex="12">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for="lbl-err"> Date of Birth <span style="color:red">*</span> <span id="spnDob" class="lbl-err" style="display:none;">Invalid date</span> </label>
+                                <input type="text" name="dob" id="txtDob" disabled="disabled" readonly="readonly" class="form-control datepicker dated" tabindex="6">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""> Joining Date <span style="color:red">*</span> <span id="spnJoiningDate" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                <input type="text" class="form-control datepicker dated" disabled="disabled" readonly="readonly" name="joiningDate" id="txtJoiningDate" tabindex="7" autocomplete="off">
+                            </div>
+                        </div>
+                        <div id="divDDLDistrict" class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group">
+                                <label for=""> District of Residence <span style="color:red">*</span></label>
+                                <select id="ddlDistrict" name="ddlDistrict" disabled="disabled" readonly="readonly" class="form-control" tabindex="13">
+                                    <option value="0" selected="selected"> Select One </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <label for=""> Address  <span style="color:red">*</span></label>
+                                <textarea class="form-control" disabled="disabled" readonly="readonly" required="required" name="txtAddress" id="txtAddress" tabindex="14"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12" style="display:none">
+                            <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;">  Add Educational Information</p> <hr>
+                        </div>
+                        <fieldset id="fieldTypeMatric" class="fieldType">
+                            <legend> SSC (Matric : Science) </legend>
+                            <input type="hidden" id="fieldTypeMatric" class="hfdTypeId" value="" />
+                            <div class="row col-md-6 fieldType5">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label> Select Degree <span class="sprq">*</span></label>
+                                        <input type="hidden" id="hfdRowDegree1Id" value="0" />
+                                        <select required="required" disabled="disabled" readonly="readonly" name="ddlMatric" id="ddlMatric" class="form-control">
+                                            <option selected="selected" value="8">Matric (Science)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label> Select Board <span class="sprq">*</span></label>
+                                        <input type="hidden" id="hfdRowDegree1Id" value="0" />
+                                        <select required="required" name="ddlMatricBoard" disabled="disabled" readonly="readonly" id="ddlMatricBoard" class="form-control" tabindex="15">
+                                            <option selected="selected" value="1">BISE Lahore</option>
+                                            <option value="2">BISE Faisalabad</option>
+                                            <option value="3">BISE Sargodha</option>
+                                            <option value="4">BISE DG Khan</option>
+                                            <option value="5">BISE Multan</option>
+                                            <option value="6">BISE Bahawalpur</option>
+                                            <option value="7">BISE Rawalpindi</option>
+                                            <option value="8">BISE Gujranwala</option>
+                                            <option value="9">BISE Sahiwal</option>
+                                            <option value="matricBoardOther">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 fieldType5" id="matricBoardNameDiv" style="display:none">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label> Enter Board Name <span class="sprq">*</span></label>
+                                        <input type="text" disabled="disabled" readonly="readonly" maxlength="30" name="txtMatricBoardName" id="txtMatricBoardName" class="form-control " tabindex="16" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 fieldType5">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Obtained Marks <span class="sprq">*</span></label>
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtRowDegree1MarksObtain" id="txtRowDegree1MarksObtain" class="datepicker form-control dated" tabindex="17" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Total Marks <span class="sprq">*</span></label>
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtRowDegree1MarksTotal" id="txtRowDegree1MarksTotal" class="datepicker form-control dated" tabindex="18" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row col-md-6 fieldType5">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Passing Date <span class="sprq">*</span></label>
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="text" disabled="disabled" readonly="readonly" name="txtDateOfPassingMatric" id="txtDateOfPassingMatric" class="datepicker form-control dated" tabindex="19">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="fieldTypeFA" class="fieldType">
+                            <legend> HSSC (Intermediate: FSc Pre Medical) </legend>
+                            <input type="hidden" id="fieldTypeFA" class="hfdTypeId" value="" />
+                            <div class="row col-md-6 fieldType5">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label> Select Degree <span class="sprq">*</span></label>
+                                        <input type="hidden" id="hfdRowDegree2Id" value="0" />
+                                        <select required="required" disabled="disabled" readonly="readonly" name="ddlFa" id="ddlFa" class="form-control">
+                                            <option selected="selected" value="9">FSc</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label> Select Board <span class="sprq">*</span></label>
+                                        <input type="hidden" id="hfdRowDegree1Id" value="0" />
+                                        <select required="required" disabled="disabled" readonly="readonly" name="ddlFABoard" id="ddlFABoard" class="form-control" tabindex="20">
+                                            <option selected="selected" value="1">BISE Lahore</option>
+                                            <option value="2">BISE Faisalabad</option>
+                                            <option value="3">BISE Sargodha</option>
+                                            <option value="4">BISE DG Khan</option>
+                                            <option value="5">BISE Multan</option>
+                                            <option value="6">BISE Bahawalpur</option>
+                                            <option value="7">BISE Rawalpindi</option>
+                                            <option value="8">BISE Gujranwala</option>
+                                            <option value="9">BISE Sahiwal</option>
+                                            <option value="faBoardOther">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 fieldType5" id="faBoardNameDiv" style="display:none">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label> Enter Board Name <span class="sprq">*</span></label>
+                                        <input type="text" disabled="disabled" readonly="readonly" maxlength="30" name="txtFaBoardName" id="txtFaBoardName" class="form-control " tabindex="21" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 fieldType5">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Obtained Marks <span class="sprq">*</span></label>
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="22" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Total Marks <span class="sprq">*</span></label>
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtRowDegree2MarksTotal" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="23" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row col-md-6 fieldType5">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Passing Date <span class="sprq">*</span></label>
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="24" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="col-sm-12" style="display:none">
+                            <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;">  Allowed Upload Image types are jpg or png only with size less then 500 KB each.</p> <hr>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="" style="width:100% !important"> Profile Picture  <span style="color:red">*</span></label>
+                                @*<input type="file" class="form-control flup" name="flPic" id="flPic" tabindex="25" />
+                <input type="hidden" id="hfdPic" value="" />*@
+                                <img id="imgPic" class="flup-img" src="" alt="" style="display:none;" />
+                                @*<a id="rmvPic" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="" style="width:100% !important"> <span class="spnCnic"> CNIC Front Image</span> <span style="color:red">*</span>  </label>
+                                @*<input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="26" />
+                <input type="hidden" id="hfdCnicFront" value="" />*@
+                                <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
+                                @*<a id="rmvCnicFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                            </div>
+                        </div>
+                        <div class="col-sm-4" id="cnicBackPicDiv">
+                            <div class="form-group">
+                                <label for="" style="width:100% !important"> <span id="spnCnicUpload2"> <span class="spnCnic">CNIC</span> Back Image</span> <span style="color:red">*</span>  </label>
+                                @*<input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="27" />
+                <input type="hidden" id="hfdCnicBack" value="" />*@
+                                <img id="imgCnicBack" class="flup-img" src="" alt="" style="display:none;" />
+                                @*<a id="rmvCnicBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4 divDomicile">
+                            <div class="form-group">
+                                <label for="" style="width:100% !important"> Domicile Front Image <span style="color:red">*</span> </label>
+                                @*<input type="file" class="form-control flup" name="flDomicileFront" id="flDomicileFront" tabindex="28" />
+                <input type="hidden" id="hfdDomicileFront" value="" />*@
+                                <img id="imgDomicileFront" class="flup-img" src="" alt="" style="display:none;" />
+                                @*<a id="rmvDomicileFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                            </div>
+                        </div>
+                        <div class="col-sm-4 divMatricImage">
+                            <div class="form-group">
+                                <label for="" style="width:100% !important"> Matric Certificate Image <span class="sprq">*</span></label>
+                                @*<input type="file" id="flRowDegree1" name="flRowDegree1" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
+                <input type="hidden" id="hfdRowDegree1" value="" />*@
+                                <img id="imgRowDegree1" class="flup-img" src="" alt="" style="display:none;" />
+                                @*<a id="rmvRowDegree1" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                            </div>
+                        </div>
+                        <div class="col-sm-4 divFaImage">
+                            <div class="form-group">
+                                <label for="" style="width:100% !important"> Fsc Certificate Image <span class="sprq">*</span></label>
+                                @*<input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="30" accept="image/jpeg, image/png">
+                <input type="hidden" id="hfdRowDegree2" value="" />*@
+                                <img id="imgRowDegree2" class="flup-img" src="" alt="" style="display:none;" />
+                                @*<a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                            </div>
+                        </div>
+                        <div class="col-sm-4 divFaImage">
+                            <div class="form-group">
+                                <label for="" style="width:100% !important"> Result Card <span class="sprq">*</span></label>
+                                @*<input type="file" id="flResultCard" name="flResultCard" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
+                                <input type="hidden" id="hfdResultCard" value="" />*@
+                                <img id="imgResultCard" class="flup-img" src="" alt="" style="display:none;" />
+                                @*<a id="rmvResultCard" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <hr />
+
+                <div class="col-sm-12">
+                    <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Preferences</p> <hr>
+                </div>
+                <fieldset id="fieldTypePref" class="fieldType">
+                    <legend> Your Preferences </legend>
+                    <div class="row mt-2">
+                        <div>
+                            <div class="row" style="padding:15px">
+                                <div id="selectedChoices" style="width:60%; border:0px; height:auto !important">
+                                    <!-- Selected choices will be displayed here -->
+                                    <!-- <div class="selected-choice text-success text-decoration-underline col-md-10" style="height:30px" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.name}</div><div class="col-md-2"> <span class="btn-danger delete-btn" style="width:30px; padding: 4px">Delete</span></div>`); -->
+                                    @foreach (var item in Model.listSpecility)
+                                    {
+                                        <div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="@item.preferenceNo" data-id="@item.hospitalId">@item.preferenceNo. @item.hospitalName</div><div class="col-md-2"> </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div>
+                        <hr />
+                        <div class="row" style="padding-top: 20px">
+                            <div class="col-md-6">
+                                <button id="submitBtn" class="btn btn-primary">Submit Application</button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+    </div>
+</div>
+

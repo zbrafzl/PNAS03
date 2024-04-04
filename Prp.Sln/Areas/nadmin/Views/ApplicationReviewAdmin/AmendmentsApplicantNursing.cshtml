@@ -266,7 +266,7 @@
                 }
 
             });
-            
+
             $(document).on('click', '#btnUpdateVerifyNursing', function () {
 
                 UpdateApplicantVerifyNursing();
@@ -1227,7 +1227,7 @@
                 var isError = ValidateFormJoining();
                 if (isError == false) {
 
-                    
+
                     if (isError == false) {
 
                         var resp = CallActionPost("/CommonAdmin/ApplicantUpdateVerificationNursing", obj);
@@ -1254,7 +1254,7 @@
 
         function UpdateApplicantAmmenmentStatus() {
 
-            
+
 
             var errorMsg = "";
             var isError = false;
@@ -1279,7 +1279,7 @@
                     if (resp != null && resp.status == true) {
                         $("#divError").hide();
                         $("#spnMsg").html("");
-                        var url = "/admin/applicant-search-verify?statusTypeId=52&statusId=-1";
+                        var url = "/admin/applicant-search-to-verify?statusTypeId=131&statusId=0";
                         window.open(url);
                         //var url = window.location.pathname;
                         //window.location.assign(url);
@@ -1446,7 +1446,7 @@
                                         <label for="heard">Name *:</label>
                                         <input type="text" class="form-control" maxlength="50" required="required" name="txtName" id="txtName" placeholder="Full Name" value="@(Model.applicant.name)" />
                                     </div>
-                                    
+
                                 </div>
                             </form>
                         </fieldset>
@@ -1520,11 +1520,11 @@
                                                             </td>
                                                         </tr>
                                                         @*<tr>
-                                                            <td>
-                                                                <span>Gender: </span>
-                                                                <span style="text-decoration:underline;">@Model.applicant.contactNumber</span>
-                                                            </td>
-                                                        </tr>*@
+                                                                <td>
+                                                                    <span>Gender: </span>
+                                                                    <span style="text-decoration:underline;">@Model.applicant.contactNumber</span>
+                                                                </td>
+                                                            </tr>*@
                                                     </tbody>
                                                 </table>
                                                 <table border="1" style="width:100%;">
@@ -1553,21 +1553,21 @@
                                                             </td>
                                                         </tr>
                                                         @*<tr>
-                                                            <td>
-                                                                <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Merital Status : @info.meritalStatus</span>
-                                                            </td>
-                                                            <td style="text-align:center">
-                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, true, new { @class = "form-check-input" })
-                                                                @Html.Label("Valid", new { @class = "form-check-label" })
-                                                                <label style="width: 120px;"></label>
-                                                                @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, false, new { @class = "form-check-input" })
-                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
-                                                            </td>
-                                                            <td>
-                                                                <select id="ddlRemarksMaritalStatus" name="ddlRemarksMaritalStatus" class="form-control validityRemarks" tabindex="2">
-                                                                </select>
-                                                            </td>
-                                                        </tr>*@
+                                                                <td>
+                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Merital Status : @info.meritalStatus</span>
+                                                                </td>
+                                                                <td style="text-align:center">
+                                                                    @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, true, new { @class = "form-check-input" })
+                                                                    @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                    <label style="width: 120px;"></label>
+                                                                    @Html.RadioButtonFor(model => model.amendmentsData.ddlMaritalStatusValidity, false, new { @class = "form-check-input" })
+                                                                    @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                                </td>
+                                                                <td>
+                                                                    <select id="ddlRemarksMaritalStatus" name="ddlRemarksMaritalStatus" class="form-control validityRemarks" tabindex="2">
+                                                                    </select>
+                                                                </td>
+                                                            </tr>*@
                                                         <tr>
                                                             <td>
                                                                 <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> CNIC : @info.cnicNo</span>
@@ -1996,7 +1996,7 @@
                             </fieldset>
                         }
 
-                        else if (1>2)
+                        else if (1 > 2)
                         //else if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.institute)
                         {
                             <fieldset id="fsVerifyAmmend">

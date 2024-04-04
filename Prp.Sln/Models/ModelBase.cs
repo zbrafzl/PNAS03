@@ -1,6 +1,7 @@
 ﻿using Prp.Data;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 
@@ -52,7 +53,7 @@ namespace Prp.Sln
                     ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
                         , loggedInUser.applicantId, ProjConstant.Constant.ApplicationStatusType.validApplication).FirstOrDefault();
 
-                    validStatus = objStatus.statusId;
+                    //validStatus = objStatus.statusId;
                 }
                 catch (Exception)
                 {
@@ -98,6 +99,26 @@ namespace Prp.Sln
         }
 
 
+    }
+
+    public class MeritDataItem
+    {
+        public int applicantId { get; set; }
+        public int prefNo { get; set; }
+        public int typeId { get; set; }
+        public int specialityJobId { get; set; }
+        public string nam { get; set; }
+        public string fname { get; set; }
+        public string contactNumber { get; set; }
+        public string cnic { get; set; }
+        public decimal matric { get; set; }
+        public decimal fa { get; set; }
+        public string firstName { get; set; }
+    }
+    public class MeritData : ModelBase
+    {
+        public List<MeritDataItem>  listOfMerits { get; set; }
+        public List<Consent> consents { get; set; }
     }
 
     public class ContactModel : ModelBase
@@ -204,6 +225,7 @@ namespace Prp.Sln
 
     public class ProofReadingModel : ModelBase
     {
+        public DataTable jsonTable { get; set; }
         public Applicant applicant { get; set; }
 
         public ApplicantInfo applicantInfo { get; set; }
@@ -249,7 +271,27 @@ namespace Prp.Sln
         }
     }
 
-
+    public class dmcData 
+    { 
+        public int year { get; set; }
+        public int semester { get; set; }
+        public double obtainedMarks { get; set; }
+        public double totalMarks { get; set; }
+        public string option { get; set; }
+        public string picDMC { get; set; }
+    }
+    public class MigrationPreferencesDataParam
+    {
+        public int applicantId { get; set; }
+        public int inductionId { get; set; }
+        public int typeId { get; set; }
+        public DateTime dob { get; set; }
+        public string dateOfBirth { get; set; }
+        public DateTime doj { get; set; }
+        public string dateOfJoining { get; set; }
+        public List<dmcData> dmcList { get; set; }
+        public List<ApplicantSpecility> listSpecilties { get; set; }
+    }
     public class CompletedDistictionModel : ModelBase
     {
         public Applicant applicant { get; set; }

@@ -7,17 +7,57 @@
 
 @model Prp.Sln.ProfileModelAdmin
 
+@section RenderCss{
+    <style>
+
+        input[type=radio] {
+            width: 30px;
+            height: 30px;
+        }
+    </style>
+
+}
+
 @section RenderScript{
 
     <script>
         var applicantId = 0, applicantDetailId = 0, objApplicant = {}, objApplicantInfo = {}, objApplicantInfoDualNational = {},
-            imagesPath = "", districtListAll = [], countryList = [], dualNationalityType = 1, countryId = 132;
+            imagesPath = "", districtListAll = [], countryList = [], dualNationalityType = 1, countryId = 132, inductionId = 0
+            , numberOfSemesters = 0;
 
         var identityType = "CNIC";
 
         $(document).ready(function () {
 
+            $("#ddlInduction").change(function () {
+                var value = $("option:selected", this).val();
+                debugger;
+                $("#hfdInductionId").val(value);
+
+                inductionId = ConvertToInt($("#hfdInductionId").val());
+                applicantId = ConvertToInt($("#hfdApplicantId").val());
+
+                var semesterResults = CallActionGet("/ApplicantAdmin/GetSemesterDataById?applicantId=" + applicantId + "&inductionId=" + inductionId);
+
+                if (inductionId == 11) {
+                    numberOfSemesters = 2;
+                } else if (inductionId == 10) {
+                    numberOfSemesters = 4;
+                } else {
+                    numberOfSemesters = 6;
+                }
+                semesterResults = filterDataForSemesters(semesterResults, numberOfSemesters);
+
+                updateView(semesterResults);
+
+                //loadSemesterDivs();
+            })
+
+
+
             applicantId = ConvertToInt($("#hfdApplicantId").val());
+
+
             imagesPath = "/Images/Applicant/" + applicantId + "/";
 
             BindDistrictDDL(196, 0);
@@ -66,12 +106,282 @@
                 showOnFocus: true,
                 changeYear: true
             });
-
+            loadData();
             $(document).on('click', '#btnProfileSave', function () {
                 SaveAndProceed();
+                //saveData();
+            });
+
+            $(document).on('click', '#btnProfileDelete', function () {
+                DeleteAndProceed();
             });
 
         });
+
+
+        function filterDataForSemesters(semesterResults, numOfSemesters) {
+            return semesterResults.filter(item => item.semester <= numOfSemesters);
+        }
+
+
+        function loadSemesterDivs() {
+            debugger;
+            inductionId = ConvertToInt($("#hfdInductionId").val());
+
+            if (inductionId == 11) {
+                numberOfSemesters = 2;
+            } else if (inductionId == 10) {
+                numberOfSemesters = 4;
+            } else {
+                numberOfSemesters = 6;
+            }
+
+            var semesterContainer = document.getElementById("semesterContainer");
+            for (var i = 0; i < numberOfSemesters; i++) {
+                var semesterDiv = document.createElement("div");
+                semesterDiv.id = "semester" + (i + 1);
+                //semesterDiv.style.margin = "10px";
+                semesterDiv.className = "semester border border-info rounded text-center col-md-4";
+                semesterDiv.innerHTML = "<div class='row'><span class='breadcrumb flex-lg-column' style='width:100%; text-align;center; font-weight: bold'>Semester " + (i + 1) + ": </h3></div><div class='w-100 p-3 col-md-12'>" +
+                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusPass' name='semester" + (i + 1) + "Status' value='Pass'  onchange='handleSemesterChange(this)' /> <p> Pass</p></label>" +
+                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusFailed' name='semester" + (i + 1) + "Status' value='Failed' checked  onchange='handleSemesterChange(this)' /> <p> Failed</p></label>" +
+                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusSupply' name='semester" + (i + 1) + "Status' value='Supply'  onchange='handleSemesterChange(this)' /> <p> Supply</p></label></div>";
+                    //"<select class='form-control' id='semester" + (i + 1) + "Status'  onchange='handleSemesterChange(this)'>" +
+                    //"<option value='Pass'>Pass</option>" +
+                    //"<option value='Failed' selected='selected'>Failed</option>" +
+                    //"<option value='Supply'>Supply</option>" +
+                //"</select>";
+                semesterContainer.appendChild(semesterDiv);
+            }
+
+            for (var i = 1; i <= numberOfSemesters; i++) {
+                document.getElementById("semester" + i).style.display = "none";
+            }
+
+            document.getElementById("semester1").style.display = "block";
+
+        }
+
+        function handleSemesterChange(selectElement) {
+            debugger;
+
+            inductionId = ConvertToInt($("#hfdInductionId").val());
+
+            if (inductionId == 11) {
+                numberOfSemesters = 2;
+            } else if (inductionId == 10) {
+                numberOfSemesters = 4;
+            } else {
+                numberOfSemesters = 6;
+            }
+
+            var semesterNumber = parseInt(selectElement.id.replace("semester", ""));
+            var selectedStatus = selectElement.value;
+
+            // If semester is passed, set the next semester's data to null and show the next semester's div
+            if (selectedStatus === "Pass" && semesterNumber < numberOfSemesters) {
+                for (var i = semesterNumber + 1; i < semesterNumber + 2; i++) {
+                    var abc = document.getElementById("semester" + i + "StatusFailed");
+                    document.getElementById("semester" + i + "StatusFailed").checked = true;
+                    document.getElementById("semester" + i).style.display = "block";
+                }
+            }
+            // If semester is failed or supply, hide subsequent divs and set their data to null
+            else if (selectedStatus !== "Pass") {
+                for (var i = semesterNumber + 1; i <= numberOfSemesters; i++) {
+                    document.getElementById("semester" + i + "StatusFailed").checked = true;
+                    document.getElementById("semester" + i).style.display = "none";
+                }
+            }
+        }
+
+        function saveData() {
+            var semData = {};
+            var listSemesterData = [];
+            var numberOfSemesters = document.getElementsByClassName("semester").length;
+            for (var i = 1; i <= numberOfSemesters; i++) {
+                var status;
+                if (document.getElementById("semester" + i + "StatusPass").checked == true){
+                    status = "Pass";
+                }
+                else if (document.getElementById("semester" + i + "StatusFailed").checked == true) {
+                    status = "Failed";
+                }
+                else if (document.getElementById("semester" + i + "StatusSupply").checked == true) {
+                    status = "Supply";
+                }
+                listSemesterData.push({ semester: i, result: status });
+                
+
+                // If current semester is "Pass", show the next semester div
+                //if (status === "Pass" && i < numberOfSemesters) {
+                //    showSemesterDiv(i + 1);
+                //}
+            }
+            semData.applicantId = applicantId;
+            semData.semesterDatas = listSemesterData;
+            var resp = CallActionPost("/ApplicantAdmin/UpdateMigrationSemesterData", semData);
+            console.log(resp);
+            // Call controller function to save data into SQL table
+            // Example: Send data via AJAX to a controller method
+        }
+
+        function updateView(semesterResults) {
+            debugger;
+            var numberOfSemesters = 0;
+            inductionId = ConvertToInt($("#hfdInductionId").val());
+
+            if (inductionId == 11) {
+                numberOfSemesters = 2;
+            } else if (inductionId == 10) {
+                numberOfSemesters = 4;
+            } else {
+                numberOfSemesters = 6;
+            }
+
+
+            var semesterContainer = document.getElementById("semesterContainer");
+            for (var j = 0; j < semesterResults.length; j++) {
+                var semesterDiv = document.createElement("div");
+                semesterDiv.id = "semester" + semesterResults[j].semester;
+                semesterDiv.className = "semester border border-info rounded text-center col-md-4";
+                var abc = semesterResults[j].result;
+                semesterDiv.innerHTML = "<div class='row'><span class='breadcrumb flex-lg-column' style='width:100%; text-align;center; font-weight: bold'>Semester " + (semesterResults[j].semester) + ": </h3></div><div class='w-100 p-3 col-md-12'>" +
+                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusPass' name='semester" + semesterResults[j].semester + "Status' value='Pass' " + (semesterResults[j].result === "Pass" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Pass</p></label>" +
+                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusFailed' name='semester" + semesterResults[j].semester + "Status' value='Failed' " + (semesterResults[j].result === "Failed" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Failed</p></label>" +
+                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusSupply' name='semester" + semesterResults[j].semester + "Status' value='Supply' " + (semesterResults[j].result === "Supply" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Supply</p></label></div>";
+                semesterContainer.appendChild(semesterDiv);
+            }
+
+            // Hide higher semester divs if the current semester result is failed
+            for (var i = 0; i < semesterResults.length; i++) {
+                if (semesterResults[i].result === "Failed" || semesterResults[i].result === "Supply") {
+                    hideHigherSemesters(i + 2);
+                    break;
+                }
+            }
+        }
+
+        function hideHigherSemesters(startSemester) {
+            var semesterDivs = document.getElementsByClassName("semester");
+            for (var i = startSemester - 1; i < semesterDivs.length; i++) {
+                semesterDivs[i].style.display = "none";
+            }
+        }
+
+        function loadData() {
+
+            inductionId = ConvertToInt($("#hfdInductionId").val());
+
+            var semesterResults = CallActionGet("/ApplicantAdmin/GetSemesterDataById?applicantId=" + applicantId + "&inductionId=" + inductionId);
+            console.log(semesterResults);
+
+            updateView(semesterResults);
+
+            if (@(Model.jsonTable.Rows.Count.TooInt()) > 0 && "@Model.jsonTable.Rows[0]["name"].TooString()" != "") {
+                try {
+
+                    $("#ddlInduction").val(@Model.jsonTable.Rows[0]["inductionID"].TooInt());
+
+                    $("#txtName").val('@Model.jsonTable.Rows[0]["name"].TooString()').change();
+                    $("#txtFatherName").val('@Model.jsonTable.Rows[0]["fatherName"].TooString()').change();
+                    $("#ddlGender").val(@Model.jsonTable.Rows[0]["genderID"].TooInt()).change();
+
+                    $("#txtDob").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["dob"]).ToString("dd/MM/yyyy").ToString())");
+
+                    $("#txtJoiningDate").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["joiningDate"]).ToString("dd/MM/yyyy").ToString())");
+
+                    $("#txtContactNo").val('@Model.jsonTable.Rows[0]["contactNumber"].TooString()').change();
+                    $("#txtCNIC").val('@Model.jsonTable.Rows[0]["cnicNo"].TooString()').change();
+                    $("#ddlDomicileDistrict").val(@Model.jsonTable.Rows[0]["domicileDistrictId"].TooInt()).change();
+
+                    if (@Model.jsonTable.Rows[0]["religionId"].TooInt() == 0) {
+                        $("#ddlReligion").val(1).change();
+                    }
+                    else {
+                        $("#ddlReligion").val(@Model.jsonTable.Rows[0]["religionId"].TooInt()).change();
+                    }
+
+
+                    $("#txtEmail").val('@Model.jsonTable.Rows[0]["emailId"].TooString()').change();
+                    $("#ddlDistrict").val(@Model.jsonTable.Rows[0]["districtId"].TooInt()).change();
+                    $("#txtAddress").val('@Model.jsonTable.Rows[0]["address"].TooString()').change();
+
+                    $("#ddlMatricBoard option:selected").text('@Model.jsonTable.Rows[0]["matricBoard"].TooString()');
+                    $("#txtRowDegree1MarksObtain").val(@Model.jsonTable.Rows[0]["matricObt"].TooInt()).change();
+                    $("#txtRowDegree1MarksTotal").val(@Model.jsonTable.Rows[0]["matricTotal"].TooInt()).change();
+                    $("#txtDateOfPassingMatric").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())");
+
+                    $("#ddlFABoard option:selected").text('@Model.jsonTable.Rows[0]["fscBoard"].TooString()');
+                    $("#txtRowDegree2MarksObtain").val(@Model.jsonTable.Rows[0]["fscObt"].TooInt()).change();
+                    $("#txtRowDegree2MarksTotal").val(@Model.jsonTable.Rows[0]["fscTotal"].TooInt()).change();
+                    $("#txtDateOfPassingInter").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["fscPassDate"]).ToString("dd/MM/yyyy").ToString())");
+
+                    $("#hfdPic").val("");
+                    if (("@(Model.jsonTable.Rows[0]["pic"].TooString())") != "") {
+                        $("#imgPic").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["pic"].TooString())");
+                        $("#imgPic").show();
+                        $("#rmvPic").show();
+                        $("#hfdPic").val("@(Model.jsonTable.Rows[0]["pic"].TooString())");
+                        $("#imgPic").val("@(Model.jsonTable.Rows[0]["pic"].TooString())");
+                    }
+
+                    $("#hfdCnicFront").val("");
+                    if (("@(Model.jsonTable.Rows[0]["cnicPicFront"].TooString())") != "") {
+
+                        $("#imgCnicFront").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["cnicPicFront"].TooString())");
+                        $("#imgCnicFront").show();
+                        $("#rmvCnicFront").show();
+                        $("#hfdCnicFront").val("@(Model.jsonTable.Rows[0]["cnicPicFront"].TooString())");
+                        $("#imgCnicFront").val("@(Model.jsonTable.Rows[0]["cnicPicFront"].TooString())");
+                    }
+
+                    $("#hfdCnicBack").val("");
+                    if (("@(Model.jsonTable.Rows[0]["cnicPicBack"].TooString())") != "") {
+
+                        $("#imgCnicBack").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["cnicPicBack"].TooString())");
+                        $("#imgCnicBack").show();
+                        $("#rmvCnicBack").show();
+                        $("#hfdCnicBack").val("@(Model.jsonTable.Rows[0]["cnicPicBack"].TooString())");
+                        $("#imgCnicBack").val("@(Model.jsonTable.Rows[0]["cnicPicBack"].TooString())");
+                    }
+
+                    $("#hfdDomicileFront").val("");
+                    if (("@(Model.jsonTable.Rows[0]["domicilePicFront"].TooString())") != "") {
+                        $("#imgDomicileFront").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["domicilePicFront"].TooString())");
+                        $("#imgDomicileFront").show();
+                        $("#rmvDomicileFront").show();
+                        $("#hfdDomicileFront").val("@(Model.jsonTable.Rows[0]["domicilePicFront"].TooString())");
+                        $("#imgDomicileFront").val("@(Model.jsonTable.Rows[0]["domicilePicFront"].TooString())");
+                    }
+
+                    $("#hfdRowDegree1").val("");
+                    if (("@(Model.jsonTable.Rows[0]["matricPic"].TooString())") != "") {
+                        $("#imgRowDegree1").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["matricPic"].TooString())");
+                        $("#imgRowDegree1").show();
+	                    $("#rmvRowDegree1").show();
+                        $("#hfdRowDegree1").val("@(Model.jsonTable.Rows[0]["matricPic"].TooString())");
+                        $("#imgRowDegree1").val("@(Model.jsonTable.Rows[0]["matricPic"].TooString())");
+                    }
+
+                    $("#hfdRowDegree2").val("");
+                    if (("@(Model.jsonTable.Rows[0]["fscPic"].TooString())") != "") {
+                        $("#imgRowDegree2").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
+                        $("#imgRowDegree2").show();
+                        $("#rmvRowDegree2").show();
+                        $("#hfdRowDegree2").val("@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
+                        $("#imgRowDegree2").val("@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
+                    }
+                }
+                catch (e) {
+                }
+
+
+
+
+            }
+
+        }
 
         function SaveAndProceed() {
 
@@ -125,8 +435,8 @@
 
             objApplicantInfo.imgDomicile = ConvertToString($("#imgDomicileFront").val());
             if ($("#flDomicileFront").val()) {
-                objApplicantInfo.domicilePicFront = UploadImage("flDomicileFront", applicantId, "DomicileFront");
-                $("#hfdDomicileFront").val(objApplicantInfo.domicilePicFront);
+                objApplicantInfo.imgDomicile = UploadImage("flDomicileFront", applicantId, "DomicileFront");
+                $("#hfdDomicileFront").val(objApplicantInfo.imgDomicile);
                 objApplicantInfo.imgDomicile = ConvertToString($("#hfdDomicileFront").val());
             }
 
@@ -143,18 +453,23 @@
                 $("#hfdRowDegree2").val(objApplicantInfo.imgFscDegree);
                 objApplicantInfo.imgFscDegree = ConvertToString($("#hfdRowDegree2").val());
             }
-
+            let list = [];
+            var ctrl;
             if (objApplicantInfo.name == "") {
                 $("#txtName").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtName";
+                var errorMessage = "Please specify Name";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.fatherName == "") {
                 $("#txtFatherName").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtFatherName";
+                var errorMessage = "Please specify Father's Name";
+                list.push(errorMessage);
             }
 
             if (objApplicantInfo.dOB == "") {
@@ -162,12 +477,16 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtDob";
+                var errorMessage = "Please specify Date of Birth Correctly";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.joiningDate == "") {
                 $("#txtJoiningDate").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtJoiningDate";
+                var errorMessage = "Please specify Date of Joining Correctly";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.contactNo == "" || objApplicantInfo.contactNo.length < 11) {
                 $("#txtContactNo").addClass("req-fld");
@@ -180,30 +499,40 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtCNIC";
+                var errorMessage = "Please specify CNIC No";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.domicileDistrictId == 0) {
                 $("#ddlDomicileDistrict").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "ddlDomicileDistrict";
+                var errorMessage = "Please specify Domicile District";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.religionId == 0) {
                 $("#ddlReligion").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "ddlReligion";
+                var errorMessage = "Please specify Religion";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.emailId == "") {
                 $("#txtEmail").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtEmail";
+                var errorMessage = "Please specify Email Id";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.districtId == 0) {
                 $("#ddlDistrict").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "ddlDistrict";
+                var errorMessage = "Please specify District";
+                list.push(errorMessage);
             }
 
             if (objApplicantInfo.address == "") {
@@ -211,24 +540,32 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtAddress";
+                var errorMessage = "Please specify Address";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.matricMarksObtain == "" || objApplicantInfo.matricMarksObtain > objApplicantInfo.matricTotalMarks) {
                 $("#txtRowDegree1MarksObtain").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtRowDegree1MarksObtain";
+                var errorMessage = "Please Correct Matric Obtained Marks";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.matricTotalMarks == "") {
                 $("#txtRowDegree1MarksTotal").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtRowDegree1MarksTotal";
+                var errorMessage = "Please Correct Matric Total Marks";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.dateOfPassingMatric == "") {
                 $("#txtDateOfPassingMatric").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtDateOfPassingMatric";
+                var errorMessage = "Please Correct Matric Passing Date";
+                list.push(errorMessage);
             }
 
             if (objApplicantInfo.fscObtainedMarks == "" || objApplicantInfo.fscObtainedMarks > objApplicantInfo.fscTotalMarks) {
@@ -236,18 +573,24 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtRowDegree2MarksObtain";
+                var errorMessage = "Please Correct FSc Obtained Marks";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.fscTotalMarks == "") {
                 $("#txtRowDegree2MarksTotal").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtRowDegree2MarksTotal";
+                var errorMessage = "Please Correct FSc Total Marks";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.dateOfPassingInter == "") {
                 $("#txtDateOfPassingInter").addClass("req-fld");
                 isError = true;
                 if (ctrl == "")
                     ctrl = "txtDateOfPassingInter";
+                var errorMessage = "Please Correct FSc Passing Date";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.img == "") {
 
@@ -255,6 +598,8 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "flPic";
+                var errorMessage = "Please Upload Profile Picture";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.cnicFront == "") {
 
@@ -262,6 +607,8 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "flCnicFront";
+                var errorMessage = "Please Upload CNIC Front Picture";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.cnicBack == "") {
 
@@ -269,6 +616,8 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "flCnicBack";
+                var errorMessage = "Please Upload CNIC Back Picture";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.imgDomicile == "") {
 
@@ -276,6 +625,8 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "flDomicileFront";
+                var errorMessage = "Please Upload Domicile Front Picture";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.imgMatricDegree == "") {
 
@@ -283,6 +634,8 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "flRowDegree1";
+                var errorMessage = "Please Upload Matric Certificate";
+                list.push(errorMessage);
             }
             if (objApplicantInfo.imgFscDegree == "") {
 
@@ -290,6 +643,8 @@
                 isError = true;
                 if (ctrl == "")
                     ctrl = "flRowDegree2";
+                var errorMessage = "Please Upload FSc Certificate";
+                list.push(errorMessage);
             }
             debugger;
             const gfg = JSON.stringify(objApplicantInfo);
@@ -297,7 +652,7 @@
             debugger;
             statuAction = "AmmendmetsProcess";
             if (isError == false) {
-                var resp = CallActionPost("/ApplicantAdmin/UpdateMigrationCandidate" , objApplicantInfo);
+                var resp = CallActionPost("/ApplicantAdmin/UpdateMigrationCandidate", objApplicantInfo);
                 console.log(resp);
                 debugger;
                 if (resp != null && resp.status == true) {
@@ -308,10 +663,38 @@
                     window.location.replace(url);
                 }
                 else {
-                    alert("CNIC already exists! Applicant is not approved")
+
                     //$("#divError").show();
                     //$("#idErrorMsg").html("<li>" + resp.message + "</li>");
                 }
+            }
+            else {
+                alert(list.join('\n'));
+            }
+
+        }
+
+        function DeleteAndProceed() {
+
+            var isError = false;
+            if (isError == false) {
+                if (confirm('Are you sure you want to delete applicant with applicantID:  ' + applicantId)) {
+                    var resp = CallActionGet("/ApplicantAdmin/DeleteMigrationCandidate?applicantId=" + applicantId);
+                    console.log(resp);
+                    try {
+                        if (resp != null && resp.status == true) {
+                            alert("Candidate Profile Deleted Successfully!")
+                            var url = "/admin/index";
+                            window.location.replace(url);
+                        }
+
+                    }
+                    catch (e) {
+                    }
+                }
+
+
+
             }
 
         }
@@ -362,12 +745,14 @@
 <div class="container" style="margin-bottom:60px;">
     <div class="row main">
         <input type="hidden" id="hfdApplicantId" class="hfdApplicantId" value="@Model.applicantId" />
+        <input type="hidden" id="hfdInductionId" class="hfdApplicantId" value="@Model.jsonTable.Rows[0]["inductionID"].TooInt()" />
+        <input type="hidden" id="hfdApplicantSemestersData" class="hfdApplicantSemestersData" value="@Model.semesterDatas.TooString()" />
         <div class="col-sm-12 form-box">
             <div class="main-login main-center">
                 <div class="row">
                     <div class="col-sm-12">
 
-                        
+
 
                         <form role="form" enctype="multipart/form-data" action="#" method="POST" id="reg_form">
                             <hr class="colorgraph">
@@ -375,46 +760,47 @@
                                 <div class="col-xs-12 col-sm-4 col-md-4">
                                     <div class="form-group">
                                         <label for=""> ApplicantId </label>
-                                        <input readonly="readonly" type="text" name="txtId" maxlength="70" id="txtId" value="@Model.applicantId" class="form-control" tabindex="2">
+                                        <input readonly="readonly" type="text" name="txtId" maxlength="70" id="txtId" value="@Model.applicantId" class="form-control">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Induction <span style="color:red">*</span></label>
-                                    <select required="required" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="4">
-                                        <option value="3">July 2018 (Morning)</option>
+                                    <select required="required" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
+                                        @*<option value="3">July 2018 (Morning)</option>
                                         <option value="4">July 2018 (Evening)</option>
                                         <option value="5">July 2019 (Morning)</option>
                                         <option value="6">July 2019 (Evening)</option>
                                         <option value="7">July 2020 (Morning)</option>
                                         <option value="8">July 2020 (Evening)</option>
                                         <option value="9">July 2021 (Morning)</option>
-                                        <option value="10">July 2021 (Evening)</option>
-                                        <option selected="selected" value="11">July 2022 (Morning)</option>
-                                        <option value="12">July 2022 (Evening)</option>
+                                        <option value="10">July 2021 (Evening)</option>*@
+                                        <option selected="selected" value="11">2022-26</option>
+                                        <option selected="selected" value="10">2021-25</option>
+                                        <option selected="selected" value="9">2020-24</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Full Name <span style="color:red">*</span></label>
-                                    <input type="text" name="txtName" id="txtName" class="form-control" placeholder="Full Name" tabindex="2">
+                                    <input type="text" name="txtName" id="txtName" class="form-control" placeholder="Full Name" tabindex="3">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Father Name <span style="color:red">*</span></label>
-                                    <input type="text" name="txtFatherName" id="txtFatherName" maxlength="70" class="form-control" placeholder="Father Name" tabindex="3">
+                                    <input type="text" name="txtFatherName" id="txtFatherName" maxlength="70" class="form-control" placeholder="Father Name" tabindex="4">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Gender   <span style="color:red">*</span></label>
-                                    <select required="required" name="ddlGender" id="ddlGender" class="form-control" tabindex="4">
-                                        <option selected="selected" value="1">Male</option>
-                                        <option value="2">Female</option>
-                                        <option value="3">Other</option>
+                                    <select required="required" name="ddlGender" id="ddlGender" class="form-control" tabindex="5">
+                                        @*<option selected="selected" value="1">Male</option>*@
+                                        <option selected="selected" value="2">Female</option>
+                                        @*<option value="3">Other</option>*@
                                     </select>
                                 </div>
                             </div>
@@ -427,25 +813,25 @@
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Joining Date <span style="color:red">*</span> <span id="spnJoiningDate" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                    <input type="text" class="form-control datepicker dated" name="joiningDate" id="txtJoiningDate" tabindex="9" autocomplete="off">
+                                    <input type="text" class="form-control datepicker dated" name="joiningDate" id="txtJoiningDate" tabindex="7" autocomplete="off">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for="">Contact Number<span style="color:red">*</span></label>
-                                    <input required="required" type="text" name="txtContactNo" id="txtContactNo" maxlength="11" class="form-control">
+                                    <input required="required" type="text" name="txtContactNo" id="txtContactNo" maxlength="11" class="form-control" tabindex="8">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""><span class="spnCnic"> CNIC / Form B Number</span> <span style="color:red">*</span>  <small>(Without dashes) </small></label>
-                                    <input required="required" type="text" name="txtCNIC" id="txtCNIC" class="form-control lenth numeric" len="13" placeholder="CNIC" tabindex="13" />
+                                    <input required="required" type="text" name="txtCNIC" id="txtCNIC" class="form-control lenth numeric" len="13" placeholder="CNIC" tabindex="9" />
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4 divDomicile">
                                 <div class="form-group">
                                     <label for=""> District of Domicile <span style="color:red">*</span></label>
-                                    <select id="ddlDomicileDistrict" name="ddlDomicileDistrict" class="form-control" tabindex="16">
+                                    <select id="ddlDomicileDistrict" name="ddlDomicileDistrict" class="form-control" tabindex="10">
                                         <option value="0" selected="selected"> Select One </option>
                                     </select>
                                 </div>
@@ -453,7 +839,7 @@
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Religion   <span style="color:red">*</span></label>
-                                    <select required="required" name="ddlReligion" id="ddlReligion" class="form-control" tabindex="4">
+                                    <select required="required" name="ddlReligion" id="ddlReligion" class="form-control" tabindex="11">
                                         <option selected="selected" value="1">Islam</option>
                                         <option value="2">Christianity</option>
                                         <option value="3">Hinduism</option>
@@ -466,13 +852,13 @@
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Email <span style="color:red">*</span></label>
-                                    <input type="text" maxlength="200" name="txtEmail" id="txtEmail" class="form-control">
+                                    <input type="text" maxlength="200" name="txtEmail" id="txtEmail" class="form-control" tabindex="12">
                                 </div>
                             </div>
                             <div id="divDDLDistrict" class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> District of Residence <span style="color:red">*</span></label>
-                                    <select id="ddlDistrict" name="ddlDistrict" class="form-control" tabindex="12">
+                                    <select id="ddlDistrict" name="ddlDistrict" class="form-control" tabindex="13">
                                         <option value="0" selected="selected"> Select One </option>
                                     </select>
                                 </div>
@@ -480,7 +866,7 @@
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
                                     <label for=""> Address  <span style="color:red">*</span></label>
-                                    <textarea class="form-control" required="required" name="txtAddress" id="txtAddress" tabindex="17"></textarea>
+                                    <textarea class="form-control" required="required" name="txtAddress" id="txtAddress" tabindex="14"></textarea>
                                 </div>
                             </div>
 
@@ -495,7 +881,7 @@
                                         <div class="form-group">
                                             <label> Select Degree <span class="sprq">*</span></label>
                                             <input type="hidden" id="hfdRowDegree1Id" value="0" />
-                                            <select required="required" name="ddlMatric" id="ddlMatric" class="form-control" tabindex="4">
+                                            <select required="required" name="ddlMatric" id="ddlMatric" class="form-control">
                                                 <option selected="selected" value="8">Matric (Science)</option>
                                             </select>
                                         </div>
@@ -504,7 +890,7 @@
                                         <div class="form-group">
                                             <label> Select Board <span class="sprq">*</span></label>
                                             <input type="hidden" id="hfdRowDegree1Id" value="0" />
-                                            <select required="required" name="ddlMatricBoard" id="ddlMatricBoard" class="form-control" tabindex="4" onchange="matricBoardCheckOption(this)">
+                                            <select required="required" name="ddlMatricBoard" id="ddlMatricBoard" class="form-control" tabindex="15">
                                                 <option selected="selected" value="1">BISE Lahore</option>
                                                 <option value="2">BISE Faisalabad</option>
                                                 <option value="3">BISE Sargodha</option>
@@ -523,7 +909,7 @@
                                     <div class="col-xs-12 col-sm-12 col-md-12">
                                         <div class="form-group">
                                             <label> Enter Board Name <span class="sprq">*</span></label>
-                                            <input type="text" maxlength="30" name="txtMatricBoardName" id="txtMatricBoardName" class="form-control " tabindex="7" autocomplete="off">
+                                            <input type="text" maxlength="30" name="txtMatricBoardName" id="txtMatricBoardName" class="form-control " tabindex="16" autocomplete="off">
                                         </div>
                                     </div>
                                 </div>
@@ -533,7 +919,7 @@
                                             <label>Obtained Marks <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtRowDegree1MarksObtain" id="txtRowDegree1MarksObtain" class="datepicker form-control dated" tabindex="7" autocomplete="off">
+                                                    <input type="text" maxlength="11" name="txtRowDegree1MarksObtain" id="txtRowDegree1MarksObtain" class="datepicker form-control dated" tabindex="17" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -543,7 +929,7 @@
                                             <label>Total Marks <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtRowDegree1MarksTotal" id="txtRowDegree1MarksTotal" class="datepicker form-control dated" tabindex="7" autocomplete="off">
+                                                    <input type="text" maxlength="11" name="txtRowDegree1MarksTotal" id="txtRowDegree1MarksTotal" class="datepicker form-control dated" tabindex="18" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -556,7 +942,7 @@
                                             <label>Passing Date <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" name="txtDateOfPassingMatric" id="txtDateOfPassingMatric" class="datepicker form-control dated" tabindex="7">
+                                                    <input type="text" name="txtDateOfPassingMatric" id="txtDateOfPassingMatric" class="datepicker form-control dated" tabindex="19">
                                                 </div>
                                             </div>
                                         </div>
@@ -573,7 +959,7 @@
                                         <div class="form-group">
                                             <label> Select Degree <span class="sprq">*</span></label>
                                             <input type="hidden" id="hfdRowDegree2Id" value="0" />
-                                            <select required="required" name="ddlFa" id="ddlFa" class="form-control" tabindex="4">
+                                            <select required="required" name="ddlFa" id="ddlFa" class="form-control">
                                                 <option selected="selected" value="9">FSc</option>
                                             </select>
                                         </div>
@@ -582,7 +968,7 @@
                                         <div class="form-group">
                                             <label> Select Board <span class="sprq">*</span></label>
                                             <input type="hidden" id="hfdRowDegree1Id" value="0" />
-                                            <select required="required" name="ddlFABoard" id="ddlFABoard" class="form-control" tabindex="4" onchange="faBoardCheckOption(this)">
+                                            <select required="required" name="ddlFABoard" id="ddlFABoard" class="form-control" tabindex="20">
                                                 <option selected="selected" value="1">BISE Lahore</option>
                                                 <option value="2">BISE Faisalabad</option>
                                                 <option value="3">BISE Sargodha</option>
@@ -601,7 +987,7 @@
                                     <div class="col-xs-12 col-sm-12 col-md-12">
                                         <div class="form-group">
                                             <label> Enter Board Name <span class="sprq">*</span></label>
-                                            <input type="text" maxlength="30" name="txtFaBoardName" id="txtFaBoardName" class="form-control " tabindex="7" autocomplete="off">
+                                            <input type="text" maxlength="30" name="txtFaBoardName" id="txtFaBoardName" class="form-control " tabindex="21" autocomplete="off">
                                         </div>
                                     </div>
                                 </div>
@@ -611,7 +997,7 @@
                                             <label>Obtained Marks <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="7" autocomplete="off">
+                                                    <input type="text" maxlength="11" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="22" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -621,7 +1007,7 @@
                                             <label>Total Marks <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtRowDegree2MarksTotal" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="7" autocomplete="off">
+                                                    <input type="text" maxlength="11" name="txtRowDegree2MarksTotal" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="23" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -634,7 +1020,7 @@
                                             <label>Passing Date <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="7" autocomplete="off">
+                                                    <input type="text" maxlength="11" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="24" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -647,7 +1033,7 @@
                             <div class="col-sm-4">
                                 <div class="form-group">
                                     <label for="" style="width:100% !important"> Profile Picture  <span style="color:red">*</span></label>
-                                    <input type="file" class="form-control flup" name="flPic" id="flPic" tabindex="18" />
+                                    <input type="file" class="form-control flup" name="flPic" id="flPic" tabindex="25" />
                                     <input type="hidden" id="hfdPic" value="" />
                                     <img id="imgPic" class="flup-img" src="" alt="" style="display:none;" />
                                     <a id="rmvPic" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
@@ -655,8 +1041,8 @@
                             </div>
                             <div class="col-sm-4">
                                 <div class="form-group">
-                                    <label for="" style="width:100% !important"> <span class="spnCnic"> CNIC Front Picture</span> <span style="color:red">*</span>  </label>
-                                    <input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="19" />
+                                    <label for="" style="width:100% !important"> <span class="spnCnic"> CNIC Front Image</span> <span style="color:red">*</span>  </label>
+                                    <input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="26" />
                                     <input type="hidden" id="hfdCnicFront" value="" />
                                     <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
                                     <a id="rmvCnicFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
@@ -664,8 +1050,8 @@
                             </div>
                             <div class="col-sm-4" id="cnicBackPicDiv">
                                 <div class="form-group">
-                                    <label for="" style="width:100% !important"> <span id="spnCnicUpload2"> <span class="spnCnic">CNIC</span> Back Picture</span> <span style="color:red">*</span>  </label>
-                                    <input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="20" />
+                                    <label for="" style="width:100% !important"> <span id="spnCnicUpload2"> <span class="spnCnic">CNIC</span> Back Image</span> <span style="color:red">*</span>  </label>
+                                    <input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="27" />
                                     <input type="hidden" id="hfdCnicBack" value="" />
                                     <img id="imgCnicBack" class="flup-img" src="" alt="" style="display:none;" />
                                     <a id="rmvCnicBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
@@ -674,8 +1060,8 @@
 
                             <div class="col-sm-4 divDomicile">
                                 <div class="form-group">
-                                    <label for="" style="width:100% !important"> Domicile Front Picture <span style="color:red">*</span> </label>
-                                    <input type="file" class="form-control flup" name="flDomicileFront" id="flDomicileFront" tabindex="21" />
+                                    <label for="" style="width:100% !important"> Domicile Front Image <span style="color:red">*</span> </label>
+                                    <input type="file" class="form-control flup" name="flDomicileFront" id="flDomicileFront" tabindex="28" />
                                     <input type="hidden" id="hfdDomicileFront" value="" />
                                     <img id="imgDomicileFront" class="flup-img" src="" alt="" style="display:none;" />
                                     <a id="rmvDomicileFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
@@ -684,7 +1070,7 @@
                             <div class="col-sm-4 divMatricImage">
                                 <div class="form-group">
                                     <label for="" style="width:100% !important"> Matric Certificate Image <span class="sprq">*</span></label>
-                                    <input type="file" id="flRowDegree1" name="flRowDegree1" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
+                                    <input type="file" id="flRowDegree1" name="flRowDegree1" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
                                     <input type="hidden" id="hfdRowDegree1" value="" />
                                     <img id="imgRowDegree1" class="flup-img" src="" alt="" style="display:none;" />
                                     <a id="rmvRowDegree1" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
@@ -693,15 +1079,37 @@
                             <div class="col-sm-4 divFaImage">
                                 <div class="form-group">
                                     <label for="" style="width:100% !important"> Fsc Certificate Image <span class="sprq">*</span></label>
-                                    <input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
+                                    <input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="30" accept="image/jpeg, image/png">
                                     <input type="hidden" id="hfdRowDegree2" value="" />
                                     <img id="imgRowDegree2" class="flup-img" src="" alt="" style="display:none;" />
                                     <a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
                                 </div>
                             </div>
-                            <div class="col-sm-12">
-                                <span id="btnProfileSave" style="background:green !important; margin:20px !important" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28"> Add Candidate &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                            <div class="container">
+                                <fieldset id="fieldTypeFA" class="fieldType">
+                                    <legend> Semesters Result </legend>
+                                    <div class="row">
+                                        <div id="semesterContainer" class="row col-md-12" style="padding-left:35px; margin:10px">
+                                            <!-- Semester divs will be dynamically added here -->
+                                        </div>
+                                    </div>
+                                </fieldset>
+
                             </div>
+
+                            <div class="col-sm-12">
+                                @if ((Model.jsonTable.Rows.Count.TooInt()) > 0)
+                                {
+                                    <span id="btnProfileDelete" style="background:green !important; margin:20px !important" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="32"> Delete Candidate &nbsp; &nbsp;<i class="fa fa-close"></i></span>
+                                    <span id="btnProfileSave" style="background:green !important; margin:20px !important" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="31"> Update Candidate &nbsp; &nbsp;<i class="fa fa-check"></i></span>
+
+                                }
+                                else
+                                {
+                                    <span id="btnProfileSave" style="background:green !important; margin:20px !important" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="31"> Add Candidate &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                                }
+                            </div>
+
                         </form>
                     </div>
                 </div>

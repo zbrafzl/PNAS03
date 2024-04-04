@@ -31,6 +31,12 @@ namespace Prp.Sln
             );
 
             routes.MapRoute(
+                name: "LoginMigrant",
+                url: "loginMigrant",
+                defaults: new { controller = "LoggedIn", action = "LoginMigrant", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
                 name: "Register",
                 url: "register",
                 defaults: new { controller = "LoggedIn", action = "Register", id = UrlParameter.Optional }
@@ -113,6 +119,18 @@ namespace Prp.Sln
                 name: "SpecialityProcess",
                 url: "applicant-speciality",
                 defaults: new { controller = "ApplicantProfile", action = "SpecialityProcess", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "MigrantPreferences",
+                url: "migrant-preferences",
+                defaults: new { controller = "LoggedIn", action = "AddMigrationPreferences", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "MigrantProofReading",
+                url: "migrant-proof-reading",
+                defaults: new { controller = "LoggedIn", action = "MigrantProofReading", id = UrlParameter.Optional }
             );
 
 
@@ -313,8 +331,38 @@ namespace Prp.Sln
 
             routes.MapRoute(
                 name: "MeritGazatFCPS",
-                url: preUrl + "/gazatte",
+                url: preUrl + "/rejected-list",
                 defaults: new { controller = "MeritGazat", action = "GazatFCPS", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "MeritGazette",
+                url: preUrl + "/gazette",
+                defaults: new { controller = "MeritGazat", action = "Gazette", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "MeritListMale",
+                url: preUrl + "/meritlist-male",
+                defaults: new { controller = "MeritGazat", action = "MeritList", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "MeritListFemale",
+                url: preUrl + "/meritlist-female",
+                defaults: new { controller = "MeritGazat", action = "MeritListFemale", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "MeritListMaleEvening",
+                url: preUrl + "/meritlist-male-evening",
+                defaults: new { controller = "MeritGazat", action = "MeritListEvening", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "MeritListFemaleEvening",
+                url: preUrl + "/meritlist-female-evening",
+                defaults: new { controller = "MeritGazat", action = "MeritListFemaleEvening", id = UrlParameter.Optional }
             );
 
             routes.MapRoute(
@@ -441,7 +489,21 @@ namespace Prp.Sln
             url: "gallery-images",
             defaults: new { controller = "LoggedIn", action = "GalleryLayout", id = UrlParameter.Optional }
         );
-
+            routes.MapRoute(
+            name: "ApplyGrievnce",
+            url: "apply-grievance",
+            defaults: new { controller = "LoggedIn", action = "applyGrievance", id = UrlParameter.Optional }
+        );
+            routes.MapRoute(
+            name: "ApplyFscGrievnce",
+            url: "apply-fsc-grievance",
+            defaults: new { controller = "LoggedIn", action = "FscGrievance", id = UrlParameter.Optional }
+        );
+            routes.MapRoute(
+            name: "GiveConsent",
+            url: "give-consent",
+            defaults: new { controller = "LoggedIn", action = "GiveConsent", id = UrlParameter.Optional }
+        );
             routes.MapRoute(
             name: "TestRighsPage",
             url: "test-rights",

@@ -76,6 +76,9 @@
 @section RenderScript{
     <script>
 
+		var model = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+		console.log(model);
+		debugger;
         var objApplicantInfo = {};
 
         var applicantId = 0, statusApproval = 0, statusAmedment = 0, objApplicant = {}, imagesPath = "", key = "", value = "";
@@ -153,6 +156,7 @@
                         var comments = $("#divCommentVerify").html();
                         $("#divComments").show();
                         $("#txtComments").val(comments);
+
 
                     }
                 }
@@ -240,7 +244,11 @@
                 if (statusId == 2) {
 
                     $("#divComments").show();
-
+                    $("#btnUpdateAmmenment").val("Reject");
+                }
+                else {
+                    $("#divComments").hide();
+                    $("#btnUpdateAmmenment").val("Approve/Accept");
                 }
 
             });
@@ -419,11 +427,16 @@
                 $("#ddlRemarksDoB").val('@Model.amendmentsData.txtDobRemarks').change();
                 $("#DOBammendments").show();
             }
-            else {
+			else {
+                $("#ddlRemarksDoB").hide();
+                $("#ddlRemarksDoB").val('@Model.amendmentsData.txtDobRemarks').change();
+                $("#DOBammendments").show();
+            }
+            /*else {
                 $("#ddlRemarksDoB").hide();
                 $("#ddlRemarksDoB").val("").change();
                 $("#DOBammendments").hide();
-            }
+            }*/
 
             $("input[id=amendmentsData_txtDobValidty]").change(function () {
                 var value = $(this).val();
@@ -495,10 +508,15 @@
                 $("#ddlRemarksCnicFront").val('@Model.amendmentsData.imgCnicFrontRemarks').change();
                 $("#cnicFrontammendmens").show();
             }
-            else {
+            /*else {
                 $("#ddlRemarksCnicFront").hide();
                 $("#ddlRemarksCnicFront").val("").change();
                 $("#cnicFrontammendmens").hide();
+            }*/
+			else {
+                $("#ddlRemarksCnicFront").hide();
+                $("#ddlRemarksCnicFront").val('@Model.amendmentsData.imgCnicFrontRemarks').change();
+                $("#cnicFrontammendmens").show();
             }
 
             $("input[id=amendmentsData_imgCnicFrontValidty]").change(function () {
@@ -521,10 +539,15 @@
                     $("#ddlRemarksCnicBack").val('@Model.amendmentsData.imgCnicBackRemarks').change();
                         $("#cnicBackammendmens").show();
                 }
-                else {
+                /*else {
                     $("#ddlRemarksCnicBack").hide();
                     $("#ddlRemarksCnicBack").val("").change();
                         $("#cnicBackammendmens").hide();
+                }*/
+				else {
+                    $("#ddlRemarksCnicBack").hide();
+                    $("#ddlRemarksCnicBack").val('@Model.amendmentsData.imgCnicBackRemarks').change();
+                        $("#cnicBackammendmens").show();
                 }
             }
 
@@ -562,10 +585,15 @@
                 $("#domicileFrontImageammendments").show();
 
             }
-            else {
+            @*else {
                 $("#ddlRemarksDomicileFront").hide();
                 $("#ddlRemarksDomicileFront").val("").change();
                 $("#domicileFrontImageammendments").hide();
+            }*@
+			else {
+                $("#ddlRemarksDomicileFront").hide();
+                $("#ddlRemarksDomicileFront").val('@Model.amendmentsData.imgDomicileFrontRemarks').change();
+                $("#domicileFrontImageammendments").show();
             }
 
             $("input[id=amendmentsData_imgDomicileFrontValidty]").change(function () {
@@ -588,10 +616,15 @@
                 $("#ddlRemarksAddress").val('@Model.amendmentsData.txtAddressRemarks').change();
                 $("#addressAmmendments").show();
             }
-            else {
+            /*else {
                 $("#ddlRemarksAddress").hide();
                 $("#ddlRemarksAddress").val("").change();
                 $("#addressAmmendments").hide();
+            }*/
+			else {
+                $("#ddlRemarksAddress").hide();
+                $("#ddlRemarksAddress").val('@Model.amendmentsData.txtAddressRemarks').change();
+                $("#addressAmmendments").show();
             }
 
             $("input[id=amendmentsData_txtAddressValidty]").change(function () {
@@ -614,10 +647,15 @@
                 $("#ddlRemarksFatherName").val('@Model.amendmentsData.txtFatherNameRemarks').change();
                 $("#fatherNameAmmendments").show();
             }
-            else {
+            /*else {
                 $("#ddlRemarksFatherName").hide();
                 $("#ddlRemarksFatherName").val("").change();
                 $("#fatherNameAmmendments").hide();
+            }*/
+			else {
+                $("#ddlRemarksFatherName").hide();
+                $("#ddlRemarksFatherName").val('@Model.amendmentsData.txtFatherNameRemarks').change();
+                $("#fatherNameAmmendments").show();
             }
 
             $("input[id=amendmentsData_txtFatherNameValidty]").change(function () {
@@ -640,10 +678,15 @@
                 $("#ddlRemarksCNICExpiry").val('@Model.amendmentsData.txtCNICExpiryDateRemarks').change();
                 $("#cnicExpiryammendments").show();
             }
-            else {
+            /*else {
                 $("#ddlRemarksCNICExpiry").hide();
                 $("#ddlRemarksCNICExpiry").val("").change();
                 $("#cnicExpiryammendments").hide();
+            }*/
+			else {
+                $("#ddlRemarksCNICExpiry").hide();
+                $("#ddlRemarksCNICExpiry").val('@Model.amendmentsData.txtCNICExpiryDateRemarks').change();
+                $("#cnicExpiryammendments").show();
             }
 
             $("input[id=amendmentsData_txtCNICExpiryDateValidty]").change(function () {
@@ -665,10 +708,17 @@
                 $("#ddlRemarksDomicileDistrict").val('@Model.amendmentsData.ddlDomicileDistrictRemarks').change();
                 $("#domicilDistrictammendments").show();
             }
-            else {
+			/*
+			else {
                 $("#ddlRemarksDomicileDistrict").hide();
                 $("#ddlRemarksDomicileDistrict").val("").change();
                 $("#domicilDistrictammendments").hide();
+            }
+			*/
+            else {
+                $("#ddlRemarksDomicileDistrict").hide();
+                $("#ddlRemarksDomicileDistrict").val('@Model.amendmentsData.ddlDomicileDistrictRemarks').change();
+                $("#domicilDistrictammendments").show();
             }
 
             $("input[id=amendmentsData_ddlDomicileDistrictValidty]").change(function () {
@@ -691,11 +741,17 @@
                 $("#ddlRemarksDegree1MarksObtain").val('@Model.amendmentsData.txtRowDegree1MarksObtainRemarks').change();
                 $("#matricMarksObtained").show();
             }
-            else {
+			/*else {
                 $("#ddlRemarksDegree1MarksObtain").hide();
                 $("#ddlRemarksDegree1MarksObtain").val("").change();
                 $("#matricMarksObtained").hide();
+            }*/
+            else {
+                $("#ddlRemarksDegree1MarksObtain").hide();
+                $("#ddlRemarksDegree1MarksObtain").val('@Model.amendmentsData.txtRowDegree1MarksObtainRemarks').change();
+                $("#matricMarksObtained").show();
             }
+
 
             $("input[id=amendmentsData_txtRowDegree1MarksObtainValidty]").change(function () {
                 var value = $(this).val();
@@ -717,10 +773,15 @@
                 $("#ddlRemarksDegree1MarksTotal").val('@Model.amendmentsData.txtRowDegree1MarksTotalRemarks').change();
                 $("#matricTotalMarksObtained").show();
             }
-            else {
+			/*else {
                 $("#ddlRemarksDegree1MarksTotal").hide();
                 $("#ddlRemarksDegree1MarksTotal").val("").change();
                 $("#matricTotalMarksObtained").hide();
+            }*/
+            else {
+                $("#ddlRemarksDegree1MarksTotal").hide();
+                $("#ddlRemarksDegree1MarksTotal").val('@Model.amendmentsData.txtRowDegree1MarksTotalRemarks').change();
+                $("#matricTotalMarksObtained").show();
             }
 
             $("input[id=amendmentsData_txtRowDegree1MarksTotalValidty]").change(function () {
@@ -743,10 +804,15 @@
                 $("#ddlRemarksMatricBoard").val('@Model.amendmentsData.ddlMatricBoardRemarks').change();
                 $("#MatricBoardName").show();
             }
-            else {
+			/*else {
                 $("#ddlRemarksMatricBoard").hide();
                 $("#ddlRemarksMatricBoard").val("").change();
                 $("#MatricBoardName").hide();
+            }*/
+            else {
+                $("#ddlRemarksMatricBoard").hide();
+                $("#ddlRemarksMatricBoard").val('@Model.amendmentsData.ddlMatricBoardRemarks').change();
+                $("#MatricBoardName").show();
             }
 
             $("input[id=amendmentsData_ddlMatricBoardValidty]").change(function () {
@@ -769,10 +835,15 @@
                 $("#ddlRemarksDegree1").val('@Model.amendmentsData.imgRowDegree1Remarks').change();
                 $("#matricCertificateImage").show();
             }
-            else {
+			/*else {
                 $("#ddlRemarksDegree1").hide();
                 $("#ddlRemarksDegree1").val("").change();
                 $("#matricCertificateImage").hide();
+            }*/
+            else {
+                $("#ddlRemarksDegree1").hide();
+                $("#ddlRemarksDegree1").val('@Model.amendmentsData.imgRowDegree1Remarks').change();
+                $("#matricCertificateImage").show();
             }
 
             $("input[id=amendmentsData_imgRowDegree1Validty]").change(function () {
@@ -796,10 +867,15 @@
                 $("#ddlRemarksDegree2MarksObtain").val('@Model.amendmentsData.txtRowDegree2MarksObtainRemarks').change();
                 $("#FscObtainMarks").show();
             }
-            else {
+			/*else {
                 $("#ddlRemarksDegree2MarksObtain").hide();
                 $("#ddlRemarksDegree2MarksObtain").val("").change();
                 $("#FscObtainMarks").hide();
+            }*/
+            else {
+                $("#ddlRemarksDegree2MarksObtain").hide();
+                $("#ddlRemarksDegree2MarksObtain").val('@Model.amendmentsData.txtRowDegree2MarksObtainRemarks').change();
+                $("#FscObtainMarks").show();
             }
 
             $("input[id=amendmentsData_txtRowDegree2MarksObtainValidty]").change(function () {
@@ -822,12 +898,19 @@
 
                 $("#ddlRemarksDegree2MarksTotal").show();
                 $("#ddlRemarksDegree2MarksTotal").val('@Model.amendmentsData.txtRowDegree2MarksTotalRemarks').change();
-                $("#matricTotalMarks").hide();
+                $("#fscTotalMarksDiv").show();
             }
-            else {
+			/*
+			else {
                 $("#ddlRemarksDegree2MarksTotal").hide();
                 $("#ddlRemarksDegree2MarksTotal").val("").change();
-                $("#matricTotalMarks").hide();
+                $("#fscTotalMarksDiv").hide();
+            }
+			*/
+            else {
+                $("#ddlRemarksDegree2MarksTotal").hide();
+                $("#ddlRemarksDegree2MarksTotal").val('@Model.amendmentsData.txtRowDegree2MarksTotalRemarks').change();
+                $("#fscTotalMarksDiv").show();
             }
 
             $("input[id=amendmentsData_txtRowDegree2MarksTotalValidty]").change(function () {
@@ -848,10 +931,15 @@
                 $("#ddlRemarksFABoard").val('@Model.amendmentsData.ddlFABoardRemarks').change();
                 $("#FABoardAmmendments").show();
             }
-            else {
+			/*else {
                 $("#ddlRemarksFABoard").hide();
                 $("#ddlRemarksFABoard").val("").change();
                 $("#FABoardAmmendments").hide();
+            }*/
+            else {
+                $("#ddlRemarksFABoard").hide();
+                $("#ddlRemarksFABoard").val('@Model.amendmentsData.ddlFABoardRemarks').change();
+                $("#FABoardAmmendments").show();
             }
 
             $("input[id=amendmentsData_ddlFABoardValidty]").change(function () {
@@ -874,10 +962,15 @@
                 $("#ddlRemarksDegree2").val('@Model.amendmentsData.imgRowDegree2Remarks').change();
                 $("#fscDegreeCertificate").show();
             }
-            else {
+			/*else {
                 $("#ddlRemarksDegree2").hide();
                 $("#ddlRemarksDegree2").val("").change();
                 $("#fscDegreeCertificate").hide();
+            }*/
+            else {
+                $("#ddlRemarksDegree2").hide();
+                $("#ddlRemarksDegree2").val('@Model.amendmentsData.imgRowDegree2Remarks').change();
+                $("#fscDegreeCertificate").show();
             }
 
             $("input[id=amendmentsData_imgRowDegree2Validty]").change(function () {
@@ -1621,16 +1714,19 @@
                 }
             }
             objApplicantInfo.imgVoucher = ConvertToString($("#hfdVoucher").val());
+            objApplicantInfo.amendmentApprovalStatus = ConvertToInt($("#ddlStatusType").val());
+            objApplicantInfo.amendmentApprovalRemarks = ConvertToString($("#txtComments").val());
 			debugger;
             statuAction = "AmmendmetsProcess";
             if (isError == false) {
+				debugger;
                 var resp = CallActionPost("/VerficationProcess/" + statuAction, objApplicantInfo);
                 console.log(resp);
                 debugger;
                 if (resp != null && resp.status == true) {
                     $("#divError").hide();
                     $("#spnMsg").html("");
-                    var url = "/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0";
+                    var url = "/admin/applicant-search-to-ammendment?statusTypeId=133&statusId=0";
                     window.location.replace(url);
                     //window.open(url);
                     //var url = window.location.pathname;
@@ -2350,7 +2446,7 @@
                                                                 </select>
                                                             </td>
                                                         </tr>
-                                                        <tr id="matricTotalMarks">
+                                                        <tr id="fscTotalMarksDiv">
                                                             <td>
                                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                                     <div class="form-group">
@@ -2485,24 +2581,24 @@
                                                 Amendment  Action
                                             </legend>
                                             <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
-                                                @*<div class="form-group col-lg-12">
-                                                        <div class="col-md-3 col-sm-3 col-xs-3">
-                                                            <label for="heard">Status Type *:</label>
-                                                            <select id="ddlStatusType" name="ddlStatusType" class="form-control">
-                                                                <option value="1" selected="selected">Accepted</option>
-                                                                <option value="2">Rejected</option>
-                                                            </select>
+                                                <div class="form-group col-lg-12">
+                                                    <div class="col-md-3 col-sm-3 col-xs-3">
+                                                        <label for="heard">Status Type *:</label>
+                                                        <select id="ddlStatusType" name="ddlStatusType" class="form-control">
+                                                            <option value="1" selected="selected">Accepted</option>
+                                                            <option value="2">Rejected</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div id="divComments" class="form-group col-lg-12" style="display:none; margin-top:20px;">
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                        <label for="heard">Comments *:</label>
+                                                        <div id="divCommentValue" style="display:none;">
+                                                            @Model.statusApproval.comments
                                                         </div>
-                                                    </div>*@
-                                                @*<div id="divComments" class="form-group col-lg-12" style="display:none; margin-top:20px;">
-                                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                                            <label for="heard">Comments *:</label>
-                                                            <div id="divCommentValue" style="display:none;">
-                                                                @Model.statusApproval.comments
-                                                            </div>
-                                                            <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
-                                                        </div>
-                                                    </div>*@
+                                                        <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
+                                                    </div>
+                                                </div>
                                                 @*<div class="form-group col-lg-12" style="margin-top:20px;">
                                                         <label for="heard">Only if all rejections are removed and required changes updated, Proceed to approve/accept the candidate.</label>
                                                     </div>*@

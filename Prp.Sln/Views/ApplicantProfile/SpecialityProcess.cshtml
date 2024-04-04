@@ -171,7 +171,16 @@
                 applicantSpecilityId = ConvertToInt(idAttr.replace("ankDel", ""));
 
                 if (applicantSpecilityId > 0 && confirm('Are you sure you want to do delete this?')) {
-                    DeleteSpecility();
+                    debugger;
+                    if ((objSpecilityList.length + objSpecilityListEvening.length) <= 1) {
+                        if (confirm('Your profile will be marked as incomplete if you delete all your preferences. Are you sure you want to do delete this?')) {
+                            DeleteSpecility();
+                        }
+                    }
+                    else {
+                        DeleteSpecility();
+                    }
+                    
                 }
             });
 
@@ -220,12 +229,20 @@
             })
 
             $(document).on('click', '.ankDel2', function () {
-
                 var idAttr = $(this).attr("id");
                 applicantSpecilityId = ConvertToInt(idAttr.replace("ankDel2", ""));
-                debugger;
+
                 if (applicantSpecilityId > 0 && confirm('Are you sure you want to do delete this?')) {
-                    DeleteSpecility();
+                    debugger;
+                    if ((objSpecilityList.length + objSpecilityListEvening.length) <= 1) {
+                        if (confirm('Your profile will be marked as incomplete if you delete all your preferences. Are you sure you want to do delete this?')) {
+                            DeleteSpecility();
+                        }
+                    }
+                    else {
+                        DeleteSpecility();
+                    }
+
                 }
             });
 

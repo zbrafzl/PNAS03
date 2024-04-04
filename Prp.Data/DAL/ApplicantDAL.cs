@@ -13,6 +13,55 @@ namespace Prp.Data
     {
         #region Applicant
 
+        public Applicant LoginMigrant(string userName, string password)
+        {
+            Applicant obj = new Applicant();
+            try
+            {
+
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spApplicantLoginNursingMigrant]"
+                };
+                cmd.Parameters.AddWithValue("@emailId", userName);
+                cmd.Parameters.AddWithValue("@password", password);
+
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    DataRow dr = dt.Rows[0];
+
+                    obj.inductionId = dr["inductionId"].TooInt();
+                    obj.applicantId = dr["applicantId"].TooInt();
+                    obj.network = dr["network"].TooInt();
+                    obj.facultyId = dr["facultyId"].TooInt();
+                    obj.statusId = dr["statusId"].TooInt();
+
+                    obj.name = dr["name"].TooString();
+                    obj.pmdcNo = dr["pmdcNo"].TooString();
+                    obj.pncNo = dr["pncNo"].TooString();
+                    obj.emailId = dr["emailId"].TooString();
+                    obj.password = dr["password"].TooString();
+                    obj.passwordDecrypt = dr["passwordDecrypt"].TooString();
+                    obj.contactNumber = dr["contactNumber"].TooString();
+                    obj.pic = dr["pic"].TooString();
+                    obj.date = dr["date"].TooString();
+                    obj.facultyName = dr["facultyName"].TooString();
+                    obj.status = dr["status"].TooString();
+                }
+
+                //var dbt = db.spApplicantLogin(userName, password).FirstOrDefault();
+                //obj = MapApplicant.ToEntity(dbt);
+            }
+            catch (Exception ex)
+            {
+                obj = new Applicant();
+            }
+            return obj;
+        }
+
         public Applicant Login(string userName, string password)
         {
             Applicant obj = new Applicant();
@@ -91,6 +140,36 @@ namespace Prp.Data
             return msg;
         }
 
+        public Message UpdateMigrationSemesterData( int applicantId, List<semesterData> obj)
+        {
+            var date = DateTime.UtcNow;
+            Message msg = new Message();
+            try
+            {
+                for(int i = 0; i<obj.Count; i++)
+                {
+                    SqlCommand cmd = new SqlCommand
+                    {
+                        CommandType = CommandType.StoredProcedure,
+                        CommandText = "[dbo].[spUpdateMigrationSemesterData]"
+                    };
+                    cmd.Parameters.AddWithValue("@applicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@semester", obj[i].semester);
+                    cmd.Parameters.AddWithValue("@result", obj[i].result);
+                    msg = PrpDbADO.ExecuteNonQuery(cmd);
+                }
+                
+
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            return msg;
+        }
+
+
         public Message UpdateMigrationCandidate(MigrationCandidateData obj)
         {
             var date = DateTime.UtcNow;
@@ -137,6 +216,31 @@ namespace Prp.Data
                 cmd.Parameters.AddWithValue("@imgFscDegree", obj.imgFscDegree);
                 cmd.Parameters.AddWithValue("@adminId", obj.adminID);
                 cmd.Parameters.AddWithValue("@dated", DateTime.Now);
+
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                msg = dt.ConvertToEnitityMessage();
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            return msg;
+        }
+
+        public Message DeleteMigrationCandidate(int applicantId)
+        {
+            var date = DateTime.UtcNow;
+            Message msg = new Message();
+            try
+            {
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spDeleteMigrationCandidate]"
+                };
+                cmd.Parameters.AddWithValue("@applicantId", applicantId);
 
                 DataTable dt = PrpDbADO.FillDataTable(cmd);
 
@@ -507,6 +611,97 @@ namespace Prp.Data
             return obj;
         }
 
+        public DataTable ApplicantSaveGrievance(GirevanceData obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantSaveGrievance]"
+            }; 
+            cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+            cmd.Parameters.AddWithValue("@institute", obj.institute);
+            cmd.Parameters.AddWithValue("@dateSelected", obj.dateSelected);
+            cmd.Parameters.AddWithValue("@isSelf", obj.isSelf);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable ApplicantSaveFscGrievance(fscGrievanceData obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantSaveFscGrievance]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+            cmd.Parameters.AddWithValue("@boardFsc", obj.boardFsc);
+            cmd.Parameters.AddWithValue("@passingDate", obj.passingDate);
+            cmd.Parameters.AddWithValue("@obtainedMarks", obj.obtainedMarks);
+            cmd.Parameters.AddWithValue("@totalMarks", obj.totalMarks);
+            cmd.Parameters.AddWithValue("@imgFsc", obj.imgFsc);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable ApplicantSaveConsent(Consent obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantSaveConsent]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+            cmd.Parameters.AddWithValue("@consentTypeId", obj.consentTypeId);
+            cmd.Parameters.AddWithValue("@roundId", obj.roundId);
+            cmd.Parameters.AddWithValue("@upgradable", obj.upgradable);
+            cmd.Parameters.AddWithValue("@prefNo", obj.prefNo);
+            //cmd.Parameters.AddWithValue("@firstName", obj.firstName);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+
+        public DataTable getRejection(int applicantId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[GetRejectionReason]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable GetAvailableDates(int collegeId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[GetAvailableDates]"
+            };
+            cmd.Parameters.AddWithValue("@LocationId", collegeId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable GetApplicantMeritByApplicantId(int applicantId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetApplicantMeritByApplicantId]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable GetApplicantConsentByApplicantId(int applicantId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetApplicantConsentByApplicantId]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
         public DataTable GetApplicantByIdAdmin(int applicantId)
         {
             SqlCommand cmd = new SqlCommand
@@ -529,6 +724,91 @@ namespace Prp.Data
             return PrpDbADO.FillDataTable(cmd);
         }
 
+        public DataTable GetMigrationApplicantById(int applicantId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantMigrationGetById]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable GetSemesterDataById(int applicantId, int inductionId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetSemesterDataById]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            cmd.Parameters.AddWithValue("@inductionId", inductionId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable GetMigrationJobsByApplicantId(int applicantId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spMigrationJobsByApplicantId]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable GetMigrationPreferencesByApplicantId(int applicantId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spMigrationPreferencesByApplicantId]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+        public DataTable SaveMigrationPreferencesByApplicantId(int applicantId, DateTime dob, DateTime doj, List<ApplicantSpecility> listSpecilties, List<ApplicantDegree> listDmc)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spAddApplicantMigrationPreferences]"
+            };
+            DataTable tempDegreeTable = new DataTable();
+            tempDegreeTable.Columns.Add("obtainMarks", typeof(int));
+            tempDegreeTable.Columns.Add("totalMarks", typeof(int));
+            tempDegreeTable.Columns.Add("degreeYear", typeof(int));
+            tempDegreeTable.Columns.Add("imageCertificate", typeof(string));
+            foreach (var item in listDmc)
+            {
+                DataRow dr = tempDegreeTable.NewRow();
+                dr["obtainMarks"] = item.obtainMarks;
+                dr["totalMarks"] = item.totalMarks;
+                dr["degreeYear"] = item.degreeYear;
+                dr["imageCertificate"] = item.imageCertificate;
+                tempDegreeTable.Rows.Add(dr);
+            }
+
+            DataTable tempPreferenceTable = new DataTable();
+            tempPreferenceTable.Columns.Add("preferenceNo", typeof(int));
+            tempPreferenceTable.Columns.Add("hospitalId", typeof(int));
+
+            foreach (var item in listSpecilties)
+            {
+                DataRow dr = tempPreferenceTable.NewRow();
+                dr["preferenceNo"] = item.preferenceNo;
+                dr["hospitalId"] = item.hospitalId;
+                tempPreferenceTable.Rows.Add(dr);
+            }
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            cmd.Parameters.AddWithValue("@dob", dob);
+            cmd.Parameters.AddWithValue("@doj", doj);
+            cmd.Parameters.AddWithValue("@tempTable", tempPreferenceTable);
+            cmd.Parameters.AddWithValue("@tempTableDegree", tempDegreeTable);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
         public Message GetApplicantIdBySearch(string search, string condition)
         {
             Message msg = new Message();
@@ -538,19 +818,19 @@ namespace Prp.Data
                 DataTable dt = new DataTable();
                 if (condition.Trim() == "applicantId")
                 {
-                    query = "select top 1 applicantId from tblApplicant where applicantId = " + Convert.ToInt32(search) + " ";
+                    query = "select top 1 applicantId from tblApplicant with (nolock) where applicantId = " + Convert.ToInt32(search) + " ";
                 }
                 else if (condition.Trim() == "emailId")
                 {
-                    query = "select top 1 applicantId from tblApplicant where emailId like '%" + search + "%' ";
+                    query = "select top 1 applicantId from tblApplicant with (nolock) where emailId like '%" + search + "%' ";
                 }
                 else if (condition.Trim() == "contactNumber")
                 {
-                    query = "select top 1 applicantId from tblApplicant where contactNumber like '%" + search + "%' ";
+                    query = "select top 1 applicantId from tblApplicant with (nolock) where contactNumber like '%" + search + "%' ";
                 }
                 else if (condition.Trim() == "pmdcNo")
                 {
-                    query = "select top 1 t1.applicantId from tblApplicant t1 inner join tblApplicantInfo t2 on t1.applicantId = t2.applicantId where t2.cnicNo like '%" + search + "%' ";
+                    query = "select top 1 t1.applicantId from tblApplicant t1 with (nolock) inner join tblApplicantInfo t2 with (nolock) on t1.applicantId = t2.applicantId where t2.cnicNo like '%" + search + "%' ";
                 }
                 SqlConnection con = new SqlConnection();
                 SqlCommand cmd = new SqlCommand(query);
@@ -992,7 +1272,7 @@ namespace Prp.Data
                 catch (Exception ex)
                 {
                     msg.status = false;
-                    msg.msg = ex.Message;
+                    msg.msg = ex.Message.ToString();
                 }
                 finally
                 {
@@ -1044,7 +1324,7 @@ namespace Prp.Data
             ApplicantInfo obj = new ApplicantInfo();
             try
             {
-                string query = "select a.*, b.*, r.name as disName from tblApplicant a left join tblApplicantInfo b on b.applicantId = a.applicantId left join tblRegion r on b.districtId = r.regionId  ";
+                string query = "select a.*, b.*, r.name as disName from tblApplicant a inner join tblApplicantInfo b on b.applicantId = a.applicantId left join tblRegion r on b.districtId = r.regionId  ";
                 query += "where a.applicantId = " + applicantId + "";
                 SqlConnection con = new SqlConnection();
                 Message msg = new Message();
@@ -1103,6 +1383,7 @@ namespace Prp.Data
                         obj.levelTypeId = dr["postingInstituteTypeId"].TooInt();
                         obj.inductionId = dr["postingInstituteId"].TooInt();
                         obj.instituteName = dr["currentPostingAddress"].TooString();
+                        obj.pic = dr["pic"].TooString();
                     }
                     else
                     {
@@ -1153,7 +1434,7 @@ namespace Prp.Data
             ApplicantInfo obj = new ApplicantInfo();
             try
             {
-                string query = "select a.*, b.*, r.name as disName, rdom.name as domDisName from tblApplicant a left join (select * from tblApplicantInfo union select * from tblApplicantInfoMigrants) b on b.applicantId = a.applicantId left join tblRegion r on b.districtId = r.regionId left join tblRegion rdom on b.domicileDistrictId = rdom.regionId  ";
+                string query = "select a.*, b.*, r.name as disName, rdom.name as domDisName from tblApplicant a WITH (NOLOCK) left join (select * from tblApplicantInfo WITH (NOLOCK)) b on b.applicantId = a.applicantId left join tblRegion r on b.districtId = r.regionId left join tblRegion rdom on b.domicileDistrictId = rdom.regionId ";
                 query += "where a.applicantId = " + applicantId + "";
                 SqlConnection con = new SqlConnection();
                 Message msg = new Message();
@@ -2117,7 +2398,7 @@ namespace Prp.Data
             try
             {
                 SqlConnection con = new SqlConnection();
-                SqlCommand cmd = new SqlCommand("spApplicantSpecilityDeleteByApplicant");
+                SqlCommand cmd = new SqlCommand("spApplicantSpecilityDeleteByApplicant2");
                 try
                 {
                     con = new SqlConnection(PrpDbConnectADO.Conn);

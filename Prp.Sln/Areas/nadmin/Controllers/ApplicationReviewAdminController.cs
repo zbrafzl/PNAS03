@@ -26,13 +26,15 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         [CheckHasRight]
         public ActionResult ApplicantDetail()
         {
+            int appId = 0;
+            int indId = 0;
             ProofReadingAdminModel model = new ProofReadingAdminModel();
             try
             {
 
                 int inductionId = AdminHelper.GetInductionId();
                 int phaseId = 1;
-
+                indId = inductionId;
                 string key = Request.QueryString["key"].TooString();
                 string value = Request.QueryString["value"].TooString();
 
@@ -41,6 +43,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
 
                     Message msg = new ApplicantDAL().GetApplicantIdBySearch(value, key);
                     int applicantId = msg.id.TooInt();
+                    appId = applicantId;
                     if (applicantId > 0)
                     {
                         int applicationStatusId = 0;
@@ -61,7 +64,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                             || loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior
                             || loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter))
                         {
-                            if (applicationStatusId == 8)
+                            if (applicationStatusId > 0)
                             {
                                 model = AdminFunctions.GenerateModelProofReading(inductionId, phaseId, applicantId);
                                 model.applicantId = applicantId;
@@ -141,6 +144,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                 model.search.key = key;
                 model.search.value = value;
 
+
             }
             catch (Exception)
             {
@@ -151,6 +155,10 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             Session["degreeAchieved"] = model.applicant.facultyId;
             Session["applicantId"] = model.applicant.applicantId;
             Session["appliedFor"] = model.applicant.levelId;
+
+            ApplicationStatus objStatusFinal = new ApplicantDAL().GetApplicationStatus(indId, ProjConstant.phaseId
+                                              , appId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
+            model.applicant.applicationStatusId = objStatusFinal.statusId;
 
             return View(model);
         }
@@ -185,43 +193,19 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         //    ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
         //           , loggedInUser.applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
         //    DataTable dtCheckStatus = new DataTable();
-        //    string query = "Select top(1) tas.applicationStatusId, tas.inductionId, tas.applicantId,tas.statusTypeId, tas.statusId, tas.dated , a.facultyId, a.genderID, a.levelId, a.pncNo, a.contactNumber from tblApplicationStatus tas inner join tblApplicant a on tas.applicantId = a.applicantId where a.applicantId = " + loggedInUser.applicantId + " order by dated DESC";
-        //    SqlConnection con = new SqlConnection();
-        //    Message msg = new Message();
-        //    SqlCommand cmd = new SqlCommand(query);
-        //    try
-        //    {
-        //        con = new SqlConnection(PrpDbConnectADO.Conn);
-        //        con.Open();
-        //        cmd.Connection = con;
-        //        SqlDataAdapter sda = new SqlDataAdapter(cmd);
-        //        sda.Fill(dtCheckStatus);
-        //        cmd.ExecuteNonQuery();
+//    DataRow dr = dtCheckStatus.Rows[0];
+//    Session["appliedFor"] = dr[8].ToString();
+//    Session["degreeAchieved"] = dr[6].ToString();
+//    ApplicantStatus objStatus = new ApplicantDAL().GetApplicantStatus(loggedInUser.applicantId);
 
-        //        msg.status = true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        msg.status = false;
-        //        msg.msg = ex.Message;
-        //    }
-        //    finally
-        //    {
-        //        con.Close();
-        //    }
-        //    DataRow dr = dtCheckStatus.Rows[0];
-        //    Session["appliedFor"] = dr[8].ToString();
-        //    Session["degreeAchieved"] = dr[6].ToString();
-        //    ApplicantStatus objStatus = new ApplicantDAL().GetApplicantStatus(loggedInUser.applicantId);
+//    if (objStatus.statusId < ProjConstant.Constant.ApplicationStatus.completed)
+//    {
+//        return Redirect("/applicant-profile-create");
+//    }
 
-        //    if (objStatus.statusId < ProjConstant.Constant.ApplicationStatus.completed)
-        //    {
-        //        return Redirect("/applicant-profile-create");
-        //    }
-
-        //    return View(model);
-        //}
-        public ProofReadingModel GenerateModelProofReading(int applicantId)
+//    return View(model);
+//}
+public ProofReadingModel GenerateModelProofReading(int applicantId)
         {
             ProofReadingModel model = new ProofReadingModel();
 

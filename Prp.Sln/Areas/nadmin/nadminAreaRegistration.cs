@@ -371,6 +371,12 @@ namespace Prp.Sln.Areas.nadmin
             );
 
             context.MapRoute(
+               name: "ApplicantListCollegeWise",
+               url: "admin/applicant-list-college-wise",
+               defaults: new { controller = "ApplicantAdmin", action = "ApplicantListCollegeWise", id = UrlParameter.Optional }
+            );
+
+            context.MapRoute(
              name: "ApplicantAdminSearchInducion",
              url: "admin/applicant-search-induction-{induction}",
              defaults: new { controller = "ApplicantAdmin", action = "ApplicantSearch", id = UrlParameter.Optional }

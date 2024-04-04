@@ -1578,6 +1578,8 @@
     <Content Include="Areas\nadmin\Views\ApplicationReviewAdmin\AmendmentsNursing.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\MigrationCandidateAddition.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\AddSeats.cshtml" />
+    <Content Include="Areas\nadmin\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\nadmin\Views\ApplicantAdmin\ApplicantListCollegeWise.cshtml" />
     <None Include="Properties\PublishProfiles\PRP.UI.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\chosen\chosen-sprite.png" />
@@ -6404,6 +6406,17 @@
     <Content Include="Views\LoggedIn\VerifyRegister.cshtml" />
     <Content Include="Views\Otp\Index.cshtml" />
     <Content Include="Views\Otp\SendOTP.cshtml" />
+    <Content Include="Views\LoggedIn\applyGrievance.cshtml" />
+    <Content Include="Views\MeritGazat\Gazette.cshtml" />
+    <Content Include="Views\LoggedIn\FscGrievance.cshtml" />
+    <Content Include="Views\LoggedIn\GiveConsent.cshtml" />
+    <Content Include="Views\MeritGazat\MeritList.cshtml" />
+    <Content Include="Views\MeritGazat\MeritListFemale.cshtml" />
+    <Content Include="Views\MeritGazat\MeritListEvening.cshtml" />
+    <Content Include="Views\MeritGazat\MeritListFemaleEvening.cshtml" />
+    <Content Include="Views\LoggedIn\AddMigrationPreferences.cshtml" />
+    <Content Include="Views\LoggedIn\LoginMigrant.cshtml" />
+    <Content Include="Views\LoggedIn\MigrantProofReading.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

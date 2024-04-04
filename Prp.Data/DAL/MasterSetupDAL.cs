@@ -201,10 +201,50 @@ namespace Prp.Data
         public List<Ticker> TickerGetByInduction(int inductionId, int typeId)
         {
             List<Ticker> list = new List<Ticker>();
+            string dataTableName = "";
             try
             {
-                var listt = db.tvwTickers.Where(x=> x.inductionId== inductionId && x.typeId == typeId).ToList();
-                list = MapTicker.ToEntityList(listt);
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spTickerSearch]"
+                };
+                cmd.Parameters.AddWithValue("@inductionId", inductionId);
+                //return PrpDbADO.FillDataTable(cmd);
+                SqlConnection con = new SqlConnection();
+                System.Data.DataTable dt = new System.Data.DataTable();
+
+                try
+                {
+                    con = new SqlConnection(PrpDbConnectADO.Conn);
+                    con.Open();
+                    cmd.Connection = con;
+                    SqlDataAdapter da = new SqlDataAdapter();
+                    da.SelectCommand = cmd;
+                    DataSet ds = new DataSet();
+                    da.Fill(ds);
+                    dt = ds.Tables[0];
+                }
+                catch (Exception ex)
+                {
+                    dataTableName = null;
+                }
+                finally
+                {
+                    con.Close();
+                }
+                foreach (DataRow dr in dt.Rows)
+                {
+                    Ticker t = new Ticker();
+                    t.adminId = dr["adminId"].TooInt();
+                    t.detail = dr["detail"].TooString();
+                    t.typeId = dr["typeId"].TooInt();
+                    t.isActive = dr["isActive"].TooBoolean();
+                    t.name = dr["name"].TooString();
+                    t.inductionId = dr["inductionId"].TooInt();
+                    t.tickerId = dr["tickerId"].TooInt();
+                    list.Add(t);
+                }
             }
             catch (Exception)
             {
@@ -215,10 +255,50 @@ namespace Prp.Data
         public List<Ticker> TickerGetByInduction(int inductionId)
         {
             List<Ticker> list = new List<Ticker>();
+            string dataTableName = "";
             try
             {
-                var listt = db.tvwTickers.Where(x => x.inductionId == inductionId).ToList();
-                list = MapTicker.ToEntityList(listt);
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spTickerSearch]"
+                };
+                cmd.Parameters.AddWithValue("@inductionId", inductionId);
+                //return PrpDbADO.FillDataTable(cmd);
+                SqlConnection con = new SqlConnection();
+                System.Data.DataTable dt = new System.Data.DataTable();
+
+                try
+                {
+                    con = new SqlConnection(PrpDbConnectADO.Conn);
+                    con.Open();
+                    cmd.Connection = con;
+                    SqlDataAdapter da = new SqlDataAdapter();
+                    da.SelectCommand = cmd;
+                    DataSet ds = new DataSet();
+                    da.Fill(ds);
+                    dt = ds.Tables[0];
+                }
+                catch (Exception ex)
+                {
+                    dataTableName = null;
+                }
+                finally
+                {
+                    con.Close();
+                }
+                foreach(DataRow dr in dt.Rows)
+                {
+                    Ticker t = new Ticker();
+                    t.adminId = dr["adminId"].TooInt();
+                    t.detail = dr["detail"].TooString();
+                    t.typeId = dr["typeId"].TooInt();
+                    t.isActive = dr["isActive"].TooBoolean();
+                    t.name = dr["name"].TooString();
+                    t.inductionId = dr["inductionId"].TooInt();
+                    t.tickerId = dr["tickerId"].TooInt();
+                    list.Add(t);
+                }
             }
             catch (Exception)
             {

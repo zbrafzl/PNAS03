@@ -223,12 +223,13 @@
                     if (isError == false) {
 
                         var resp = CallActionPost("/LoggedIn/ApplicantRegistration", objApplicant)
+                        console.log(resp);
                         if (resp != null && resp.status == true) {
                             $("#divError").hide();
                             $("#spnMsg").html("");
 
 
-                            SendSMS(resp.value, resp.msg);
+                            //SendSMS(resp.value, resp.msg);
 
                             // verify-registration 
                              ///register-complete 
@@ -280,8 +281,8 @@
 
             objApplicant.network = 1;
             objApplicant.genderID = ConvertToInt($("#ddlGender").val());
-            objApplicant.levelId = ConvertToInt($("#ddlLevel").val());
-            objApplicant.facultyId = ConvertToInt($("#ddlFaculty").val());
+            objApplicant.levelId = 13;
+            objApplicant.facultyId = 13;
             objApplicant.network = 1;
             objApplicant.pic = "";
 

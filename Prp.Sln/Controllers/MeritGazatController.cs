@@ -21,6 +21,34 @@ namespace Prp.Sln.Controllers
             return View(model);
         }
 
+        public ActionResult Gazette()
+        {
+            MeritGazatModel model = new MeritGazatModel();
+            return View(model);
+        }
+
+        public ActionResult MeritList()
+        {
+            MeritGazatModel model = new MeritGazatModel();
+            return View(model);
+        }
+        public ActionResult MeritListFemale()
+        {
+            MeritGazatModel model = new MeritGazatModel();
+            return View(model);
+        }
+
+        public ActionResult MeritListEvening()
+        {
+            MeritGazatModel model = new MeritGazatModel();
+            return View(model);
+        }
+        public ActionResult MeritListFemaleEvening()
+        {
+            MeritGazatModel model = new MeritGazatModel();
+            return View(model);
+        }
+
         public ActionResult GazatMS()
         {
             MeritGazatModel model = new MeritGazatModel();
@@ -92,6 +120,15 @@ namespace Prp.Sln.Controllers
         {
             obj.search = obj.search.TooString();
             DataTable dataTable = new MeritDAL().GazatGetAllByTypeView(obj);
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Content(json, "application/json");
+        }
+
+        [HttpPost]
+        public ActionResult GazzetGetAllByTypeView(GazatMerit obj)
+        {
+            obj.search = obj.search.TooString();
+            DataTable dataTable = new MeritDAL().GazetteGetAllByTypeView(obj);
             string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
             return Content(json, "application/json");
         }

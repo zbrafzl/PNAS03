@@ -43,7 +43,7 @@ namespace Prp.Data
     }
 
 
-   
+
 
     public class SMS : tblSM
     {
@@ -84,7 +84,14 @@ namespace Prp.Data
         }
 
     }
-
+    public class semesterData { 
+        public int semester { get; set; }
+        public string result { get; set; }
+    }
+    public class MigrationSemesterData { 
+        public int applicantId { get; set; }
+        public List<semesterData> semesterDatas { get; set; }
+    }
 
     public class MigrationCandidateData
     {
@@ -128,37 +135,37 @@ namespace Prp.Data
 
     public class Applicant
     {
-            public int inductionId { get; set; }
-            public int phaseId { get; set; }
-            public int applicantId { get; set; }
-            public string name { get; set; }
-            public string pmdcNo { get; set; }
-            public string pncNo { get; set; }
-            public string emailId { get; set; }
-            public string password { get; set; }
-            public string contactNumber { get; set; }
-            public string maritalStatus { get; set; }
-            public int network { get; set; }
-            public int levelId { get; set; }
-            public int facultyId { get; set; }
-            public string pic { get; set; }
-            public System.DateTime dated { get; set; }
-            public string passwordDecrypt { get; set; }
-            public string date { get; set; }
-            public string levelName { get; set; }
-            public string facultyName { get; set; }
-            public string accountStatus { get; set; }
-            public int accountStatusId { get; set; }
-            public int applicationStatusId { get; set; }
-            public string applicationStatus { get; set; }
+        public int inductionId { get; set; }
+        public int phaseId { get; set; }
+        public int applicantId { get; set; }
+        public string name { get; set; }
+        public string pmdcNo { get; set; }
+        public string pncNo { get; set; }
+        public string emailId { get; set; }
+        public string password { get; set; }
+        public string contactNumber { get; set; }
+        public string maritalStatus { get; set; }
+        public int network { get; set; }
+        public int levelId { get; set; }
+        public int facultyId { get; set; }
+        public string pic { get; set; }
+        public System.DateTime dated { get; set; }
+        public string passwordDecrypt { get; set; }
+        public string date { get; set; }
+        public string levelName { get; set; }
+        public string facultyName { get; set; }
+        public string accountStatus { get; set; }
+        public int accountStatusId { get; set; }
+        public int applicationStatusId { get; set; }
+        public string applicationStatus { get; set; }
 
-            public int isValid { get; set; }
-            public string pathProfilePic { get; set; }
-            public int adminId { get; set; }
+        public int isValid { get; set; }
+        public string pathProfilePic { get; set; }
+        public int adminId { get; set; }
 
-            public int statusId { get; set; }
-            public string status { get; set; }
-            public int genderID { get; set; }
+        public int statusId { get; set; }
+        public string status { get; set; }
+        public int genderID { get; set; }
 
     }
 
@@ -423,7 +430,7 @@ namespace Prp.Data
 
     public class EmployeeSpeciality : tblEmployeeSpeciality
     {
-        public  string typeName { get; set; }
+        public string typeName { get; set; }
         public string discipline { get; set; }
         public string speciality { get; set; }
 
@@ -541,7 +548,7 @@ namespace Prp.Data
         public HospitalDiscipline()
         {
             isApproved = true;
-           
+
         }
     }
 
@@ -760,14 +767,27 @@ namespace Prp.Data
 
     }
 
-    public class OTP 
+    public class OTP
     {
         public int id { get; set; }
         public string number { get; set; }
         public string msg { get; set; }
         public string result { get; set; }
     }
-        public class Grievance : tblGrievance
+
+    
+    public class collegeGrievanceData
+    {
+        public int instituteId;
+        public int grievancesBooked;
+        public DateTime dated;
+    }
+    public class GrievancesBooked
+    {
+        public List<collegeGrievanceData> collegeGrievanceData;
+    }
+
+    public class Grievance : tblGrievance
     {
         public int grievanceTypeId { get; set; }
         public string subject { get; set; }
@@ -827,15 +847,17 @@ namespace Prp.Data
 
         public int consentId { get; set; }
         public int inductionId { get; set; }
+        public int prefNo { get; set; }
         public int phaseId { get; set; }
         public int roundId { get; set; }
         public int applicantId { get; set; }
         public int typeId { get; set; }
         public int consentTypeId { get; set; }
         public System.DateTime dated { get; set; }
-
+        public string firstName { get; set; }
         public string consentType { get; set; }
         public string typeName { get; set; }
+        public int upgradable { get; set; }
     }
 
     public class Discipline : tblDiscipline

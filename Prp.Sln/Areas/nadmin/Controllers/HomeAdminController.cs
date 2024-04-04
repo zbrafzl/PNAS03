@@ -1,4 +1,5 @@
-﻿using Prp.Data;
+﻿using Newtonsoft.Json;
+using Prp.Data;
 using Prp.Data.DAL;
 using System;
 using System.Collections.Generic;
@@ -475,12 +476,12 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         [HttpGet]
         public JsonResult GetTotalApplicantsWithVoucher128()
         {
-            string query = "select av.applicantNo appNo, a.name fullName, ai.cnicNo cnic, "
+            string query = "select distinct av.applicantNo appNo, a.name fullName, ai.cnicNo cnic, "
             +" av.transactionIdBank transID, "
             +" FORMAT (av.dated, 'dd/MM/yyyy ') submitDate, av.amount amount from"
             +" tblApplicantVoucherBank av"
             +" inner join tblApplicant a on av.applicantId = a.applicantId"
-            + " inner join tblApplicantInfo ai on a.applicantId = ai.applicantId where av.inductionId = "+ProjConstant.inductionId+" order by av.dated";
+            + " inner join tblApplicantInfo ai on a.applicantId = ai.applicantId where av.inductionId = "+ProjConstant.inductionId+ " ";
 
             JavaScriptSerializer jsSerializer = new JavaScriptSerializer();
 
@@ -488,9 +489,9 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             SqlCommand cmd = new SqlCommand(query);
             DataTable table = new DataTable();
             DataTable table2 = new DataTable();
-            var JSONString = new StringBuilder();
-            var JSONString2 = new StringBuilder();
-            JavaScriptSerializer jk = new JavaScriptSerializer();
+            //var JSONString = new StringBuilder();
+            //var JSONString2 = new StringBuilder();
+            //JavaScriptSerializer jk = new JavaScriptSerializer();
             try
             {
                 string Conn = ConfigurationManager.ConnectionStrings["DbPrpConn"].ConnectionString;
@@ -509,18 +510,19 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             {
                 con.Close();
             }
-            List<Dictionary<string, object>> parentRow = new List<Dictionary<string, object>>();
-            Dictionary<string, object> childRow;
-            foreach (DataRow row in table.Rows)
-            {
-                childRow = new Dictionary<string, object>();
-                foreach (DataColumn col in table.Columns)
-                {
-                    childRow.Add(col.ColumnName, row[col]);
-                }
-                parentRow.Add(childRow);
-            }
-            return Json(parentRow, JsonRequestBehavior.AllowGet);
+            //List<Dictionary<string, object>> parentRow = new List<Dictionary<string, object>>();
+            //Dictionary<string, object> childRow;
+            //foreach (DataRow row in table.Rows)
+            //{
+            //    childRow = new Dictionary<string, object>();
+            //    foreach (DataColumn col in table.Columns)
+            //    {
+            //        childRow.Add(col.ColumnName, row[col]);
+            //    }
+            //    parentRow.Add(childRow);
+            //}
+            string JSONString = JsonConvert.SerializeObject(table);
+            return Json(JSONString, JsonRequestBehavior.AllowGet);
         }
 
 
