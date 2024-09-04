@@ -159,7 +159,146 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             ApplicationStatus objStatusFinal = new ApplicantDAL().GetApplicationStatus(indId, ProjConstant.phaseId
                                               , appId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
             model.applicant.applicationStatusId = objStatusFinal.statusId;
+            model.inductionId = objStatusFinal.inductionId;
+            return View(model);
+        }
 
+        public ActionResult MigrantScruitny()
+        {
+            int appId = Request.QueryString["applicantId"].TooInt();
+            int indId = 0;
+            ProofReadingAdminModel model = new ProofReadingAdminModel();
+            try
+            {
+
+                int inductionId = AdminHelper.GetInductionId();
+                int phaseId = 1;
+                indId = inductionId;
+                string key = Request.QueryString["key"].TooString();
+                string value = Request.QueryString["value"].TooString();
+
+                if (appId > 0)
+                {
+
+                    Message msg = new ApplicantDAL().GetApplicantIdBySearch(appId.TooString(), "applicantId");
+                    int applicantId = msg.id.TooInt();
+                    appId = applicantId;
+                    if (applicantId > 0)
+                    {
+                        int applicationStatusId = 0;
+                        try
+                        {
+                            ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(inductionId, ProjConstant.phaseId
+                                              , applicantId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
+
+                            applicationStatusId = objStatus.statusId;
+                        }
+                        catch (Exception)
+                        {
+
+                            applicationStatusId = 0;
+                        }
+
+                        if ((loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
+                            || loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior
+                            || loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter))
+                        {
+                            if (applicationStatusId > 0)
+                            {
+                                model = AdminFunctions.GenerateModelProofReading(inductionId, phaseId, applicantId);
+                                model.applicantId = applicantId;
+                            }
+                            else
+                            {
+                                model.applicantId = 0;
+                                model.requestType = 2;
+                            }
+                        }
+                        else
+                        {
+                            model = AdminFunctions.GenerateModelProofReading(inductionId, phaseId, applicantId);
+                            model.applicantId = applicantId;
+                        }
+
+                        if (applicationStatusId == 8)
+                        {
+                            try
+                            {
+                                var obj = new ApplicantDAL().GetApplicationStatus(inductionId, ProjConstant.phaseId
+                                        , applicantId, 1131).FirstOrDefault();
+                                model.statusApproval.applicantId = obj.applicantId;
+                                model.statusApproval.approvalStatus = obj.statusId == 1 ? "Accepted" : "Rejected";
+                                model.statusApproval.approvalStatusId = obj.statusId;
+                                //= new VerificationDAL().GetApplicationApprovalStatusGetByTypeAndId(ProjConstant.inductionId
+                                //                                              , ProjConstant.phaseId, 131, model.applicant.applicantId);
+                            }
+                            catch (Exception)
+                            {
+                                model.statusApproval = new ApplicantApprovalStatus();
+                            }
+                            try
+                            {
+                                //model.statusAmendment = new VerificationDAL().GetApplicationApprovalStatusGetByTypeAndId(ProjConstant.inductionId
+                                //                                                , ProjConstant.phaseId, 132, model.applicant.applicantId);
+
+                                var obj = new ApplicantDAL().GetApplicationStatus(inductionId, ProjConstant.phaseId
+                                        , applicantId, 1132).FirstOrDefault();
+                                model.statusAmendment.applicantId = obj.applicantId;
+                                if (obj.statusId == 0)
+                                {
+                                    model.statusAmendment.approvalStatus = "Pending Amendment";
+                                }
+                                else if (obj.statusId == 1)
+                                {
+                                    model.statusAmendment.approvalStatus = "Approved";
+                                }
+                                else
+                                {
+                                    model.statusAmendment.approvalStatus = "Rejected";
+                                }
+                                model.statusAmendment.approvalStatusId = obj.statusId.TooInt();
+                            }
+                            catch (Exception)
+                            {
+                                model.statusAmendment = new ApplicantApprovalStatus();
+                            }
+                        }
+
+
+                        model.search.key = key;
+                        model.search.value = value;
+                    }
+
+                    model.applicantId = applicantId;
+                    model.requestType = 1;
+                }
+                else
+                {
+
+                    model.applicantId = 0;
+                    model.requestType = 2;
+                }
+
+                model.inductionId = inductionId;
+                model.search.key = key;
+                model.search.value = value;
+
+
+            }
+            catch (Exception)
+            {
+                model.applicantId = 0;
+                model.requestType = 3;
+            }
+
+            Session["degreeAchieved"] = model.applicant.facultyId;
+            Session["applicantId"] = model.applicant.applicantId;
+            Session["appliedFor"] = model.applicant.levelId;
+
+            ApplicationStatus objStatusFinal = new ApplicantDAL().GetApplicationStatus(indId, ProjConstant.phaseId
+                                              , appId, ProjConstant.Constant.statusApplicantApplication).FirstOrDefault();
+            model.applicant.applicationStatusId = objStatusFinal.statusId;
+            model.inductionId = objStatusFinal.inductionId;
             return View(model);
         }
 

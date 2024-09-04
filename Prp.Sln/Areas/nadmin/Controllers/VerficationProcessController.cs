@@ -174,142 +174,23 @@ namespace Prp.Sln.Areas.nadmin.Controllers
 
             bool voucherStatus = true;
 
-            //try
-            //{
-            //    ApplicationStatus objStatus = new ApplicantDAL().GetApplicationStatus(ProjConstant.inductionId, ProjConstant.phaseId
-            //    , obj.applicantId, ProjConstant.Constant.ApplicationStatusType.voucherPhf).FirstOrDefault();
-
-            //    if (objStatus != null && (objStatus.statusId == 6 || objStatus.statusId == 9))
-            //    {
-            //        voucherStatus = false;
-            //    }
-            //}
-            //catch (Exception)
-            //{
-            //}
-
-            //if (voucherStatus == false)
-            //{
-            //    obj.approvalStatusId = 2;
-            //    if (!obj.comments.Contains("Voucher/Payment"))
-            //    {
-            //        if (String.IsNullOrWhiteSpace(obj.comments))
-            //            obj.comments = " Voucher/Payment Unverified";
-            //        else
-            //            obj.comments = obj.comments + ", Voucher/Payment Unverified";
-            //    }
-
-            //}
-
             Message msg = new VerificationDAL().AddUpdateVerficationStatus(obj);
 
-            //Applicant applicant = new ApplicantDAL().GetApplicant(ProjConstant.inductionId, obj.applicantId);
-            //ApplicantInfo appInfo = new ApplicantDAL().GetApplicantInfoDetail(ProjConstant.inductionId, ProjConstant.phaseId, obj.applicantId);
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
 
+        [HttpPost]
+        public JsonResult AddUpdateScruitnyVerficationStatus(VerificationEntity obj)
+        {
+            obj.adminId = loggedInUser.userId;
+            obj.comments = obj.comments.TooString();
+            obj.inductionId = ProjConstant.inductionId;
+            obj.phaseId = ProjConstant.phaseId;
+            obj.adminId = loggedInUser.userId;
 
+            bool voucherStatus = true;
 
-
-
-
-            //string dateTime = "";
-            //int emailTypeId = 0;
-            //if (obj.approvalStatusId == 1)
-            //    emailTypeId = ProjConstant.EmailTemplateType.varificationAccepted;
-            //else if (obj.approvalStatusId == 2)
-            //{
-            //    emailTypeId = ProjConstant.EmailTemplateType.varificationRejected;
-            //    try
-            //    {
-            //        ApplicantApprovalStatus objStatus = new VerificationDAL().GetApplicationApprovalStatusGetById(ProjConstant.inductionId
-            //                                                                , ProjConstant.phaseId, obj.applicantId)
-            //                                                                .FirstOrDefault(x => x.approvalStatusTypeId == 131);
-            //        dateTime = objStatus.dateMessage;
-            //    }
-            //    catch (Exception)
-            //    {
-            //        dateTime = "";
-            //    }
-
-            //}
-            //try
-            //{
-            //    EmailProcess objEmailProcess = new EmailProcess();
-
-            //    objEmailProcess.applicantId = obj.applicantId;
-            //    objEmailProcess.keyword = "";
-            //    objEmailProcess.typeId = emailTypeId;
-            //    objEmailProcess.adminId = loggedInUser.adminId;
-            //    Message mmss = new EmailDAL().EmailProcessAdd(objEmailProcess);
-            //}
-            //catch (Exception)
-            //{
-            //}
-
-            //#region SMS Process
-
-            //int smsTypeId = 0;
-
-            //if (obj.approvalStatusId == 1)
-            //    smsTypeId = ProjConstant.SMSType.applicationApproved;
-            //else if (obj.approvalStatusId == 2)
-            //    smsTypeId = ProjConstant.SMSType.applicationReject;
-
-            //SMS sms = new SMSDAL().GetByTypeForApplicant(applicant.applicantId, smsTypeId);
-            //sms.detail = sms.detail.Replace("{date}", dateTime);
-            //Message msgSms = new Message();
-            //try
-            //{
-            //    msgSms = FunctionUI.SendSms(applicant.contactNumber, sms.detail);
-            //}
-            //catch (Exception)
-            //{
-            //}
-
-            //try
-            //{
-            //    SmsProcess objProcess = msgSms.status.SmsProcessMakeDefaultObject(obj.applicantId, sms.smsId);
-            //    new SMSDAL().AddUpdateSmsProcess(objProcess);
-            //}
-            //catch (Exception)
-            //{
-            //}
-
-            //#endregion
-
-
-            //EmailProcess objProcessEmail = new EmailDAL().EmailProcessGetByApplicantAndType(obj.applicantId, emailTypeId);
-
-            //#region Email Sending And DB Process
-
-
-            //Message msgEmail = new Message();
-            //try
-            //{
-            //    objProcessEmail.emailId = applicant.emailId;
-            //    objProcessEmail.isProcess = 1;
-            //    msgEmail = objProcessEmail.SendEmail();
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    msgEmail.status = false;
-            //    msgEmail.msg = ex.Message;
-            //}
-
-            //try
-            //{
-
-            //    objProcessEmail.isSent = 0;
-            //    if (msgEmail.status == true)
-            //        objProcessEmail.isSent = 1;
-            //    new EmailDAL().EmailStatusAddUpdate(objProcessEmail);
-            //}
-            //catch (Exception)
-            //{
-            //}
-
-            //#endregion
-
+            Message msg = new VerificationDAL().AddUpdateScruitnyVerficationStatus(obj);
 
             return Json(msg, JsonRequestBehavior.AllowGet);
         }

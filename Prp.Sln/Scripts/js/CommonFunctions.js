@@ -503,6 +503,8 @@ function UploadImage(uploaderId, applicantId, imageType) {
 }
 
 
+
+
 function UploadImageAdmin(uploaderId, applicantId, imageType, inductionId,  folderPath) {
 
     var imageName = "";

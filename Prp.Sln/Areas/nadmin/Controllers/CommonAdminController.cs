@@ -10,6 +10,9 @@ using System.Web.Mvc;
 
 namespace Prp.Sln.Areas.nadmin.Controllers
 {
+
+    
+
     public class CommonAdminController : BaseAdminController
     {
         #region Constatnt
@@ -137,6 +140,60 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             DataTable dataTable = new MasterSetupDAL().ResearchJournalSearch(obj);
             string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
             return Content(json, "application/json");
+        }
+
+        public ActionResult InductionManage()
+        {
+            ActivityViewModel list = new ActivityViewModel();
+            ApplicantAdminDAL dal = new ApplicantAdminDAL();
+            DataTable dt = new DataTable();
+            dt = dal.getActivitesForInduction("15");
+            foreach(DataRow dr in dt.Rows)
+            {
+                Activity item = new Activity();
+                item.activityId = dr["id"].TooInt();
+                item.EventName = dr["activityName"].TooString();
+                item.StartDate = Convert.ToDateTime( dr["startDate"]);
+                item.EndDate = Convert.ToDateTime(dr["endDate"]);
+                list.activities.Add(item);
+            }
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult UpdateActivities(List<Activity> list)
+        {
+            ApplicantAdminDAL dal = new ApplicantAdminDAL();
+            if (list != null || !list.Any())
+            {
+                var date = DateTime.UtcNow;
+                Message msg = new Message();
+                try
+                {
+                    foreach(var item in list )
+                    {
+                        SqlCommand cmd = new SqlCommand
+                        {
+                            CommandType = CommandType.StoredProcedure,
+                            CommandText = "[dbo].[spUpdateInductionEvents]"
+                        };
+                        cmd.Parameters.AddWithValue("@activityId", item.activityId);
+                        cmd.Parameters.AddWithValue("@EventName", item.EventName);
+                        cmd.Parameters.AddWithValue("@StartDate", item.StartDate);
+                        cmd.Parameters.AddWithValue("@EndDate", item.EndDate);
+                        cmd.Parameters.AddWithValue("@adminId", loggedInUser.userId);
+                        msg = PrpDbADO.ExecuteNonQuery(cmd);
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    msg.status = false;
+                    msg.msg = ex.Message;
+                }
+            }
+            return RedirectToAction("InductionManage");
         }
 
         [HttpGet]

@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "MigrationCandidateAddition";
     Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
 }
@@ -29,13 +28,19 @@
 
         $(document).ready(function () {
 
+			populate();
+
+            loadSemesterDivs();
+
             $("#ddlInduction").change(function () {
                 var value = $("option:selected", this).val();
-                debugger;
+                //debugger;
                 $("#hfdInductionId").val(value);
 
                 inductionId = ConvertToInt($("#hfdInductionId").val());
                 applicantId = ConvertToInt($("#hfdApplicantId").val());
+
+				/*
 
                 var semesterResults = CallActionGet("/ApplicantAdmin/GetSemesterDataById?applicantId=" + applicantId + "&inductionId=" + inductionId);
 
@@ -46,11 +51,17 @@
                 } else {
                     numberOfSemesters = 6;
                 }
+
+				numberOfSemesters = 1;
+
                 semesterResults = filterDataForSemesters(semesterResults, numberOfSemesters);
 
                 updateView(semesterResults);
 
-                //loadSemesterDivs();
+				*/
+
+
+                loadSemesterDivs();
             })
 
 
@@ -108,8 +119,17 @@
             });
             loadData();
             $(document).on('click', '#btnProfileSave', function () {
-                SaveAndProceed();
-                //saveData();
+                if(ConvertToInt($('#ddlInduction').val()) !=  13)
+				{
+					saveData();
+                }
+                else
+				{
+                    saveData();
+                }
+
+				SaveAndProceed();
+
             });
 
             $(document).on('click', '#btnProfileDelete', function () {
@@ -118,6 +138,29 @@
 
         });
 
+		function populate() {
+            var adminId = ConvertToInt($("#hfdAdminId").val())
+            //alert(selectedIndex);
+            $.ajax({
+                url: '@Url.Action("PopulateInductionList", "ApplicantAdmin")',
+                type: 'GET',
+                data: { adminId: adminId },
+                success: function (result) {
+                    $('#ddlInduction').empty();
+                    $.each(result, function (index, item) {
+                        if (item.Value == @Model.jsonTable.Rows[0]["inductionID"].TooInt()) {
+                            $('#ddlInduction').append($('<option>').text(item.Text).attr({ 'value' : item.Value , 'selected': "selected" } ));
+                        }
+                        else {
+                            $('#ddlInduction').append($('<option>').text(item.Text).attr('value', item.Value));
+                        }
+                    });
+                },
+                error: function () {
+                    alert('Error occurred while fetching data.');
+                }
+            });
+        }
 
         function filterDataForSemesters(semesterResults, numOfSemesters) {
             return semesterResults.filter(item => item.semester <= numOfSemesters);
@@ -125,7 +168,7 @@
 
 
         function loadSemesterDivs() {
-            debugger;
+            //debugger;
             inductionId = ConvertToInt($("#hfdInductionId").val());
 
             if (inductionId == 11) {
@@ -136,16 +179,21 @@
                 numberOfSemesters = 6;
             }
 
+			numberOfSemesters = 1;
+
             var semesterContainer = document.getElementById("semesterContainer");
+            semesterContainer.innerHTML = "";
+            debugger;
             for (var i = 0; i < numberOfSemesters; i++) {
                 var semesterDiv = document.createElement("div");
                 semesterDiv.id = "semester" + (i + 1);
                 //semesterDiv.style.margin = "10px";
                 semesterDiv.className = "semester border border-info rounded text-center col-md-4";
-                semesterDiv.innerHTML = "<div class='row'><span class='breadcrumb flex-lg-column' style='width:100%; text-align;center; font-weight: bold'>Semester " + (i + 1) + ": </h3></div><div class='w-100 p-3 col-md-12'>" +
-                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusPass' name='semester" + (i + 1) + "Status' value='Pass'  onchange='handleSemesterChange(this)' /> <p> Pass</p></label>" +
-                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusFailed' name='semester" + (i + 1) + "Status' value='Failed' checked  onchange='handleSemesterChange(this)' /> <p> Failed</p></label>" +
-                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusSupply' name='semester" + (i + 1) + "Status' value='Supply'  onchange='handleSemesterChange(this)' /> <p> Supply</p></label></div>";
+                semesterDiv.innerHTML = "<div class='row'><span class='breadcrumb flex-lg-column' style='width:100%; text-align;center; font-weight: bold'>Result: </h3></div><div class='w-100 p-3 col-md-12'>" +
+                    "<label class='col-md-6'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusPass' name='semester" + (i + 1) + "Status' value='Pass'  onchange='handleSemesterChange(this)' /> <p> Pass</p></label>" +
+                    "<label class='col-md-6'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusFailed' name='semester" + (i + 1) + "Status' value='Failed' checked  onchange='handleSemesterChange(this)' /> <p> Failed</p></label>" +
+                    //"<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input' type='radio' id='semester" + (i + 1) + "StatusSupply' name='semester" + (i + 1) + "Status' value='Supply'  onchange='handleSemesterChange(this)' /> <p> Supply</p></label></div>";
+                    "</div>";
                     //"<select class='form-control' id='semester" + (i + 1) + "Status'  onchange='handleSemesterChange(this)'>" +
                     //"<option value='Pass'>Pass</option>" +
                     //"<option value='Failed' selected='selected'>Failed</option>" +
@@ -163,7 +211,7 @@
         }
 
         function handleSemesterChange(selectElement) {
-            debugger;
+            //debugger;
 
             inductionId = ConvertToInt($("#hfdInductionId").val());
 
@@ -174,6 +222,7 @@
             } else {
                 numberOfSemesters = 6;
             }
+			numberOfSemesters = 1;
 
             var semesterNumber = parseInt(selectElement.id.replace("semester", ""));
             var selectedStatus = selectElement.value;
@@ -194,11 +243,14 @@
                 }
             }
         }
-
+        var messageDisplay = "";
         function saveData() {
             var semData = {};
             var listSemesterData = [];
             var numberOfSemesters = document.getElementsByClassName("semester").length;
+
+			numberOfSemesters = 1;
+
             for (var i = 1; i <= numberOfSemesters; i++) {
                 var status;
                 if (document.getElementById("semester" + i + "StatusPass").checked == true){
@@ -211,7 +263,7 @@
                     status = "Supply";
                 }
                 listSemesterData.push({ semester: i, result: status });
-                
+
 
                 // If current semester is "Pass", show the next semester div
                 //if (status === "Pass" && i < numberOfSemesters) {
@@ -221,7 +273,8 @@
             semData.applicantId = applicantId;
             semData.semesterDatas = listSemesterData;
             var resp = CallActionPost("/ApplicantAdmin/UpdateMigrationSemesterData", semData);
-            console.log(resp);
+            messageDisplay = "Result Updated Successfully!... ";
+            //console.log(resp);
             // Call controller function to save data into SQL table
             // Example: Send data via AJAX to a controller method
         }
@@ -239,19 +292,29 @@
                 numberOfSemesters = 6;
             }
 
+            numberOfSemesters = 1;
+
+
 
             var semesterContainer = document.getElementById("semesterContainer");
+            semesterContainer.innerHTML = "";
             for (var j = 0; j < semesterResults.length; j++) {
                 var semesterDiv = document.createElement("div");
                 semesterDiv.id = "semester" + semesterResults[j].semester;
                 semesterDiv.className = "semester border border-info rounded text-center col-md-4";
                 var abc = semesterResults[j].result;
-                semesterDiv.innerHTML = "<div class='row'><span class='breadcrumb flex-lg-column' style='width:100%; text-align;center; font-weight: bold'>Semester " + (semesterResults[j].semester) + ": </h3></div><div class='w-100 p-3 col-md-12'>" +
-                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusPass' name='semester" + semesterResults[j].semester + "Status' value='Pass' " + (semesterResults[j].result === "Pass" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Pass</p></label>" +
-                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusFailed' name='semester" + semesterResults[j].semester + "Status' value='Failed' " + (semesterResults[j].result === "Failed" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Failed</p></label>" +
-                    "<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusSupply' name='semester" + semesterResults[j].semester + "Status' value='Supply' " + (semesterResults[j].result === "Supply" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Supply</p></label></div>";
+                semesterDiv.innerHTML = "<div class='row'><span class='breadcrumb flex-lg-column' style='width:100%; text-align;center; font-weight: bold'>Result: </h3></div><div class='w-100 p-3 col-md-12'>" +
+                    "<label class='col-md-6'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusPass' name='semester" + semesterResults[j].semester + "Status' value='Pass' " + (semesterResults[j].result === "Pass" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Pass</p></label>" +
+                    "<label class='col-md-6'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusFailed' name='semester" + semesterResults[j].semester + "Status' value='Failed' " + (semesterResults[j].result === "Failed" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Failed</p></label>" +
+                    //"<label class='col-md-4'><input style='margin-left:-15px; margin-top:25px;'  class='form-check-input'  type='radio' id='semester" + semesterResults[j].semester + "StatusSupply' name='semester" + semesterResults[j].semester + "Status' value='Supply' " + (semesterResults[j].result === "Supply" ? "checked='checked'" : "") + " onchange='handleSemesterChange(this)' /> <p> Supply</p></label></div>";
+                    "</div>";
                 semesterContainer.appendChild(semesterDiv);
             }
+            for (var i = 1; i <= numberOfSemesters; i++) {
+                document.getElementById("semester" + i).style.display = "none";
+            }
+
+            document.getElementById("semester1").style.display = "block";
 
             // Hide higher semester divs if the current semester result is failed
             for (var i = 0; i < semesterResults.length; i++) {
@@ -271,10 +334,11 @@
 
         function loadData() {
 
+            debugger;
             inductionId = ConvertToInt($("#hfdInductionId").val());
 
             var semesterResults = CallActionGet("/ApplicantAdmin/GetSemesterDataById?applicantId=" + applicantId + "&inductionId=" + inductionId);
-            console.log(semesterResults);
+            //console.log(semesterResults);
 
             updateView(semesterResults);
 
@@ -646,26 +710,62 @@
                 var errorMessage = "Please Upload FSc Certificate";
                 list.push(errorMessage);
             }
-            debugger;
+            //txtDateOfPassingInter, txtDateOfPassingMatric, txtJoiningDate, txtDob
+            //objApplicantInfo.dOB, objApplicantInfo.dateOfPassingMatric, objApplicantInfo.dateOfPassingInter, objApplicantInfo.joiningDate
+            var dob = $("#txtDob").val();
+            var matD = $("#txtDateOfPassingMatric").val();
+            var faD = $("#txtDateOfPassingInter").val();
+            var joinD = $("#txtJoiningDate").val();
+
+            if (dob && matD && faD && joinD) {
+                var dobParts = dob.split('/');
+                var matDParts = matD.split('/');
+                var faDParts = faD.split('/');
+                var joinDParts = joinD.split('/');
+
+                var dobPartsObj = new Date(dobParts[2], dobParts[1] - 1, dobParts[0]);
+                var matDPartsObj = new Date(matDParts[2], matDParts[1] - 1, matDParts[0]);
+                var faDPartsObj = new Date(faDParts[2], faDParts[1] - 1, faDParts[0]);
+                var joinDPartsObj = new Date(joinDParts[2], joinDParts[1] - 1, joinDParts[0]);
+
+                if (dobPartsObj < matDPartsObj && matDPartsObj < faDPartsObj && faDPartsObj < joinDPartsObj) {
+                    //
+                }
+                else {
+                    $("#txtDob").addClass("req-fld");
+                    $("#txtDateOfPassingMatric").addClass("req-fld");
+                    $("#txtDateOfPassingInter").addClass("req-fld");
+                    $("#txtJoiningDate").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtDob";
+                    var errorMessage = "Please Put Dates In Order";
+                    list.push(errorMessage);
+                }
+            }
+
+            //debugger;
             const gfg = JSON.stringify(objApplicantInfo);
-            console.log(gfg);
-            debugger;
+            //console.log(gfg);
+            //debugger;
             statuAction = "AmmendmetsProcess";
             if (isError == false) {
                 var resp = CallActionPost("/ApplicantAdmin/UpdateMigrationCandidate", objApplicantInfo);
-                console.log(resp);
-                debugger;
+                //console.log(resp);
+                //debugger;
                 if (resp != null && resp.status == true) {
                     $("#divError").hide();
                     $("#spnMsg").html("");
-                    alert("Data saved Successfully!")
+                    messageDisplay = messageDisplay + "Data Updated Successfully!";
+                    alert(messageDisplay);
                     var url = "/admin/index";
                     window.location.replace(url);
                 }
                 else {
-
-                    //$("#divError").show();
-                    //$("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                    messageDisplay = messageDisplay + "Date Expired!";
+                    alert(messageDisplay);
+                    var url = "/admin/index";
+                    window.location.replace(url);
                 }
             }
             else {
@@ -680,7 +780,7 @@
             if (isError == false) {
                 if (confirm('Are you sure you want to delete applicant with applicantID:  ' + applicantId)) {
                     var resp = CallActionGet("/ApplicantAdmin/DeleteMigrationCandidate?applicantId=" + applicantId);
-                    console.log(resp);
+                    //console.log(resp);
                     try {
                         if (resp != null && resp.status == true) {
                             alert("Candidate Profile Deleted Successfully!")
@@ -704,7 +804,7 @@
             provinceId = 196;
 
             var list = CallActionGet("/Common/RegionGetByCondition?typeId=4" + "&parentId=" + provinceId + "&condition=GetDistrictAll");
-            console.log(list);
+            //console.log(list);
             if (list != null && list.length > 0) {
 
 
@@ -746,7 +846,7 @@
     <div class="row main">
         <input type="hidden" id="hfdApplicantId" class="hfdApplicantId" value="@Model.applicantId" />
         <input type="hidden" id="hfdInductionId" class="hfdApplicantId" value="@Model.jsonTable.Rows[0]["inductionID"].TooInt()" />
-        <input type="hidden" id="hfdApplicantSemestersData" class="hfdApplicantSemestersData" value="@Model.semesterDatas.TooString()" />
+        <input type="hidden" id="hfdAdminId" class="hfdAdminId" value="@Model.loggedInUser.userId" />
         <div class="col-sm-12 form-box">
             <div class="main-login main-center">
                 <div class="row">
@@ -768,30 +868,19 @@
                                 <div class="form-group">
                                     <label for=""> Induction <span style="color:red">*</span></label>
                                     <select required="required" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
-                                        @*<option value="3">July 2018 (Morning)</option>
-                                        <option value="4">July 2018 (Evening)</option>
-                                        <option value="5">July 2019 (Morning)</option>
-                                        <option value="6">July 2019 (Evening)</option>
-                                        <option value="7">July 2020 (Morning)</option>
-                                        <option value="8">July 2020 (Evening)</option>
-                                        <option value="9">July 2021 (Morning)</option>
-                                        <option value="10">July 2021 (Evening)</option>*@
-                                        <option selected="selected" value="11">2022-26</option>
-                                        <option selected="selected" value="10">2021-25</option>
-                                        <option selected="selected" value="9">2020-24</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Full Name <span style="color:red">*</span></label>
-                                    <input type="text" name="txtName" id="txtName" class="form-control" placeholder="Full Name" tabindex="3">
+                                    <input type="text" onkeydown="return /[A-Za-z\s]/i.test(event.key)" name="txtName" id="txtName" class="form-control" placeholder="Full Name" tabindex="3">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Father Name <span style="color:red">*</span></label>
-                                    <input type="text" name="txtFatherName" id="txtFatherName" maxlength="70" class="form-control" placeholder="Father Name" tabindex="4">
+                                    <input type="text" name="txtFatherName" onkeydown="return /[A-Za-z\s]/i.test(event.key)" id="txtFatherName" maxlength="70" class="form-control" placeholder="Father Name" tabindex="4">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -819,13 +908,13 @@
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for="">Contact Number<span style="color:red">*</span></label>
-                                    <input required="required" type="text" name="txtContactNo" id="txtContactNo" maxlength="11" class="form-control" tabindex="8">
+                                    <input required="required" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==11) return false;" name="txtContactNo" id="txtContactNo" maxlength="11" class="form-control" tabindex="8">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""><span class="spnCnic"> CNIC / Form B Number</span> <span style="color:red">*</span>  <small>(Without dashes) </small></label>
-                                    <input required="required" type="text" name="txtCNIC" id="txtCNIC" class="form-control lenth numeric" len="13" placeholder="CNIC" tabindex="9" />
+                                    <input required="required" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==13) return false;" name="txtCNIC" id="txtCNIC" class="form-control lenth numeric" len="13" placeholder="CNIC" tabindex="9" />
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4 divDomicile">
@@ -919,7 +1008,7 @@
                                             <label>Obtained Marks <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtRowDegree1MarksObtain" id="txtRowDegree1MarksObtain" class="datepicker form-control dated" tabindex="17" autocomplete="off">
+                                                    <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" maxlength="11" name="txtRowDegree1MarksObtain" id="txtRowDegree1MarksObtain" class="datepicker form-control dated" tabindex="17" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -929,7 +1018,7 @@
                                             <label>Total Marks <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtRowDegree1MarksTotal" id="txtRowDegree1MarksTotal" class="datepicker form-control dated" tabindex="18" autocomplete="off">
+                                                    <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" maxlength="11" name="txtRowDegree1MarksTotal" id="txtRowDegree1MarksTotal" class="datepicker form-control dated" tabindex="18" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -997,7 +1086,7 @@
                                             <label>Obtained Marks <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="22" autocomplete="off">
+                                                    <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" maxlength="11" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="22" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -1007,7 +1096,7 @@
                                             <label>Total Marks <span class="sprq">*</span></label>
                                             <div>
                                                 <div class="form-group">
-                                                    <input type="text" maxlength="11" name="txtRowDegree2MarksTotal" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="23" autocomplete="off">
+                                                    <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" maxlength="11" name="txtRowDegree2MarksTotal" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="23" autocomplete="off">
                                                 </div>
                                             </div>
                                         </div>
@@ -1085,17 +1174,20 @@
                                     <a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
                                 </div>
                             </div>
-                            <div class="container">
-                                <fieldset id="fieldTypeFA" class="fieldType">
-                                    <legend> Semesters Result </legend>
-                                    <div class="row">
-                                        <div id="semesterContainer" class="row col-md-12" style="padding-left:35px; margin:10px">
-                                            <!-- Semester divs will be dynamically added here -->
+                            <div class="col-sm-12">
+                                <div class="container" id="resultsDiv">
+                                    <fieldset id="fieldTypeFA" class="fieldType">
+                                        <legend> Submit Result </legend>
+                                        <div class="row">
+                                            <div id="semesterContainer" class="row col-md-12" style="padding-left:35px; margin:10px">
+                                                <!-- Semester divs will be dynamically added here -->
+                                            </div>
                                         </div>
-                                    </div>
-                                </fieldset>
+                                    </fieldset>
 
+                                </div>
                             </div>
+
 
                             <div class="col-sm-12">
                                 @if ((Model.jsonTable.Rows.Count.TooInt()) > 0)

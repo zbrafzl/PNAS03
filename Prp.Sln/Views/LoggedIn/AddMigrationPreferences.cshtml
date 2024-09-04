@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "MigrationCandidateAddition";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -11,25 +10,48 @@
 @section RenderScript{
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
     <script>
-        var applicantId = 0, applicantDetailId = 0, objApplicant = {}, objApplicantInfo = {}, objApplicantInfoDualNational = {},
-            imagesPath = "", districtListAll = [], countryList = [], dualNationalityType = 1, countryId = 132;
 
+        var pdfFileName = "";
+        var applicantId = 0, applicantDetailId = 0, objApplicant = {}, objApplicantInfo = {}, objApplicantInfoDualNational = {},
+            imagesPath = "", districtListAll = [], countryList = [], dualNationalityType = 1, countryId = 132, inductionId;
+        var objDegree = {}, objEducation = {};
+        var selectedChoices = [];
+        var errorMessage = "";
         applicantId = ConvertToInt($("#hfdApplicantId").val());
 
         imagesPath = "/Images/Applicant/" + applicantId + "/";
 
-        
-        var mpdp = {}, dmcs = [], listSpecilties = [];
+        inductionId = ConvertToInt($("#hfdInductionId").val());
+
+        var mpdp = {}, dmcs = [], listSpecilties = [], migrantApplicantImageData = {};
+
+        var isError = false, ctrl = "", messageRet = "";
 
         var identityType = "CNIC";
 
         $(document).ready(function () {
 
-            loadData();
+            var dateFormatDatePocker = 'dd/mm/yyyy';
 
-            var selectedChoices = [];
+            $("#txtDateOfPassingInter").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                startDate: '-90y'
+            }
+            );
+
+            BindDistrictDDL(196, 0);
+            BindDistrictDDLDomicile(196, 0);
+
+            loadData();
 
             function updateSelectedChoices() {
                 $("#selectedChoices").empty();
@@ -59,7 +81,6 @@
             });
 
             $("#selectedChoices").on("click", ".delete-btn", function () {
-                debugger;
                 var choiceId = $(this).parent().data("id");
                 var orderId = $(this).parent().data("order");
                 selectedChoices = $.grep(selectedChoices, function (e) {
@@ -70,17 +91,78 @@
                 $("#choices").find(`option[value="${choiceId}"]`).show();
             });
 
+            document.getElementById('pdfFileInput').addEventListener('change', function (e) {
+                var file = e.target.files[0];
+
+                if (file && file.type === 'application/pdf') {
+                    var fileReader = new FileReader();
+
+                    fileReader.onload = function () {
+                        var pdfData = new Uint8Array(this.result);
+
+                        // Load the PDF
+                        var loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        loadingTask.promise.then(function (pdf) {
+                            // Fetch the first page
+                            pdf.getPage(1).then(function (page) {
+                                var scale = .15;
+                                var viewport = page.getViewport({ scale: scale });
+
+                                // Prepare the canvas using PDF page dimensions
+                                var canvas = document.getElementById('pdfThumbnail');
+                                var context = canvas.getContext('2d');
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+
+                                // Render PDF page into canvas context
+                                var renderContext = {
+                                    canvasContext: context,
+                                    viewport: viewport
+                                };
+                                page.render(renderContext);
+                            });
+                        });
+                    };
+
+                    fileReader.readAsArrayBuffer(file);
+                } else {
+                    // Clear the canvas if the selected file is not a PDF
+                    var canvas = document.getElementById('pdfThumbnail');
+                    var context = canvas.getContext('2d');
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            });
+
             $("#submitBtn").click(function () {
 
+                //mpdp.dob = "";
+                //if (ValidateDate("txtDob")) {
+                //    mpdp.dob = ConvertToString($("#txtDob").val());
+                //}
+
+                //mpdp.doj = "";
+                //if (ValidateDate("txtJoiningDate")) {
+                //    mpdp.doj = ConvertToString($("#txtJoiningDate").val());
+                //}
+
+                errorMessage = "";
+                messageRet = "";
+                inductionId = ConvertToInt($("#hfdInductionId").val());
+
+
+                //var saveEducation = SaveAndProceed();
+                //if (saveEducation == true) {
+                //    messageRet += "Education Saved!... ";
+                //}
+
                 mpdp.dob = "";
-                if (ValidateDate("txtDob")) {
-                    mpdp.dob = ConvertToString($("#txtDob").val());
-                }
+                //objApplicantInfo.dob = ConvertToString($("#txtDob").val());
+                var d = ConvertToString($("#txtDob").val());
+                mpdp.dob = ConvertToString(d);
 
                 mpdp.doj = "";
-                if (ValidateDate("txtJoiningDate")) {
-                    mpdp.doj = ConvertToString($("#txtJoiningDate").val());
-                }
+                d = ConvertToString($("#txtJoiningDate").val());
+                mpdp.doj = ConvertToString(d);
 
                 var userSpecilties = selectedChoices.map(function (choice, index) {
                     return {
@@ -92,43 +174,245 @@
 
                 mpdp.listSpecilties = userSpecilties;
 
+                var years = 0;
 
                 var dmc = {};
-                dmc.year = 0;
-                dmc.semester = 0;
-                dmc.obtainedMarks = 1;//$("#obtainedMarks").val();
-                dmc.totalMarks = 1//$("#totalMarks").val();;
-                dmc.option = "";
-
-                if ($("#flResultCard").val()) {
-                    dmc.picDMC = UploadImage("flResultCard", applicantId, "DMC");
+                if (inductionId == 11) {
+                    years = 1;
                 }
-                else if ($("#hfdResultCard").val()!= "") {
-                    dmc.picDMC = $("#hfdResultCard").val();
+                else if (inductionId == 10) {
+                    years = 2;
+                }
+                else if (inductionId == 13) {
+                    years = 1;
                 }
                 else {
-                    $("#flResultCard").addClass("req-fld");
-                    isError = true;
-                    if (ctrl == "")
-                        ctrl = "flResultCard";
+                    years = 0;
                 }
-                $("#hfdResultCard").val(dmc.picDMC);
-                dmcs.push(dmc);
-                mpdp.dmcList = dmcs;
-                debugger;
-                console.log(mpdp);
-                if (mpdp.dmcList.length > 0 & mpdp.listSpecilties.length > 0) {
-                    var resp = CallActionPost("/LoggedIn/SaveMigrationPreferencesByApplicantId", mpdp);
-                    debugger;
+                if (years > 0) {
+                    dmc = {};
+                    dmc.year = 1;
+                    dmc.semester = 0;
+                    //dmc.obtainedMarks = 1;//$("#obtainedMarks").val();
+                    //dmc.totalMarks = 1//$("#totalMarks").val();;
+                    dmc.option = "";
 
-                    if (resp.msg == 'Data Updated') {
-                        alert("Data Added Successfully");
-                        window.location = "/migrant-proof-reading";
+                    if ($("#obtainedMarks1").val().length > 0) {
+                        if ((parseFloat($("#obtainedMarks1").val()) / parseFloat($("#totalMarks1").val())) < 0.5) {
+                            $("#obtainedMarks1").addClass("req-fld");
+                            isError = true;
+                            if (ctrl == "") {
+                                ctrl = "totalMarks1";
+
+                            }
+                            errorMessage += " \nMinimum 50% Marks are Required";
+                        }
+                        else {
+                            dmc.obtainedMarks = ConvertToString($("#obtainedMarks1").val());
+                            dmc.totalMarks = ConvertToString($("#totalMarks1").val());
+                            dmc.option = $("#ddlUni1 option:selected").text();
+                        }
+                        if ($("#flResultCard1").val()) {
+                            dmc.picDMC = UploadImage("flResultCard1", applicantId, "DMC1");
+                        }
+                        else if ($("#hfdResultCard1").val() != "") {
+                            dmc.picDMC = $("#hfdResultCard1").val();
+                        }
+                        else {
+                            $("#flResultCard1").addClass("req-fld");
+                            isError = true;
+                            if (ctrl == "")
+                                ctrl = "flResultCard1";
+                            errorMessage += " \nUpload Prob 1 Certificate";
+                        }
+                        $("#hfdResultCard1").val(dmc.picDMC);
+                        dmcs.push(dmc);
                     }
                     else {
-                        alert("Carefully enter all information");
+                        $("#obtainedMarks1").addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = "obtainedMarks1";
+                        errorMessage += " \nObtained Marks cannot be Empty";
+                    }
+
+                    if ($("#totalMarks1").val() == '') {
+                        $("#totalMarks1").addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "") {
+                            ctrl = "totalMarks1";
+
+                        }
+                        errorMessage += " \nTotal Marks cannot be empty";
+                    }
+
+                    if (parseFloat($("#obtainedMarks1").val()) > parseFloat($("#totalMarks1").val())) {
+                        $("#obtainedMarks1").addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "") {
+                            ctrl = "obtainedMarks1";
+
+                        }
+                        errorMessage += " \nObtained Marks cannot be More than Total Marks";
+                    }
+
+
+                    if (years > 1) {
+                        dmc = {};
+                        dmc.year = 2;
+                        dmc.semester = 0;
+                        //dmc.obtainedMarks = 1;//$("#obtainedMarks").val();
+                        //dmc.totalMarks = 1//$("#totalMarks").val();;
+                        dmc.option = "";
+
+                        if ($("#obtainedMarks2").val().length > 0) {
+                            if ((parseFloat($("#obtainedMarks2").val()) / parseFloat($("#totalMarks2").val())) < 0.5) {
+                                $("#obtainedMarks2").addClass("req-fld");
+                                isError = true;
+                                if (ctrl == "") {
+                                    ctrl = "totalMarks2";
+
+                                }
+                                errorMessage += " \nMinimum 50% Marks in FSc Required";
+                            }
+                            else {
+                                dmc.obtainedMarks = ConvertToString($("#obtainedMarks2").val());
+                                dmc.totalMarks = ConvertToString($("#totalMarks2").val());
+                                dmc.option = $("#ddlUni2 option:selected").text();
+                            }
+                            if ($("#flResultCard2").val()) {
+                                dmc.picDMC = UploadImage("flResultCard2", applicantId, "DMC2");
+                            }
+                            else if ($("#hfdResultCard2").val() != "") {
+                                dmc.picDMC = $("#hfdResultCard2").val();
+                            }
+                            else {
+                                $("#flResultCard2").addClass("req-fld");
+                                isError = true;
+                                if (ctrl == "")
+                                    ctrl = "flResultCard2";
+                            }
+                            $("#hfdResultCard2").val(dmc.picDMC);
+                            dmcs.push(dmc);
+                        }
+                        else {
+                            $("#obtainedMarks2").addClass("req-fld");
+                            isError = true;
+                            if (ctrl == "")
+                                ctrl = "obtainedMarks2";
+                        }
+
+                        if ($("#totalMarks2").val() == '') {
+                            $("#totalMarks2").addClass("req-fld");
+                            isError = true;
+                            if (ctrl == "") {
+                                ctrl = "totalMarks2";
+
+                            }
+                            errorMessage += " \nTotal Marks cannot be empty";
+                        }
+
+                        if (parseFloat($("#obtainedMarks2").val()) > parseFloat($("#totalMarks2").val())) {
+                            $("#obtainedMarks2").addClass("req-fld");
+                            isError = true;
+                            if (ctrl == "") {
+                                ctrl = "obtainedMarks2";
+
+                            }
+                            errorMessage += " \nObtained Marks cannot be More than Total Marks";
+                        }
+                    }
+
+                    if ($("#flNoDuesCertificate").val()) {
+                        migrantApplicantImageData.picNoDuesCertificate = UploadImage("flNoDuesCertificate", applicantId, "NoDuesCer");
+                    }
+                    else if ($("#hfdNoDuesCertificate").val()) {
+                        migrantApplicantImageData.picNoDuesCertificate = $("#hfdNoDuesCertificate").val();
+                    }
+                    else {
+                        $("#flNoDuesCertificate").addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = "flNoDuesCertificate";
+                        errorMessage += " \nUpload No Dues Certificate";
+                    }
+
+                    if ($("#flNoEnquiryCertificate").val()) {
+                        migrantApplicantImageData.picNoEnquiryCertificate = UploadImage("flNoEnquiryCertificate", applicantId, "NoEnquiryCer");
+                    }
+                    else if ($("#hfdNoEnquiryCertificate").val()) {
+                        migrantApplicantImageData.picNoEnquiryCertificate = $("#hfdNoEnquiryCertificate").val();
+                    }
+                    else {
+                        $("#flNoEnquiryCertificate").addClass("req-fld");
+                        isError = true;
+                        if (ctrl == "")
+                            ctrl = "flNoEnquiryCertificate";
+                        errorMessage += " \nUpload No Enquiry Certificate";
+                    }
+
+
+                    var fileInput = document.getElementById('pdfFileInput').files[0];
+
+                    if (fileInput) {
+                        uploadApplicantPdf('pdfFileInput', applicantId,
+                            function (fileName) {
+                                if (fileName) {
+                                    debugger;
+                                    console.log('File uploaded successfully! Filename: ' + fileName);
+                                    pdfFileName = fileName;
+                                    migrantApplicantImageData.pdfAllData = ConvertToString(pdfFileName);
+
+                                    var resp = CallActionPostCustom("/LoggedIn/SaveMigrationPdfFile",pdfFileName);
+
+
+                                    // Save the fileName to the database or perform further processing
+                                } else {
+                                    console.log('No file selected.');
+                                    // Handle the case where no file was uploaded (though this should not be reached)
+                                    pdfFileName = "";
+                                }
+                            },
+                            function (error) {
+                                console.error(error);
+                                pdfFileName = "";
+                            }
+                        );
+                    } else {
+                        alert('No file attached.');
+                        // Handle the case where no file is attached, such as displaying a message
+                        // Example: alert('Please attach a file before uploading.');
+                        pdfFileName = "";
+                    }
+
+                    migrantApplicantImageData.pdfAllData = ConvertToString(pdfFileName);
+
+                    if (isError == false) {
+                        mpdp.dmcList = dmcs;
+                        mpdp.migrantApplicantImageData = migrantApplicantImageData;
+                        console.log(mpdp);
+                        if (mpdp.dmcList.length > 0 & mpdp.listSpecilties.length > 0) {
+                            var resp = CallActionPost("/LoggedIn/SaveMigrationPreferencesByApplicantId", mpdp);
+                            debugger;
+                            if (resp.msg == 'Data Updated') {
+                                messageRet += "Data Added Successfully!";
+                                alert(messageRet);
+                                //window.location = "/migrant-proof-reading";
+                            }
+                            else {
+                                alert(errorMessage);
+                            }
+                        }
+                        else {
+                            alert(errorMessage);
+                        }
+                    }
+                    else {
+                        alert(errorMessage);
                     }
                 }
+
+
 
                 // Example of sending data via AJAX
                 /*
@@ -152,8 +436,6 @@
 
             applicantId = ConvertToInt($("#hfdApplicantId").val());
 
-            BindDistrictDDL(196, 0);
-            BindDistrictDDLDomicile(196, 0);
 
             var dateFormatDatePocker = 'dd/mm/yyyy';
 
@@ -182,6 +464,233 @@
 
         });
 
+        function CallActionPostCustom(url, pdfFileName) {
+            return $.ajax({
+                type: "POST",
+                url: url,
+                data: { pdfFileName: pdfFileName }, // Send data as an object with the correct key
+                success: function (response) {
+                    return response;
+                },
+                error: function (error) {
+                    console.error("Error in CallActionPost:", error);
+                }
+            });
+        }
+
+        function uploadApplicantPdf(fileInputId, applicantId, successCallback, errorCallback) {
+            var formData = new FormData();
+            var fileInput = document.getElementById(fileInputId).files[0];
+
+            if (fileInput && applicantId) {
+                formData.append('file', fileInput);
+                formData.append('applicantId', applicantId);
+
+                $.ajax({
+                    url: '/Common/UploadApplicantFile',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            if (typeof successCallback === 'function') {
+                                successCallback(response.fileName);
+                            }
+                        } else {
+                            if (typeof errorCallback === 'function') {
+                                errorCallback('File upload failed: ' + response.message);
+                            }
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        if (typeof errorCallback === 'function') {
+                            errorCallback('An error occurred during the file upload: ' + textStatus);
+                        }
+                    }
+                });
+            } else {
+                if (typeof errorCallback === 'function') {
+                    errorCallback('Please select a file and ensure the applicant ID is provided.');
+                }
+            }
+        }
+
+        function faBoardCheckOption(that) {
+            //alert('change');
+            //if ($("#ddlMatricBoard option:selected").text() == "Other") {
+            //    alert($("#ddlMatricBoard option:selected").text());
+            //}
+            //else {
+            //    alert("board");
+            //}
+
+            if (that.value == "faBoardOther") {
+                document.getElementById("faBoardNameDiv").style.display = "block";
+            } else {
+                document.getElementById("faBoardNameDiv").style.display = "none";
+            }
+        }
+
+        function SaveAndProceed() {
+            isError = ValidateFormEducation();
+            console.log(objEducation);
+            if (isError == false) {
+
+
+                if (isError == false) {
+
+                    var resp = CallActionPost("/ApplicantProfile/ApplicantMigrantEducationAddUpdate", objEducation);
+                    if (resp != null && resp.status == true) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+            else {
+                return false;
+            }
+
+        }
+
+        function processDate(date) {
+            var parts = date.split("/");
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+
+
+
+        function ValidateFormEducation() {
+
+            isError = false, ctrl = "";
+            objDegree = { DegreeMarks: [] }; objDegreeMarksList = []; objApplicantInfo = {};
+
+            $(".req-fld").removeClass("req-fld");
+            $(".lbl-err").hide();
+
+            //objDegree.applicantDegreeDetailId = applicantDegreeDetailId;
+            objDegree.applicantId = applicantId;
+
+            if ($("#ddlFABoard option:selected").text() == "Other") {
+                if ($("#txtFaBoardName").val() == "") {
+                    $("#txtFaBoardName").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtFaBoardName";
+                    errorMessage += " \nPlz Add FA/FSc Board";
+                }
+            }
+
+            if ($("#txtDateOfPassingInter").val()) {
+                objApplicantInfo.interPassingDate = ConvertToString($("#txtDateOfPassingInter").val());
+                objDegree.interPassingDate = objApplicantInfo.interPassingDate;
+            }
+
+            if ($("#txtRowDegree2MarksObtain").val().length > 0) {
+                if ($("#flRowDegree2").val()) {
+                    objDegree.faImage = UploadImage("flRowDegree2", applicantId, "StudentDataFSc");
+                }
+                else if ($("#hfdRowDegree2").val()) {
+                    objDegree.faImage = $("#hfdRowDegree2").val();
+                }
+                else {
+                    $("#flRowDegree2").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flRowDegree2";
+                    errorMessage += " \nUpload FSc Certificate";
+                }
+                if ((parseFloat($("#txtRowDegree2MarksObtain").val()) / parseFloat($("#txtRowDegree2MarksTotal").val())) < 0.5) {
+                    $("#txtRowDegree2MarksObtain").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "") {
+                        ctrl = "txtRowDegree2MarksObtain";
+
+                    }
+                    errorMessage += " \nMinimum 50% Marks in FSc Required";
+                }
+                $("#hfdRowDegree2").val(objDegree.faImage);
+                var objDegreeMarks = {};
+                objDegreeMarks.degreeTypeId = 11;//ConvertToInt($("#ddlFa").val());
+                objDegreeMarks.applicantId = applicantId;
+                objDegreeMarks.obtainedMarks = ConvertToString($("#txtRowDegree2MarksObtain").val());
+                objDegreeMarks.totalMarks = ConvertToString($("#txtRowDegree2MarksTotal").val());
+                objDegreeMarks.passingDate = objApplicantInfo.interPassingDate;
+                objDegreeMarks.degreePicFront = objDegree.faImage;
+                //objDegreeMarks.degreeInstituteName = $("#ddlFABoard option:selected").text();
+                if ($("#ddlFABoard option:selected").text() == "Other") {
+                    objDegreeMarks.degreeInstituteName = $("#txtFaBoardName").val();
+                }
+                else {
+                    objDegreeMarks.degreeInstituteName = $("#ddlFABoard option:selected").text();
+                }
+                //alert(objDegreeMarks);
+                objDegree.DegreeMarks.push(objDegreeMarks);
+            }
+            else {
+                $("#txtRowDegree2MarksObtain").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtRowDegree2MarksObtain";
+            }
+            objDegree.faImage = ConvertToString($("#hfdRowDegree2").val());
+
+            if ($("#txtRowDegree2MarksTotal").val() == '') {
+                $("#txtRowDegree2MarksTotal").addClass("req-fld");
+                isError = true;
+                if (ctrl == "") {
+                    ctrl = "txtRowDegree2MarksTotal";
+
+                }
+                errorMessage += " \nTotal Marks cannot be empty";
+            }
+
+            if (parseFloat($("#txtRowDegree2MarksObtain").val()) > parseFloat($("#txtRowDegree2MarksTotal").val())) {
+                $("#txtRowDegree2MarksObtain").addClass("req-fld");
+                isError = true;
+                if (ctrl == "") {
+                    ctrl = "txtRowDegree2MarksObtain";
+
+                }
+                errorMessage += " \nObtained Marks cannot be More than Total Marks";
+            }
+
+            var dob = $("#txtDob").val();
+            var matD = $("#txtDateOfPassingMatric").val();
+            var faD = $("#txtDateOfPassingInter").val();
+            var joinD = $("#txtJoiningDate").val();
+
+            if (dob && matD && faD && joinD) {
+                var dobParts = dob.split('/');
+                var matDParts = matD.split('/');
+                var faDParts = faD.split('/');
+                var joinDParts = joinD.split('/');
+
+                var dobPartsObj = new Date(dobParts[2], dobParts[1] - 1, dobParts[0]);
+                var matDPartsObj = new Date(matDParts[2], matDParts[1] - 1, matDParts[0]);
+                var faDPartsObj = new Date(faDParts[2], faDParts[1] - 1, faDParts[0]);
+                var joinDPartsObj = new Date(joinDParts[2], joinDParts[1] - 1, joinDParts[0]);
+
+                if (dobPartsObj < matDPartsObj && matDPartsObj < faDPartsObj && faDPartsObj < joinDPartsObj) {
+                    //
+                }
+                else {
+                    $("#txtDateOfPassingInter").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtDateOfPassingInter";
+                    errorMessage += " \nPlease Put Dates In Order";
+                }
+            }
+
+
+            objEducation = objDegree;
+
+            return isError;
+        }
+
         function loadData() {
 
             @*var itemsToRemove = @Html.Raw(Json.Serialize(Model.listSpecility));
@@ -201,12 +710,39 @@
                 }
             }*@
 
+            inductionId = ConvertToInt($("#hfdInductionId").val());
             if (@(Model.jsonTable.Rows.Count.TooInt()) > 0 && "@Model.jsonTable.Rows[0]["name"].TooString()" != "") {
                 try {
                     $("#ddlInduction").val(@Model.jsonTable.Rows[0]["inductionID"].TooInt()).change();
                     $("#txtName").val('@Model.jsonTable.Rows[0]["name"].TooString()').change();
                     $("#txtFatherName").val('@Model.jsonTable.Rows[0]["fatherName"].TooString()').change();
                     $("#ddlGender").val(@Model.jsonTable.Rows[0]["genderID"].TooInt()).change();
+
+                    var pdfFilePath = '@Model.jsonTable.Rows[0]["pdfAllData"].TooString()'; // Assume you have the path in the model
+                    pdfFilePath = "/Images/Applicant/" + applicantId + "/" + pdfFilePath;
+                    // Load the PDF file
+                    pdfjsLib.getDocument(pdfFilePath).promise.then(function (pdf) {
+                        // Get the first page
+                        pdf.getPage(1).then(function (page) {
+                            var scale = 0.15; // Set scale for thumbnail
+                            var viewport = page.getViewport({ scale: scale });
+
+                            // Set canvas dimensions
+                            var canvas = document.getElementById('pdfThumbnail');
+                            var context = canvas.getContext('2d');
+                            canvas.width = viewport.width;
+                            canvas.height = viewport.height;
+
+                            // Render PDF page into canvas context
+                            var renderContext = {
+                                canvasContext: context,
+                                viewport: viewport
+                            };
+                            page.render(renderContext);
+                        });
+                    }).catch(function (error) {
+                        console.error("Error loading PDF:", error);
+                    });
 
                     $("#txtDob").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["dob"]).ToString("dd/MM/yyyy").ToString())");
 
@@ -234,10 +770,10 @@
                     $("#txtRowDegree1MarksTotal").val(@Model.jsonTable.Rows[0]["matricTotal"].TooInt()).change();
                     $("#txtDateOfPassingMatric").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())");
 
-                    $("#ddlFABoard option:selected").text('@Model.jsonTable.Rows[0]["fscBoard"].TooString()');
-                    $("#txtRowDegree2MarksObtain").val(@Model.jsonTable.Rows[0]["fscObt"].TooInt()).change();
-                    $("#txtRowDegree2MarksTotal").val(@Model.jsonTable.Rows[0]["fscTotal"].TooInt()).change();
-                    $("#txtDateOfPassingInter").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["fscPassDate"]).ToString("dd/MM/yyyy").ToString())");
+                    $("#ddlFABoard option:selected").text('@Model.jsonTable.Rows[0]["boardStudentFscData"].TooString()');
+                    $("#txtRowDegree2MarksObtain").val(@Model.jsonTable.Rows[0]["obtainedMarksStudentFscData"].TooInt()).change();
+                    $("#txtRowDegree2MarksTotal").val(@Model.jsonTable.Rows[0]["totalMarksStudentFscData"].TooInt()).change();
+                    $("#txtDateOfPassingInter").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["passingDateStudentFscData"]).ToString("dd/MM/yyyy").ToString())");
 
                     $("#hfdPic").val("");
                     if (("@(Model.jsonTable.Rows[0]["pic"].TooString())") != "") {
@@ -287,27 +823,95 @@
                     }
 
                     $("#hfdRowDegree2").val("");
-                    if (("@(Model.jsonTable.Rows[0]["fscPic"].TooString())") != "") {
-                        $("#imgRowDegree2").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
+                    if (("@(Model.jsonTable.Rows[0]["picStudentFscData"].TooString())") != "") {
+                        $("#imgRowDegree2").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["picStudentFscData"].TooString())");
                         $("#imgRowDegree2").show();
                         $("#rmvRowDegree2").show();
-                        $("#hfdRowDegree2").val("@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
-                        $("#imgRowDegree2").val("@(Model.jsonTable.Rows[0]["fscPic"].TooString())");
+                        $("#hfdRowDegree2").val("@(Model.jsonTable.Rows[0]["picStudentFscData"].TooString())");
+                        $("#imgRowDegree2").val("@(Model.jsonTable.Rows[0]["picStudentFscData"].TooString())");
                     }
 
-                    $("#hfdResultCard").val("");
-                    if (("@(Model.jsonTable.Rows[0]["picDegree"].TooString())") != "") {
-                        $("#imgResultCard").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["picDegree"].TooString())");
-                        $("#imgResultCard").show();
-                        $("#rmvResultCard").show();
-                        $("#hfdResultCard").val("@(Model.jsonTable.Rows[0]["picDegree"].TooString())");
-                        $("#imgResultCard").val("@(Model.jsonTable.Rows[0]["picDegree"].TooString())");
+                    $("#hfdNoDuesCertificate").val("");
+                    if (("@(Model.jsonTable.Rows[0]["NoDuesCertificate"].TooString())") != "") {
+                        $("#imgNoDuesCertificate").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["NoDuesCertificate"].TooString())");
+                        $("#imgNoDuesCertificate").show();
+                        $("#rmvNoDuesCertificate").show();
+                        $("#hfdNoDuesCertificate").val("@(Model.jsonTable.Rows[0]["NoDuesCertificate"].TooString())");
                     }
+
+                    $("#hfdNoEnquiryCertificate").val("");
+                        if (("@(Model.jsonTable.Rows[0]["NoEnquiryCertificate"].TooString())") != "") {
+                            $("#imgNoEnquiryCertificate").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["NoEnquiryCertificate"].TooString())");
+                            $("#imgNoEnquiryCertificate").show();
+                            $("#rmvNoEnquiryCertificate").show();
+                            $("#hfdNoEnquiryCertificate").val("@(Model.jsonTable.Rows[0]["NoEnquiryCertificate"].TooString())");
+                        }
+
+
+                    $("#obtainedMarks1").val(@Model.jsonTable.Rows[0]["obtainedMarks1"].TooInt()).change();
+                    $("#totalMarks1").val(@Model.jsonTable.Rows[0]["totalMarks1"].TooInt()).change();
+                    $("#ddlUni1").val("@Model.jsonTable.Rows[0]["univeristy1"].TooString()").change();
+                    $("#hfdResultCard1").val("");
+
+                    if ("@Model.jsonTable.Rows[0]["picDegree1"].TooString()" != "") {
+                        $("#imgResultCard1").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["picDegree1"].TooString())");
+                        $("#imgResultCard1").show();
+                        $("#rmvResultCard1").show();
+                        $("#hfdResultCard1").val("@(Model.jsonTable.Rows[0]["picDegree1"].TooString())");
+                        $("#imgResultCard1").val("@(Model.jsonTable.Rows[0]["picDegree1"].TooString())");
+                    }
+                    if (inductionId == 10) {
+
+                        $("#obtainedMarks2").val(@Model.jsonTable.Rows[0]["obtainedMarks2"].TooInt()).change();
+                        $("#totalMarks2").val(@Model.jsonTable.Rows[0]["totalMarks2"].TooInt()).change();
+                        $("#ddlUni2").val("@Model.jsonTable.Rows[0]["univeristy2"].TooString()").change();
+                        $("#hfdResultCard2").val("");
+                        if (("@(Model.jsonTable.Rows[0]["picDegree2"].TooString())") != "") {
+                            $("#imgResultCard2").attr("src", imagesPath + "@(Model.jsonTable.Rows[0]["picDegree2"].TooString())");
+                            $("#imgResultCard2").show();
+                            $("#rmvResultCard2").show();
+                            $("#hfdResultCard2").val("@(Model.jsonTable.Rows[0]["picDegree2"].TooString())");
+                            $("#imgResultCard2").val("@(Model.jsonTable.Rows[0]["picDegree2"].TooString())");
+                        }
+                    }
+
                 }
                 catch (e) {
                 }
+
+                getApplicantPreferences();
             }
 
+        }
+
+        function updateSelectedChoices() {
+            $("#selectedChoices").empty();
+            selectedChoices.forEach(function (choice, index) {
+                $("#selectedChoices").append(`<div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.name} <span class="btn-danger delete-btn pull-right" style="width:60px; text-align: center">Delete</span></div>`);
+            });
+        }
+
+        function getApplicantPreferences() {
+            var resp = CallActionGet("/LoggedIn/GetApplicantPreferences?applicantId=" + applicantId);
+            if (resp.length > 0) {
+                resp.forEach(function (choice, index) {
+                    //$("#selectedChoices").append(`<div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.hospitalName} <span class="btn-danger delete-btn pull-right" style="width:60px; text-align: center">Delete</span></div>`);
+
+                    //var selectedOption = $(this).find("option:selected");
+                    var selectedOption = $('#choices option[value=' + choice.hospitalId + ']')
+                    var choice1 = {
+                        id: parseInt(choice.hospitalId),
+                        name: choice.hospitalName
+                    };
+                    if (choice1.id > 0) {
+                        selectedChoices.push(choice1);
+                        selectedOption.hide();
+                        updateSelectedChoices();
+                    }
+                    $("#choices option[value=0]").prop('selected', true);
+
+                });
+            }
         }
 
         function BindDistrictDDL(provinceId, districtId) {
@@ -357,6 +961,7 @@
 <div class="container" style="margin-bottom:60px;">
     <div class="row main">
         <input type="hidden" id="hfdApplicantId" class="hfdApplicantId" value="@Model.applicant.applicantId" />
+        <input type="hidden" id="hfdInductionId" class="hfdApplicantId" value="@Model.jsonTable.Rows[0]["inductionID"].TooInt()" />
         <div class="col-sm-12 form-box" style="padding:30px">
             <div class="main-login main-center">
                 <div class="row">
@@ -382,17 +987,11 @@
                             <div class="form-group">
                                 <label for=""> Induction <span style="color:red">*</span></label>
                                 <select required="required" disabled="disabled" readonly="readonly" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
-                                    @*<option value="3">July 2018 (Morning)</option>
-                            <option value="4">July 2018 (Evening)</option>
-                            <option value="5">July 2019 (Morning)</option>
-                            <option value="6">July 2019 (Evening)</option>
-                            <option value="7">July 2020 (Morning)</option>
-                            <option value="8">July 2020 (Evening)</option>
-                            <option value="9">July 2021 (Morning)</option>
-                            <option value="10">July 2021 (Evening)</option>*@
-                                    <option selected="selected" value="11">2022-26</option>
-                                    <option selected="selected" value="10">2021-25</option>
-                                    <option selected="selected" value="9">2020-24</option>
+
+                                    <option selected="selected" value="9">2020-2021 (Teaching)</option>
+                                    <option selected="selected" value="10">2021-2022 (Teaching)</option>
+                                    <option selected="selected" value="11">2021-2022 (Only DHQ)</option>
+                                    <option selected="selected" value="13">2022-2023 Morning</option>
                                 </select>
                             </div>
                         </div>
@@ -413,7 +1012,7 @@
                                 <label for=""> Gender   <span style="color:red">*</span></label>
                                 <select required="required" disabled="disabled" readonly="readonly" name="ddlGender" id="ddlGender" class="form-control" tabindex="5">
                                     @*<option selected="selected" value="1">Male</option>*@
-                                    <option selected="selected"  value="2">Female</option>
+                                    <option selected="selected" value="2">Female</option>
                                     @*<option value="3">Other</option>*@
                                 </select>
                             </div>
@@ -484,7 +1083,7 @@
                                         <label> Select Degree <span class="sprq">*</span></label>
                                         <input type="hidden" id="hfdRowDegree1Id" value="0" />
                                         <select required="required" disabled="disabled" readonly="readonly" name="ddlMatric" id="ddlMatric" class="form-control">
-                                            <option selected="selected"  value="8">Matric (Science)</option>
+                                            <option selected="selected" value="8">Matric (Science)</option>
                                         </select>
                                     </div>
                                 </div>
@@ -553,82 +1152,7 @@
                             </div>
                         </fieldset>
 
-                        <fieldset id="fieldTypeFA" class="fieldType">
-                            <legend> HSSC (Intermediate: FSc Pre Medical) </legend>
-                            <input type="hidden" id="fieldTypeFA" class="hfdTypeId" value="" />
-                            <div class="row col-md-6 fieldType5">
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label> Select Degree <span class="sprq">*</span></label>
-                                        <input type="hidden" id="hfdRowDegree2Id" value="0" />
-                                        <select required="required" disabled="disabled" readonly="readonly" name="ddlFa" id="ddlFa" class="form-control">
-                                            <option selected="selected" value="9">FSc</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label> Select Board <span class="sprq">*</span></label>
-                                        <input type="hidden" id="hfdRowDegree1Id" value="0" />
-                                        <select required="required" disabled="disabled" readonly="readonly" name="ddlFABoard" id="ddlFABoard" class="form-control" tabindex="20">
-                                            <option selected="selected" value="1">BISE Lahore</option>
-                                            <option value="2">BISE Faisalabad</option>
-                                            <option value="3">BISE Sargodha</option>
-                                            <option value="4">BISE DG Khan</option>
-                                            <option value="5">BISE Multan</option>
-                                            <option value="6">BISE Bahawalpur</option>
-                                            <option value="7">BISE Rawalpindi</option>
-                                            <option value="8">BISE Gujranwala</option>
-                                            <option value="9">BISE Sahiwal</option>
-                                            <option value="faBoardOther">Other</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row col-md-6 fieldType5" id="faBoardNameDiv" style="display:none">
-                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                    <div class="form-group">
-                                        <label> Enter Board Name <span class="sprq">*</span></label>
-                                        <input type="text" disabled="disabled" readonly="readonly" maxlength="30" name="txtFaBoardName" id="txtFaBoardName" class="form-control " tabindex="21" autocomplete="off">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row col-md-6 fieldType5">
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label>Obtained Marks <span class="sprq">*</span></label>
-                                        <div>
-                                            <div class="form-group">
-                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="22" autocomplete="off">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label>Total Marks <span class="sprq">*</span></label>
-                                        <div>
-                                            <div class="form-group">
-                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtRowDegree2MarksTotal" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="23" autocomplete="off">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
-                            </div>
-                            <div class="row col-md-6 fieldType5">
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label>Passing Date <span class="sprq">*</span></label>
-                                        <div>
-                                            <div class="form-group">
-                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="24" autocomplete="off">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
                         <div class="col-sm-12" style="display:none">
                             <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;">  Allowed Upload Image types are jpg or png only with size less then 500 KB each.</p> <hr>
                         </div>
@@ -636,7 +1160,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Profile Picture  <span style="color:red">*</span></label>
                                 @*<input type="file" class="form-control flup" name="flPic" id="flPic" tabindex="25" />
-                        <input type="hidden" id="hfdPic" value="" />*@
+                                    <input type="hidden" id="hfdPic" value="" />*@
                                 <img id="imgPic" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvPic" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -645,7 +1169,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> <span class="spnCnic"> CNIC Front Image</span> <span style="color:red">*</span>  </label>
                                 @*<input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="26" />
-                        <input type="hidden" id="hfdCnicFront" value="" />*@
+                                    <input type="hidden" id="hfdCnicFront" value="" />*@
                                 <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvCnicFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -654,7 +1178,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> <span id="spnCnicUpload2"> <span class="spnCnic">CNIC</span> Back Image</span> <span style="color:red">*</span>  </label>
                                 @*<input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="27" />
-                        <input type="hidden" id="hfdCnicBack" value="" />*@
+                                    <input type="hidden" id="hfdCnicBack" value="" />*@
                                 <img id="imgCnicBack" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvCnicBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -664,7 +1188,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Domicile Front Image <span style="color:red">*</span> </label>
                                 @*<input type="file" class="form-control flup" name="flDomicileFront" id="flDomicileFront" tabindex="28" />
-                        <input type="hidden" id="hfdDomicileFront" value="" />*@
+                                    <input type="hidden" id="hfdDomicileFront" value="" />*@
                                 <img id="imgDomicileFront" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvDomicileFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -673,65 +1197,244 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Matric Certificate Image <span class="sprq">*</span></label>
                                 @*<input type="file" id="flRowDegree1" name="flRowDegree1" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
-                        <input type="hidden" id="hfdRowDegree1" value="" />*@
+                                    <input type="hidden" id="hfdRowDegree1" value="" />*@
                                 <img id="imgRowDegree1" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvRowDegree1" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
                         </div>
-                        <div class="col-sm-4 divFaImage">
+                        <!--<div class="col-sm-4 divFaImage">
                             <div class="form-group">
-                                <label for="" style="width:100% !important"> Fsc Certificate Image <span class="sprq">*</span></label>
-                                @*<input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="30" accept="image/jpeg, image/png">
-                        <input type="hidden" id="hfdRowDegree2" value="" />*@
-                                <img id="imgRowDegree2" class="flup-img" src="" alt="" style="display:none;" />
-                                @*<a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
-                            </div>
-                        </div>
+                                <label for="" style="width:100% !important"> Fsc Certificate Image <span class="sprq">*</span></label>-->
+                        @*<input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="30" accept="image/jpeg, image/png">
+                            <input type="hidden" id="hfdRowDegree2" value="" />*@
+                        <!--<img id="imgRowDegree2" class="flup-img" src="" alt=""/>-->
+                        @*<a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                        <!--</div>
+                        </div>-->
                     </div>
                 </div>
                 <hr />
 
                 <fieldset id="fieldTypeUpdateInfo" class="fieldType">
                     <legend> Update Your Information </legend>
-                    <input type="hidden" id="fieldTypeMatric" class="hfdTypeId" value="" />
-                    <div>
-                        <div class="col-xs-12 col-sm-4 col-md-4">
-                            <div class="form-group">
-                                <label for="lbl-err"> Date of Birth <span style="color:red">*</span> <span id="spnDob" class="lbl-err" style="display:none;">Invalid date</span> </label>
-                                <input type="text" name="dob" id="txtDob" class="form-control datepicker dated" tabindex="6">
+                    <fieldset id="fieldTypeFA" class="fieldType">
+
+                        <div class="col-sm-12">
+                            <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Note: Enter Your FSC marks from the time of admission. Improved marks will not be entertained. </p> <hr>
+                        </div>
+
+                        <legend> HSSC (Intermediate: FSc Pre Medical) </legend>
+                        <input type="hidden" id="fieldTypeFA" class="hfdTypeId" value="" />
+                        <div class="row col-md-6 fieldType5">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label> Select Degree <span class="sprq">*</span></label>
+                                    <input type="hidden" id="hfdRowDegree2Id" value="0" />
+                                    <select required="required" name="ddlFa" id="ddlFa" class="form-control">
+                                        <option selected="selected" value="9">FSc</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label> Select Board <span class="sprq">*</span></label>
+                                    <input type="hidden" id="hfdRowDegree1Id" value="0" />
+                                    <select required="required" name="ddlFABoard" id="ddlFABoard" class="form-control" tabindex="20" onchange="faBoardCheckOption(this)">
+                                        <option selected="selected" value="1">BISE Lahore</option>
+                                        <option value="2">BISE Faisalabad</option>
+                                        <option value="3">BISE Sargodha</option>
+                                        <option value="4">BISE DG Khan</option>
+                                        <option value="5">BISE Multan</option>
+                                        <option value="6">BISE Bahawalpur</option>
+                                        <option value="7">BISE Rawalpindi</option>
+                                        <option value="8">BISE Gujranwala</option>
+                                        <option value="9">BISE Sahiwal</option>
+                                        <option value="faBoardOther">Other</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-sm-4 col-md-4">
-                            <div class="form-group">
-                                <label for=""> Joining Date <span style="color:red">*</span> <span id="spnJoiningDate" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                <input type="text" class="form-control datepicker dated" name="joiningDate" id="txtJoiningDate" tabindex="7" autocomplete="off">
+                        <div class="row col-md-6 fieldType5" id="faBoardNameDiv" style="display:none">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label> Enter Board Name <span class="sprq">*</span></label>
+                                    <input type="text" maxlength="30" name="txtFaBoardName" id="txtFaBoardName" class="form-control " tabindex="21" autocomplete="off">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        @*<div class="col-xs-12 col-sm-4 col-md-4">
-                            <div class="form-group">
-                                <label for=""> Obtained Marks/CGPA <span style="color:red">*</span> <span id="spnOM" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                <input type="number" class="form-control" name="obtainedMarks" id="obtainedMarks" tabindex="7" autocomplete="off">
+                        <div class="row col-md-6 fieldType5">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label>Obtained Marks <span class="sprq">*</span></label>
+                                    <div>
+                                        <div class="form-group">
+                                            <input maxlength="4" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="22" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label>Total Marks <span class="sprq">*</span></label>
+                                    <div>
+                                        <div class="form-group">
+                                            <input maxlength="4" disabled name="txtRowDegree2MarksTotal" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="23" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-sm-4 col-md-4">
-                            <div class="form-group">
-                                <label for=""> Total Marks/CGPA <span style="color:red">*</span> <span id="spnTM" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                <input type="number" class="form-control" name="totalMarks" id="totalMarks" tabindex="7" autocomplete="off">
+                        <div class="row col-md-6 fieldType5">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label> Certificate Image <span class="sprq">*</span></label>
+                                    <input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
+                                    <input type="hidden" id="hfdRowDegree2" value="" />
+                                    <img id="imgRowDegree2" class="flup-img" alt="" />
+                                    <a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
                             </div>
-                        </div>*@
-                        <div class="col-sm-4 divResultImage">
-                            <div class="form-group">
-                                <label for="" style="width:100% !important"> Result Card <span class="sprq">*</span></label>
-                                <input type="file" id="flResultCard" name="flResultCard" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
-                                <input type="hidden" id="hfdResultCard" value="" />
-                                <img id="imgResultCard" class="flup-img" src="" alt="" style="display:none;" />
-                                <a id="rmvResultCard" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label>Passing Date <span class="sprq">*</span></label>
+                                    <div>
+                                        <div class="form-group">
+                                            <input type="text" maxlength="11" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="24" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        <div class="row col-md-6 fieldType5">
+
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Upload your Documents</legend>
+                        <div class="row col-md-12 fieldType5">
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label> No Dues Certificate <span class="sprq">*</span></label>
+                                    <input type="file" id="flNoDuesCertificate" name="flNoDuesCertificate" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
+                                    <input type="hidden" id="hfdNoDuesCertificate" value="" />
+                                    <img id="imgNoDuesCertificate" class="flup-img" alt="" />
+                                    <a id="rmvNoDuesCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label> No Enquiry Certificate <span class="sprq">*</span></label>
+                                    <input type="file" id="flNoEnquiryCertificate" name="flNoEnquiryCertificate" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
+                                    <input type="hidden" id="hfdNoEnquiryCertificate" value="" />
+                                    <img id="imgNoEnquiryCertificate" class="flup-img" alt="" />
+                                    <a id="rmvNoEnquiryCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label> Add Relevant Data</label>
+                                    <input type="file" id="pdfFileInput" accept="application/pdf" />
+                                    <canvas id="pdfThumbnail"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Enter Probs </legend>
+                        <div style="display:none">
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="lbl-err"> Date of Birth <span style="color:red">*</span> <span id="spnDob" class="lbl-err" style="display:none;">Invalid date</span> </label>
+                                    <input type="text" name="dob" id="txtDob" class="form-control datepicker dated" tabindex="6">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label for=""> Joining Date <span style="color:red">*</span> <span id="spnJoiningDate" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                    <input type="text" class="form-control datepicker dated" name="joiningDate" id="txtJoiningDate" tabindex="7" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <legend id="year1Div"> Year 1 </legend>
+                        <div id="year1Div">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="form-group">
+                                    <label for=""> Obtained Marks/CGPA <span style="color:red">*</span> <span id="spnOM" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                    <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="obtainedMarks1" id="obtainedMarks1" tabindex="7" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="form-group">
+                                    <label for=""> Total Marks/CGPA <span style="color:red">*</span> <span id="spnTM" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                    <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="totalMarks1" id="totalMarks1" tabindex="7" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="form-group">
+                                    <label> Select University <span class="sprq">*</span></label>
+                                    <select required="required" name="ddlUni1" id="ddlUni1" class="form-control" tabindex="20">
+                                        <option selected="selected" value="UHS">UHS</option>
+                                        <option value="FJMU">FJMU</option>
+                                        <option value="KEMU">KEMU</option>
+                                        <option value="NMU">NMU</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 divResultImage">
+                                <div class="form-group">
+                                    <label for="" style="width:100% !important"> Result Card <span class="sprq">*</span></label>
+                                    <input type="file" id="flResultCard1" name="flResultCard1" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
+                                    <input type="hidden" id="hfdResultCard1" value="" />
+                                    <img id="imgResultCard1" class="flup-img" src="" alt="" style="display:none;" />
+                                    <a id="rmvResultCard1" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                </div>
+                            </div>
+                        </div>
+                        @if (Convert.ToInt32(Model.jsonTable.Rows[0]["inductionId"]) == 10)
+                        {
+                            <div>
+                                <div style="margin-top:15px" class="col-xs-12 col-sm-12 col-md-12"><legend style="margin-left:-15px" id="year2Div"> Year 2 </legend></div>
+                                <div id="year2Div">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label for=""> Obtained Marks/CGPA <span style="color:red">*</span> <span id="spnOM" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                            <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="obtainedMarks2" id="obtainedMarks2" tabindex="7" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label for=""> Total Marks/CGPA <span style="color:red">*</span> <span id="spnTM" class="lbl-err" style="display:none;">Invalid date</span></label>
+                                            <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="totalMarks2" id="totalMarks2" tabindex="7" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="form-group">
+                                            <label> Select University <span class="sprq">*</span></label>
+                                            <select required="required" name="ddlUni2" id="ddlUni2" class="form-control" tabindex="20">
+                                                <option selected="selected" value="UHS">UHS</option>
+                                                <option value="FJMU">FJMU</option>
+                                                <option value="KEMU">KEMU</option>
+                                                <option value="NMU">NMU</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 divResultImage">
+                                        <div class="form-group">
+                                            <label for="" style="width:100% !important"> Result Card <span class="sprq">*</span></label>
+                                            <input type="file" id="flResultCard2" name="flResultCard2" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
+                                            <input type="hidden" id="hfdResultCard2" value="" />
+                                            <img id="imgResultCard2" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvResultCard2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+
+                    </fieldset>
                 </fieldset>
+
 
                 <div class="col-sm-12">
                     <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Preferences</p> <hr>
@@ -745,9 +1448,9 @@
                                     <!-- Selected choices will be displayed here -->
                                     <!-- <div class="selected-choice text-success text-decoration-underline col-md-10" style="height:30px" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.name}</div><div class="col-md-2"> <span class="btn-danger delete-btn" style="width:30px; padding: 4px">Delete</span></div>`); -->
                                     @*@foreach (var item in Model.listSpecility)
-                                    {
-                                        <div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="@item.preferenceNo" data-id="@item.hospitalId">@item.preferenceNo. @item.hospitalName</div><div class="col-md-2"> <span class="btn-danger delete-btn pull-right" style="width:60px; text-align:center">Delete</span></div>
-                                    }*@
+                                        {
+                                            <div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="@item.preferenceNo" data-id="@item.hospitalId">@item.preferenceNo. @item.hospitalName</div><div class="col-md-2"> <span class="btn-danger delete-btn pull-right" style="width:60px; text-align:center">Delete</span></div>
+                                        }*@
                                 </div>
                             </div>
                         </div>
@@ -776,7 +1479,7 @@
                 </fieldset>
 
 
-                
+
             </div>
         </div>
 

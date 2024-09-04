@@ -1475,6 +1475,7 @@
                                         decimal marksDistinction = 0;
                                         decimal marksResearchPaper = 0;
                                         <fieldset>
+                                            <legend>Data From Principals</legend>
                                             <div class="form-group col-lg-12">
                                                 <table style="width: 100%;" cellspacing="0px">
                                                     <tbody>
@@ -1487,7 +1488,7 @@
                                                                 </div>
                                                                 <div style="float: left; width:100%; margin-top:15px">
                                                                     <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;">Form No. : @applicant.applicantId</span>
-                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Application for BSN Generic (4 Years Degree Program) </span>
+                                                                    <span style="font-size: 14px;   border-bottom: 2px solid #000; margin-right:5%;"> Application for BSN Generic (Migration) </span>
                                                                 </div>
                                                             </td>
                                                             <td style="float: left; width:9%;">
@@ -1519,12 +1520,6 @@
                                                                 <span style="text-decoration:underline;">@Model.applicant.contactNumber</span>
                                                             </td>
                                                         </tr>
-                                                        @*<tr>
-                                                                <td>
-                                                                    <span>Gender: </span>
-                                                                    <span style="text-decoration:underline;">@Model.applicant.contactNumber</span>
-                                                                </td>
-                                                            </tr>*@
                                                     </tbody>
                                                 </table>
                                                 <table border="1" style="width:100%;">
@@ -1865,6 +1860,61 @@
                                                 </table>
                                             </div>
                                         </fieldset>
+                                        <fieldset>
+                                            <legend>Student's Submitted Data</legend>
+                                            <div class="form-group col-lg-12">
+                                                
+                                                <table border="1" style="width:100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:50%"></th>
+                                                            <th style="width:25%; text-align:center">Validity</th>
+                                                            <th style="width:25%">Remarks</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                No Dues Certificate:
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" alt="pdf" />
+                                                                </a>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgNoDuesCerValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgNoDuesCerValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="imgNoDuesCerRemarks" name="imgNoDuesCerRemarks" class="form-control validityRemarksImage" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                No Enquiry Certificate:
+                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nocCertificate)" target="_blank" title="Click to view">
+                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nocCertificate)" alt="pdf" />
+                                                                </a>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgNoEnquiryCerValidty, true, new { @class = "form-check-input" })
+                                                                @Html.Label("Valid", new { @class = "form-check-label" })
+                                                                <label style="width: 120px;"></label>
+                                                                @Html.RadioButtonFor(model => model.amendmentsData.imgNoEnquiryCerValidty, false, new { @class = "form-check-input" })
+                                                                @Html.Label("Invalid", new { @class = "form-check-label" })
+                                                            </td>
+                                                            <td>
+                                                                <select id="imgNoEnquiryCerRemarks" name="imgNoEnquiryCerRemarks" class="form-control validityRemarksImage" tabindex="2">
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </fieldset>
                                         <fieldset id="fsVerifyAmmend">
                                             <legend>
 
@@ -1956,10 +2006,6 @@
                             </div>
                         </fieldset>
 
-                        //if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.phfITManager
-                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter
-                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keVerification
-                        //    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.keSenior)
                         if (Model.loggedInUser.typeId == -1)
                         {
                             <fieldset id="fsVerifyAmmend">

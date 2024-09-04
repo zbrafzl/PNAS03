@@ -66,6 +66,37 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return View(model);
         }
 
+        [CheckHasRight]
+        public ActionResult UpdatePhoneNumber()
+        {
+            ApplicantStatusModel model = new ApplicantStatusModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult SearchPoneNumber(string searchNumber)
+        {
+            ApplicantAdminDAL dal = new ApplicantAdminDAL();
+            DataTable dt = dal.SearchPhoneNumberFromCNIC(searchNumber);
+            string json = JsonConvert.SerializeObject(dt, Formatting.Indented);
+            return Content(json, "application/json");
+        }
+
+        [HttpPost]
+        public ActionResult UpdatePhoneNumber(int applicantId, string newPhoneNumber)
+        {
+            ApplicantAdminDAL dal = new ApplicantAdminDAL();
+            bool isSaved = dal.UpdatePhoneNumber(applicantId, newPhoneNumber);
+            if(isSaved)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false });
+            }
+        }
+
         public ActionResult ApplicantSearchToVeify()
         {
 
@@ -211,6 +242,42 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             model.listApplicant = getListApplicant(model.statusTypeId, model.statusId);
 
             return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult PopulateSecondList(string selectedIndex)
+        {
+            List<SelectListItem> options = new List<SelectListItem>();
+
+            DataTable dataTable = new ApplicantAdminDAL().getCollegesForInduction(selectedIndex);
+
+            foreach(DataRow dr in dataTable.Rows)
+            {
+                string value = dr["collegeName"].ToString(); 
+                options.Add(new SelectListItem { Value = value, Text = value });
+            }
+
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Json(options, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public ActionResult PopulateInductionList(int adminId)
+        {
+            List<SelectListItem> options = new List<SelectListItem>();
+
+            DataTable dataTable = new ApplicantAdminDAL().getInductionForCollege(adminId);
+
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                string value = dr["inductionId"].TooString();
+                string Text = dr["induction"].ToString();
+                options.Add(new SelectListItem { Value = value, Text = Text });
+            }
+
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Json(options, JsonRequestBehavior.AllowGet);
+
         }
 
         [HttpPost]
@@ -359,9 +426,16 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             if(applicantId == 0)
             {
                 msgg = new ApplicantDAL().Registration(objApp);
-                model.applicantId = msgg.id;
-
-                model.jsonTable = GetMigrantApplicantById(applicantId);
+                if(msgg.id == 0)
+                {
+                    //Response.Redirect("/admin/index",true);
+                }   
+                else
+                {
+                    model.applicantId = msgg.id;
+                    model.jsonTable = GetMigrantApplicantById(applicantId);
+                }
+                
             }
             else
             {
@@ -395,9 +469,13 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             int smsId = 0;
             try
             {
-                SMS sms = new SMSDAL().GetByTypeForApplicant(obj.applicantId, ProjConstant.SMSType.registration);
-                smsBody = sms.detail;
-                smsId = sms.smsId;
+                if (1 > 2) 
+                {
+                    SMS sms = new SMSDAL().GetByTypeForApplicant(obj.applicantId, ProjConstant.SMSType.registration);
+                    smsBody = sms.detail;
+                    smsId = sms.smsId;
+                }
+                
             }
             catch (Exception)
             {
@@ -408,7 +486,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                 smsBody = "Dear Candidate, You can login using your email id: "+obj.emailId +" , CNIC: "+ obj.cnicNo + " and Mobile Number: " +obj.contactNo + " and password: 123456";
 
             }
-            if (1 > 0)
+            if (1 > 2)
             {
                 
 
@@ -429,7 +507,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                 {
                 }
             }
-            if (2 > 1)
+            if (1 > 2)
             {
                 Message message = new Message();
                 string str1 = "";

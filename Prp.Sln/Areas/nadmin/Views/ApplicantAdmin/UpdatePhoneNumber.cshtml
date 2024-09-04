@@ -1,0 +1,73 @@
+﻿@{
+    ViewBag.Title = "Manage - Phone Number";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+
+
+<h2>Update Contact Number</h2>
+
+<input class="form-group" type="text" id="searchBox" placeholder="Enter CNIC" />
+<button class="btn-success" id="searchButton">Search</button>
+
+<table class="border" id="resultsTable" border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Password</th>
+            <th>Phone Number</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#searchButton').click(function () {
+            var searchNumber = $('#searchBox').val();
+
+
+            $.ajax({
+                url: '@Url.Action("SearchPoneNumber", "ApplicantAdmin")',
+                type: 'POST',
+                data: { searchNumber: searchNumber },
+                success: function (data) {
+                    var rows = '';
+                    debugger;
+                    $.each(data, function (i, item) {
+                        rows += '<tr>' +
+                                '<td>' + item.applicantId + '</td>' +
+                                '<td>' + item.password + '</td>' +
+                                '<td><input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==11) return false;"   value="' + item.contactNumber + '" /></td>' +
+                                '<td><button class="saveButton" data-id="' + item.applicantId + '">Save</button></td>' +
+                                '</tr>';
+                    });
+                    debugger;
+                    $('#resultsTable tbody').html(rows);
+                }
+            });
+        });
+
+        $(document).on('click', '.saveButton', function () {
+            debugger;
+            var id = $(this).data('id');
+            var newReferenceNumber = $(this).closest('tr').find('input').val();
+            $.ajax({
+                url: '@Url.Action("UpdatePhoneNumber", "ApplicantAdmin")',
+                type: 'POST',
+                data: { applicantId: id, newPhoneNumber: newReferenceNumber },
+                success: function (response) {
+                    if (response.success) {
+                        alert('Update successful');
+                        $('#searchBox').val("");
+                        $('#resultsTable tbody').html("");
+                    } else {
+                        alert('Update failed');
+                    }
+                }
+            });
+        });
+    });
+</script>

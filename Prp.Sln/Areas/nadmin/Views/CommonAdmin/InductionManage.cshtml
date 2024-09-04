@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "Applicant List";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.ActivityViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Activities</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Manage Activities</h1>
+
+    <div id="activities-container">
+        @foreach (var activity in Model.activities)
+        {
+            <div class="activity">
+                <label style="display:none">Event Name:</label>
+                <input style="display:none" type="text" class="event-id" value="@activity.activityId" />
+                <label>Event Name:</label>
+                <input type="text" class="event-name" disabled readonly value="@activity.EventName" />
+                <label>Start Date:</label>
+                <input type="date" class="start-date" value="@activity.StartDate.ToString("yyyy-MM-dd")" />
+                <label>End Date:</label>
+                <input type="date" class="end-date" value="@activity.EndDate.ToString("yyyy-MM-dd")" />
+            </div>
+        }
+    </div>
+
+    <button id="submit-events">Submit</button>
+
+    <script>
+        $(document).ready(function () {
+
+            
+            // Handle form submission
+            $('#submit-events').click(function () {
+                debugger;
+                var activities = [];
+
+                $('.activity').each(function () {
+                    var eventId = $(this).find('.event-id').val();
+                    var eventName = $(this).find('.event-name').val();
+                    var startDate = $(this).find('.start-date').val();
+                    var endDate = $(this).find('.end-date').val();
+
+                    activities.push({
+                        activityId: eventId,
+                        EventName: eventName,
+                        StartDate: startDate,
+                        EndDate: endDate
+                    });
+                });
+
+                $.ajax({
+                    url: '@Url.Action("UpdateActivities", "CommonAdmin")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(activities),
+                    success: function (response) {
+                        console.log(response);
+                        alert('Activities updated successfully!');
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error: ' + error);
+                    }
+                });
+
+                window.location = "/InductionManage";
+            });
+        });
+    </script>
+</body>
+</html>

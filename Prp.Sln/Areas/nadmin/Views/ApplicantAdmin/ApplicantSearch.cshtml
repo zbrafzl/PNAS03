@@ -126,6 +126,32 @@
 
         });
 
+        function downloadExcelFromJson(jsonData, fileName) {
+            // Convert JSON data to CSV format
+            const csvContent = jsonToCsv(jsonData);
+
+            // Create a Blob object from the CSV data
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+            // Create a link element to trigger the download
+            const link = document.createElement('a');
+            if (link.download !== undefined) { // feature detection
+                // Create a link that points to the Blob URL
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                // Set the download attribute (filename)
+                link.setAttribute('download', fileName + '.csv');
+                // Append the link to the body
+                document.body.appendChild(link);
+                // Trigger the download by simulating a click
+                link.click();
+                // Remove the link from the DOM
+                document.body.removeChild(link);
+            } else {
+                console.error("Downloading is not supported in this browser.");
+            }
+        }
+
         function exportToExcel(data) {
             // Convert JSON data to Excel format
             // For simplicity, let's assume data is already in Excel format
@@ -289,7 +315,7 @@
         @Html.HiddenFor(m => m.statusTypeId, new { @id = "hfdStatusTypeId" })
         @Html.HiddenFor(m => m.statusId, new { @id = "hfdStatusId" })
         @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionId" })
-        @Html.HiddenFor(m => m.phaseId, new { @id = "hfdPhaseId" })
+        @Html.HiddenFor(m => m.loggedInUser.userId, new { @id = "hfdPhaseId" })
         <div class="x_title">
             <h2>Applicant List </h2>
             <div class="clearfix"></div>

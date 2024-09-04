@@ -294,6 +294,7 @@ namespace Prp.Data
         public string typeIds { get; set; }
         // View properties
         public string graduateType { get; set; }
+        public string university { get; set; }
         public string degree { get; set; }
         public string instituteType { get; set; }
         public string province { get; set; }

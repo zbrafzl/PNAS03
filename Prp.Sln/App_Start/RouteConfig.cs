@@ -348,6 +348,18 @@ namespace Prp.Sln
             );
 
             routes.MapRoute(
+                name: "VerifyApproved",
+                url: preUrl + "/verify-approved",
+                defaults: new { controller = "MeritGazat", action = "ApprovedList", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "VerifyRejected",
+                url: preUrl + "/verify-rejected",
+                defaults: new { controller = "MeritGazat", action = "RejectedList", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
                 name: "MeritListFemale",
                 url: preUrl + "/meritlist-female",
                 defaults: new { controller = "MeritGazat", action = "MeritListFemale", id = UrlParameter.Optional }

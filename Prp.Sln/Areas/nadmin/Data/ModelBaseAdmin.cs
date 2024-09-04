@@ -511,6 +511,23 @@ namespace Prp.Sln
 
     }
 
+    public class Activity
+    {
+        public int activityId { get; set; }
+        public string EventName { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+    }
+    public class ActivityViewModel : ModelBaseAdmin
+    {
+        public List<Activity> activities { get; set; }
+
+        public ActivityViewModel()
+        {
+            activities = new List<Activity>();
+        }
+    }
+
     public class ApplicantStatusModel : ModelBaseAdmin
     {
         public int statusId { get; set; }

@@ -52,6 +52,59 @@ namespace Prp.Data
         }
     }
 
+    public class MsgBodyHisdu
+    {
+        public string hospitalId
+        {
+            get;
+            set;
+        }
+
+        public string hospitalName
+        {
+            get;
+            set;
+        }
+
+        public int id
+        {
+            get;
+            set;
+        }
+
+        public string masking
+        {
+            get;
+            set;
+        }
+
+        public string message
+        {
+            get;
+            set;
+        }
+
+        public string mobileNumber
+        {
+            get;
+            set;
+        }
+
+        public string projectId
+        {
+            get;
+            set;
+        }
+
+        public MsgBodyHisdu()
+        {
+            this.hospitalId = "PMF";
+            this.hospitalName = "Promotion";
+            this.masking = "HISDU";
+            this.projectId = "373b2d22-64da-4608-9a48-992155fbfddd";
+        }
+    }
+
     public class msgFromHisdu
     {
         public int id { get; set; }
@@ -499,6 +552,48 @@ namespace Prp.Data
         public bool ddlMaritalStatusValidity { get; set; }
         public string ddlMaritalStatusRemarks { get; set; }
         public int amendmentStatus { get; set; }
+        public bool txtDMC1MarksObtainValidty { get; set; }
+        public bool txtDMC1MarksTotalValidty { get; set; }
+        public bool ddlDMC1UniValidty { get; set; }
+        public bool txtDMC2MarksObtainValidty { get; set; }
+        public bool txtDMC2MarksTotalValidty { get; set; }
+        public bool ddlDMC2UniValidty { get; set; }
+
+        public string txtDMC1MarksObtainRemarks { get; set; }
+        public string txtDMC1MarksTotalRemarks { get; set; }
+        public string ddlDMC1UniRemarks { get; set; }
+        public string txtDMC2MarksObtainRemarks { get; set; }
+        public string txtDMC2MarksTotalRemarks { get; set; }
+        public string ddlDMC2UniRemarks { get; set; }
+
+        public bool imgNoDuesCerValidty { get; set; }
+        public bool imgNoEnquiryCerValidty { get; set; }
+
+        public string imgNoDuesCerRemarks { get; set; }
+        public string imgNoEnquiryCerRemarks { get; set; }
+
+
+        public bool imgDMC1Validty { get; set; }
+        public bool imgDMC2Validty { get; set; }
+
+        public string imgDMC1Remarks { get; set; }
+        public string imgDMC2Remarks { get; set; }
+
+        public bool ddlStudentDataFScBoardValidty { get; set; }
+        public bool txtStudentDataFScObtainValidty { get; set; }
+        public bool txtStudentDataFScTotalValidty { get; set; }
+        public bool txtStudentDataFScDateOfPassingValidty { get; set; }
+        public bool imgStudentDataFScValidty { get; set; }
+
+        public string ddlStudentDataFScBoardRemarks { get; set; }
+        public string txtStudentDataFScObtainRemarks { get; set; }
+        public string txtStudentDataFScTotalRemarks { get; set; }
+        public string txtStudentDataFScDateOfPassingRemarks { get; set; }
+        public string imgStudentDataFScRemarks { get; set; }
+
+        public bool ddlInductionValidity { get; set; }
+        public string ddlInductionRemarks { get; set; }
+
     }
 
     public class VerificationEntity

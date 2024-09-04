@@ -105,6 +105,32 @@ namespace Prp.Data
             return msg;
         }
 
+        public Message AddUpdateScruitnyVerficationStatus(VerificationEntity obj)
+        {
+            Message msg = new Message();
+            try
+            {
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spApplicantScruitnyApprovalStatusVerifyAddUpdate]"
+                };
+                cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+                cmd.Parameters.AddWithValue("@adminID", obj.adminId);
+                cmd.Parameters.AddWithValue("@approvalStatusId", obj.approvalStatusId);
+                cmd.Parameters.AddWithValue("@comments", obj.comments);
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                msg = dt.ConvertToEnitityMessage();
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            return msg;
+        }
+
         public Message AddUpdateAmmendmentsStatus(AmmendmentsEntitymodel obj)
         {
             var date = DateTime.UtcNow;

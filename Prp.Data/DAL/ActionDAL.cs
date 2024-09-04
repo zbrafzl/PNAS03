@@ -84,8 +84,8 @@ namespace Prp.Data
                 if (dt.Rows.Count > 0)
                 {
                     DataRow dr = dt.Rows[0];
-                    data.amendmentId = Convert.ToInt32(dr[0]);
-                    int i = 0;
+                    //data.amendmentId = Convert.ToInt32(dr[0]);
+                    int i = -1;
                     data.adminId = Convert.ToInt32(dr[++i]);
                     data.applicantId = Convert.ToInt32(dr[++i]);
                     data.isAdmin = Convert.ToInt32(dr[++i]);
@@ -150,6 +150,39 @@ namespace Prp.Data
                     data.ddlMaritalStatusValidity = dr[++i].TooBoolean();
                     data.ddlMaritalStatusRemarks = dr[++i].TooString();
                     data.amendmentStatus = dr[++i].TooInt();
+                    data.amendmentId = dr[++i].TooInt();
+                    data.imgNoDuesCerValidty = dr[++i].TooBoolean();
+                    data.imgNoEnquiryCerValidty = dr[++i].TooBoolean();
+                    data.imgDMC1Validty = dr[++i].TooBoolean();
+                    data.imgDMC2Validty = dr[++i].TooBoolean();
+                    data.txtDMC1MarksObtainValidty = dr[++i].TooBoolean();
+                    data.txtDMC1MarksTotalValidty = dr[++i].TooBoolean();
+                    data.ddlDMC1UniValidty = dr[++i].TooBoolean();
+                    data.txtDMC2MarksObtainValidty = dr[++i].TooBoolean();
+                    data.txtDMC2MarksTotalValidty = dr[++i].TooBoolean();
+                    data.ddlDMC2UniValidty = dr[++i].TooBoolean();
+                    data.ddlStudentDataFScBoardValidty = dr[++i].TooBoolean();
+                    data.txtStudentDataFScObtainValidty = dr[++i].TooBoolean();
+                    data.txtStudentDataFScTotalValidty = dr[++i].TooBoolean();
+                    data.txtStudentDataFScDateOfPassingValidty = dr[++i].TooBoolean();
+                    data.imgStudentDataFScValidty = dr[++i].TooBoolean();
+                    data.ddlInductionValidity = dr[++i].TooBoolean();
+                    data.imgNoDuesCerRemarks = dr[++i].TooString();
+                    data.imgNoEnquiryCerRemarks = dr[++i].TooString();
+                    data.imgDMC1Remarks = dr[++i].TooString();
+                    data.imgDMC2Remarks = dr[++i].TooString();
+                    data.txtDMC1MarksObtainRemarks = dr[++i].TooString();
+                    data.txtDMC1MarksTotalRemarks = dr[++i].TooString();
+                    data.ddlDMC1UniRemarks = dr[++i].TooString();
+                    data.txtDMC2MarksObtainRemarks = dr[++i].TooString();
+                    data.txtDMC2MarksTotalRemarks = dr[++i].TooString();
+                    data.ddlDMC2UniRemarks = dr[++i].TooString();
+                    data.ddlStudentDataFScBoardRemarks = dr[++i].TooString();
+                    data.txtStudentDataFScObtainRemarks = dr[++i].TooString();
+                    data.txtStudentDataFScTotalRemarks = dr[++i].TooString();
+                    data.txtStudentDataFScDateOfPassingRemarks = dr[++i].TooString();
+                    data.imgStudentDataFScRemarks = dr[++i].TooString();
+                    data.ddlInductionRemarks = dr[++i].TooString();
                 }
             }
             catch (Exception ex)

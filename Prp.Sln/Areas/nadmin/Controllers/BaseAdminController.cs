@@ -21,6 +21,8 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         
     }
 
+    
+
     public class TentativeMarks
     {
         public int applicantId { get; set; }

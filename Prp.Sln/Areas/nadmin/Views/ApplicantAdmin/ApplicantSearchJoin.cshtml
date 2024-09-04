@@ -24,10 +24,17 @@
         var countryTypeId = 0, perPageRecords = 10, statusId = 0
             , pageNum = 1, totalCount = 0, obj = {}, inductionId = 0;
         $(document).ready(function () {
-
+			populate();
             statusId = ConvertToInt($("#hfdStatusId").val());
             inductionId = ConvertToInt($("#hfdInductionId").val());
             $("#ddlStatus").val(statusId);
+
+			$('#ddlInduction').change(function () {
+                populate();
+            });
+
+
+
 
             SearchApplicant();
 
@@ -37,6 +44,26 @@
                 // Get the values of the hidden fields
                 var id1 = 12;
                 var id2 = 193;
+                var id3 = 1;
+                var id4 = ConvertToInt($("#hfdPhaseId").val());;
+                var id5 = "";
+
+                // Make AJAX request to controller action with all three IDs
+
+
+                var resp = CallActionGet("/ApplicantAdmin/GetDataForExport?inductionId=" + id1 + "&statusTypeId=" + id2 + "&statusId=" + id3 + "&phaseId=" + id4 +"&option="+id5);
+
+                //exportToExcel(resp);
+				downloadExcelFromJson(resp, 'data');
+
+                debugger;
+
+            });
+
+			$('#exportButtonSeats').click(function () {
+                // Get the values of the hidden fields
+                var id1 = 12;
+                var id2 = 1;
                 var id3 = 1;
                 var id4 = 1;
                 var id5 = "";
@@ -137,6 +164,25 @@
 
             });
 
+            $('#exportButton').click(function () {
+                // Get the values of the hidden fields
+                var id1 = ConvertToInt($("#hfdInductionId").val());
+                var id2 = ConvertToInt($("#hfdStatusTypeId").val());
+                var id3 = ConvertToInt($("#hfdStatusId").val());
+                var id4 = ConvertToInt($("#hfdPhaseId").val());
+                var id5 = ConvertToString($("#txtSearch").val());
+
+                // Make AJAX request to controller action with all three IDs
+
+
+                var resp = CallActionGet("/ApplicantAdmin/GetDataForExport?inductionId=" + id1 + "&statusTypeId=" + id2 + "&statusId=" + id3 + "&phaseId=" + id4 + "&option=" + id5);
+
+                exportToExcel(resp);
+
+                debugger;
+
+            });
+
         });
 
 		function jsonToCsv(jsonData) {
@@ -165,7 +211,19 @@
 				csvContent += values.join(',') + '\n';
 			});
 			return csvContent;
-		}
+        }
+
+        function exportToExcel(data) {
+            // Convert JSON data to Excel format
+            // For simplicity, let's assume data is already in Excel format
+            // You can replace this with appropriate code to format and export data
+            // Example:
+            var blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'data.xlsx';
+            link.click();
+        }
 
 		function downloadExcelFromJson(jsonData, fileName) {
 			// Convert JSON data to CSV format
@@ -237,6 +295,25 @@
 
 			// Save the workbook as an Excel file
 			XLSX.writeFile(wb, fileName);
+		}
+
+		function populate() {
+			var selectedIndex = $('#ddlInduction').val();
+			//alert(selectedIndex);
+			$.ajax({
+				url: '@Url.Action("PopulateSecondList", "ApplicantAdmin")',
+				type: 'GET',
+				data: { selectedIndex: selectedIndex },
+				success: function (result) {
+					$('#ddlCollege').empty();
+					$.each(result, function (index, item) {
+						$('#ddlCollege').append($('<option>').text(item.Text).attr('value', item.Value));
+					});
+				},
+				error: function () {
+					alert('Error occurred while fetching data.');
+				}
+			});
 		}
 
         function SearchApplicant() {
@@ -415,7 +492,7 @@
         @Html.HiddenFor(m => m.statusTypeId, new { @id = "hfdStatusTypeId" })
         @Html.HiddenFor(m => m.statusId, new { @id = "hfdStatusId" })
         @Html.HiddenFor(m => m.inductionId, new { @id = "hfdInductionId" })
-        @Html.HiddenFor(m => m.phaseId, new { @id = "hfdPhaseId" })
+        @Html.HiddenFor(m => m.loggedInUser.userId, new { @id = "hfdPhaseId" })
         <div class="x_title">
             <h2>Applicant List </h2>
             <div class="clearfix"></div>
@@ -423,68 +500,21 @@
         <form class="form-horizontal form-label-left input_mask">
             <div class="form-group col-lg-12">
 
-                @if (Model.loggedInUser.userId == 63 || Model.loggedInUser.userId == 6 || Model.loggedInUser.userId == 62)
+                @if (Model.loggedInUser.userId == 63 || Model.loggedInUser.userId == 6 || Model.loggedInUser.userId == 62 || Model.loggedInUser.typeId == 1 || Model.loggedInUser.typeId == 16)
                 {
                     <div class="col-md-2 col-sm-2 col-xs-2">
                         <label for="heard">Induction :</label>
                         <select required="required" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
-                            <option selected="selected" value="2022-26">2022-26</option>
-                            <option selected="selected" value="2021-25">2021-25</option>
-                            <option selected="selected" value="2020-24">2020-24</option>
+                            <option selected="selected" value="2021-2022 (Only DHQ)">2021-2022 (Only DHQ)</option>
+                            <option selected="selected" value="2021-2022 (Teaching)">2021-2022 (Teaching)</option>
+                            <option selected="selected" value="2020-2021 (Teaching)">2020-2021 (Teaching)</option>
+                            <option selected="selected" value="2022-2023 Morning">2022-2023 Morning</option>
                         </select>
                     </div>
                     <div class="col-md-5 col-sm-5 col-xs-5">
                         <label for="heard">College :</label>
                         <select required="required" name="ddlCollege" id="ddlCollege" class="form-control" tabindex="2">
-                            <option value="College of Nursing( KEMU),Mayo Hospital , Lahore">	College of Nursing( KEMU),Mayo Hospital , Lahore	</option>
-                            <option value="CON ,(FJMU) Sir Ganga Ram Hospital Lhr">	CON ,(FJMU) Sir Ganga Ram Hospital Lhr	</option>
-                            <option value="CON ,Ameer-ud-Din General Hospital Lahore">	CON ,Ameer-ud-Din General Hospital Lahore	</option>
-                            <option value="College of Nursing  AIMC Jinnah Hospital , Lahore">	College of Nursing  AIMC Jinnah Hospital , Lahore	</option>
-                            <option value="CON ,Holy Family Hospital , Rawalpindi">	CON ,Holy Family Hospital , Rawalpindi	</option>
-                            <option value="CON , Benazir Bhutto Shaheed Hospital Rawalpindi ">	CON , Benazir Bhutto Shaheed Hospital Rawalpindi  	</option>
-                            <option value="College of Nursing ,Allied Hospital Faisalabad ">	College of Nursing ,Allied Hospital Faisalabad  	</option>
-                            <option value="College of Nursing ,Nishtar Hospital Multan ">	College of Nursing ,Nishtar Hospital Multan  	</option>
-                            <option value="CON ,Bahawalpur Victoria Hospital Bahawalpur ">	CON ,Bahawalpur Victoria Hospital Bahawalpur  	</option>
-                            <option value="College of Nursing ,Service Hospital Lahore">	College of Nursing ,Service Hospital Lahore	</option>
-                            <option value="College of Nursing ,Children Hospital Lahore">	College of Nursing ,Children Hospital Lahore 	</option>
-                            <option value="CON ,Allama Iqbal Memorial Hospital Sialkot">	CON ,Allama Iqbal Memorial Hospital Sialkot	</option>
-                            <option value="College of Nursing , DHQ Hospital Dera Ghazi Khan">	College of Nursing , DHQ Hospital Dera Ghazi Khan	</option>
-                            <option value="College of Nursing ,DHQ Hospital Muzaffargarh ">	College of Nursing ,DHQ Hospital Muzaffargarh  	</option>
-                            <option value="College of Nursing ,Sheikh Zayed Hospital , RYK">	College of Nursing ,Sheikh Zayed Hospital , RYK	</option>
-                            <option value="College Of Nurisng Vehari">	College Of Nurisng Vehari 	</option>
-                            <option value="College Of Nurisng Rajanpur">	College Of Nurisng Rajanpur 	</option>
-                            <option value="College Of Nurisng Layyah">	College Of Nurisng Layyah 	</option>
-                            <option value="College Of Nurisng Bahawalnagar">	College Of Nurisng Bahawalnagar 	</option>
-                            <option value="College Of Nurisng DHQ Rawalpindi">	College Of Nurisng DHQ Rawalpindi 	</option>
-                            <option value="College Of Nurisng Jhelum">	College Of Nurisng Jhelum 	</option>
-                            <option value="College Of Nurisng Attock">	College Of Nurisng Attock 	</option>
-                            <option value="College Of Nurisng Mainwali">	College Of Nurisng Mainwali 	</option>
-                            <option value="College Of Nurisng Chakwal">	College Of Nurisng Chakwal 	</option>
-                            <option value="College Of Nurisng Sahiwal">	College Of Nurisng Sahiwal 	</option>
-                            <option value="College Of Nurisng Okara">	College Of Nurisng Okara	</option>
-                            <option value="College Of Nurisng Pakpattan">	College Of Nurisng Pakpattan 	</option>
-                            <option value="College Of Nurisng Gujranwala">	College Of Nurisng Gujranwala 	</option>
-                            <option value="College Of Nurisng DHQ Faisalabad">	College Of Nurisng DHQ Faisalabad	</option>
-                            <option value="College Of Nurisng Sheikhupura">	College Of Nurisng Sheikhupura	</option>
-                            <option value="College Of Nurisng  Kasur">	College Of Nurisng  Kasur 	</option>
-                            <option value="College Of Nurisng Toba Take Singh">	College Of Nurisng Toba Take Singh 	</option>
-                            <option value="College Of Nurisng Lodhran">	College Of Nurisng Lodhran 	</option>
-                            <option value="College Of Nurisng  Hospital Gojra">	College Of Nurisng  Hospital Gojra 	</option>
-                            <option value="College Of Nurisng Khanewal">	College Of Nurisng Khanewal 	</option>
-                            <option value="College Of Nurisng Mandi.B. Din">	College Of Nurisng Mandi.B. Din 	</option>
-                            <option value="College Of Nurisng Khushab">	College Of Nurisng Khushab 	</option>
-                            <option value="College Of Nurisng Bhakkar">	College Of Nurisng Bhakkar 	</option>
-                            <option value="College Of Nurisng Jhang">	College Of Nurisng Jhang 	</option>
-                            <option value="College Of Nurisng Narowal">	College Of Nurisng Narowal 	</option>
-                            <option value="College Of Nurisng Hafizabad">	College Of Nurisng Hafizabad	</option>
-                            <option value="College Of Nurisng Gujrat">	College Of Nurisng Gujrat 	</option>
-                            <option value="College Of Nurisng Sargodha">	College Of Nurisng Sargodha 	</option>
-
                         </select>
-                    </div>
-                    <div class="col-md-7 col-sm-7 col-xs-7">
-                        <label for="heard">Search :</label>
-                        <input type="text" id="txtSearch" name="txtSearch" placeholder="Name, CNIC, Applicant Number" class="form-control" />
                     </div>
                 }
                 else
@@ -508,6 +538,17 @@
                     <div class="col-md-2 col-sm-2 col-xs-2">
                         <label for="heard" style="width:100%;">&nbsp;</label>
                         <input type="button" id="exportButton" value="Export All" class="btn btn-success" />
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2">
+                        <label for="heard" style="width:100%;">&nbsp;</label>
+                        <input type="button" id="exportButtonSeats" value="Export Seats" class="btn btn-success" />
+                    </div>
+                }
+                @if (Model.loggedInUser.typeId == 69)
+                {
+                    <div class="col-md-2 col-sm-2 col-xs-2" style="display:none" id="divDownload">
+                        <label for="heard" style="width:100%;">&nbsp;</label>
+                        <input type="button" id="exportButton" value="Export to Excel" class="btn btn-success" />
                     </div>
                 }
 

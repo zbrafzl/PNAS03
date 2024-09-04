@@ -79,6 +79,65 @@ namespace Prp.Data
             return PrpDbADO.FillDataTable(cmd);
         }
 
+        public DataTable SearchPhoneNumberFromCNIC(string searchNumber)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spSearchPhoneNumberFromCNIC]"
+            };
+            cmd.Parameters.AddWithValue("@cnicNo", searchNumber);
+            DataTable dt = PrpDbADO.FillDataTable(cmd);
+            return dt;
+        }
+
+        public bool UpdatePhoneNumber(int applicantId, string newPhoneNumber)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spUpdatePhoneNumberFromCNIC]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            cmd.Parameters.AddWithValue("@newPhoneNumber", newPhoneNumber);
+            return PrpDbADO.ExecuteNonQuery(cmd).status;
+        }
+        public DataTable getCollegesForInduction(string induction)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetCollegeForInduction]"
+            };
+
+            cmd.Parameters.AddWithValue("@induction", induction);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable getActivitesForInduction(string induction)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetActivitesForInduction]"
+            };
+
+            cmd.Parameters.AddWithValue("@induction", induction);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable getInductionForCollege(int adminId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spInductionForCollege]"
+            };
+
+            cmd.Parameters.AddWithValue("@adminId", adminId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
         public DataTable ApplicantSearchSimpleToVerify(ApplicantSearch obj)
         {
             SqlCommand cmd = new SqlCommand

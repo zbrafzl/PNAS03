@@ -285,7 +285,7 @@
 
             try
             {
-                inActiveCount = listAccountStatus.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                //inActiveCount = listAccountStatus.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
             }
             catch (Exception)
             {
@@ -623,7 +623,7 @@
                 </div>
             }
         }
-        if (@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62)
+        if ((@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62) && Model.inductionId == 15)
         {
             listVerification = Model.listDashBoard.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.verification).ToList();
             if (listVerification != null && listVerification.Count > 0)
@@ -1397,7 +1397,7 @@
                 }
                 try
                 {
-                    releaved = listJoin.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
+                    //releaved = listJoin.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
                 }
                 catch (Exception)
                 {
@@ -1406,7 +1406,7 @@
                 <div class="col-md-3 col-sm-3 ">
                     <div class="x_panel tile fixed_height_320 overflow_hidden">
                         <div class="x_title">
-                            <h2>Joining (Morning)</h2>
+                            <h2>Joining Status Morning</h2>
                             <div class="clearfix"></div>
                         </div>
                         <div class="x_content">
@@ -1428,7 +1428,7 @@
                                                 <td>
                                                     <p><i class="fa fa-square black"></i>Total </p>
                                                 </td>
-                                                <td>2880</td>
+                                                <td>3000</td>
                                             </tr>
                                             <tr class="trclick" id="1" typeid="191">
                                                 <td>
@@ -1458,7 +1458,7 @@
             }
         }
 
-        if (@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62)
+        if ((@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62) && Model.inductionId == 15)
         {
             listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 191).ToList();
             if (listVerification != null && listVerification.Count > 0)
@@ -1530,7 +1530,7 @@
                                                     <td>
                                                         <p><i class="fa fa-square black"></i>Total </p>
                                                     </td>
-                                                    <td>2880</td>
+                                                    <td>3000</td>
                                                 </tr>
                                                 <tr class="trclick" id="-1" typeid="190">
                                                     <td>
@@ -1550,8 +1550,10 @@
 
         }
 
+
+
         var listConsentRound1E = Model.listDashBoard.Where(x => x.statusTypeId == 161).ToList();
-        if (listConsentRound1E != null && listConsentRound1E.Count > 0)
+        if (listConsentRound1E != null && listConsentRound1E.Count > 0 && Model.inductionId == 15)
         {
 
             var total = 0;
@@ -2054,7 +2056,7 @@
 
 
         var listJoin2 = Model.listDashBoard.Where(x => x.statusTypeId == 192).ToList();
-        if (listJoin2 != null && listJoin2.Count > 0)
+        if (listJoin2 != null && listJoin2.Count > 0 && Model.inductionId == 15)
         {
 
             var total = 0;
@@ -2091,7 +2093,7 @@
                 }
                 try
                 {
-                    releaved = listJoin2.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
+                    //releaved = listJoin2.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
                 }
                 catch (Exception)
                 {
@@ -2122,7 +2124,7 @@
                                                 <td>
                                                     <p><i class="fa fa-square black"></i>Total </p>
                                                 </td>
-                                                <td>@total</td>
+                                                <td>3000</td>
                                             </tr>
                                             <tr class="trclick" id="1" typeid="192">
                                                 <td>
@@ -2152,10 +2154,10 @@
             }
         }
 
-        if (@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62)
+        if ((@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62) && Model.inductionId == 15)
         {
             listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 192).ToList();
-            if (listVerification != null && listVerification.Count > 0)
+            if (listVerification != null && listVerification.Count > 0 && Model.inductionId == 15)
             {
 
                 var verifyToal = 0;
@@ -2328,7 +2330,7 @@
             }
         }
 
-        if (@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62)
+        if ((@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62) && Model.inductionId == 15)
         {
             listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 197).ToList();
             if (listVerification != null && listVerification.Count > 0)
@@ -2423,7 +2425,7 @@
 
 
         var lisltJoin4 = Model.listDashBoard.Where(x => x.statusTypeId == 198).ToList();
-        if (lisltJoin4 != null && lisltJoin4.Count > 0)
+        if (lisltJoin4 != null && lisltJoin4.Count > 0 && Model.inductionId == 15)
         {
 
             var total = 0;
@@ -2506,10 +2508,10 @@
             }
         }
 
-        if (@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62)
+        if ((@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62) && Model.inductionId == 15)
         {
             listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 198).ToList();
-            if (listVerification != null && listVerification.Count > 0)
+            if (listVerification != null && listVerification.Count > 0 && Model.inductionId == 15)
             {
 
                 var verifyToal = 0;
@@ -2682,7 +2684,7 @@
             }
         }
 
-        if (@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62)
+        if ((@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62) && Model.inductionId == 15)
         {
             listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 2011).ToList();
             if (listVerification != null && listVerification.Count > 0)
@@ -2776,7 +2778,7 @@
 
 
         lisltJoin3 = Model.listDashBoard.Where(x => x.statusTypeId == 2022).ToList();
-        if (lisltJoin3 != null && lisltJoin3.Count > 0)
+        if (lisltJoin3 != null && lisltJoin3.Count > 0 && Model.inductionId == 15)
         {
 
             var total = 0;
@@ -2859,10 +2861,10 @@
             }
         }
 
-        if (@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62)
+        if ((@Model.loggedInUser.userId == 6 || @Model.loggedInUser.userId == 62) && Model.inductionId == 15)
         {
             listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 2022).ToList();
-            if (listVerification != null && listVerification.Count > 0)
+            if (listVerification != null && listVerification.Count > 0 && Model.inductionId == 15)
             {
 
                 var verifyToal = 0;
@@ -2952,7 +2954,7 @@
         }
 
         var lisltJoin5 = Model.listDashBoard.Where(x => x.statusTypeId == 196).ToList();
-        if (lisltJoin5 != null && lisltJoin5.Count > 0)
+        if (lisltJoin5 != null && lisltJoin5.Count > 0 && Model.inductionId == 15)
         {
 
             var total = 0;
@@ -3033,6 +3035,111 @@
                     </div>
                 </div>
             }
+        }
+
+
+        if ((@Model.loggedInUser.userId == 1 || @Model.loggedInUser.typeId == 16))
+        {
+            listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 101).ToList();
+            if (listVerification != null && listVerification.Count > 0)
+            {
+
+                var verifyToal = 0;
+                var verifyPending = 0;
+                var verifyApproved = 0;
+                var verifyReject = 0;
+                try
+                {
+                    verifyToal = listVerification.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    verifyToal = 0;
+                }
+
+                if (verifyToal > 0)
+                {
+
+                    try
+                    {
+                        verifyPending = listVerification.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        verifyApproved = listVerification.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    try
+                    {
+                        verifyReject = listVerification.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    <div class="col-md-3 col-sm-3 ">
+                        <div class="x_panel tile fixed_height_320 overflow_hidden">
+                            <div class="x_title">
+                                <h2>Migration Status</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <table style="width:100%">
+                                    <tr>
+                                        <th>
+                                            <div class="col-lg-9 col-md-9 col-sm-9 txt">
+                                                <p class="">Status</p>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 cnt">
+                                                <p class="">Count</p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table class="tile_info">
+                                                <tr class="trclick" id="-1" typeid="101">
+                                                    <td>
+                                                        <p><i class="fa fa-square black"></i>Total </p>
+                                                    </td>
+                                                    <td>@verifyToal</td>
+                                                </tr>
+                                                <tr class="trclick" id="1" typeid="101">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Passed </p>
+                                                    </td>
+                                                    <td>@verifyPending</td>
+                                                </tr>
+                                                <tr class="trclick" id="2" typeid="101">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Open Applications </p>
+                                                    </td>
+                                                    <td>@verifyApproved</td>
+                                                </tr>
+                                                <tr class="trclick" id="3" typeid="101">
+                                                    <td>
+                                                        <p><i class="fa fa-square aero"></i>Applied Migration </p>
+                                                    </td>
+                                                    <td>@verifyReject</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+
         }
 
     }

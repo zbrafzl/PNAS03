@@ -31,7 +31,7 @@ namespace Prp.Sln.Controllers
         [HttpGet]
         public ActionResult GetSmsInfoByCellNo(string contactNumber)
         {
-            DataTable dataTable = new ApplicantDAL().OtpGetByMobileNo(contactNumber);
+            DataTable dataTable = new ApplicantDAL().OtpGetByMobileNo(contactNumber,"");
             string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
             return Content(json, "application/json");
         }
@@ -383,6 +383,38 @@ namespace Prp.Sln.Controllers
         {
             List<EntityDDL> list = DDLSpeciality.GetAll(obj);
             return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region file
+
+        [HttpPost]
+        public ActionResult UploadApplicantFile(HttpPostedFileBase file, string applicantId)
+        {
+            if (file != null && file.ContentLength > 0 && !string.IsNullOrEmpty(applicantId))
+            {
+                // Define the path where the file will be saved
+                var folderPath = Server.MapPath($"~/Images/Applicant/{applicantId}/");
+
+                // Ensure the directory exists
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // Create the full file path
+                var fileName = Path.GetFileName(file.FileName);
+                var filePath = Path.Combine(folderPath, fileName);
+
+                // Save the file
+                file.SaveAs(filePath);
+
+                // Return the saved file name
+                return Json(new { success = true, fileName = fileName }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { success = false, message = "Invalid file or applicant ID." }, JsonRequestBehavior.AllowGet);
         }
 
         #endregion

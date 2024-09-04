@@ -62,6 +62,55 @@ namespace Prp.Data
             return obj;
         }
 
+        public Applicant CreateMigrantUserAccount(string userName, string password)
+        {
+            Applicant obj = new Applicant();
+            try
+            {
+
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spMigrantVerifyAccount]"
+                };
+                cmd.Parameters.AddWithValue("@cnic", userName);
+                cmd.Parameters.AddWithValue("@password", password);
+
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    DataRow dr = dt.Rows[0];
+
+                    obj.inductionId = dr["inductionId"].TooInt();
+                    obj.applicantId = dr["applicantId"].TooInt();
+                    obj.network = dr["network"].TooInt();
+                    obj.facultyId = dr["facultyId"].TooInt();
+                    obj.statusId = dr["statusId"].TooInt();
+
+                    obj.name = dr["name"].TooString();
+                    obj.pmdcNo = dr["pmdcNo"].TooString();
+                    obj.pncNo = dr["pncNo"].TooString();
+                    obj.emailId = dr["emailId"].TooString();
+                    obj.password = dr["password"].TooString();
+                    obj.passwordDecrypt = dr["passwordDecrypt"].TooString();
+                    obj.contactNumber = dr["contactNumber"].TooString();
+                    obj.pic = dr["pic"].TooString();
+                    obj.date = dr["dated"].TooString();
+                    obj.facultyName = dr["facultyName"].TooString();
+                    obj.status = dr["status"].TooString();
+                }
+
+                //var dbt = db.spApplicantLogin(userName, password).FirstOrDefault();
+                //obj = MapApplicant.ToEntity(dbt);
+            }
+            catch (Exception ex)
+            {
+                obj = new Applicant();
+            }
+            return obj;
+        }
+
         public Applicant Login(string userName, string password)
         {
             Applicant obj = new Applicant();
@@ -72,6 +121,55 @@ namespace Prp.Data
                 {
                     CommandType = CommandType.StoredProcedure,
                     CommandText = "[dbo].[spApplicantLoginNursing]"
+                };
+                cmd.Parameters.AddWithValue("@emailId", userName);
+                cmd.Parameters.AddWithValue("@password", password);
+
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    DataRow dr = dt.Rows[0];
+
+                    obj.inductionId = dr["inductionId"].TooInt();
+                    obj.applicantId = dr["applicantId"].TooInt();
+                    obj.network = dr["network"].TooInt();
+                    obj.facultyId = dr["facultyId"].TooInt();
+                    obj.statusId = dr["statusId"].TooInt();
+
+                    obj.name = dr["name"].TooString();
+                    obj.pmdcNo = dr["pmdcNo"].TooString();
+                    obj.pncNo = dr["pncNo"].TooString();
+                    obj.emailId = dr["emailId"].TooString();
+                    obj.password = dr["password"].TooString();
+                    obj.passwordDecrypt = dr["passwordDecrypt"].TooString();
+                    obj.contactNumber = dr["contactNumber"].TooString();
+                    obj.pic = dr["pic"].TooString();
+                    obj.date = dr["date"].TooString();
+                    obj.facultyName = dr["facultyName"].TooString();
+                    obj.status = dr["status"].TooString();
+                }
+
+                //var dbt = db.spApplicantLogin(userName, password).FirstOrDefault();
+                //obj = MapApplicant.ToEntity(dbt);
+            }
+            catch (Exception ex)
+            {
+                obj = new Applicant();
+            }
+            return obj;
+        }
+
+        public Applicant LoginMigrantDAL(string userName, string password)
+        {
+            Applicant obj = new Applicant();
+            try
+            {
+
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spApplicantLoginNursingMigrant]"
                 };
                 cmd.Parameters.AddWithValue("@emailId", userName);
                 cmd.Parameters.AddWithValue("@password", password);
@@ -354,7 +452,7 @@ namespace Prp.Data
             return msg;
         }
 
-        public DataTable OtpGetByMobileNo(string mobilenumber)
+        public DataTable OtpGetByMobileNo(string mobilenumber, string cnicNo)
         {
             SqlCommand cmd = new SqlCommand
             {
@@ -362,8 +460,23 @@ namespace Prp.Data
                 CommandText = "[dbo].[spOtpGetByMobileNo]"
             };
             cmd.Parameters.AddWithValue("@mobilenumber", mobilenumber);
+            cmd.Parameters.AddWithValue("@cnicNo", cnicNo);
             return PrpDbADO.FillDataTable(cmd);
         }
+
+        public DataTable AccountGetByCNIC(string mobilenumber, string cnicNo)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spAccountGetByCNIC]"
+            };
+            cmd.Parameters.AddWithValue("@mobilenumber", mobilenumber);
+            cmd.Parameters.AddWithValue("@cnicNo", cnicNo);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+
 
         public Message ApplicantUpdate(Applicant obj)
         {
@@ -768,7 +881,19 @@ namespace Prp.Data
             cmd.Parameters.AddWithValue("@applicantId", applicantId);
             return PrpDbADO.FillDataTable(cmd);
         }
-        public DataTable SaveMigrationPreferencesByApplicantId(int applicantId, DateTime dob, DateTime doj, List<ApplicantSpecility> listSpecilties, List<ApplicantDegree> listDmc)
+        public DataTable SaveMigrationPdfFile(string pdfFileName, int applicantId)
+        {
+            DataTable dt = new DataTable();
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spSaveMigrationPdfFile]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            cmd.Parameters.AddWithValue("@pdfFileName", pdfFileName);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+        public DataTable SaveMigrationPreferencesByApplicantId(int applicantId, DateTime dob, DateTime doj, List<ApplicantSpecility> listSpecilties, List<ApplicantDegree> listDmc, string NoDuesCertificate, string NoEnquiryCertificate)
         {
             SqlCommand cmd = new SqlCommand
             {
@@ -780,6 +905,7 @@ namespace Prp.Data
             tempDegreeTable.Columns.Add("totalMarks", typeof(int));
             tempDegreeTable.Columns.Add("degreeYear", typeof(int));
             tempDegreeTable.Columns.Add("imageCertificate", typeof(string));
+            tempDegreeTable.Columns.Add("university", typeof(string));
             foreach (var item in listDmc)
             {
                 DataRow dr = tempDegreeTable.NewRow();
@@ -787,6 +913,7 @@ namespace Prp.Data
                 dr["totalMarks"] = item.totalMarks;
                 dr["degreeYear"] = item.degreeYear;
                 dr["imageCertificate"] = item.imageCertificate;
+                dr["university"] = item.university;
                 tempDegreeTable.Rows.Add(dr);
             }
 
@@ -806,6 +933,10 @@ namespace Prp.Data
             cmd.Parameters.AddWithValue("@doj", doj);
             cmd.Parameters.AddWithValue("@tempTable", tempPreferenceTable);
             cmd.Parameters.AddWithValue("@tempTableDegree", tempDegreeTable);
+
+            cmd.Parameters.AddWithValue("@NoDuesCertificate", NoDuesCertificate);
+            cmd.Parameters.AddWithValue("@NoEnquiryCertificate", NoEnquiryCertificate);
+
             return PrpDbADO.FillDataTable(cmd);
         }
 
@@ -960,6 +1091,73 @@ namespace Prp.Data
         //    }
         //    return obj;
         //}
+
+        public Applicant GetApplicantByCnicAndContactNumber(string emailId, string contactNumber)
+        {
+            Applicant obj = new Applicant();
+            DataTable dt = new DataTable();
+            string query = "select top 1 a.[applicantId],[name],[pmdcNo],[emailId],[password],[contactNumber],[network],[levelId],[facultyId],[pic],[statusId],[dated],[adminId],[pncNo],ai.[genderID] from tblapplicant a ";
+            query += " inner join tblApplicantInfoMigrants ai on a.applicantId = ai.applicantID ";
+            //query += " where a.applicantId in ( select applicantId from tblApplicantInfoMigrants where cnicNo in ('" + emailId + "') ) and a.contactNumber = '" + contactNumber + "' and a.adminId > 0 ";
+            query += " where a.applicantId in ( select applicantId from tblApplicantInfoMigrants where cnicNo in ('" + emailId + "') ) and a.adminId > 0 ";
+            query += " order by a.dated desc ";
+            SqlConnection con = new SqlConnection();
+            Message msg = new Message();
+            SqlCommand cmd = new SqlCommand(query);
+            try
+            {
+                con = new SqlConnection(PrpDbConnectADO.Conn);
+                con.Open();
+                cmd.Connection = con;
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                sda.Fill(dt);
+                if (dt.Rows.Count > 0)
+                {
+                    DataRow dr = dt.Rows[0];
+                    obj.accountStatus = dr["statusId"].ToString();
+                    obj.accountStatusId = Convert.ToInt32(dr["statusId"]);
+                    obj.adminId = Convert.ToInt32(dr["statusId"]);
+                    obj.applicantId = Convert.ToInt32(dr["applicantId"]);
+                    obj.applicationStatus = "active";
+                    obj.applicationStatusId = Convert.ToInt32(dr["statusId"]);
+                    obj.contactNumber = (dr["contactNumber"]).ToString();
+                    obj.date = Convert.ToDateTime((dr["dated"])).ToString();
+                    obj.dated = Convert.ToDateTime(dr["dated"]);
+                    obj.emailId = dr["emailId"].ToString();
+                    obj.facultyId = Convert.ToInt32(dr["facultyId"]);
+                    obj.facultyName = Convert.ToInt32(dr["facultyId"]).ToString();
+                    obj.inductionId = 12;
+                    obj.isValid = 1;
+                    obj.levelId = Convert.ToInt32(dr["levelId"]);
+                    obj.levelName = Convert.ToInt32(dr["levelId"]).ToString();
+                    obj.maritalStatus = "";
+                    obj.name = dr["name"].ToString();
+                    obj.network = Convert.ToInt32(dr["network"]);
+                    obj.password = dr["password"].ToString();
+                    obj.passwordDecrypt = dr["password"].ToString();
+                    obj.pathProfilePic = dr["pic"].ToString();
+                    obj.pmdcNo = "";
+                    obj.pncNo = dr["pncNo"].ToString();
+                    obj.status = dr["statusId"].ToString();
+                    obj.statusId = Convert.ToInt32(dr["statusId"]);
+                    obj.genderID = Convert.ToInt32(dr["genderID"]);
+                }
+                else
+                {
+                    msg.status = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return obj;
+        }
 
         public List<ApplicationStatus> GetApplicationStatus(int inductionId, int phaseId, int applicantId, int statusTypeId = 0)
         {
@@ -1384,6 +1582,9 @@ namespace Prp.Data
                         obj.inductionId = dr["postingInstituteId"].TooInt();
                         obj.instituteName = dr["currentPostingAddress"].TooString();
                         obj.pic = dr["pic"].TooString();
+                        obj.currentPosting = dr["CollegeJoined"].TooString();
+                        obj.nocCertificate = dr["NoEnquiryCertificate"].TooString();
+                        obj.nicCertificate = dr["NoDuesCertificate"].TooString();
                     }
                     else
                     {
@@ -1434,8 +1635,16 @@ namespace Prp.Data
             ApplicantInfo obj = new ApplicantInfo();
             try
             {
-                string query = "select a.*, b.*, r.name as disName, rdom.name as domDisName from tblApplicant a WITH (NOLOCK) left join (select * from tblApplicantInfo WITH (NOLOCK)) b on b.applicantId = a.applicantId left join tblRegion r on b.districtId = r.regionId left join tblRegion rdom on b.domicileDistrictId = rdom.regionId ";
-                query += "where a.applicantId = " + applicantId + "";
+                string query = "select top 1 a.*, b.*, r.name as disName, rdom.name as domDisName ";
+                query += ", tim.NoDuesCertificate NoDuesCertificate, tim.NoEnquiryCertificate NoEnquiryCertificate, tjoin.firstName CollegeJoined ";
+                query += " from tblApplicant a WITH(NOLOCK) ";
+                query += " left join(select* from tblApplicantInfo WITH (NOLOCK) union select* from tblApplicantInfoMigrants WITH (NOLOCK)) b on b.applicantId = a.applicantId ";
+                query += " left join tblRegion r on b.districtId = r.regionId left join tblRegion rdom on b.domicileDistrictId = rdom.regionId ";
+                query += " left join tblNursingApplicantImageData tim on a.applicantId = tim.applicantId ";
+                query += " left join(select top 1 t1.applicantId, u.firstName from tblApplicantJoiningStatus t1 ";
+                query += " inner join tblUser u on t1.hospitalId = u.userId where t1.JoiningStatus = 1 and applicantId = " + applicantId + " order by inductionId desc)  ";
+                query += " tjoin on a.applicantId = tjoin.applicantId ";
+                query += " where a.applicantId = " + applicantId + "";
                 SqlConnection con = new SqlConnection();
                 Message msg = new Message();
                 SqlCommand cmd = new SqlCommand(query);
@@ -1489,6 +1698,9 @@ namespace Prp.Data
                         obj.recommendationLetter2 = dr["recommendationLetter2"].TooString();
                         obj.regularizationOrder = dr["regularizationOrder"].TooString();
                         obj.domicileDistrict = dr["domDisName"].TooString();
+                        obj.currentPosting = dr["CollegeJoined"].TooString();
+                        obj.nocCertificate = dr["NoEnquiryCertificate"].TooString();
+                        obj.nicCertificate = dr["NoDuesCertificate"].TooString();
                     }
                     else
                     {
@@ -1671,6 +1883,7 @@ namespace Prp.Data
                             {
                                 ApplicantDegreeMark listt = new ApplicantDegreeMark();
                                 listt.degreeInstitute = dr["degreeInstitute"].ToString();
+                                listt.graduateTypeId = dr["degreeTypeID"].TooInt();
                                 listt.degreeName = dr["degreeTypeName"].ToString();
                                 listt.totalMarks = Convert.ToDouble(dr["totalMarks"]);
                                 listt.obtainMarks = Convert.ToDouble(dr["obtainedMarks"]);
@@ -1884,12 +2097,7 @@ namespace Prp.Data
                 }
                 else
                 {
-                    string query = "select (select name from tblRegion where regionId = ae.provinceId) as pName, " +
-                    "(select name from tblConstant where constantId = ae.levelId) as levelName, h.name, " +
-                    "ae.startDated, ae.endDate, ae.noOfMonth, ae.noOfDays, ae.imageExperience from tblApplicantExperience ae " +
-                    "inner join tblHospital h on ae.instituteId = h.hospitalId " +
-                    "inner join tblRegion r on h.regionId = r.regionId " +
-                    "where ae.applicantId = " + applicantId + " ";
+                    string query = "select NoDuesCertificate Doc, 'NoDuesCertificate' levelName from tblNursingApplicantImageData where applicantId = "+applicantId+" union select NoEnquiryCertificate Doc, 'NoEnquiryCertificate' levelName from tblNursingApplicantImageData where applicantId = "+applicantId+" order by Doc";
                     SqlConnection con = new SqlConnection();
                     Message msg = new Message();
                     SqlCommand cmd = new SqlCommand(query);

@@ -185,15 +185,54 @@ namespace Prp.Data
         public Ticker TickerGetById(int tickerId)
         {
             Ticker obj = new Ticker();
+            Ticker list = new Ticker();
+            string dataTableName = "";
             try
             {
-                var objt = db.tblTickers.FirstOrDefault(x => x.tickerId == tickerId);
-                obj = MapTicker.ToEntity(objt);
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spTickerGetById]"
+                };
+                cmd.Parameters.AddWithValue("@tickerId", tickerId.TooInt());
+                //return PrpDbADO.FillDataTable(cmd);
+                SqlConnection con = new SqlConnection();
+                System.Data.DataTable dt = new System.Data.DataTable();
 
+                try
+                {
+                    con = new SqlConnection(PrpDbConnectADO.Conn);
+                    con.Open();
+                    cmd.Connection = con;
+                    SqlDataAdapter da = new SqlDataAdapter();
+                    da.SelectCommand = cmd;
+                    DataSet ds = new DataSet();
+                    da.Fill(ds);
+                    dt = ds.Tables[0];
+                }
+                catch (Exception ex)
+                {
+                    dataTableName = null;
+                }
+                finally
+                {
+                    con.Close();
+                }
+                foreach (DataRow dr in dt.Rows)
+                {
+                    Ticker t = new Ticker();
+                    t.adminId = dr["adminId"].TooInt();
+                    t.detail = dr["detail"].TooString();
+                    t.typeId = dr["typeId"].TooInt();
+                    t.isActive = dr["isActive"].TooBoolean();
+                    t.name = dr["name"].TooString();
+                    t.inductionId = dr["inductionId"].TooInt();
+                    t.tickerId = dr["tickerId"].TooInt();
+                    obj = t;
+                }
             }
             catch (Exception)
             {
-                obj = new Ticker();
             }
             return obj;
         }

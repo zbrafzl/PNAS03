@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "ApplicantViewDetail";
     Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
 }
@@ -811,50 +810,47 @@
                 </div>
                 @if (Model.applicantId > 0 && Model.applicant.statusId == 1)
                 {
-                    if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper
-
-                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.phfITManager
-                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.callCenter)
+                    if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 63 || Model.loggedInUser.userId == 70 || Model.loggedInUser.userId == 78 || (Model.loggedInUser.userId > 3 && Model.loggedInUser.userId < 12))
                     {
                         <div class="col-md-6 col-sm-6 col-xs-6">
                             <fieldset>
                                 <legend> Functions </legend>
                                 @*@if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper)
-                                {
-                                    <div class="col-md-4 col-sm-4 col-xs-4">
-                                        <input type="button" id="btnLoginByDeveloer" value="Login By Developer" class="btn btn-success" />
-                                    </div>
-                                }
-                                @if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper
-                                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.phfITManager
-                                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.callCenter)
-                                {
-                                    <div class="col-md-3 col-sm-3 col-xs-3">
-                                        <input type="button" id="btnLoginByApplicant" value="Login By Admin" class="btn btn-success" />
-                                    </div>
-                                }*@
+                                    {
+                                        <div class="col-md-4 col-sm-4 col-xs-4">
+                                            <input type="button" id="btnLoginByDeveloer" value="Login By Developer" class="btn btn-success" />
+                                        </div>
+                                    }
+                                    @if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper
+                                        || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.phfITManager
+                                        || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.callCenter)
+                                    {
+                                        <div class="col-md-3 col-sm-3 col-xs-3">
+                                            <input type="button" id="btnLoginByApplicant" value="Login By Admin" class="btn btn-success" />
+                                        </div>
+                                    }*@
                                 <div class="col-md-3 col-sm-3 col-xs-3">
                                     <a href="@("/admin/applicant-status?applicantid=" + Model.applicantId)" class="btn btn-success" target="_blank">View Status</a>
 
                                 </div>
                                 @*<div class="col-md-4 col-sm-4 col-xs-4">
-                                    <input type="button" id="btnSendPassword" class="btn btn-success" value="Send Password" />
-                                    <input type="button" id="btnSendAmmendmentEmailSms" class="btn btn-success" value="Send Email & SMS" style="display:none;" />
-                                    <div>
-                                        <div id="divSmsSuccess" class="alert alert-success alert-dismissible show" role="alert" style="clear:both; display:none">
-                                            <span> Message Sent</span>
-                                            <a href="#" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">×</span>
-                                            </a>
+                                        <input type="button" id="btnSendPassword" class="btn btn-success" value="Send Password" />
+                                        <input type="button" id="btnSendAmmendmentEmailSms" class="btn btn-success" value="Send Email & SMS" style="display:none;" />
+                                        <div>
+                                            <div id="divSmsSuccess" class="alert alert-success alert-dismissible show" role="alert" style="clear:both; display:none">
+                                                <span> Message Sent</span>
+                                                <a href="#" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </a>
+                                            </div>
+                                            <div id="divSmsDanger" class="alert alert-danger alert-dismissible show" role="alert" style="clear:both; display:none">
+                                                <span> Some thing went wrong!</span>
+                                                <a href="#" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </a>
+                                            </div>
                                         </div>
-                                        <div id="divSmsDanger" class="alert alert-danger alert-dismissible show" role="alert" style="clear:both; display:none">
-                                            <span> Some thing went wrong!</span>
-                                            <a href="#" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">×</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>*@
+                                    </div>*@
 
                             </fieldset>
                         </div>
@@ -938,41 +934,41 @@
                                             @if (Model.statusApproval.approvalStatusId == 2)
                                             {
                                                 <div class="form-group col-lg-12">
-													@if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 70 || (Model.loggedInUser.userId > 3 && Model.loggedInUser.userId < 12))
-                                                    { 
-														<div id="divCommentVerify" class="col-md-12 col-sm-12 col-xs-12">
-															@{
-																DataTable dtCheckStatus = new DataTable();
-																string query = "Select top(1) approvalRemarks from tblAmendmentsApplicantNursing a where a.applicantId = " + Model.applicantId + " ";
-																SqlConnection con = new SqlConnection();
-																Message msg = new Message();
-																SqlCommand cmd = new SqlCommand(query);
-																try
-																{
-																	con = new SqlConnection(PrpDbConnectADO.Conn);
-																	con.Open();
-																	cmd.Connection = con;
-																	SqlDataAdapter sda = new SqlDataAdapter(cmd);
-																	sda.Fill(dtCheckStatus);
-																	cmd.ExecuteNonQuery();
+                                                    @if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 70 || (Model.loggedInUser.userId > 3 && Model.loggedInUser.userId < 12))
+                                                    {
+                                                        <div id="divCommentVerify" class="col-md-12 col-sm-12 col-xs-12">
+                                                            @{
+                                                                DataTable dtCheckStatus = new DataTable();
+                                                                string query = "Select top(1) case when approvalRemarks is null then '' else  approvalRemarks end approvalRemarks from tblAmendmentsApplicantNursing a where a.applicantId = " + Model.applicantId + " ";
+                                                                SqlConnection con = new SqlConnection();
+                                                                Message msg = new Message();
+                                                                SqlCommand cmd = new SqlCommand(query);
+                                                                try
+                                                                {
+                                                                    con = new SqlConnection(PrpDbConnectADO.Conn);
+                                                                    con.Open();
+                                                                    cmd.Connection = con;
+                                                                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                                                                    sda.Fill(dtCheckStatus);
+                                                                    cmd.ExecuteNonQuery();
 
-																	msg.status = true;
-																}
-																catch (Exception ex)
-																{
-																	msg.status = false;
-																	msg.msg = ex.Message;
-																}
-																finally
-																{
-																	con.Close();
-																}
-															}
-															
-															Comments: @dtCheckStatus.Rows[0]["approvalRemarks"].TooString();
-														</div>
-													}
-                                                    
+                                                                    msg.status = true;
+                                                                }
+                                                                catch (Exception ex)
+                                                                {
+                                                                    msg.status = false;
+                                                                    msg.msg = ex.Message;
+                                                                }
+                                                                finally
+                                                                {
+                                                                    con.Close();
+                                                                }
+                                                            }
+
+                                                            Comments: @dtCheckStatus.Rows[0]["approvalRemarks"].TooString();
+                                                        </div>
+                                                    }
+
                                                 </div>
                                             }
                                         </form>
@@ -1013,11 +1009,40 @@
                             <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
                                 @{
                                     var applicant = Model.applicant;
+                                    var induction = "";
+                                    if (Model.inductionId == 15)
+                                    {
+                                        induction = "2024";
+                                    }
+                                    else if (Model.inductionId == 14)
+                                    {
+                                        induction = "2023 Afternoon";
+                                    }
+                                    else if (Model.inductionId == 13)
+                                    {
+                                        induction = "2022-2023 Morning";
+                                    }
+                                    else if (Model.inductionId == 12)
+                                    {
+                                        induction = "2022";
+                                    }
+                                    else if (Model.inductionId == 11)
+                                    {
+                                        induction = "2021-2022 (Only DHQ)";
+                                    }
+                                    else if (Model.inductionId == 10)
+                                    {
+                                        induction = "2021-2022 (Teaching)";
+                                    }
+                                    else if (Model.inductionId == 9)
+                                    {
+                                        induction = "2020-2021 (Teaching)";
+                                    }
                                     <table style="width: 100%;" cellspacing="0px">
                                         <tbody>
                                             <tr style="float: left; width:100%">
-                                                <th style="float: left; width:20%">
-                                                    <h4 style="margin: 0px; font-size: 20px; "> Induction :   <span class="spnbtn">2024</span></h4>
+                                                <th style="float: left; width:40%">
+                                                    <h4 style="margin: 0px; font-size: 20px; "> Induction :   <span class="spnbtn">@induction</span></h4>
                                                 </th>
                                                 <th style="float: left; width:25%">
                                                     <h4 style="margin: 0px; font-size: 20px; "> Account Status :   <span class="spnbtn"> Active</span></h4>
@@ -1061,78 +1086,86 @@
                                                 }
 
                                                 @*
-                                                @if (Model.statusApproval != null && Model.statusApproval.approvalStatusId == 1)
-                                                {
-                                                    <th style="float: left; width:28%">
-                                                        <h4 style="margin: 0px; font-size: 20px; "> Verification : <span class="spnbtn"> Accepted</span> </h4>
-                                                    </th>
-                                                }
-                                                else
-                                                {
-                                                    <th style="float: left; width:28%">
-                                                        <h4 style="margin: 0px; font-size: 20px; "> Verification : <span class="spnbtn"> Rejected</span> </h4>
-                                                    </th>
-                                                    if (Model.statusAmendment != null && Model.statusAmendment.approvalStatusId == 1)
+                                                    @if (Model.statusApproval != null && Model.statusApproval.approvalStatusId == 1)
                                                     {
                                                         <th style="float: left; width:28%">
-                                                            <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Accepted</span> </h4>
-                                                        </th>
-                                                    }
-                                                    else if (Model.statusAmendment != null && Model.statusAmendment.approvalStatusId == 2)
-                                                    {
-                                                        <th style="float: left; width:28%">
-                                                            <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Rejected</span> </h4>
+                                                            <h4 style="margin: 0px; font-size: 20px; "> Verification : <span class="spnbtn"> Accepted</span> </h4>
                                                         </th>
                                                     }
                                                     else
                                                     {
                                                         <th style="float: left; width:28%">
-                                                            <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Pending</span> </h4>
+                                                            <h4 style="margin: 0px; font-size: 20px; "> Verification : <span class="spnbtn"> Rejected</span> </h4>
                                                         </th>
-                                                    }
+                                                        if (Model.statusAmendment != null && Model.statusAmendment.approvalStatusId == 1)
+                                                        {
+                                                            <th style="float: left; width:28%">
+                                                                <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Accepted</span> </h4>
+                                                            </th>
+                                                        }
+                                                        else if (Model.statusAmendment != null && Model.statusAmendment.approvalStatusId == 2)
+                                                        {
+                                                            <th style="float: left; width:28%">
+                                                                <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Rejected</span> </h4>
+                                                            </th>
+                                                        }
+                                                        else
+                                                        {
+                                                            <th style="float: left; width:28%">
+                                                                <h4 style="margin: 0px; font-size: 20px; "> Amendment : <span class="spnbtn"> Pending</span> </h4>
+                                                            </th>
+                                                        }
 
-                                                }
-                                                @{
-                                                    var query = @"select * from tbGazzForMerit14_female  where applicantID = " + Model.applicant.applicantId + " union  select * from tbGazzForMerit14_male  where applicantID = " + Model.applicant.applicantId + " ";
-                                                    var query2 = @"select applicantID, specialtyJobId, prefNo from tblMeritTableFemale14 where applicantId = " + Model.applicant.applicantId + " union select applicantID, specialtyJobId, prefNo from tblMeritTablemale14 where applicantId = " + Model.applicant.applicantId + "  ";
-                                                    SqlConnection con = new SqlConnection();
-                                                    con = new SqlConnection(PrpDbConnectADO.Conn);
-                                                    SqlCommand cmd = new SqlCommand(query, con);
-                                                    SqlCommand cmd2 = new SqlCommand(query2, con);
-                                                    DataTable dt = new DataTable();
-                                                    DataTable dt2 = new DataTable();
-                                                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                                                    SqlDataAdapter sda2 = new SqlDataAdapter(cmd2);
-                                                    con.Open();
-                                                    sda.Fill(dt);
-                                                    sda2.Fill(dt2);
-                                                    con.Close();
-                                                    if (dt.Rows.Count > 0)
-                                                    {
-                                                        <th style="float: left; width:28%">
-                                                            <h4 style="margin: 0px; font-size: 20px; "> Gazzet : <span class="spnbtn"> Included</span> </h4>
-                                                        </th>
                                                     }
-                                                    else
-                                                    {
-                                                        <th style="float: left; width:28%">
-                                                            <h4 style="margin: 0px; font-size: 20px; "> Gazzet : <span class="spnbtn"> Not Included</span> </h4>
-                                                        </th>
-                                                    }
-                                                    if (dt2.Rows.Count > 0)
-                                                    {
-                                                        <th style="float: left; width:28%">
-                                                            <h4 style="margin: 0px; font-size: 20px; "> Merit Round 1 : <span class="spnbtn"> Selected in Preference No, @Convert.ToInt32(dt.Rows[0][2]) </span> </h4>
-                                                        </th>
-                                                    }
-                                                    else
-                                                    {
-                                                        <th style="float: left; width:28%">
-                                                            <h4 style="margin: 0px; font-size: 20px; "> Merit Round 1 : <span class="spnbtn"> Not Selected</span> </h4>
-                                                        </th>
-                                                    }
-                                                }*@
+                                                    @{
+                                                        var query = @"select * from tbGazzForMerit14_female  where applicantID = " + Model.applicant.applicantId + " union  select * from tbGazzForMerit14_male  where applicantID = " + Model.applicant.applicantId + " ";
+                                                        var query2 = @"select applicantID, specialtyJobId, prefNo from tblMeritTableFemale14 where applicantId = " + Model.applicant.applicantId + " union select applicantID, specialtyJobId, prefNo from tblMeritTablemale14 where applicantId = " + Model.applicant.applicantId + "  ";
+                                                        SqlConnection con = new SqlConnection();
+                                                        con = new SqlConnection(PrpDbConnectADO.Conn);
+                                                        SqlCommand cmd = new SqlCommand(query, con);
+                                                        SqlCommand cmd2 = new SqlCommand(query2, con);
+                                                        DataTable dt = new DataTable();
+                                                        DataTable dt2 = new DataTable();
+                                                        SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                                                        SqlDataAdapter sda2 = new SqlDataAdapter(cmd2);
+                                                        con.Open();
+                                                        sda.Fill(dt);
+                                                        sda2.Fill(dt2);
+                                                        con.Close();
+                                                        if (dt.Rows.Count > 0)
+                                                        {
+                                                            <th style="float: left; width:28%">
+                                                                <h4 style="margin: 0px; font-size: 20px; "> Gazzet : <span class="spnbtn"> Included</span> </h4>
+                                                            </th>
+                                                        }
+                                                        else
+                                                        {
+                                                            <th style="float: left; width:28%">
+                                                                <h4 style="margin: 0px; font-size: 20px; "> Gazzet : <span class="spnbtn"> Not Included</span> </h4>
+                                                            </th>
+                                                        }
+                                                        if (dt2.Rows.Count > 0)
+                                                        {
+                                                            <th style="float: left; width:28%">
+                                                                <h4 style="margin: 0px; font-size: 20px; "> Merit Round 1 : <span class="spnbtn"> Selected in Preference No, @Convert.ToInt32(dt.Rows[0][2]) </span> </h4>
+                                                            </th>
+                                                        }
+                                                        else
+                                                        {
+                                                            <th style="float: left; width:28%">
+                                                                <h4 style="margin: 0px; font-size: 20px; "> Merit Round 1 : <span class="spnbtn"> Not Selected</span> </h4>
+                                                            </th>
+                                                        }
+                                                    }*@
                                             </tr>
+                                            @if (Model.applicantInfo.currentPosting != "")
+                                            {
+                                                <tr>
+                                                    <th colspan="4" style="float: left;">
+                                                        <h4 style="margin: 0px; font-size: 20px; "> College Of Joining :   <span class="spnbtn">@Model.applicantInfo.currentPosting</span></h4>
+                                                    </th>
+                                                </tr>
+                                            }
                                         </tbody>
                                     </table>
 
@@ -1244,23 +1277,23 @@
                                                                 </tr>
 
                                                                 @*<tr>
-                                            <td>Disability Quota</td>
-                                            @if (!String.IsNullOrWhiteSpace(info.disableImage))
-                                            {
-                                                <td>
-                                                    @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
-                                                        <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
-                                                    </a>
-                                                    <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
-                                                        <span class="ank spn-img-view">View</span>
-                                                    </a>
-                                                </td>
-                                            }
-                                            else
-                                            {
-                                                <td> @info.disable</td>
-                                            }
-                                        </tr>*@
+                                                                        <td>Disability Quota</td>
+                                                                        @if (!String.IsNullOrWhiteSpace(info.disableImage))
+                                                                        {
+                                                                            <td>
+                                                                                @info.disable - <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                                                                                    <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" />
+                                                                                </a>
+                                                                                <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + info.disableImage)" target="_blank" title="Click to view">
+                                                                                    <span class="ank spn-img-view">View</span>
+                                                                                </a>
+                                                                            </td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td> @info.disable</td>
+                                                                        }
+                                                                    </tr>*@
                                                                 <tr>
                                                                     @if (info.countryId == 132)
                                                                     {
@@ -1761,7 +1794,15 @@
                                                                 }
                                                                 else
                                                                 {
-                                                                    <td>@item.degreeName</td>
+                                                                    if (item.graduateTypeId == 11)
+                                                                    {
+                                                                        <td>Student Fsc Data</td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td>@item.degreeName</td>
+                                                                    }
+
                                                                 }
                                                                 <td class="th_center">@item.obtainMarks</td>
                                                                 <td class="th_center">@item.totalMarks</td>
@@ -1782,15 +1823,58 @@
                                                 </table>
                                             }
                                         }
+                                        if (Model.applicantInfo.nocCertificate != "")
+                                        {
+                                            <table style="margin-top: 5px; width: 100%;" cellspacing="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
+                                                            <p style="margin: 6px;color: #fff; font-size: 16px;">
+                                                                Certificates :
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <table style="margin-top: 5px; width: 100%; border:1px solid;" cellspacing="0" border="1">
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Certificate</th>
+                                                        <th class="th_center"> Image</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>No Dues Certificate</td>
+                                                        <td class="th_center">
+                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
+                                                                <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" alt="No Image" />
+                                                            </a>
+                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
+                                                                <span class="ank spn-img-view">View</span>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>No Enquiry Certificate</td>
+                                                        <td class="th_center">
+                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nocCertificate)" target="_blank" title="Click to view">
+                                                                <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.nocCertificate)" alt="No Image" />
+                                                            </a>
+                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nocCertificate)" target="_blank" title="Click to view">
+                                                                <span class="ank spn-img-view">View</span>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
 
+                                                </tbody>
+                                            </table>
+                                        }
                                         if (Model.applicant.applicationStatusId > ProjConstant.Constant.ApplicationStatus.paymentDone)
                                         {
-                                            if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 10)
+                                            if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 10 || Model.loggedInUser.userId == 6 || Model.loggedInUser.userId == 8 || Model.loggedInUser.userId == 63)
                                             {
 
                                                 if (Model.listSpecility != null && Model.listSpecility.Count > 0)
                                                 {
-                                                    var listSpecility = Model.listSpecility.Where(i => i.typeId == 9).OrderBy(i=>i.preferenceNo).ToList();
+                                                    var listSpecility = Model.listSpecility.Where(i => i.typeId == 9).OrderBy(i => i.preferenceNo).ToList();
                                                     if (listSpecility != null && listSpecility.Count > 0)
                                                     {
                                                         <table style="margin-top: 15px; width: 100%;" cellspacing="0">
@@ -1798,7 +1882,7 @@
                                                                 <tr>
                                                                     <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
                                                                         <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                            Morning Preferences
+                                                                            Migration Preferences
                                                                         </p>
                                                                     </td>
                                                                 </tr>
@@ -1810,11 +1894,17 @@
                                                                 <tr><th>Preference No.</th> <th> Institute</th>
                                                             </thead>
                                                             <tbody>
-                                                                @foreach (var spc in listSpecility.OrderBy(x => x.preferenceNo))
+                                                                @foreach (var spc in listSpecility.OrderBy(x => x.preferenceNo <= 0).ThenBy(x => x.preferenceNo))
                                                                 {
 
                                                                     <tr>
-                                                                        <td>@spc.preferenceNo</td>
+                                                                        @if (spc.preferenceNo == -1)
+                                                                        {
+                                                                            <td>Not Availed</td>
+                                                                        }
+                                                                        else { 
+                                                                            <td>@spc.preferenceNo</td>
+                                                                        }
                                                                         <td>@spc.hospitalName</td>
                                                                     </tr>
                                                                 }
@@ -1823,7 +1913,7 @@
                                                         </table>
                                                     }
 
-                                                    listSpecility = Model.listSpecility.Where(i => i.typeId == 10).OrderBy(i=>i.preferenceNo).ToList();
+                                                    listSpecility = Model.listSpecility.Where(i => i.typeId == 10).OrderBy(i => i.preferenceNo).ToList();
                                                     if (listSpecility != null && listSpecility.Count > 0)
                                                     {
                                                         <table style="margin-top: 15px; width: 100%;" cellspacing="0">

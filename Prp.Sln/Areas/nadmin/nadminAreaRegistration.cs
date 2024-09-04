@@ -310,6 +310,12 @@ namespace Prp.Sln.Areas.nadmin
              );
 
             context.MapRoute(
+                 name: "ApplicantUpdatePhoneNumber",
+                 url: "admin/updatePhoneNumber",
+                 defaults: new { controller = "ApplicantAdmin", action = "UpdatePhoneNumber", id = UrlParameter.Optional }
+             );
+
+            context.MapRoute(
                  name: "AddSeats",
                  url: "admin/addSeats",
                  defaults: new { controller = "ApplicantAdmin", action = "AddSeats", id = UrlParameter.Optional }
@@ -407,6 +413,12 @@ namespace Prp.Sln.Areas.nadmin
                 defaults: new { controller = "ApplicationReviewAdmin", action = "ApplicantViewDetail", id = UrlParameter.Optional }
             );
 
+            context.MapRoute(
+                name: "InductionEventsManage",
+                url: "admin/induction-events",
+                defaults: new { controller = "CommonAdmin", action = "InductionManage", id = UrlParameter.Optional }
+            );
+
 
             context.MapRoute(
                name: "ApplicantViewDetailView",
@@ -435,6 +447,12 @@ namespace Prp.Sln.Areas.nadmin
                name: "ApplicantDatailViewCallCenterInduction",
                url: "admin/applicant-detail-induction-{induction}",
                defaults: new { controller = "ApplicationReviewAdmin", action = "ApplicantDetail", id = UrlParameter.Optional }
+           );
+
+            context.MapRoute(
+               name: "MigrantScruitnyNursing",
+               url: "admin/migrant-scruitny",
+               defaults: new { controller = "ApplicationReviewAdmin", action = "MigrantScruitny", id = UrlParameter.Optional }
            );
 
             context.MapRoute(

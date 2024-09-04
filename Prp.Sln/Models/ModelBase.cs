@@ -270,6 +270,17 @@ namespace Prp.Sln
             listSpecilityMerit = new List<ApplicantSpecilityMerit>();
         }
     }
+    
+    public class MigrantApplicantImageData
+    {
+        public string picNoDuesCertificate { get; set; }
+        public string dataNoDuesCertificate { get; set; }
+        public string picNoEnquiryCertificate { get; set; }
+        public string dataNoEnquiryCertificate { get; set; }
+        public string pdfAllData { get; set; }
+        public string dataAllData { get; set; }
+
+    }
 
     public class dmcData 
     { 
@@ -291,6 +302,13 @@ namespace Prp.Sln
         public string dateOfJoining { get; set; }
         public List<dmcData> dmcList { get; set; }
         public List<ApplicantSpecility> listSpecilties { get; set; }
+        public MigrantApplicantImageData migrantApplicantImageData { get; set; }
+        public void MigrantApplicantImageData()
+        {
+            dmcList = new List<dmcData>();
+            listSpecilties = new List<ApplicantSpecility>();
+            migrantApplicantImageData = new MigrantApplicantImageData();
+        }
     }
     public class CompletedDistictionModel : ModelBase
     {

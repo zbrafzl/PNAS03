@@ -50,8 +50,8 @@
                 else {
                     var url = "";
                     var applicantId = ConvertToInt($(this).attr("id"));
-                    url = "/admin/applicant-verification-nursing?applicantId=" + applicantId;
-                    window.open(url, '_blank');
+                    url = "/admin/migrant-scruitny?applicantId=" + applicantId;
+                    window.location.href = url;
                 }
             });
 
@@ -161,6 +161,7 @@
                         .replace(/{#pmdcNo#}/g, objItem.pmdcNo)
                         .replace(/{#emailId#}/g, objItem.emailId)
                         .replace(/{#contactNumber#}/g, objItem.contactNumber)
+                        .replace(/{#cnic#}/g, objItem.cnic)
                         .replace(/{#facultyName#}/g, objItem.levelName)
                         .replace(/{#dated#}/g, objItem.dated)
                         .replace(/{#status#}/g, objItem.status)
@@ -277,14 +278,9 @@
                             <th class="column-title">Pic </th>
                             <th class="column-title">ID </th>
                             <th class="column-title">Name </th>
-                            <th class="column-title">PMDC </th>
+                            <th class="column-title">CNIC </th>
+                            <th class="column-title">Contact Number </th>
                             <th class="column-title">Email </th>
-                            <th class="column-title">Number </th>
-                            <th class="column-title">Applied For</th>
-                            <th class="column-title">Status </th>
-                            <th class="column-title displayComments">Comments </th>
-                            <th class="column-title">Dated </th>
-                            <th class="column-title">Status Date </th>
 
                         </tr>
                     </thead>
@@ -320,14 +316,9 @@
                                 </td>
                                 <td>{#applicantId#}</td>
                                 <td>{#name#}</td>
-                                <td>{#pmdcNo#}  </td>
-                                <td>{#emailId#}</td>
+                                <td>{#cnic#}</td>
                                 <td>{#contactNumber#}</td>
-                                <td>{#facultyName#}</td>
-                                <td>{#status#} </td>
-                                <td class="displayComments">{#comments#}</td>
-                                <td>{#dated#}  </td>
-                                <td>{#dateStatus#}</td>
+                                <td>{#emailId#}</td>
                             </tr>
                         </tbody>
                     </table>

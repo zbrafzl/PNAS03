@@ -225,7 +225,10 @@
                                 @if (Model.loggedInUser.typeId == 69 && Model.loggedInUser.userId != 64)
                                 {
                                     <li>
-                                        <a href="/admin/addMigrationCandidate"><i class="fa fa-home"></i> Add Candidate <span class="fa fa-chevron-down"></span></a>
+                                        <a href="/admin/addMigrationCandidate" id="addCandidateLink">
+                                            <i class="fa fa-home"></i> Add Candidate 
+                                            <span class="fa fa-chevron-down"></span>
+                                        </a>
                                     </li>
                                     <li>
                                         <a href="/admin/addSeats"><i class="fa fa-home"></i> Add Seats <span class="fa fa-chevron-down"></span></a>
@@ -481,6 +484,16 @@
                     else {
                         readURL(this, ctrlId);
                     }
+                }
+            });
+
+            $('#addCandidateLink').click(function (event) {
+                event.preventDefault();
+                var condition = false;
+                if (condition) {
+                    window.location.href = $(this).attr('href');
+                } else {
+                    alert("Error: You are not allowed to add a candidate at this time.");
                 }
             });
 

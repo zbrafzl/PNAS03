@@ -59,10 +59,10 @@
       <HintPath>..\RefferenceDll\CKFinder.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="EPPlus">
       <HintPath>..\RefferenceDll\EPPlus.dll</HintPath>
@@ -236,8 +236,10 @@
     <Compile Include="Models\Classes\DDLClass.cs" />
     <Compile Include="Models\Classes\EmailFunctions.cs" />
     <Compile Include="Models\Classes\ExcelFileFunctions.cs" />
+    <Compile Include="Models\Classes\InductionActivites.cs" />
     <Compile Include="Models\Classes\Params.cs" />
     <Compile Include="Models\Classes\ProjConstant.cs" />
+    <Compile Include="Models\Classes\SmsAPI.cs" />
     <Compile Include="Models\ModelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -1580,6 +1582,9 @@
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\AddSeats.cshtml" />
     <Content Include="Areas\nadmin\Views\_ViewStart.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\ApplicantListCollegeWise.cshtml" />
+    <Content Include="Areas\nadmin\Views\CommonAdmin\InductionManage.cshtml" />
+    <Content Include="Areas\nadmin\Views\ApplicantAdmin\UpdatePhoneNumber.cshtml" />
+    <Content Include="Areas\nadmin\Views\ApplicationReviewAdmin\MigrantScruitny.cshtml" />
     <None Include="Properties\PublishProfiles\PRP.UI.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\chosen\chosen-sprite.png" />
@@ -6417,6 +6422,8 @@
     <Content Include="Views\LoggedIn\AddMigrationPreferences.cshtml" />
     <Content Include="Views\LoggedIn\LoginMigrant.cshtml" />
     <Content Include="Views\LoggedIn\MigrantProofReading.cshtml" />
+    <Content Include="Views\MeritGazat\ApprovedList.cshtml" />
+    <Content Include="Views\MeritGazat\RejectedList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -4,7 +4,11 @@
 }
 @model Prp.Sln.LoginModel
 @section RenderCss{
-
+    <style>
+        .error {
+            color: red;
+        }
+    </style>
 }
 @section RenderScript{
 
@@ -12,26 +16,329 @@
 
         $(document).ready(function () {
 
+            $("#divProceed").show();
+            $("#divContactNumber").hide();
+            $("#divGenerateOTP").hide();
+            $("#otpSection").hide();
+            $("#divPassword").hide();
+            $("#divConfirmPassword").hide();
+            $("#divCreatePassword").hide();
+            $("#divLogin").hide();
+
+
             $("#errorMessege").hide();
 
-            $("#btnLogin").click(function () {
-                LoggedInUserEvent();
-            });
+            //$("#btnLogin").click(function () {
+            //    LoggedInUserEvent();
+            //});
 
-            $('#btnLogin').click(function () {
-                $('#myModal').css('display', 'block');
-            });
+            $("#btnProceed").click(function () {
+                var cnicNo = $("#txtCNIC").val();
+                var contactNumber = "";
+                var objLogin;
+                //var objLogin =
+                //{
+                //    emailId: userName,
+                //    password: password
+                //}
+                var isValid = true;
 
-            $('#validateBtn').click(function () {
-                var textBox1Val = $('#textBox1').val();
-                var textBox2Val = $('#textBox2').val();
-                var valReturn = CallActionGet("/LoggedIn/CheckOtpMigrants?mobileNumber=" + textBox1Val + "" + "&otp=" + textBox2Val);
+                if (cnicNo == "" || cnicNo.length < 13 || cnicNo.length > 13) {
+                    isValid = false;
+                }
 
-                if (valReturn != 0) {
-                    window.location = "/migrant-preferences";
+
+                if (isValid == false) {
+
+                    $("#errDivLogin").show();
+                    message = "Please verify your credentials";
+                    $("#spnError").html(message);
+
                 }
                 else {
-                    alert("Mobile Number Or OTP does not match or OTP expired")
+                    objLogin =
+                    {
+                        emailId: cnicNo,
+                        contactNumber: contactNumber
+                    };
+                    var message = "";
+                    var resp = CallActionPost("/LoggedIn/CheckAccountAgainstCnicExistAndVerified", objLogin)
+                    if (resp != null) {
+                        debugger;
+                        if (resp.msg == '1') {
+                            $("#btnProceed").hide();
+                            $("#divPassword").show();
+                            $("#divLogin").show();
+                            $("#errDivLogin").hide();
+                            $("#spnError").html("");
+                        }
+                        else if (resp.msg == '2') {
+                            $("#divContactNumber").hide();
+                            $("#btnProceed").hide();
+                            $("#divGenerateOTP").hide();
+                            $("#otpSection").hide();
+                            $("#divPassword").show();
+                            $("#divConfirmPassword").show();
+                            $("#divCreatePassword").show();
+                        }
+                        else if (resp.msg == '4') {
+                            $("#errDivLogin").show();
+                            message = "Migration Not Allowed";
+                            $("#spnError").html(message);
+                        }
+                        else if (resp.msg == '5') {
+                            $("#errDivLogin").show();
+                            message = "Result declared Failed! Migration Not Allowed";
+                            $("#spnError").html(message);
+                        }
+                        else {
+                            $("#errDivLogin").show();
+                            message = "CNIC Does not Exist";
+                            $("#spnError").html(message);
+                        }
+                    }
+                    else {
+                        message = " In valid CNIC or password";
+                        $("#errDivLogin").show();
+                        $("#spnError").html(message);
+                    }
+                }
+
+            });
+
+            //divLogin
+
+
+            $("#btnLogin").click(function () {
+                var cnicNo = $("#txtCNIC").val();
+                var contactNumber = $("#txtContactNumber").val();
+                var objLogin;
+                //var objLogin =
+                //{
+                //    emailId: userName,
+                //    password: password
+                //}
+                var isValid = true;
+
+                if (cnicNo == "" || cnicNo.length < 13 || cnicNo.length > 13) {
+                    isValid = false;
+                }
+
+                if (contactNumber == "" || contactNumber.length < 11 || contactNumber.length > 11) {
+                    isValid = false;
+                }
+
+                if (isValid == false) {
+
+                    message = "Please verify your credentials";
+                    $("#errDivLogin").show();
+                    $("#spnError").html(message);
+
+                }
+                else {
+                    objLogin =
+                    {
+                        emailId: cnicNo,
+                        contactNumber: contactNumber
+                    };
+                    var message = "";
+                    var resp = CallActionPost("/LoggedIn/SendOtpMigrant", objLogin)
+                    if (resp != null) {
+                        debugger;
+                        if (resp.msg != 'OTP Sent to your mobile number') {
+                            if (resp.msg == 'No Applicant Found') {
+                                $("#errDivLogin").show();
+                                message = 'No Account Found against this CNIC and Mobile Number';
+                                $("#spnError").html(message);
+                            }
+                            else {
+                                $("#errDivLogin").show();
+                                message = resp.msg;
+                                $("#spnError").html(message);
+                            }
+                        }
+                        else {
+                            console.log(resp);
+                            $("#errDivLogin").hide();
+                            $("#btnLogin").prop("disabled", true);
+                            $("#otpSection").show();
+                            $("#errDivLogin").hide();
+                            $("#spnError").html("");
+                        }
+                    }
+                    else {
+                        message = " In valid email or password";
+                        $("#errDivLogin").show();
+                        $("#spnError").html(message);
+                    }
+                }
+
+            });
+
+            $("#LogInButton").click(function () {
+                var cnicNo = $("#txtCNIC").val();
+                var password = $("#txtPassword").val();
+                var objLogin;
+                //var objLogin =
+                //{
+                //    emailId: userName,
+                //    password: password
+                //}
+                var isValid = true;
+
+                if (cnicNo == "" || cnicNo.length < 13 || cnicNo.length > 13) {
+                    isValid = false;
+                }
+
+
+
+                if (isValid == false) {
+                    alert("Please verify your credentials")
+                }
+                else {
+                    objLogin =
+                    {
+                        emailId: cnicNo,
+                        password: password
+                    };
+                    var message = "";
+                    debugger;
+                    var resp = CallActionPost("/LoggedIn/LoginMigrant", objLogin)
+                    if (resp != null) {
+                        debugger;
+                        if (resp.message == 'Wrong Credentials') {
+                            $("#errDivLogin").show();
+                            message = "Wrong Credentials";
+                            $("#spnError").html(message);
+                            $("#divForgetPassword").show();
+                        }
+                        else if (resp.message == 'Migration Not Allowed') {
+                            $("#errDivLogin").show();
+                            message = "Migration Not Allowed";
+                            $("#spnError").html(message);
+                        }
+                        else if (resp.message == 'Student Failed to Clear the Result') {
+                            $("#errDivLogin").show();
+                            message = "Student Failed to Clear the Result";
+                            $("#spnError").html(message);
+                        }
+                        else if (resp.message == 'Process Time Expired.') {
+                            $("#errDivLogin").show();
+                            message = "Application Time Expired.";
+                            $("#spnError").html(message);
+                        }
+                        else {
+                            window.location = "/migrant-preferences";
+                        }
+                    }
+                    else {
+                        message = " In valid CNIC or password";
+                        $("#spnError").html(message);
+                        $("#errDivLogin").show();
+                    }
+                }
+
+            });
+
+            $("#btnCreateAccount").click(function () {
+                var cnicNo = $("#txtCNIC").val();
+                var password = $("#txtPassword").val();
+                var objLogin;
+                //var objLogin =
+                //{
+                //    emailId: userName,
+                //    password: password
+                //}
+                var isValid = true;
+                if ($("#txtPassword").val() != $("#txtConfirmPassword").val()) {
+                    isValid = false;
+                    $("#errDivLogin").show();
+                    message = "Password Does Not Match";
+                    $("#spnError").html(message);
+                }
+                if (password == "" || password.length < 8) {
+                    isValid = false;
+                    alert("Please choose strong password")
+                }
+                if (isValid == false) {
+                    //alert("Please verify your credentials")
+                }
+                if (isValid == true) {
+                    objLogin =
+                    {
+                        emailId: cnicNo,
+                        contactNumber: password
+                    };
+                    var message = "";
+                    var resp = CallActionPost("/LoggedIn/CreateMigrantUserAccount", objLogin)
+                    if (resp != null) {
+                        debugger;
+                        if (resp.id > 0) {
+                            $("#errDivLogin").hide();
+                            if (confirm("Account Verified, Please use the chosen password to Log IN ")) {
+                                $("#divProceed").hide();
+                                $("#divContactNumber").hide();
+                                $("#divGenerateOTP").hide();
+                                $("#otpSection").hide();
+                                $("#divPassword").show();
+                                $("#divConfirmPassword").hide();
+                                $("#divCreatePassword").hide();
+                                $("#divLogin").show();
+                                $("#errDivLogin").hide();
+                                $("#spnError").html("");
+                            }
+
+                        }
+                        else {
+                            $("#divProceed").hide();
+                            $("#divContactNumber").hide();
+                            $("#divGenerateOTP").hide();
+                            $("#otpSection").hide();
+                            $("#divPassword").show();
+                            $("#divConfirmPassword").hide();
+                            $("#divCreatePassword").show();
+                            message = " In valid CNIC or password";
+                            $("#errDivLogin").show();
+                            $("#spnError").html(message);
+                        }
+                    }
+                    else {
+                        message = " In valid CNIC or password";
+                        $("#errDivLogin").show();
+                        $("#spnError").html(message);
+                    }
+                }
+
+            });
+
+
+            $('#validateBtn').click(function () {
+                var textBox1Val = $('#txtContactNumber').val();
+                var textBox2Val = $('#Otp').val();
+                var valReturn;
+                if (textBox2Val.length == 6) {
+                    valReturn = CallActionGet("/LoggedIn/CheckOtpMigrants?mobileNumber=" + textBox1Val + "" + "&otp=" + textBox2Val);
+                }
+                else {
+                    valReturn = null;
+                }
+                
+                if (valReturn != 0 && valReturn != null) {
+                    if (confirm("OTP Verified! Set a Password for your Account")) {
+                        $("#divContactNumber").hide();
+                        $("#btnProceed").hide();
+                        $("#divGenerateOTP").hide();
+                        $("#otpSection").hide();
+                        $("#divPassword").show();
+                        $("#divConfirmPassword").show();
+                        $("#divCreatePassword").show();
+                    }
+                }
+                else {
+
+                    message = "Mobile Number Or OTP does not match or OTP expired";
+                    $("#errDivLogin").show();
+                    $("#spnError").html(message);
                 }
             });
 
@@ -40,12 +347,12 @@
                 $('#myModal').css('display', 'none');
             });
 
-            $(document).keypress(function (event) {
-                var keycode = (event.keyCode ? event.keyCode : event.which);
-                if (keycode == '13') {
-                    LoggedInUserEvent();
-                }
-            });
+            //$(document).keypress(function (event) {
+            //    var keycode = (event.keyCode ? event.keyCode : event.which);
+            //    if (keycode == '13') {
+            //        LoggedInUserEvent();
+            //    }
+            //});
         });
 
         function checkOtp(mobilenumber, otp) {
@@ -57,6 +364,80 @@
             else {
                 alert("Mobile Number Or OTP does not match or OTP expired")
             }
+        }
+
+        function sendPassword() {
+            var cnicNo = $("#txtCNIC").val();
+            var contactNumber = $("#txtContactNumber").val();
+            var objLogin;
+            var isValid = true;
+
+            if (cnicNo == "" || cnicNo.length < 13 || cnicNo.length > 13) {
+                isValid = false;
+            }
+
+            if (contactNumber == "" || contactNumber.length < 11 || contactNumber.length > 11) {
+                isValid = false;
+            }
+
+            if (isValid == false) {
+
+                message = "Please verify your credentials";
+                $("#errDivLogin").show();
+                $("#spnError").html(message);
+
+            }
+            else {
+                objLogin =
+                {
+                    emailId: cnicNo,
+                    contactNumber: contactNumber
+                };
+                var message = "";
+                var resp = CallActionPost("/LoggedIn/SendPasswordMigrant", objLogin)
+                if (resp != null) {
+                    debugger;
+                    var jsonString = JSON.parse(ConvertToString(resp.msg));
+                    if (resp.msg != 'Password Sent to your mobile number') {
+                        if (resp.msg == 'No Applicant Found') {
+                            $("#errDivLogin").show();
+                            message = 'No Account Found against this CNIC and Mobile Number';
+                            $("#spnError").html(message);
+                        }
+                        else {
+                            $("#errDivLogin").show();
+                            message = resp.msg;
+                            $("#spnError").html(message);
+                        }
+                    }
+                    else {
+                        console.log(resp);
+                        $("#errDivLogin").hide();
+                        $("#btnLogin").prop("disabled", false);
+                        $("#divContactNumber").hide();
+                        $("#txtPassword").val("");
+                        $("#txtPassword").val("");
+                        $("#divLogin").show();
+                        $("#divSendPassword").hide();
+                        $("#divPassword").show();
+                        $("#errDivLogin").hide();
+                        $("#spnError").html("");
+                    }
+                }
+                else {
+                    message = " In valid email or password";
+                    $("#errDivLogin").show();
+                    $("#spnError").html(message);
+                }
+            }
+
+        }
+
+        function showContactField() {
+            $("#divLogin").hide();
+            $("#divPassword").hide();
+            $("#divContactNumber").show();
+            $("#divSendPassword").show();
         }
 
         function LoggedInUserEvent() {
@@ -83,7 +464,7 @@
             var message = "";
 
 
-            var resp = CallActionPost("/LoggedIn/LoggedInUserMigrantAsync", objLogin)
+            var resp = CallActionPost("/LoggedIn/LoggedInUserMigrant", objLogin)
             if (resp != null) {
                 if (resp.status == false) {
                     $("#errDivLogin").show();
@@ -91,9 +472,9 @@
                     message = resp.message;
                 }
                 else {
-					console.log(resp);
+                    console.log(resp);
                     $("#errDivLogin").hide();
-                    //window.location = "/migrant-preferences";
+                    window.location = "/migrant-preferences";
                     $('#myModal').css('display', 'block');
 
                 }
@@ -116,60 +497,127 @@
         <div class="col-sm-8 form-box">
             <div class="main-login main-center">
                 <form class="form-horizontal">
-                    <h3 class="heading">Enter Your login Details to Continue</h3>
+                    <h3 class="heading">Enter Your Details to Continue</h3>
                     <div class="">
                         <label for="email" class="cols-sm-2 control-label">Your CNIC</label>
                         <div class="cols-sm-10">
                             <div class="input-group mt10">
                                 <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
-                                <input type="text" class="form-control" name="username" id="txtCNIC" required="required" placeholder="Enter your CNIC">
+                                <input class="form-control number" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==13) return false;" name="username" id="txtCNIC" required="required" placeholder="Enter your CNIC">
                             </div>
                         </div>
                     </div>
-                    <div class="">
-                        <label for="password" class="cols-sm-2 control-label">Your Contact Number</label>
-                        <div class="cols-sm-10">
-                            <div class="input-group mt10">
-                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
-                                <input class="form-control" type="password" name="password" id="txtContactNumber" placeholder="Enter your Contact Number">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="">
-                        <div class="col-sm-12">
-                            <div class="form-group inline" style="margin-top:5px;">
-                                <label class="checkbox-inline" for="remember_me" style="float:left">
-                                    <input type="checkbox" name="remember_me" id="remember_me" value="1">
-                                    Remember me on this computer.
-                                </label>
-                                <label style="float:right">
-                                    <a href="/forgot-password">Forgot Password?</a>
-                                </label>
-                            </div>
-                            <hr style="margin: 15px 0px !important;">
-                        </div>
+                    <div id="divProceed" class="">
+                        <hr style="margin: 15px 0px !important;">
                         <div class="col-sm-12">
                             <div class="col-sm-3">
                             </div>
                             <div class="col-sm-6">
-                                <input id="btnLogin" type="button" class="btn btn-app animated-button" value="Login" style="width:100%" />
+                                <input id="btnProceed" type="button" class="btn btn-app animated-button" value="Proceed" style="width:100%" />
                             </div>
                             <div class="col-sm-3">
                             </div>
                         </div>
                     </div>
+                    <div id="divContactNumber" class="" style="display:none">
+                        <label for="password" class="cols-sm-2 control-label">Your Contact Number</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input class="form-control" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==11) return false;" name="password" id="txtContactNumber" placeholder="Enter your Contact Number">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divGenerateOTP" style="display:none" class="">
+                        <hr style="margin: 15px 0px !important;">
+                        <div class="col-sm-12">
+                            <div class="col-sm-3">
+                            </div>
+                            <div class="col-sm-6">
+                                <input id="btnLogin" type="button" class="btn btn-app animated-button" value="Generate OTP" style="width:100%" />
+                            </div>
+                            <div class="col-sm-3">
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="margin: 15px 0px !important;">
+                    <div class="col-sm-12" id="otpSection" style="display: none; margin: 15px 0px !important;">
+                        <div class="col-sm-12">
+                            <label>Enter OTP</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="number" id="Otp" name="Otp" required />
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-app animated-button" id="validateBtn" style="width:100%">Verify OTP</button>
+                        </div>
+                        <div class="col-sm-4">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12" id="divPassword" style="display: none; margin: 15px 0px !important;">
+                        <label for="password" class="cols-sm-2 control-label">Enter Password</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input class="form-control" type="password" name="password" id="txtPassword" placeholder="Enter Password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" id="divConfirmPassword" style="display: none; margin: 15px 0px !important;">
+                        <label for="password" class="cols-sm-2 control-label">Confirm Password</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input class="form-control" type="password" name="txtConfirmPassword" id="txtConfirmPassword" placeholder="Confirm Password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" id="divCreatePassword" style="display: none; margin: 15px 0px !important;">
+                        <div class="col-sm-4">
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-app animated-button" id="btnCreateAccount" style="width:100%">Create Account</button>
+                        </div>
+                        <div class="col-sm-4">
+                        </div>
+                    </div>
+                    <div class="col-sm-12" id="divLogin" style="display: none; margin: 15px 0px !important;">
+                        <div class="col-sm-4">
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-app animated-button" id="LogInButton" style="width:100%">Login</button>
+                        </div>
+                        <div class="col-sm-4">
+                        </div>
+                    </div>
+                    <div class="col-sm-12" id="divForgetPassword" style="margin-top: 5px; display: none">
+                        <label style="float:right">
+                            <a onclick="showContactField()">Forgot Password?</a>
+                        </label>
+                    </div>
+                    <div id="divSendPassword" class="col-sm-12" style="display:none">
+                        <div class="col-sm-4">
+                        </div>
+                        <div class="col-sm-4">
+
+                            <button id="sendPasswordButton" class="btn btn-app animated-button" onclick="sendPassword()">Send Password</button><br><br>
+                        </div>
+                        <div class="col-sm-4">
+                        </div>
+                    </div>
 
                     @*<div class="">
-                        <div class="col-sm-12">
-                            <div class="form-group inline" style="margin-top:5px;">
+            <div class="col-sm-12">
+                <div class="form-group inline" style="margin-top:5px;">
 
-                                <label style="float:left">
-                                    <a href="/register-complete">Enter OTP</a>
-                                </label>
-                            </div>
-                            <hr style="margin: 15px 0px !important;">
-                        </div>
-                    </div>*@
+                    <label style="float:left">
+                        <a href="/register-complete">Enter OTP</a>
+                    </label>
+                </div>
+                <hr style="margin: 15px 0px !important;">
+            </div>
+        </div>*@
 
 
                     <div id="errDivLogin" class="col-sm-12" style="margin-top:10px; display:none;">
@@ -182,8 +630,6 @@
                             </div>
                         </div>
                     </div>
-
-
                 </form>
             </div>
         </div>

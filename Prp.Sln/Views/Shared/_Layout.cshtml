@@ -224,6 +224,7 @@
 
                 var totalCount = Model.listTicker.Count;
                 <div style="display:none;"> Total Ticker  are  @totalCount</div>
+                
 
                 @*<div class="notifyAlert" style="text-align:center; background-color:yellow !important;">
                     <div class="container-fluid" style="text-align:center">
@@ -246,11 +247,11 @@
 
                 var listTicker = Model.listTicker.Where(x => x.typeId == 1 && x.isActive == true).ToList().OrderBy(x => x.sortOrder).ToList();
 
-
-
+                
+                
                 if (listTicker != null && listTicker.Count > 0)
                 {
-                    <div class="notifyAlert">
+                    <div class="">
                         <div class="container-fluid">
                             <ul id="ticker">
                                 @foreach (var item in listTicker)
@@ -284,32 +285,6 @@
                 </div>
             </div>*@
 
-            try
-            {
-                var alert = Model.listTicker.Where(x => x.typeId == 6 && x.isActive == true).ToList().OrderBy(x => x.sortOrder).ToList();
-                if (alert != null && alert.Count > 0)
-                {
-                    <div class="notifyAlert">
-                        <div class="container-fluid">
-                            <ul id="ticker">
-                                @foreach (var item in alert)
-                                {
-                                    <li>
-                                        <strong>
-                                            <center>
-                                                @item.detail
-                                            </center>
-                                        </strong>
-                                    </li>
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                }
-            }
-            catch (Exception)
-            {
-            }
         }
         @RenderBody()
         <footer>

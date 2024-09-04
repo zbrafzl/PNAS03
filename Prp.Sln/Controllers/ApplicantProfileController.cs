@@ -1027,6 +1027,93 @@ namespace Prp.Sln.Controllers
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public JsonResult ApplicantMigrantEducationAddUpdate(ApplicantDegrees objEducation)
+        {
+            Message msg = new Message();
+
+            //ApplicantDegrees degree = objEducation.applicantDegrees;
+
+            //degree.applicantId = degree.typeIds.TooString().TrimStart(',').TrimEnd(',');
+            //degree.inductionId = ProjConstant.inductionId;
+            //degree.phaseId = ProjConstant.phaseId;
+
+            List<DegreeMarks> marksList = objEducation.DegreeMarks;
+            //delete existing degree records
+            foreach (var item in objEducation.DegreeMarks)
+            {
+                if (item.degreeTypeId == 1 || item.degreeTypeId == 8)
+                {
+                    item.passingDate = objEducation.matricPassindDate.TooDate();
+                }
+                if (item.degreeTypeId == 2 || item.degreeTypeId == 9 || item.degreeTypeId == 11)
+                {
+                    item.passingDate = objEducation.interPassingDate.TooDate();
+                }
+
+                int countRows = 0;
+                string checkQuery = "";
+                checkQuery = "select count(*) from tblNursingApplicantDegreeData" +
+                    " where applicantID = " + item.applicantId + " and degreeTypeID = " + item.degreeTypeId + " ";
+                SqlCommand cmd = new SqlCommand(checkQuery);
+                SqlConnection con = new SqlConnection(PrpDbConnectADO.Conn);
+                con.Open();
+                cmd.Connection = con;
+                try
+                {
+                    countRows = Convert.ToInt32(cmd.ExecuteScalar());
+                    if (countRows > 0)
+                    {
+                        string query = "";
+                        query = "update tblNursingApplicantDegreeData " +
+                            "set [obtainedMarks] = " + Convert.ToDouble(item.obtainedMarks).TooDecimal() + "," +
+                            " [totalMarks] = " + Convert.ToDouble(item.totalMarks).TooDecimal() + "," +
+                            " [passingDate] = CONVERT(datetime,'" + (item.passingDate).TooDate() + "')," +
+                            " [degreeInstitute] = '" + item.degreeInstituteName.TooString() + "'," +
+                            " [degreePicFront] = '" + item.degreePicFront.TooString() + "' " +
+                            " where applicantID = " + item.applicantId + " and degreeTypeID = " + item.degreeTypeId + " " +
+                            " insert into tblStudentFscDataHistory values (" +
+                            " " + item.applicantId + ", 11, '" + item.degreeInstituteName.TooString() + "'," +
+                            " " + Convert.ToDouble(item.obtainedMarks).TooDecimal() + "," + Convert.ToDouble(item.totalMarks).TooDecimal() + "" +
+                            " ,CONVERT(datetime,'" + (item.passingDate).TooDate() + "'),'" + item.degreePicFront.TooString() + "',getdate())";
+                        SqlCommand cmdUpdate = new SqlCommand(query, con);
+                        cmdUpdate.ExecuteNonQuery();
+                        msg.status = true;
+                    }
+                    else
+                    {
+                        string query = "";
+                        query = "insert into tblNursingApplicantDegreeData " +
+                            "([applicantID] ,[degreeTypeID] ,[obtainedMarks] ,[totalMarks] ,[passingDate] ,[degreePicFront],[degreeInstitute])" +
+                            " values " +
+                            "(" + item.applicantId.TooInt() + "," + item.degreeTypeId.TooInt() + "," + Convert.ToDouble(item.obtainedMarks).TooDecimal() + "," + Convert.ToDouble(item.totalMarks).TooDecimal() + ", " +
+                            " CONVERT(datetime,'" + Convert.ToDateTime(item.passingDate).TooDate() + "'),'" + item.degreePicFront.TooString() + "','" + item.degreeInstituteName.TooString() + "'" +
+                            ")" +
+                            " insert into tblStudentFscDataHistory values ( " +
+                            " " + item.applicantId + ", 11, '" + item.degreeInstituteName.TooString() + "'," +
+                            " " + Convert.ToDouble(item.obtainedMarks).TooDecimal() + "," + Convert.ToDouble(item.totalMarks).TooDecimal() + "" +
+                            " ,CONVERT(datetime,'" + (item.passingDate).TooDate() + "'),'" + item.degreePicFront.TooString() + "',getdate())";
+                        SqlCommand cmdInsert = new SqlCommand(query, con);
+                        cmdInsert.ExecuteNonQuery();
+                        msg.status = true;
+                    }
+                    msg.status = true;
+                }
+                catch (Exception ex)
+                {
+                    msg.status = false;
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
+
+
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpGet]
         public JsonResult GetApplicantEducationData(int applicantId)
         {
