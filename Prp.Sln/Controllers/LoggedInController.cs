@@ -125,7 +125,7 @@ namespace Prp.Sln.Controllers
             Applicant app = ProjFunctions.CookieApplicantGet();
             if (app != null && app.applicantId > 0)
             {
-                return Redirect("/site");
+                return Redirect("/home");
             }
             return View(model);
         }
@@ -526,6 +526,11 @@ namespace Prp.Sln.Controllers
 
         #region Registration
 
+        public ActionResult SeatsView()
+        {
+            RegistrationModel model = new RegistrationModel();
+            return View(model);
+        }
 
         public ActionResult CommingSoon()
         {
@@ -556,6 +561,13 @@ namespace Prp.Sln.Controllers
         public JsonResult ApplicantIsExist(IsExists obj)
         {
             Message msg = new ApplicantDAL().ApplicantIsExist(obj);
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult ApplicantAlreadyIsExist(IsExists obj)
+        {
+            Message msg = new ApplicantDAL().ApplicantAlreadyIsExist(obj);
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
@@ -624,7 +636,7 @@ namespace Prp.Sln.Controllers
 
 
         [HttpPost]
-        public JsonResult ApplicantRegistration(Applicant obj)
+        public async Task<JsonResult> ApplicantRegistration(Applicant obj)
 
         {
             Message msg = new Message();
@@ -702,7 +714,7 @@ namespace Prp.Sln.Controllers
                                 smsBody = "Dear Candidate, You have successfully registered in Punjab Nursing Admission System. Your OTP is : " + otp + ".";
 
                             }
-                            Message msgSms = FunctionUI.SendSms(obj.contactNumber, smsBody);
+                            Message msgSms = await FunctionUI.SendSmsAsync(obj.contactNumber, smsBody,0);
                             try
                             {
                                 SmsProcess objProcess = msgSms.status.SmsProcessMakeDefaultObject(applicantId, smsId);
@@ -956,7 +968,7 @@ namespace Prp.Sln.Controllers
         {
             Message msg = new Message();
             string smsBody = "";
-            Applicant applicant = new ApplicantDAL().GetApplicantByEmail(obj.emailId);
+            Applicant applicant = new ApplicantDAL().GetApplicantByEmailAndContactNumber(obj.emailId,obj.contactNumber);
             try
             {
                 obj.name = applicant.name.TooString();
@@ -1294,6 +1306,15 @@ namespace Prp.Sln.Controllers
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
+        public JsonResult SaveMigrationGrievance(string pdfFileName, string pdfFileData)
+        {
+            int applicantId = loggedInUser.applicantId;
+            DataTable dataTable = new ApplicantDAL().SaveMigrationGrievance(pdfFileName, pdfFileData, applicantId);
+            Message msg = new Message();
+            msg.msg = dataTable.Rows[0]["message"].TooString();
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
         public JsonResult SaveMigrationPdfFile(string pdfFileName)
         {
             int applicantId = loggedInUser.applicantId;
@@ -1447,7 +1468,8 @@ namespace Prp.Sln.Controllers
         {
             MeritData model = new MeritData();
             int appId = loggedInUser.applicantId;
-            DataTable dt = new ApplicantDAL().GetApplicantMeritByApplicantId(appId);
+            //DataTable dt = new ApplicantDAL().GetApplicantMeritByApplicantId(appId);
+            DataTable dt = new ApplicantDAL().GetMigrantApplicantMeritByApplicantId(appId);
             model.consents = new List<Consent>();
             model.listOfMerits = new List<MeritDataItem>();
             if (dt.Rows.Count>0)
@@ -1462,14 +1484,16 @@ namespace Prp.Sln.Controllers
                     mdi.nam = dr["nam"].TooString();
                     mdi.fname = dr["fname"].TooString();
                     mdi.contactNumber = dr["contactNumber"].TooString();
-                    mdi.cnic = dr["cnic"].TooString();
+                    mdi.cnic = dr["cnicNo"].TooString();
                     mdi.matric = dr["matric"].TooDecimal();
                     mdi.fa = dr["fa"].TooDecimal();
                     mdi.firstName = dr["firstName"].TooString();
+                    mdi.joinedCollege = dr["CollegeJoined"].TooString();
+                    mdi.migratingCollege = dr["firstName"].TooString();
                     model.listOfMerits.Add(mdi);
                 }
                 
-                DataTable dtConsents = new ApplicantDAL().GetApplicantConsentByApplicantId(appId);
+                DataTable dtConsents = new ApplicantDAL().GetMigrantApplicantConsentByApplicantId(appId);
                 if(dtConsents.Rows.Count>0)
                 {
                     
@@ -1500,6 +1524,17 @@ namespace Prp.Sln.Controllers
             objData.dated = DateTime.Now;
             Message msg = new Message();
             DataTable dt = new ApplicantDAL().ApplicantSaveConsent(objData);
+            msg.msg = dt.Rows[0]["message"].TooString();
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult saveConsentDataMigrants(Consent objData)
+        {
+            objData.applicantId = loggedInUser.applicantId;
+            objData.dated = DateTime.Now;
+            Message msg = new Message();
+            DataTable dt = new ApplicantDAL().ApplicantSaveConsentMigrants(objData);
             msg.msg = dt.Rows[0]["message"].TooString();
             return Json(msg, JsonRequestBehavior.AllowGet);
         }

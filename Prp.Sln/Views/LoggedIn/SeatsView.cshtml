@@ -1,0 +1,363 @@
+﻿
+@{
+    ViewBag.Title = "Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.RegistrationModel
+@section RenderCss{
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: left;
+            background-color: #ffe6e6;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+        }
+
+        th, tfoot {
+            background-color: #f4f4f4;
+        }
+    </style>
+}
+@section RenderScript{
+
+    <script>
+
+        var objApplicant = {};
+
+        $(document).ready(function () {
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            $("#btnRegister").click(function () {
+                RegisterApplicant();
+            });
+
+            $(document).keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    RegisterApplicant();
+                }
+            });
+        });
+
+        function RegisterApplicant() {
+
+            var errorMsg = "";
+            var isError = false;
+
+            $("#divError").hide();
+            $("#idErrorMsg").html();
+
+            try {
+
+                if (ValidateForm() == false) {
+
+                    if (IsExistPMDC() == true) {
+                        isError = true;
+                        errorMsg = "<li>This PMDC No already exists. Please try another.</li>"
+                    }
+
+                    if (IsExistEmail() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>This emaild  already exists. Please try another.</li>"
+                    }
+
+                    if (isError == false) {
+
+                        var resp = CallActionPost("/LoggedIn/ApplicantRegistration", objApplicant)
+                        if (resp != null && resp.status == true) {
+                            $("#divError").hide();
+                            $("#spnMsg").html("");
+                            window.location = "/register-complete";
+                        }
+                        else {
+                            $("#divError").show();
+                            $("#idErrorMsg").html("<li>" + resp.message + "</li>");
+                        }
+                    }
+                    else {
+                        $("#divError").show();
+                        $("#idErrorMsg").html(errorMsg);
+                    }
+                }
+
+            } catch (e) {
+
+            }
+        }
+
+        function ValidateForm() {
+
+
+            $(".req-fld").removeClass("req-fld");
+
+
+            $("#divError").hide();
+            $("#idErrorMsg").html("");
+
+            var isError = false, ctrl = "", errorMessage = "";
+            objApplicant = {};
+
+            objApplicant.name = $("#txtName").val();
+            objApplicant.pmdcNo = $("#txtPMDCNo").val();
+            objApplicant.emailId = $("#txtEmail").val();
+            objApplicant.password = $("#txtPassword").val();
+
+            var passwordConfirm = $("#txtPasswordConfirm").val();
+
+            objApplicant.contactNumber = $("#txtContactNumber").val();
+
+            objApplicant.network = 1;
+            objApplicant.levelId = ConvertToInt($("#ddlLevel").val());
+            objApplicant.facultyId = ConvertToInt($("#ddlFaculty").val());
+            objApplicant.network = 1;
+            objApplicant.pic = "";
+
+            var isAcknowledge = $("#chkAcknowledge").is(':checked');
+
+
+
+            if (objApplicant.name == "") {
+                $("#txtName").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtName";
+            }
+            else if (objApplicant.name.length < 3) {
+
+                isError = true;
+                $("#txtName").addClass("req-fld");
+                errorMessage = errorMessage + "<li>Please enter valid name</li>"
+                if (ctrl == "")
+                    ctrl = "txtName";
+            }
+
+            if (objApplicant.pmdcNo == "") {
+                $("#txtPMDCNo").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPMDCNo";
+            }
+            else if (objApplicant.pmdcNo.length < 5) {
+
+                isError = true;
+                $("#txtPMDCNo").addClass("req-fld");
+                errorMessage = errorMessage + "<li>Please enter valid pmdc No</li>"
+                if (ctrl == "")
+                    ctrl = "txtPMDCNo";
+            }
+
+
+            if (objApplicant.contactNumber == "") {
+                $("#txtContactNumber").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtContactNumber";
+            }
+            else if (objApplicant.contactNumber.length < 11) {
+
+                isError = true;
+                $("#txtContactNumber").addClass("req-fld");
+                errorMessage = errorMessage + "<li>Please enter valid contact no</li>"
+                if (ctrl == "")
+                    ctrl = "txtContactNumber";
+            }
+
+
+            if (objApplicant.emailId == "") {
+                $("#txtEmail").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtEmail";
+            }
+            else {
+
+                if (ValidateEmail(objApplicant.emailId) == false) {
+                    isError = true;
+                    errorMessage = errorMessage + "<li>Invalid email id. Please enter valid email id</li>"
+                }
+            }
+
+
+            if (objApplicant.password == "") {
+                $("#txtPassword").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPassword";
+            }
+            if (passwordConfirm == "") {
+
+                $("#txtPasswordConfirm").addClass("req-fld");
+                isError = true;
+                if (ctrl == "")
+                    ctrl = "txtPasswordConfirm";
+            }
+
+            if (objApplicant.password.length > 0 && passwordConfirm.length > 0) {
+
+                if (objApplicant.password != passwordConfirm) {
+                    isError = true;
+                    errorMessage = errorMessage + "<li>Password not matched.</li>"
+                }
+                else if (objApplicant.password.length < 6) {
+
+                    isError = true;
+                    $("#txtPassword").addClass("req-fld");
+                    errorMessage = errorMessage + "<li>Password must be equal or greater then 6 digits.</li>"
+                    if (ctrl == "")
+                        ctrl = "txtPassword";
+                }
+
+            }
+
+            if (isAcknowledge == false) {
+                isError = true;
+                errorMessage = errorMessage + "<li>Please acknowledge term and condition.</li>"
+            }
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            if (errorMessage.length > 0) {
+                $("#divError").show();
+                $("#idErrorMsg").html(errorMessage);
+            }
+
+            return isError;
+
+        }
+
+        function IsExistPMDC() {
+
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+                obj.id = 0;
+                obj.search = $("#txtPMDCNo").val();
+                obj.condition = "PMDCNO";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+
+        function IsExistEmail() {
+
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+                obj.id = 0;
+                obj.search = $("#txtEmail").val();
+                obj.condition = "emailId";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+    </script>
+}
+<div class="container content">
+    <div class="row main">
+        <div style="padding:20px">
+            <h1>BSN Generic (4 Years Degree Program) Session 2025-2028</h1>
+            <hr />
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr #</th>
+                    <th>Name of Institution</th>
+                    <th>Seats</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>College of Nursing, KEMU/ Mayo Hospital, Lahore</td><td>100</td></tr>
+                <tr><td>2</td><td>College of Nursing, FJMU/ Sir Ganga Ram Hospital, Lahore</td><td>100</td></tr>
+                <tr><td>3</td><td>College of Nursing, Ameer-ud-Din Medical College/ Lahore General Hospital, Lahore</td><td>100</td></tr>
+                <tr><td>4</td><td>College of Nursing, Allama Iqbal Medical College/ Jinnah Hospital, Lahore</td><td>100</td></tr>
+                <tr><td>5</td><td>College of Nursing, RMU/ Holy Family Hospital, Rawalpindi</td><td>100</td></tr>
+                <tr><td>6</td><td>College of Nursing, Nishtar Hospital, Multan</td><td>100</td></tr>
+                <tr><td>7</td><td>College of Nursing, Benazir Bhutto Shaheed Hospital, Rawalpindi</td><td>100</td></tr>
+                <tr><td>8</td><td>College of Nursing, Allied Hospital, Faisalabad</td><td>100</td></tr>
+                <tr><td>9</td><td>College of Nursing, Bahawalpur Victoria Hospital, Bahawalpur</td><td>100</td></tr>
+                <tr><td>10</td><td>College of Nursing, Service Hospital, Lahore</td><td>100</td></tr>
+                <tr><td>11</td><td>College of Nursing, UCHS/ Children's Hospital, Lahore</td><td>100</td></tr>
+                <tr><td>12</td><td>College of Nursing, Allama Iqbal Memorial Teaching Hospital, Sialkot</td><td>100</td></tr>
+                <tr><td>13</td><td>College of Nursing, DHQ Hospital, Dera Ghazi Khan</td><td>100</td></tr>
+                <tr><td>14</td><td>College of Nursing, DHQ Hospital, Muzaffargarh</td><td>100</td></tr>
+                <tr><td>15</td><td>College of Nursing, Sheikh Zayed Hospital, Rahim Yar Khan</td><td>100</td></tr>
+                <tr><td>16</td><td>College of Nursing, Shadrah Hospital, Lahore (male candidates only)</td><td>100</td></tr>
+                <tr><td>17</td><td>College of Nursing, DHQ Hospital, Attock</td><td>50</td></tr>
+                <tr><td>18</td><td>College of Nursing, DHQ Hospital, Bahawalnagar</td><td>50</td></tr>
+                <tr><td>19</td><td>College of Nursing, DHQ Hospital, Bhakkar</td><td>50</td></tr>
+                <tr><td>20</td><td>College of Nursing, DHQ Hospital, Chakwal</td><td>50</td></tr>
+                <tr><td>21</td><td>College of Nursing, DHQ Hospital, Faisalabad</td><td>50</td></tr>
+                <tr><td>22</td><td>College of Nursing, Eye cum General (THQ) Hospital, Gojra</td><td>50</td></tr>
+                <tr><td>23</td><td>College of Nursing, DHQ Hospital, Gujranwala</td><td>50</td></tr>
+                <tr><td>24</td><td>College of Nursing, Aziz Bhatti Shaheed Teaching Hospital, Gujrat</td><td>50</td></tr>
+                <tr><td>25</td><td>College of Nursing, DHQ Hospital, Hafizabad</td><td>50</td></tr>
+                <tr><td>26</td><td>College of Nursing, DHQ Hospital, Jhang</td><td>50</td></tr>
+                <tr><td>27</td><td>College of Nursing, DHQ Hospital, Jhelum</td><td>50</td></tr>
+                <tr><td>28</td><td>College of Nursing, DHQ Hospital, Kasur</td><td>50</td></tr>
+                <tr><td>29</td><td>College of Nursing, DHQ Hospital, Khanewal</td><td>50</td></tr>
+                <tr><td>30</td><td>College of Nursing, DHQ Hospital, Khushab</td><td>50</td></tr>
+                <tr><td>31</td><td>College of Nursing, DHQ Hospital, Layyah</td><td>50</td></tr>
+                <tr><td>32</td><td>College of Nursing, DHQ Hospital, Lodhran</td><td>50</td></tr>
+                <tr><td>33</td><td>College of Nursing, DHQ Hospital, Mandi Bahaudin</td><td>50</td></tr>
+                <tr><td>34</td><td>College of Nursing, DHQ Hospital, Mianwali</td><td>50</td></tr>
+                <tr><td>35</td><td>College of Nursing, DHQ Hospital, Narowal</td><td>50</td></tr>
+                <tr><td>36</td><td>College of Nursing, DHQ Hospital, Okara</td><td>50</td></tr>
+                <tr><td>37</td><td>College of Nursing, DHQ Hospital, Pakpattan</td><td>50</td></tr>
+                <tr><td>38</td><td>College of Nursing, DHQ Hospital, Rujanpur</td><td>50</td></tr>
+                <tr><td>39</td><td>College of Nursing, DHQ Hospital, Rawalpindi</td><td>50</td></tr>
+                <tr><td>40</td><td>College of Nursing, DHQ Hospital, Sahiwal</td><td>50</td></tr>
+                <tr><td>41</td><td>College of Nursing, DHQ Hospital, Sargodha</td><td>50</td></tr>
+                <tr><td>42</td><td>College of Nursing, DHQ Hospital, Sheikhupura</td><td>50</td></tr>
+                <tr><td>43</td><td>College of Nursing, DHQ Hospital, Toba Tek Singh</td><td>50</td></tr>
+                <tr><td>44</td><td>College of Nursing, DHQ Hospital, Vehari</td><td>50</td></tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td><strong>3000</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

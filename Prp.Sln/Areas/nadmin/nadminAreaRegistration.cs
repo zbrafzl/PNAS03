@@ -359,6 +359,12 @@ namespace Prp.Sln.Areas.nadmin
             );
 
             context.MapRoute(
+               name: "ApplicantAdminSearchMigration",
+               url: "admin/applicant-search-migration",
+               defaults: new { controller = "ApplicantAdmin", action = "ApplicantSearchMigration", id = UrlParameter.Optional }
+            );
+
+            context.MapRoute(
                name: "ApplicantAdminSearchVerify",
                url: "admin/applicant-search",
                defaults: new { controller = "ApplicantAdmin", action = "ApplicantSearch", id = UrlParameter.Optional }
@@ -417,6 +423,12 @@ namespace Prp.Sln.Areas.nadmin
                 name: "InductionEventsManage",
                 url: "admin/induction-events",
                 defaults: new { controller = "CommonAdmin", action = "InductionManage", id = UrlParameter.Optional }
+            );
+
+            context.MapRoute(
+                name: "InductionSeatsManage",
+                url: "admin/induction-seats",
+                defaults: new { controller = "CommonAdmin", action = "SeatsManage", id = UrlParameter.Optional }
             );
 
 
@@ -907,6 +919,11 @@ namespace Prp.Sln.Areas.nadmin
                    name: "ApplicantListFinalJoining",
                    url: "admin/applicant-join-add",
                    defaults: new { controller = "JoiningAdmin", action = "ApplicantTakeJoining", id = UrlParameter.Optional }
+           );
+            context.MapRoute(
+                   name: "ApplicantListJoiningMigration",
+                   url: "admin/applicant-join-migration-add",
+                   defaults: new { controller = "JoiningAdmin", action = "ApplicantTakeJoiningMigration", id = UrlParameter.Optional }
            );
 
             context.MapRoute(

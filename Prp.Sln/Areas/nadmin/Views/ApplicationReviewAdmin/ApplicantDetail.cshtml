@@ -1,4 +1,5 @@
-﻿@{
+﻿
+@{
     ViewBag.Title = "ApplicantViewDetail";
     Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
 }
@@ -95,7 +96,7 @@
             statusTypeId = 0;
 
             if (pageUrl.indexOf("verify") > -1) {
-
+				debugger;
                 statusTypeId = 131;
                 $("#fsUpdateInfo").hide();
                 $("#fsPassword").hide();
@@ -122,7 +123,8 @@
 
             }
             else if (pageUrl.indexOf("ammendment") > -1) {
-                statusTypeId = 132
+                statusTypeId = 132;
+				debugger;
                 $("#fsUpdateInfo").hide();
                 $("#fsPassword").hide();
                 $(".pnlPreference").hide();
@@ -149,8 +151,12 @@
 
 
             }
+			else if (pageUrl.indexOf("detail") > -1) {
+				debugger;
+                $("#fsUpdateInfo").show();
+            }
             else {
-
+				debugger;
                 $("#fsUpdateInfo").hide();
                 $("#fsPassword").show();
                 $(".pnlPreference").show();
@@ -519,6 +525,13 @@
                         errorMsg = errorMsg + "<li>This emaild  already exists. Please try another.</li>"
                     }
 
+
+					if (IsExistContact() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>This contact number already exists. Please try another.</li>"
+                    }
+
+
                     if (isError == false) {
                         var r = confirm("Are you sure you want to delete this applicant?");
 
@@ -674,7 +687,34 @@
                 obj.search = $("#txtEmail").val();
                 obj.condition = "emailId";
 
-                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                var resp = CallActionPost("/LoggedIn/ApplicantAlreadyIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+
+		function IsExistContact() {
+
+            var isExist = true;
+
+            try {
+
+                var obj = {};
+
+                obj.id = applicantId;
+                obj.search = $("#txtContactNumber").val();
+                obj.condition = "contactNumber";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantAlreadyIsExist", obj)
                 if (resp != null && resp.id > 0) {
                     isExist = true;
                 } else {
@@ -810,7 +850,10 @@
                 </div>
                 @if (Model.applicantId > 0 && Model.applicant.statusId == 1)
                 {
-                    if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 63 || Model.loggedInUser.userId == 70 || Model.loggedInUser.userId == 78 || (Model.loggedInUser.userId > 3 && Model.loggedInUser.userId < 12))
+                    if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper
+
+                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.phfITManager
+                    || Model.loggedInUser.typeId != ProjConstant.Constant.UserType.callCenter)
                     {
                         <div class="col-md-6 col-sm-6 col-xs-6">
                             <fieldset>
@@ -865,12 +908,9 @@
                 @if (Model.applicantId > 0)
                 {
                     <input type="hidden" id="hfdApplicantId" value="@(Model.applicant.applicantId)" />
-                    if (Model.loggedInUser.typeId == ProjConstant.Constant.UserType.seniorDeveloper
-                    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.phfITManager
-                    || Model.loggedInUser.typeId == ProjConstant.Constant.UserType.callCenter
-                     || Model.loggedInUser.userId == 16)
+                    if (Model.loggedInUser.userId == 8 || Model.loggedInUser.userId == 58)
                     {
-                        <fieldset id="fsUpdateInfo" style="display:none">
+                        <fieldset id="fsUpdateInfo">
                             <legend> Applicant Info Update Panel  </legend>
                             <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
                                 <div class="form-group col-lg-12">
@@ -894,10 +934,10 @@
                                         <label for="heard">Email *:</label>
                                         <input class="form-control" type="email" required="required" maxlength="100" name="txtEmail" id="txtEmail" placeholder="Email" value="@(Model.applicant.emailId)" />
                                     </div>
-                                    <div class="col-md-2 col-sm-2 col-xs-2" style="display:none">
+                                    <div class="col-md-2 col-sm-2 col-xs-2">
                                         <label for="heard" style="width:100%;">Action</label>
                                         <input type="button" id="btnUpdateInfo" value="Update" class="btn btn-success" />
-                                        <input type="button" id="btnDeleteApplicant" value="Delete" class="btn btn-danger" />
+                                        @*<input type="button" id="btnDeleteApplicant" value="Delete" class="btn btn-danger" />*@
                                     </div>
                                 </div>
                                 <div id="divError" class="col-sm-12" style=" display:none;">
@@ -939,7 +979,7 @@
                                                         <div id="divCommentVerify" class="col-md-12 col-sm-12 col-xs-12">
                                                             @{
                                                                 DataTable dtCheckStatus = new DataTable();
-                                                                string query = "Select top(1) case when approvalRemarks is null then '' else  approvalRemarks end approvalRemarks from tblAmendmentsApplicantNursing a where a.applicantId = " + Model.applicantId + " ";
+                                                                string query = "Select top(1) approvalRemarks from tblAmendmentsApplicantNursing a where a.applicantId = " + Model.applicantId + " ";
                                                                 SqlConnection con = new SqlConnection();
                                                                 Message msg = new Message();
                                                                 SqlCommand cmd = new SqlCommand(query);
@@ -1009,40 +1049,11 @@
                             <div id="divprint" class="container cv-f" style="font-size:14px !important; ">
                                 @{
                                     var applicant = Model.applicant;
-                                    var induction = "";
-                                    if (Model.inductionId == 15)
-                                    {
-                                        induction = "2024";
-                                    }
-                                    else if (Model.inductionId == 14)
-                                    {
-                                        induction = "2023 Afternoon";
-                                    }
-                                    else if (Model.inductionId == 13)
-                                    {
-                                        induction = "2022-2023 Morning";
-                                    }
-                                    else if (Model.inductionId == 12)
-                                    {
-                                        induction = "2022";
-                                    }
-                                    else if (Model.inductionId == 11)
-                                    {
-                                        induction = "2021-2022 (Only DHQ)";
-                                    }
-                                    else if (Model.inductionId == 10)
-                                    {
-                                        induction = "2021-2022 (Teaching)";
-                                    }
-                                    else if (Model.inductionId == 9)
-                                    {
-                                        induction = "2020-2021 (Teaching)";
-                                    }
                                     <table style="width: 100%;" cellspacing="0px">
                                         <tbody>
                                             <tr style="float: left; width:100%">
-                                                <th style="float: left; width:40%">
-                                                    <h4 style="margin: 0px; font-size: 20px; "> Induction :   <span class="spnbtn">@induction</span></h4>
+                                                <th style="float: left; width:20%">
+                                                    <h4 style="margin: 0px; font-size: 20px; "> Induction :   <span class="spnbtn">2024</span></h4>
                                                 </th>
                                                 <th style="float: left; width:25%">
                                                     <h4 style="margin: 0px; font-size: 20px; "> Account Status :   <span class="spnbtn"> Active</span></h4>
@@ -1158,14 +1169,6 @@
                                                         }
                                                     }*@
                                             </tr>
-                                            @if (Model.applicantInfo.currentPosting != "")
-                                            {
-                                                <tr>
-                                                    <th colspan="4" style="float: left;">
-                                                        <h4 style="margin: 0px; font-size: 20px; "> College Of Joining :   <span class="spnbtn">@Model.applicantInfo.currentPosting</span></h4>
-                                                    </th>
-                                                </tr>
-                                            }
                                         </tbody>
                                     </table>
 
@@ -1794,15 +1797,7 @@
                                                                 }
                                                                 else
                                                                 {
-                                                                    if (item.graduateTypeId == 11)
-                                                                    {
-                                                                        <td>Student Fsc Data</td>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <td>@item.degreeName</td>
-                                                                    }
-
+                                                                    <td>@item.degreeName</td>
                                                                 }
                                                                 <td class="th_center">@item.obtainMarks</td>
                                                                 <td class="th_center">@item.totalMarks</td>
@@ -1823,53 +1818,10 @@
                                                 </table>
                                             }
                                         }
-                                        if (Model.applicantInfo.nocCertificate != "")
-                                        {
-                                            <table style="margin-top: 5px; width: 100%;" cellspacing="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
-                                                            <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                Certificates :
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            <table style="margin-top: 5px; width: 100%; border:1px solid;" cellspacing="0" border="1">
-                                                <tbody>
-                                                    <tr>
-                                                        <th>Certificate</th>
-                                                        <th class="th_center"> Image</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>No Dues Certificate</td>
-                                                        <td class="th_center">
-                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
-                                                                <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" alt="No Image" />
-                                                            </a>
-                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nicCertificate)" target="_blank" title="Click to view">
-                                                                <span class="ank spn-img-view">View</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>No Enquiry Certificate</td>
-                                                        <td class="th_center">
-                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nocCertificate)" target="_blank" title="Click to view">
-                                                                <img class="imgView" src="@("/images/Applicant/" + Model.applicant.applicantId + "/" + Model.applicantInfo.nocCertificate)" alt="No Image" />
-                                                            </a>
-                                                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + Model.applicantInfo.nocCertificate)" target="_blank" title="Click to view">
-                                                                <span class="ank spn-img-view">View</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
 
-                                                </tbody>
-                                            </table>
-                                        }
                                         if (Model.applicant.applicationStatusId > ProjConstant.Constant.ApplicationStatus.paymentDone)
                                         {
-                                            if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 10 || Model.loggedInUser.userId == 6 || Model.loggedInUser.userId == 8 || Model.loggedInUser.userId == 63)
+                                            if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 58)
                                             {
 
                                                 if (Model.listSpecility != null && Model.listSpecility.Count > 0)
@@ -1882,7 +1834,7 @@
                                                                 <tr>
                                                                     <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
                                                                         <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                            Migration Preferences
+                                                                            Preferences
                                                                         </p>
                                                                     </td>
                                                                 </tr>
@@ -1894,17 +1846,11 @@
                                                                 <tr><th>Preference No.</th> <th> Institute</th>
                                                             </thead>
                                                             <tbody>
-                                                                @foreach (var spc in listSpecility.OrderBy(x => x.preferenceNo <= 0).ThenBy(x => x.preferenceNo))
+                                                                @foreach (var spc in listSpecility.OrderBy(x => x.preferenceNo))
                                                                 {
 
                                                                     <tr>
-                                                                        @if (spc.preferenceNo == -1)
-                                                                        {
-                                                                            <td>Not Availed</td>
-                                                                        }
-                                                                        else { 
-                                                                            <td>@spc.preferenceNo</td>
-                                                                        }
+                                                                        <td>@spc.preferenceNo</td>
                                                                         <td>@spc.hospitalName</td>
                                                                     </tr>
                                                                 }
@@ -2092,10 +2038,10 @@
                                                                     <td>Name</td>
                                                                     <td>@applicant.name</td>
                                                                 </tr>
-                                                                <tr>
-                                                                    <td>PMDC Number</td>
-                                                                    <td> @applicant.pmdcNo <a class="ank" href="@("https://pmc.gov.pk/Doctors/Details?regNo=" + @applicant.pmdcNo)" target="_blank"> View </a></td>
-                                                                </tr>
+                                                                @*<tr>
+                                                                        <td>PMDC Number</td>
+                                                                        <td> @applicant.pmdcNo <a class="ank" href="@("https://pmc.gov.pk/Doctors/Details?regNo=" + @applicant.pmdcNo)" target="_blank"> View </a></td>
+                                                                    </tr>*@
                                                             </tbody>
                                                         </table>
                                                         <table class="top_detail" style="width: 49%; float: left;">

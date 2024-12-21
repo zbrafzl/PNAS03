@@ -573,7 +573,7 @@ namespace Prp.Data
         public int adminId { get; set; }
         public int testingCenter { get; set; }
         public string testingCenterName { get; set; }
-
+        public int typeId { get; set; }
     }
 
     public class ApplicantVoucherBank : tblApplicantVoucherBank

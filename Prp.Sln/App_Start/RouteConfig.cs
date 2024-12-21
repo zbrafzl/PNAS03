@@ -193,6 +193,12 @@ namespace Prp.Sln
              name: "ApplicantMeritView",
              url: preUrl + "/applicant-merit",
              defaults: new { controller = "ApplicantProfile", action = "ApplicantMerit", id = UrlParameter.Optional }
+             );
+
+             routes.MapRoute(
+             name: "SeatsView",
+             url: "seats",
+             defaults: new { controller = "LoggedIn", action = "SeatsView", id = UrlParameter.Optional }
          );
 
             #endregion
@@ -348,6 +354,26 @@ namespace Prp.Sln
             );
 
             routes.MapRoute(
+                name: "MeritList10",
+                url: preUrl + "/meritlist-10",
+                defaults: new { controller = "MeritGazat", action = "MeritList10", id = UrlParameter.Optional }
+            );
+
+
+            routes.MapRoute(
+                name: "MeritList11",
+                url: preUrl + "/meritlist-11",
+                defaults: new { controller = "MeritGazat", action = "MeritList11", id = UrlParameter.Optional }
+            );
+
+
+            routes.MapRoute(
+                name: "MeritList13",
+                url: preUrl + "/meritlist-13",
+                defaults: new { controller = "MeritGazat", action = "MeritList13", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
                 name: "VerifyApproved",
                 url: preUrl + "/verify-approved",
                 defaults: new { controller = "MeritGazat", action = "ApprovedList", id = UrlParameter.Optional }
@@ -463,6 +489,12 @@ namespace Prp.Sln
                url: "print/voucher",
                defaults: new { controller = "Prints", action = "Vouchers", id = UrlParameter.Optional }
            );
+            routes.MapRoute(
+               name: "print_voucher-evening",
+               url: "print/voucher-evening",
+               defaults: new { controller = "Prints", action = "VouchersSpecial", id = UrlParameter.Optional }
+           );
+
 
             routes.MapRoute(
               name: "print_gr_Verification",

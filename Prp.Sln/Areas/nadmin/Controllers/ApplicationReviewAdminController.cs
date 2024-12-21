@@ -71,8 +71,8 @@ namespace Prp.Sln.Areas.nadmin.Controllers
                             }
                             else
                             {
-                                model.applicantId = 0;
-                                model.requestType = 2;
+                                model = AdminFunctions.GenerateModelProofReading(inductionId, phaseId, applicantId);
+                                model.applicantId = applicantId;
                             }
                         }
                         else

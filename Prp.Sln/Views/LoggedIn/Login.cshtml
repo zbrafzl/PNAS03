@@ -8,10 +8,16 @@
 }
 @section RenderScript{
 
+    <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3/jquery.inputmask.bundle.js"></script>
+
+
     <script>
+
+        var val = "";
 
         $(document).ready(function () {
 
+            $(":input").inputmask();
             $("#errorMessege").hide();
 
             $("#btnLogin").click(function () {
@@ -26,10 +32,28 @@
             });
         });
 
-        function LoggedInUserEvent() {
-            var isValid = true;
+        function OnChangeTypeRecover() {
+            val = $("#ddlTypeOfValidation").val();
+            if (val == "emailId") {
+                $("#divEmailValidation").show();
+                $("#divContactValidation").hide();
+            }
+            else if (val == "contactNumber") {
+                $("#divEmailValidation").hide();
+                $("#divContactValidation").show();
+            }
+        }
 
-            var userName = $("#txtUserName").val();
+        function LoggedInUserEvent() {
+            debugger;
+            var isValid = true;
+            var userName = "";
+            if ($("#ddlTypeOfValidation").val() == "emailId") {
+                userName = $("#txtUserName").val();
+            }
+            else if ($("#ddlTypeOfValidation").val() == "contactNumber") {
+                userName = $("#txtContactNumber").val();
+            }
             var password = $("#txtPassword").val();
 
             if (userName == "")
@@ -57,7 +81,7 @@
                     message = resp.message;
                 }
                 else {
-					console.log(resp);
+                    console.log(resp);
                     $("#errDivLogin").hide();
                     window.location = "/";
                 }
@@ -68,25 +92,73 @@
             }
 
             $("#spnError").html(message);
-            
 
+
+        }
+
+        function OnChangeTypeRecover() {
+            var val = $("#ddlTypeOfValidation").val();
+            if (val == "emailId") {
+                $("#divEmailValidation").show();
+                $("#divContactValidation").hide();
+            }
+            else if (val == "contactNumber") {
+                $("#divEmailValidation").hide();
+                $("#divContactValidation").show();
+            }
         }
     </script>
 
 }
 <div class="container content">
     <div class="row main">
-        <div class="col-sm-2"></div>
-        <div class="col-sm-8 form-box">
+        <div class="col-sm-6 form-box">
+            <div class="main-login main-center">
+                <form class="form-horizontal" id="pnlNotification">
+                    <h3 class="text-red">Notifcation</h3>
+                    <p>
+                        1. PPM 2024<a href="/Images/_induction16/Seats.jpg" target="_blank"> Read more</a>
+                    </p><p>
+                        2. Merit Criteria<a href="/Images/_induction16/Merit_Criteria.jpg" target="_blank"> Read more</a>
+                    </p><p>
+                        3. Eligibility Criteria<a href="/Images/_induction16/Eligibility.jpg" target="_blank"> Read more</a>
+                    <p>
+                        4. Advertisement<a href="/Images/_induction16/Seats.jpg" target="_blank"> Read more</a>
+                        <h3 class="text-red">Seats List</h3>
+                    <p> <a href="/Images/_induction16/Seats.jpg" target="_blank"> Read more</a>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-sm-5 form-box">
             <div class="main-login main-center">
                 <form class="form-horizontal">
                     <h3 class="heading">Enter Your login Details to Continue</h3>
-                    <div class="">
+                    <div>
+                        <label class="cols-sm-2 control-label" for="email">Login with</label>
+
+                        <div class="cols-sm-10">
+                            <select class="form-control" id="ddlTypeOfValidation" onchange="OnChangeTypeRecover()">
+                                <option value="emailId">Using Email</option>
+                                <option value="contactNumber">Using Contact Number</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="" id="divEmailValidation">
                         <label for="email" class="cols-sm-2 control-label">Your Email</label>
                         <div class="cols-sm-10">
                             <div class="input-group mt10">
                                 <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
                                 <input type="text" class="form-control" name="username" id="txtUserName" required="required" placeholder="Enter your Email">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:none" id="divContactValidation">
+                        <label for="email" class="cols-sm-2 control-label">Your Contact Number</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control" id="txtContactNumber" data-inputmask="'mask': '9999-9999999'" placeholder="XXXX-XXXXXXX" name="username" required="">
                             </div>
                         </div>
                     </div>
@@ -122,11 +194,11 @@
                             </div>
                         </div>
                     </div>
-					
-					<div class="">
+
+                    <div class="" style="display:none">
                         <div class="col-sm-12">
                             <div class="form-group inline" style="margin-top:5px;">
-                                
+
                                 <label style="float:left">
                                     <a href="/register-complete">Enter OTP</a>
                                 </label>
@@ -141,7 +213,7 @@
                             <div class="panel-heading">
                                 <label>
                                     <span id="spnError" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                                   
+
                                 </label>
                             </div>
                         </div>
@@ -151,6 +223,5 @@
                 </form>
             </div>
         </div>
-        <div class="col-sm-2"></div>
     </div>
 </div>

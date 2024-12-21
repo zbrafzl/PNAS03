@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "ApplicantViewDetail";
+    ViewBag.Title = "Applicant Scruitny";
     Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
 }
 @model Prp.Sln.ProofReadingAdminModel
@@ -75,6 +75,7 @@
     </style>
 }
 @section RenderScript{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
 
         var applicantId = 0, statusApproval = 0, statusAmedment = 0, objApplicant = {}, imagesPath = "", key = "", value = "";
@@ -82,15 +83,78 @@
         var pageUrl = "", statuAction = "", statusTypeId = 0;
         $(document).ready(function () {
 
+
             try {
                 applicantId = ConvertToInt($("#hfdApplicantId").val());
             } catch (e) {
                 applicantId = 0;
             }
 
+
+            var pdfFilePath = '@Model.applicantInfo.medicalFitnessCertificate.TooString()'; // Assume you have the path in the model
+            pdfFilePath = "/Images/Applicant/" + applicantId + "/" + pdfFilePath;
+            // Load the PDF file
+            pdfjsLib.getDocument(pdfFilePath).promise.then(function (pdf) {
+                // Get the first page
+                pdf.getPage(1).then(function (page) {
+                    var scale = 0.15; // Set scale for thumbnail
+                    var viewport = page.getViewport({ scale: scale });
+
+                    // Set canvas dimensions
+                    var canvas = document.getElementById('pdfThumbnail');
+                    var context = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    // Render PDF page into canvas context
+                    var renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                    var link = document.getElementById('pdfDownloadLink');
+                    link.href = pdfFilePath;
+                    link.download = '@Model.applicantInfo.medicalFitnessCertificate.TooString()';
+                    link.target = _blank;
+                });
+            }).catch(function (error) {
+                console.error("Error loading PDF:", error);
+            });
+
+			//////
+            var pdfFilePath2 = $("#hfdGrievanceDocument").val(); // Assume you have the path in the model
+            pdfFilePath2 = "/Images/Applicant/" + applicantId + "/" + pdfFilePath2;
+            // Load the PDF file
+            pdfjsLib.getDocument(pdfFilePath2).promise.then(function (pdf) {
+                // Get the first page
+                pdf.getPage(1).then(function (page) {
+                    var scale = 0.15; // Set scale for thumbnail
+                    var viewport = page.getViewport({ scale: scale });
+
+                    // Set canvas dimensions
+                    var canvas = document.getElementById('pdfThumbnail2');
+                    var context = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    // Render PDF page into canvas context
+                    var renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                    var link = document.getElementById('pdfDownloadLink2');
+                    link.href = pdfFilePath2;
+                    link.download = $("#hfdGrievanceDocument").val();
+                    link.target = _blank;
+                });
+            }).catch(function (error) {
+                console.error("Error loading PDF:", error);
+            });
+            ///////
             pageUrl = window.location.pathname;
             statuAction = "";
-            statusTypeId = 171;
+            statusTypeId = 172;
 
 
             $(document).on('change', '#ddlStatusType', function () {
@@ -151,7 +215,7 @@
                         $("#spnMsg").html("");
                         if (confirm(resp.msg)) {
 
-                            var url = "/admin/applicant-search-to-verify?statusTypeId=131&statusId=0";
+                            var url = "/admin/applicant-search-to-verify?statusTypeId=132&statusId=0";
                             window.location.href = url;
                         }
                     }
@@ -205,12 +269,12 @@
                                             @if (Model.statusApproval.approvalStatusId == 2)
                                             {
                                                 <div class="form-group col-lg-12">
-                                                    @if (Model.loggedInUser.userId == 55 || Model.loggedInUser.userId == 56 || Model.loggedInUser.userId == 70 || (Model.loggedInUser.userId > 3 && Model.loggedInUser.userId < 12))
+                                                    @if (Model.loggedInUser.userId > 75)
                                                     {
                                                         <div id="divCommentVerify" class="col-md-12 col-sm-12 col-xs-12">
                                                             @{
                                                                 DataTable dtCheckStatus = new DataTable();
-                                                                string query = "Select top(1) case when approvalRemarks is null then '' else  approvalRemarks end approvalRemarks from tblAmendmentsApplicantNursing a where a.applicantId = " + Model.applicantId + " ";
+                                                                string query = "Select top(1) case when comments is null then '' else  comments end approvalRemarks from tblApplicantMigrantReSubmittedVerifyStatus a where a.applicantId = = " + Model.applicantId + " ";
                                                                 SqlConnection con = new SqlConnection();
                                                                 Message msg = new Message();
                                                                 SqlCommand cmd = new SqlCommand(query);
@@ -446,7 +510,7 @@
                                                                 }
 
 
-                                                                <tr>
+                                                                <tr style="display:none">
                                                                     @if (info.countryId == 132)
                                                                     {
                                                                         <td>CNIC Expiry Date</td>
@@ -518,7 +582,7 @@
                                                         <tr>
                                                             <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
                                                                 <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                    Education : 
+                                                                    Education :
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -559,7 +623,7 @@
                                             }
                                         }
 
-                                        
+
                                     }
                                     else
                                     {
@@ -587,7 +651,7 @@
                                                         <tr>
                                                             <td style="background-color: #8b8686; -webkit-print-color-adjust: exact;">
                                                                 <p style="margin: 6px;color: #fff; font-size: 16px;">
-                                                                    Education : 
+                                                                    Education :
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -677,6 +741,110 @@
                                     {
                                     }
                                 }
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Verification Comments</legend>
+                            <div class="col-md-12">
+                                <div id="" class="col-md-12 col-sm-12 col-xs-12">
+                                    @{
+                                        string mesDisp = "";
+                                        string fileLink = "";
+                                        DataTable dtCheckStatusV = new DataTable();
+                                        string queryV = "Select top(1) case when comments is null then '' else  CONCAT( comments, ' - Veified By : ', u.firstName) end approvalRemarks from tblapplicantmigrantverifystatus a inner join tblUser u on a.assignedTo = u.userId where a.applicantId =  " + Model.applicantId + " ";
+                                        SqlConnection conV = new SqlConnection();
+                                        Message msgV = new Message();
+                                        SqlCommand cmdV = new SqlCommand(queryV);
+                                        try
+                                        {
+                                            conV = new SqlConnection(PrpDbConnectADO.Conn);
+                                            conV.Open();
+                                            cmdV.Connection = conV;
+                                            SqlDataAdapter sdaV = new SqlDataAdapter(cmdV);
+                                            sdaV.Fill(dtCheckStatusV);
+                                            cmdV.ExecuteNonQuery();
+
+                                            msgV.status = true;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            msgV.status = false;
+                                            msgV.msg = ex.Message;
+                                        }
+                                        finally
+                                        {
+                                            conV.Close();
+                                        }
+                                    }
+
+                                    Comments: @dtCheckStatusV.Rows[0]["approvalRemarks"].TooString();
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Candidate's Submitted Document</legend>
+                            <div class="col-md-12">
+                                <div id="" class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 ">
+                                        <div class="form-group">
+                                            <a id="pdfDownloadLink" target="_blank">
+                                                <canvas id="pdfThumbnail"></canvas>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Candidate's 'Grievance </legend>
+                            <div class="col-md-12">
+                                <div id="" class="col-md-12 col-sm-12 col-xs-12">
+                                    @{
+                                        mesDisp = "";
+                                        dtCheckStatusV = new DataTable();
+                                        queryV = "select grievanceFileName , grievanceData from tblApplicantMigrantGrievanceData where applicantId = " + Model.applicantId + " ";
+                                        conV = new SqlConnection();
+                                        msgV = new Message();
+                                        cmdV = new SqlCommand(queryV);
+                                        try
+                                        {
+                                            conV = new SqlConnection(PrpDbConnectADO.Conn);
+                                            conV.Open();
+                                            cmdV.Connection = conV;
+                                            SqlDataAdapter sdaV = new SqlDataAdapter(cmdV);
+                                            sdaV.Fill(dtCheckStatusV);
+                                            cmdV.ExecuteNonQuery();
+                                            msgV.status = true;
+                                            mesDisp = dtCheckStatusV.Rows[0]["grievanceData"].TooString();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            msgV.status = false;
+                                            msgV.msg = ex.Message;
+                                        }
+                                        finally
+                                        {
+                                            conV.Close();
+                                        }
+                                    }
+
+                                    Grievance: @mesDisp
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Candidate's Submitted Grievance Document</legend>
+                            <div class="col-md-12">
+                                <div id="" class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 ">
+                                        <input type="hidden" id="hfdGrievanceDocument" value="@dtCheckStatusV.Rows[0]["grievanceFileName"].TooString()" />
+                                        <div class="form-group">
+                                            <a id="pdfDownloadLink2" target="_blank">
+                                                <canvas id="pdfThumbnail2"></canvas>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </fieldset>
 

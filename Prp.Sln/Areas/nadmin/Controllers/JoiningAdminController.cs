@@ -53,6 +53,32 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return View(model);
         }
 
+        [CheckHasRight]
+        public ActionResult ApplicantTakeJoiningMigration()
+        {
+            ApplicantJoiningAdminModel model = new ApplicantJoiningAdminModel();
+            int applicantId = Request.QueryString["applicantId"].TooInt();
+            if (applicantId > 0)
+            {
+                ApplicantJoined join = new JoiningDAL().GetByApplicantById(applicantId);
+
+
+                model.applicant = new ApplicantDAL().GetApplicant(0, applicantId);
+                model.applicantInfo = new ApplicantDAL().GetApplicantInfoDetail(0, ProjConstant.phaseId, applicantId);
+
+                if (join != null && join.joiningId > 0)
+                {
+                    model.isExist = true;
+                }
+                else
+                {
+                    model.isExist = false;
+                    model.joinApplicant = new JoiningDAL().GetApplicantByInstiteUser(loggedInUser.userId, applicantId);
+                }
+            }
+            return View(model);
+        }
+
 
         [HttpGet]
         public ActionResult GetAllByInstiteUser(string search)
@@ -92,6 +118,29 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             }
             return Json(msg, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult ApplicantMigrationJoiningAddUpdate(ApplicantJoined objJoin)
+        {
+            Message msg = new Message();
+
+            objJoin.adminId = loggedInUser.userId;
+
+            try
+            {
+                objJoin.joiningDate = objJoin.dateJoining.TooDate();
+                objJoin.jobs = loggedInUser.userId;
+                msg = new JoiningDAL().AddUpdateMigration(objJoin);
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+
+            }
+            return Json(msg, JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpPost]
         public JsonResult ApplicantReleavingAddUpdate(ApplicantJoined objJoin)

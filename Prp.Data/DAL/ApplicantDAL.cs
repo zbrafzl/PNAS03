@@ -371,19 +371,123 @@ namespace Prp.Data
             Message msg = new Message();
             try
             {
-                var item = db.spApplicantIsExist(obj.id, obj.search, obj.condition).FirstOrDefault();
-                if (item != null && item.applicantId > 0)
+                SqlCommand cmd = new SqlCommand
                 {
-                    msg.id = item.applicantId;
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spApplicantExist]"
+                };
+                cmd.Parameters.AddWithValue("@search", obj.search);
+                cmd.Parameters.AddWithValue("@condition", obj.condition);
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                msg = dt.ConvertToEnitityMessage();
+                //var item = db.spApplicantRegister(obj.name, obj.pmdcNo, obj.emailId, obj.password, obj.contactNumber, obj.network
+                //       , obj.levelId, obj.facultyId, obj.pic).FirstOrDefault();
+                //msg = MapApplicant.ToEntity(item);
+            }
+            catch (Exception ex)
+            {
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            return msg;
+        }
+
+        public Applicant GetApplicantByEmailAndContactNumber(string emailId, string contactNumber)
+        {
+            Applicant obj = new Applicant();
+            //try
+            //{
+            //    var dbt = db.tvwApplicants.FirstOrDefault(x => x.emailId == emailId);
+            //    obj = MapApplicant.ToEntity(dbt);
+            //}
+            //catch (Exception)
+            //{
+            //    obj = new Applicant();
+            //}
+            DataTable dt = new DataTable();
+            string query = "select top 1 [applicantId],[name],[pmdcNo],[emailId],[password],[contactNumber],[network],[levelId],[facultyId],[pic],[statusId],[dated],[adminId],[pncNo],[genderID]";
+            query += "from tblApplicant where emailId = '" + emailId + "' or contactNumber = '" + contactNumber + "'";
+            SqlConnection con = new SqlConnection();
+            Message msg = new Message();
+            SqlCommand cmd = new SqlCommand(query);
+            try
+            {
+                con = new SqlConnection(PrpDbConnectADO.Conn);
+                con.Open();
+                cmd.Connection = con;
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                sda.Fill(dt);
+                if (dt.Rows.Count > 0)
+                {
+                    DataRow dr = dt.Rows[0];
+                    obj.accountStatus = dr["statusId"].ToString();
+                    obj.accountStatusId = Convert.ToInt32(dr["statusId"]);
+                    obj.adminId = Convert.ToInt32(dr["statusId"]);
+                    obj.applicantId = Convert.ToInt32(dr["applicantId"]);
+                    obj.applicationStatus = "active";
+                    obj.applicationStatusId = Convert.ToInt32(dr["statusId"]);
+                    obj.contactNumber = (dr["contactNumber"]).ToString();
+                    obj.date = Convert.ToDateTime((dr["dated"])).ToString();
+                    obj.dated = Convert.ToDateTime(dr["dated"]);
+                    obj.emailId = dr["emailId"].ToString();
+                    obj.facultyId = Convert.ToInt32(dr["facultyId"]);
+                    obj.facultyName = Convert.ToInt32(dr["facultyId"]).ToString();
+                    obj.inductionId = 12;
+                    obj.isValid = 1;
+                    obj.levelId = Convert.ToInt32(dr["levelId"]);
+                    obj.levelName = Convert.ToInt32(dr["levelId"]).ToString();
+                    obj.maritalStatus = "";
+                    obj.name = dr["name"].ToString();
+                    obj.network = Convert.ToInt32(dr["network"]);
+                    obj.password = dr["password"].ToString();
+                    obj.passwordDecrypt = dr["password"].ToString();
+                    obj.pathProfilePic = dr["pic"].ToString();
+                    obj.pmdcNo = "";
+                    obj.pncNo = dr["pncNo"].ToString();
+                    obj.status = dr["statusId"].ToString();
+                    obj.statusId = Convert.ToInt32(dr["statusId"]);
+                    obj.genderID = Convert.ToInt32(dr["genderID"]);
                 }
                 else
                 {
-                    msg.id = 0;
+                    msg.status = false;
                 }
             }
             catch (Exception ex)
             {
-                msg.id = 0;
+                msg.status = false;
+                msg.msg = ex.Message;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return obj;
+        }
+
+        public Message ApplicantAlreadyIsExist(IsExists obj)
+        {
+            Message msg = new Message();
+            try
+            {
+                SqlCommand cmd = new SqlCommand
+                {
+                    CommandType = CommandType.StoredProcedure,
+                    CommandText = "[dbo].[spApplicantAlreadyExist]"
+                };
+                cmd.Parameters.AddWithValue("@id", obj.id);
+                cmd.Parameters.AddWithValue("@search", obj.search);
+                cmd.Parameters.AddWithValue("@condition", obj.condition);
+                DataTable dt = PrpDbADO.FillDataTable(cmd);
+
+                msg = dt.ConvertToEnitityMessage();
+                //var item = db.spApplicantRegister(obj.name, obj.pmdcNo, obj.emailId, obj.password, obj.contactNumber, obj.network
+                //       , obj.levelId, obj.facultyId, obj.pic).FirstOrDefault();
+                //msg = MapApplicant.ToEntity(item);
+            }
+            catch (Exception ex)
+            {
                 msg.status = false;
                 msg.msg = ex.Message;
             }
@@ -654,8 +758,8 @@ namespace Prp.Data
             DataTable dt = new DataTable();
             try
             {
-                string query = "select [applicantId],[name],[pmdcNo],[emailId],[password],[contactNumber],[network],[levelId],[facultyId],[pic],[statusId],[dated],[adminId],[pncNo],[genderID] ";
-                query += "from tblApplicant where applicantId = " + applicantId + "";
+                string query = "select top 1 [applicantId],[name],[pmdcNo],[emailId],[password],[contactNumber],[network],[levelId],[facultyId],[pic],[statusId],[dated],[adminId],[pncNo],[genderID] ";
+                query += "from tblApplicant  WITH(NOLOCK)  where applicantId = " + applicantId + "";
                 SqlConnection con = new SqlConnection();
                 Message msg = new Message();
                 SqlCommand cmd = new SqlCommand(query);
@@ -769,6 +873,22 @@ namespace Prp.Data
             //cmd.Parameters.AddWithValue("@firstName", obj.firstName);
             return PrpDbADO.FillDataTable(cmd);
         }
+        
+        public DataTable ApplicantSaveConsentMigrants(Consent obj)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantSaveConsentMigrants]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+            cmd.Parameters.AddWithValue("@consentTypeId", obj.consentTypeId);
+            cmd.Parameters.AddWithValue("@roundId", obj.roundId);
+            cmd.Parameters.AddWithValue("@upgradable", obj.upgradable);
+            cmd.Parameters.AddWithValue("@prefNo", obj.prefNo);
+            //cmd.Parameters.AddWithValue("@firstName", obj.firstName);
+            return PrpDbADO.FillDataTable(cmd);
+        }
 
 
         public DataTable getRejection(int applicantId)
@@ -804,12 +924,33 @@ namespace Prp.Data
             return PrpDbADO.FillDataTable(cmd);
         }
 
+        public DataTable GetMigrantApplicantMeritByApplicantId(int applicantId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetMigrantApplicantMeritByApplicantId]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
         public DataTable GetApplicantConsentByApplicantId(int applicantId)
         {
             SqlCommand cmd = new SqlCommand
             {
                 CommandType = CommandType.StoredProcedure,
                 CommandText = "[dbo].[spGetApplicantConsentByApplicantId]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+        public DataTable GetMigrantApplicantConsentByApplicantId(int applicantId)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetMigrantApplicantConsentByApplicantId]"
             };
             cmd.Parameters.AddWithValue("@applicantId", applicantId);
             return PrpDbADO.FillDataTable(cmd);
@@ -879,6 +1020,19 @@ namespace Prp.Data
                 CommandText = "[dbo].[spMigrationPreferencesByApplicantId]"
             };
             cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+        public DataTable SaveMigrationGrievance(string pdfFileName, string pdfFileData, int applicantId)
+        {
+            DataTable dt = new DataTable();
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spSaveMigrationGrievance]"
+            };
+            cmd.Parameters.AddWithValue("@applicantId", applicantId);
+            cmd.Parameters.AddWithValue("@pdfFileName", pdfFileName);
+            cmd.Parameters.AddWithValue("@pdfFileData", pdfFileData);
             return PrpDbADO.FillDataTable(cmd);
         }
         public DataTable SaveMigrationPdfFile(string pdfFileName, int applicantId)
@@ -1264,13 +1418,13 @@ namespace Prp.Data
             {
                 string query = "";
                 query = "IF NOT EXISTS (SELECT * FROM tblApplicationStatus "
-                   + " WHERE inductionId = 15"
+                   + " WHERE inductionId = 16"
                    + " AND applicantId = " + applicantId + ""
                    + " AND statusTypeId = 53) "
                    //+ "AND statusId = 1) "
                    + " BEGIN "
                     + "INSERT INTO tblApplicationStatus(inductionId, applicantId, statusTypeId, statusId, dated) "
-                    + " VALUES(15, " + applicantId + ", 53, 1, GETDATE()) "
+                    + " VALUES(16, " + applicantId + ", 53, 1, GETDATE()) "
                    + " END";
                 SqlCommand cmdUpdate = new SqlCommand(query);
                 con.Open();
@@ -1636,9 +1790,9 @@ namespace Prp.Data
             try
             {
                 string query = "select top 1 a.*, b.*, r.name as disName, rdom.name as domDisName ";
-                query += ", tim.NoDuesCertificate NoDuesCertificate, tim.NoEnquiryCertificate NoEnquiryCertificate, tjoin.firstName CollegeJoined ";
+                query += ", tim.NoDuesCertificate NoDuesCertificate, tim.NoEnquiryCertificate NoEnquiryCertificate, tjoin.firstName CollegeJoined, tim.pdfAllData  ";
                 query += " from tblApplicant a WITH(NOLOCK) ";
-                query += " left join(select* from tblApplicantInfo WITH (NOLOCK) union select* from tblApplicantInfoMigrants WITH (NOLOCK)) b on b.applicantId = a.applicantId ";
+                query += " left join(select* from tblApplicantInfo WITH (NOLOCK)) b on b.applicantId = a.applicantId ";
                 query += " left join tblRegion r on b.districtId = r.regionId left join tblRegion rdom on b.domicileDistrictId = rdom.regionId ";
                 query += " left join tblNursingApplicantImageData tim on a.applicantId = tim.applicantId ";
                 query += " left join(select top 1 t1.applicantId, u.firstName from tblApplicantJoiningStatus t1 ";
@@ -1663,7 +1817,7 @@ namespace Prp.Data
                         obj.phaseId = Convert.ToInt32(dr[17]);
                         obj.applicantId = Convert.ToInt32(dr[18]);
                         obj.fatherName = dr[19].ToString();
-                        obj.genderId = dr[20].TooInt();
+                        obj.genderId = dr["genderId"].TooInt();
                         obj.disableId = Convert.ToInt32(dr[21]);
                         obj.dob = Convert.ToDateTime(dr[22]);
                         obj.pmdcExpiryDate = Convert.ToDateTime(dr[23]);
@@ -1701,6 +1855,7 @@ namespace Prp.Data
                         obj.currentPosting = dr["CollegeJoined"].TooString();
                         obj.nocCertificate = dr["NoEnquiryCertificate"].TooString();
                         obj.nicCertificate = dr["NoDuesCertificate"].TooString();
+                        obj.medicalFitnessCertificate = dr["pdfAllData"].TooString();
                     }
                     else
                     {
@@ -2771,39 +2926,19 @@ namespace Prp.Data
             };
             cmd.Parameters.AddWithValue("@inductionId", obj.inductionId);
             cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
+            cmd.Parameters.AddWithValue("@typeId", obj.typeId);
 
             return PrpDbADO.FillDataSet(cmd);
         }
 
         public ApplicantVoucher GetApplicantVoucher(int inductionId, int phaseId, int applicantId)
         {
-            inductionId = 15;
             ApplicantVoucher obj = new ApplicantVoucher();
             SqlConnection con = new SqlConnection();
             try
             {
-                //if (inductionId == 0)
-                //{
-                //    var dbt = db.tblApplicantVouchers.FirstOrDefault(x => x.applicantId == applicantId);
-                //    if (dbt != null && dbt.applicantVoucherId > 0)
-                //        obj = MapVoucher.ToEntity(dbt);
-                //    else obj = new ApplicantVoucher();
-                //}
-                //else
-                //{
-                //    var dbt = db.tblApplicantVoucherFinals.FirstOrDefault(x => x.inductionId == inductionId && x.applicantId == applicantId);
-                //    if (dbt != null && dbt.applicantVoucherId > 0)
-                //        obj = MapVoucher.ToEntity(dbt);
-                //    else obj = new ApplicantVoucher();
-
-                //}
-
                 con = new SqlConnection(PrpDbConnectADO.Conn);
-                //string query = "select a.[applicantVoucherId],a.[inductionId],a.[phaseId],a.[applicantId],a.[amount], " +
-                //    " a.[branchCode],a.[voucherImage],a.[ibn],a.[accountNo],a.[accountTitle],a.[submittedDate],a.[dated],a.[testingCenterID], h.name" +
-                //    " from tblApplicantVoucher a inner join (select name,hospitalId from tblHospital where levelId = 25) h on a.testingCenterID = h.hospitalId "+
-                //    " where a.inductionId = " + inductionId + " and a.applicantId = " + applicantId + "";
-                string query = "select a.[applicantVoucherId],a.[inductionId],a.[phaseId],a.[applicantId],a.[amount],a.[branchCode],a.[voucherImage],a.[ibn],a.[accountNo],a.[accountTitle],a.[submittedDate],a.[dated],a.[testingCenterID] from tblApplicantVoucher a  where a.inductionId = " + inductionId + " and a.applicantId = " + applicantId + " ";
+                string query = "select a.[applicantVoucherId],a.[inductionId],a.[phaseId],a.[applicantId],a.[amount],a.[branchCode],a.[voucherImage],a.[ibn],a.[accountNo],a.[accountTitle],a.[submittedDate],a.[dated],a.[testingCenterID] from tblApplicantVoucher a  where a.inductionId = " + inductionId + " and a.applicantId = " + applicantId + " and phaseId = "+phaseId+" ";
                 SqlCommand cmd = new SqlCommand(query, con);
                 DataTable dt = new DataTable();
                 SqlDataAdapter sda = new SqlDataAdapter(cmd);
@@ -2825,7 +2960,6 @@ namespace Prp.Data
                     obj.submittedDate = Convert.ToDateTime(dr[10]);
                     obj.dated = Convert.ToDateTime(dr[11]);
                     obj.testingCenter = dr[12].TooInt();
-                    //obj.testingCenterName = dr["name"].TooString();
                 }
             }
             catch (Exception ex)
@@ -2838,6 +2972,7 @@ namespace Prp.Data
             }
             return obj;
         }
+
 
 
         public Message ApplicantVoucherAddUpdate(ApplicantVoucher obj)
@@ -2858,7 +2993,7 @@ namespace Prp.Data
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@applicantId", obj.applicantId);
                     cmd.Parameters.AddWithValue("@inductionId", obj.inductionId);
-                    cmd.Parameters.AddWithValue("@phaseId", obj.phaseId);
+                    cmd.Parameters.AddWithValue("@phaseId", obj.typeId);
                     cmd.Parameters.AddWithValue("@amount", obj.amount);
                     cmd.Parameters.AddWithValue("@branchCode", obj.branchCode);
                     cmd.Parameters.AddWithValue("@voucherImage", obj.voucherImage);

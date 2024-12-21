@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "Applicant List";
+    Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
+}
+@model Prp.Sln.SeatsViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Seats</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Manage Seats</h1>
+
+    <div id="activities-container">
+        @foreach (var item in Model.Seats)
+        {
+            <div class="activity">
+                <label>College:</label>
+                <input type="hidden" class="collegeId" disabled readonly value="@item.CollegeId" />
+                <input type="text" style="width:400px" class="collgeName" disabled readonly value="@item.CollegeName" />
+                <label>Session:</label>
+                <input type="hidden" class="typeId" disabled readonly value="@item.typeId" />
+                <input type="text" class="sessionName" disabled readonly value="@item.typeName" />
+                <label>Quota:</label>
+                <input type="hidden" class="quotaId" disabled readonly value="@item.quotaId" />
+                <input type="text" class="quotaName" disabled readonly value="@item.quotaName" />
+                <label>Seats:</label>
+                <input type="text" class="seats" value="@item.Seats" />
+            </div>
+        }
+    </div>
+
+    <button id="submit-events">Submit</button>
+
+    <script>
+        $(document).ready(function () {
+
+
+            // Handle form submission
+            $('#submit-events').click(function () {
+                debugger;
+                var seatsList = [];
+
+                $('.activity').each(function () {
+                    var collegeId = $(this).find('.collegeId').val();
+                    var typeId = $(this).find('.typeId').val();
+                    var quotaId = $(this).find('.quotaId').val();
+                    var seats = $(this).find('.seats').val();
+
+                    seatsList.push({
+                        collegeId: collegeId,
+                        typeId: typeId,
+                        quotaId: quotaId,
+                        seats: seats
+                    });
+                });
+
+                $.ajax({
+                    url: '@Url.Action("UpdateSeats", "CommonAdmin")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(seatsList),
+                    success: function (response) {
+                        console.log(response);
+                        alert('Seats updated successfully!');
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error: ' + error);
+                    }
+                });
+
+            });
+        });
+    </script>
+</body>
+</html>
+

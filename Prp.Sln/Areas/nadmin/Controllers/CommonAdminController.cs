@@ -196,6 +196,63 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return RedirectToAction("InductionManage");
         }
 
+        public ActionResult SeatsManage()
+        {
+            SeatsViewModel list = new SeatsViewModel();
+            ApplicantAdminDAL dal = new ApplicantAdminDAL();
+            DataTable dt = new DataTable();
+            dt = dal.getSeatsForInduction("16");
+            foreach (DataRow dr in dt.Rows)
+            {
+                Seat item = new Seat();
+                item.typeId = dr["typeId"].TooInt();
+                item.CollegeId = dr["CollegeID"].TooInt();
+                item.quotaId = dr["quotaId"].TooInt();
+                item.quotaName = dr["quotaName"].TooString();
+                item.typeName = dr["typeName"].TooString();
+                item.CollegeName = dr["CollegeName"].TooString();
+                item.Seats = dr["Seats"].TooInt();
+                list.Seats.Add(item);
+            }
+            return View(list);
+        }
+
+        [HttpPost]
+        public ActionResult UpdateSeats(List<Seat> list)
+        {
+            ApplicantAdminDAL dal = new ApplicantAdminDAL();
+            if (list != null || !list.Any())
+            {
+                var date = DateTime.UtcNow;
+                Message msg = new Message();
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        SqlCommand cmd = new SqlCommand
+                        {
+                            CommandType = CommandType.StoredProcedure,
+                            CommandText = "[dbo].[spUpdateSeats]"
+                        };
+                        cmd.Parameters.AddWithValue("@collegeId", item.CollegeId);
+                        cmd.Parameters.AddWithValue("@typeId", item.typeId);
+                        cmd.Parameters.AddWithValue("@quotaId", item.quotaId);
+                        cmd.Parameters.AddWithValue("@Seats", item.Seats);
+                        cmd.Parameters.AddWithValue("@adminId", loggedInUser.userId);
+                        msg = PrpDbADO.ExecuteNonQuery(cmd);
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    msg.status = false;
+                    msg.msg = ex.Message;
+                }
+            }
+            return RedirectToAction("SeatsManage");
+        }
+
         [HttpGet]
         public JsonResult GetApplicantTentativeMarks(int applicantId, double fsc, double gn, double mw, double bsn, double extraQ, double minExp, double exp, double entryTest)
         {

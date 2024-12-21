@@ -1585,6 +1585,9 @@
     <Content Include="Areas\nadmin\Views\CommonAdmin\InductionManage.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicantAdmin\UpdatePhoneNumber.cshtml" />
     <Content Include="Areas\nadmin\Views\ApplicationReviewAdmin\MigrantScruitny.cshtml" />
+    <Content Include="Areas\nadmin\Views\ApplicantAdmin\ApplicantSearchMigration.cshtml" />
+    <Content Include="Areas\nadmin\Views\JoiningAdmin\ApplicantTakeJoiningMigration.cshtml" />
+    <Content Include="Areas\nadmin\Views\CommonAdmin\SeatsManage.cshtml" />
     <None Include="Properties\PublishProfiles\PRP.UI.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\chosen\chosen-sprite.png" />
@@ -6424,6 +6427,11 @@
     <Content Include="Views\LoggedIn\MigrantProofReading.cshtml" />
     <Content Include="Views\MeritGazat\ApprovedList.cshtml" />
     <Content Include="Views\MeritGazat\RejectedList.cshtml" />
+    <Content Include="Views\MeritGazat\MeritList10.cshtml" />
+    <Content Include="Views\MeritGazat\MeritList11.cshtml" />
+    <Content Include="Views\MeritGazat\MeritList13.cshtml" />
+    <Content Include="Views\LoggedIn\SeatsView.cshtml" />
+    <Content Include="Views\Prints\VouchersSpecial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

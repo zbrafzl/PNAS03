@@ -169,12 +169,12 @@
                 SaveAndProceed();
             });
 
-            $(document).keypress(function (event) {
-                var keycode = (event.keyCode ? event.keyCode : event.which);
-                if (keycode == '13') {
-                    SaveAndProceed();
-                }
-            });
+            //$(document).keypress(function (event) {
+            //    var keycode = (event.keyCode ? event.keyCode : event.which);
+            //    if (keycode == '13') {
+            //        SaveAndProceed();
+            //    }
+            //});
             //alert(@Convert.ToInt32(Session["applicantExist"]));
             //alert('call');
             GetApplicantInfo();
@@ -935,7 +935,7 @@
                 obj.search = $("#txtCNIC").val();
                 obj.condition = "CNIC";
 
-                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                var resp = CallActionPost("/LoggedIn/ApplicantAlreadyIsExist", obj)
                 if (resp != null && resp.id > 0) {
                     isExist = true;
                     alert(identityType + " alredy exists. Please try another.")
@@ -2062,7 +2062,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-12">
-                                <span id="btnProfileSave" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28">Save & Continue &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                                <span id="btnSave" type="button" class="btn btn-lg mb10 mt5 pull-right btn-red" tabindex="28">Save & Continue &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
                             </div>
                         </form>
                     </div>

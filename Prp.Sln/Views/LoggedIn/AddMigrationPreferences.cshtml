@@ -13,8 +13,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
     <script>
-
         var pdfFileName = "";
+        var pdfFileData = "";
         var applicantId = 0, applicantDetailId = 0, objApplicant = {}, objApplicantInfo = {}, objApplicantInfoDualNational = {},
             imagesPath = "", districtListAll = [], countryList = [], dualNationalityType = 1, countryId = 132, inductionId;
         var objDegree = {}, objEducation = {};
@@ -32,9 +32,20 @@
 
         var identityType = "CNIC";
 
-        $(document).ready(function () {
 
-            var dateFormatDatePocker = 'dd/mm/yyyy';
+        function CallMyPostAction(url, pdfFileName, pdfFileData) {
+            return $.ajax({
+                type: "POST",
+                url: url,
+                data: {
+                    pdfFileName: pdfFileName,
+                    pdfFileData: pdfFileData
+                }
+            });
+        }
+
+        $(document).ready(function () {
+			var dateFormatDatePocker = 'dd/mm/yyyy';
 
             $("#txtDateOfPassingInter").datepicker({
                 format: dateFormatDatePocker,
@@ -47,6 +58,8 @@
                 startDate: '-90y'
             }
             );
+
+
 
             BindDistrictDDL(196, 0);
             BindDistrictDDLDomicile(196, 0);
@@ -61,6 +74,7 @@
             }
 
             $("#choices").change(function () {
+                debugger;
                 var selectedOption = $(this).find("option:selected");
                 var choice = {
                     id: parseInt(selectedOption.val()),
@@ -81,6 +95,7 @@
             });
 
             $("#selectedChoices").on("click", ".delete-btn", function () {
+                debugger;
                 var choiceId = $(this).parent().data("id");
                 var orderId = $(this).parent().data("order");
                 selectedChoices = $.grep(selectedChoices, function (e) {
@@ -91,7 +106,7 @@
                 $("#choices").find(`option[value="${choiceId}"]`).show();
             });
 
-            document.getElementById('pdfFileInput').addEventListener('change', function (e) {
+			document.getElementById('pdfFileInput').addEventListener('change', function (e) {
                 var file = e.target.files[0];
 
                 if (file && file.type === 'application/pdf') {
@@ -133,6 +148,103 @@
                 }
             });
 
+
+            $("#submitBtnGrievance").click(function () {
+                var resp = null;
+                var fileInput = document.getElementById('pdfFileInput').files[0];
+
+                if (fileInput) {
+                    uploadApplicantPdf('pdfFileInput', applicantId,
+                        function (fileName) {
+                            if (fileName) {
+                                debugger;
+                                console.log('File uploaded successfully! Filename: ' + fileName);
+                                pdfFileName = fileName;
+                                migrantApplicantImageData.pdfAllData = ConvertToString(pdfFileName);
+                                pdfFileData = $("#txtComments").val()
+                                CallMyPostAction("/LoggedIn/SaveMigrationGrievance", pdfFileName, pdfFileData).done(function (response) {
+                                    console.log("Success:", response);
+                                    if (response.msg == "Data Updated") {
+                                        if (confirm("Grievance Submitted Successfully!")) {
+                                            if (confirm("Your application will be logged out")) {
+                                                window.location = "/logout";
+                                            }
+                                        }
+                                    }
+                                })
+                                .fail(function (jqXHR, textStatus, errorThrown) {
+                                    console.log("Error:", errorThrown);
+                                    // Handle the error here
+                                    alert("Error: " + errorThrown);
+                                })
+                                .always(function () {
+                                    console.log("Request completed.");
+                                    // This will always run, regardless of success or error
+                                });
+                                console.log(resp);
+
+                                // Save the fileName to the database or perform further processing
+                            } else {
+                                console.log('No file selected.');
+                                // Handle the case where no file was uploaded (though this should not be reached)
+                                pdfFileName = "";
+                            }
+                        },
+                        function (error) {
+                            console.error(error);
+                            pdfFileName = "";
+                        }
+                    );
+                }
+                else
+                {
+                    debugger;
+                    console.log(resp);
+                    //alert('No file attached.');
+                    // Handle the case where no file is attached, such as displaying a message
+                    // Example: alert('Please attach a file before uploading.');
+                    if ('@Model.jsonTable.Rows[0]["pdfAllData"].TooString()' != '') {
+                        pdfFileName = '@Model.jsonTable.Rows[0]["pdfAllData"].TooString()'
+                    }
+                    else {
+                        pdfFileName = "";
+                    }
+                    pdfFileData = $("#txtComments").val()
+                    CallMyPostAction("/LoggedIn/SaveMigrationGrievance", pdfFileName, pdfFileData)
+                        .done(function (response) {
+                            console.log("Success:", response);
+                            if (response.msg == "Data Updated") {
+                                if (confirm("Grievance Submitted Successfully!")) {
+                                    if (confirm("Your application will be logged out")) {
+                                        window.location = "/logout";
+                                    }
+                                }
+                            }
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            console.log("Error:", errorThrown);
+                            // Handle the error here
+                            alert("Error: " + errorThrown);
+                        })
+                        .always(function () {
+                            console.log("Request completed.");
+                            // This will always run, regardless of success or error
+                        });
+                    console.log(resp.msg);
+                }
+                debugger;
+                if (resp.msg == "Data Updated") {
+                    if (confirm("Grievance Submitted Successfully!")) {
+                        if (confirm("Your application will be logged out")) {
+                            window.location = "/logout";
+                        }
+                    }
+                }
+                else {
+                    alert(errorMessage);
+                }
+
+            });
             $("#submitBtn").click(function () {
 
                 //mpdp.dob = "";
@@ -150,11 +262,12 @@
                 inductionId = ConvertToInt($("#hfdInductionId").val());
 
 
-                //var saveEducation = SaveAndProceed();
-                //if (saveEducation == true) {
-                //    messageRet += "Education Saved!... ";
-                //}
+                debugger;
 
+                var saveEducation = SaveAndProceed();
+                if (saveEducation == true) {
+                    messageRet += "Education Saved!... ";
+                }
                 mpdp.dob = "";
                 //objApplicantInfo.dob = ConvertToString($("#txtDob").val());
                 var d = ConvertToString($("#txtDob").val());
@@ -223,7 +336,7 @@
                             isError = true;
                             if (ctrl == "")
                                 ctrl = "flResultCard1";
-                            errorMessage += " \nUpload Prob 1 Certificate";
+                            errorMessage += " \nUpload Prof 1 Certificate";
                         }
                         $("#hfdResultCard1").val(dmc.picDMC);
                         dmcs.push(dmc);
@@ -351,8 +464,7 @@
                         errorMessage += " \nUpload No Enquiry Certificate";
                     }
 
-
-                    var fileInput = document.getElementById('pdfFileInput').files[0];
+					var fileInput = document.getElementById('pdfFileInput').files[0];
 
                     if (fileInput) {
                         uploadApplicantPdf('pdfFileInput', applicantId,
@@ -362,8 +474,8 @@
                                     console.log('File uploaded successfully! Filename: ' + fileName);
                                     pdfFileName = fileName;
                                     migrantApplicantImageData.pdfAllData = ConvertToString(pdfFileName);
-
-                                    var resp = CallActionPostCustom("/LoggedIn/SaveMigrationPdfFile",pdfFileName);
+                                    pdfFileData = $("#txtComments").val()
+                                    var resp = CallActionPostCustom("/LoggedIn/SaveMigrationPdfFile", pdfFileName, pdfFileData);
 
 
                                     // Save the fileName to the database or perform further processing
@@ -379,25 +491,30 @@
                             }
                         );
                     } else {
-                        alert('No file attached.');
+                        //alert('No file attached.');
                         // Handle the case where no file is attached, such as displaying a message
                         // Example: alert('Please attach a file before uploading.');
                         pdfFileName = "";
+                        pdfFileData = $("#txtComments").val()
+                        var resp = CallActionPostCustom("/LoggedIn/SaveMigrationPdfFile", pdfFileName, pdfFileData);
                     }
 
                     migrantApplicantImageData.pdfAllData = ConvertToString(pdfFileName);
 
+
                     if (isError == false) {
                         mpdp.dmcList = dmcs;
                         mpdp.migrantApplicantImageData = migrantApplicantImageData;
+                        debugger;
                         console.log(mpdp);
                         if (mpdp.dmcList.length > 0 & mpdp.listSpecilties.length > 0) {
                             var resp = CallActionPost("/LoggedIn/SaveMigrationPreferencesByApplicantId", mpdp);
                             debugger;
+
                             if (resp.msg == 'Data Updated') {
                                 messageRet += "Data Added Successfully!";
                                 alert(messageRet);
-                                //window.location = "/migrant-proof-reading";
+                                window.location = "/migrant-proof-reading";
                             }
                             else {
                                 alert(errorMessage);
@@ -464,7 +581,8 @@
 
         });
 
-        function CallActionPostCustom(url, pdfFileName) {
+
+		function CallActionPostCustom(url, pdfFileName) {
             return $.ajax({
                 type: "POST",
                 url: url,
@@ -478,7 +596,8 @@
             });
         }
 
-        function uploadApplicantPdf(fileInputId, applicantId, successCallback, errorCallback) {
+
+		function uploadApplicantPdf(fileInputId, applicantId, successCallback, errorCallback) {
             var formData = new FormData();
             var fileInput = document.getElementById(fileInputId).files[0];
 
@@ -516,6 +635,7 @@
             }
         }
 
+
         function faBoardCheckOption(that) {
             //alert('change');
             //if ($("#ddlMatricBoard option:selected").text() == "Other") {
@@ -533,6 +653,9 @@
         }
 
         function SaveAndProceed() {
+
+            debugger;
+
             isError = ValidateFormEducation();
             console.log(objEducation);
             if (isError == false) {
@@ -564,6 +687,7 @@
 
         function ValidateFormEducation() {
 
+            debugger;
             isError = false, ctrl = "";
             objDegree = { DegreeMarks: [] }; objDegreeMarksList = []; objApplicantInfo = {};
 
@@ -656,7 +780,7 @@
                 }
                 errorMessage += " \nObtained Marks cannot be More than Total Marks";
             }
-
+			debugger;
             var dob = $("#txtDob").val();
             var matD = $("#txtDateOfPassingMatric").val();
             var faD = $("#txtDateOfPassingInter").val();
@@ -710,6 +834,7 @@
                 }
             }*@
 
+            debugger;
             inductionId = ConvertToInt($("#hfdInductionId").val());
             if (@(Model.jsonTable.Rows.Count.TooInt()) > 0 && "@Model.jsonTable.Rows[0]["name"].TooString()" != "") {
                 try {
@@ -717,33 +842,35 @@
                     $("#txtName").val('@Model.jsonTable.Rows[0]["name"].TooString()').change();
                     $("#txtFatherName").val('@Model.jsonTable.Rows[0]["fatherName"].TooString()').change();
                     $("#ddlGender").val(@Model.jsonTable.Rows[0]["genderID"].TooInt()).change();
+					if('@Model.jsonTable.Rows[0]["pdfAllData"].TooString()' != '')
+					{
+						var pdfFilePath = '@Model.jsonTable.Rows[0]["pdfAllData"].TooString()'; // Assume you have the path in the model
+						pdfFilePath = "/Images/Applicant/" + applicantId + "/" + pdfFilePath;
+						// Load the PDF file
+						pdfjsLib.getDocument(pdfFilePath).promise.then(function (pdf) {
+							// Get the first page
+							pdf.getPage(1).then(function (page) {
+								var scale = 0.15; // Set scale for thumbnail
+								var viewport = page.getViewport({ scale: scale });
 
-                    var pdfFilePath = '@Model.jsonTable.Rows[0]["pdfAllData"].TooString()'; // Assume you have the path in the model
-                    pdfFilePath = "/Images/Applicant/" + applicantId + "/" + pdfFilePath;
-                    // Load the PDF file
-                    pdfjsLib.getDocument(pdfFilePath).promise.then(function (pdf) {
-                        // Get the first page
-                        pdf.getPage(1).then(function (page) {
-                            var scale = 0.15; // Set scale for thumbnail
-                            var viewport = page.getViewport({ scale: scale });
+								// Set canvas dimensions
+								var canvas = document.getElementById('pdfThumbnail');
+								var context = canvas.getContext('2d');
+								canvas.width = viewport.width;
+								canvas.height = viewport.height;
 
-                            // Set canvas dimensions
-                            var canvas = document.getElementById('pdfThumbnail');
-                            var context = canvas.getContext('2d');
-                            canvas.width = viewport.width;
-                            canvas.height = viewport.height;
+								// Render PDF page into canvas context
+								var renderContext = {
+									canvasContext: context,
+									viewport: viewport
+								};
+								page.render(renderContext);
+							});
+						}).catch(function (error) {
+							console.error("Error loading PDF:", error);
+						});
 
-                            // Render PDF page into canvas context
-                            var renderContext = {
-                                canvasContext: context,
-                                viewport: viewport
-                            };
-                            page.render(renderContext);
-                        });
-                    }).catch(function (error) {
-                        console.error("Error loading PDF:", error);
-                    });
-
+					}
                     $("#txtDob").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["dob"]).ToString("dd/MM/yyyy").ToString())");
 
                     $("#txtJoiningDate").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["joiningDate"]).ToString("dd/MM/yyyy").ToString())");
@@ -763,17 +890,19 @@
                     $("#txtEmail").val('@Model.jsonTable.Rows[0]["emailId"].TooString()').change();
                     $("#ddlDistrict").val(@Model.jsonTable.Rows[0]["districtId"].TooInt()).change();
                     $("#txtAddress").val('@Model.jsonTable.Rows[0]["address"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ')').change();
-                    $("#txtCollege").val('@Model.jsonTable.Rows[0]["college"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ')').change();
+                    $("#txtCollege").val('@Model.jsonTable.Rows[0]["college"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ').Split('-')[0]').change();
 
                     $("#ddlMatricBoard option:selected").text('@Model.jsonTable.Rows[0]["matricBoard"].TooString()');
                     $("#txtRowDegree1MarksObtain").val(@Model.jsonTable.Rows[0]["matricObt"].TooInt()).change();
                     $("#txtRowDegree1MarksTotal").val(@Model.jsonTable.Rows[0]["matricTotal"].TooInt()).change();
-                    $("#txtDateOfPassingMatric").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())");
+                    //$("#txtDateOfPassingMatric").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())");
 
                     $("#ddlFABoard option:selected").text('@Model.jsonTable.Rows[0]["boardStudentFscData"].TooString()');
                     $("#txtRowDegree2MarksObtain").val(@Model.jsonTable.Rows[0]["obtainedMarksStudentFscData"].TooInt()).change();
                     $("#txtRowDegree2MarksTotal").val(@Model.jsonTable.Rows[0]["totalMarksStudentFscData"].TooInt()).change();
                     $("#txtDateOfPassingInter").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["passingDateStudentFscData"]).ToString("dd/MM/yyyy").ToString())");
+
+					$("#txtReason").val('@Model.jsonTable.Rows[0]["college"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ').Split('-')[1]').change();
 
                     $("#hfdPic").val("");
                     if (("@(Model.jsonTable.Rows[0]["pic"].TooString())") != "") {
@@ -893,11 +1022,13 @@
 
         function getApplicantPreferences() {
             var resp = CallActionGet("/LoggedIn/GetApplicantPreferences?applicantId=" + applicantId);
+            debugger;
             if (resp.length > 0) {
                 resp.forEach(function (choice, index) {
                     //$("#selectedChoices").append(`<div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.hospitalName} <span class="btn-danger delete-btn pull-right" style="width:60px; text-align: center">Delete</span></div>`);
 
                     //var selectedOption = $(this).find("option:selected");
+                    debugger;
                     var selectedOption = $('#choices option[value=' + choice.hospitalId + ']')
                     var choice1 = {
                         id: parseInt(choice.hospitalId),
@@ -967,6 +1098,53 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <hr class="colorgraph">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="col-md-4" style="padding-left:0px; padding-bottom:20px">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label for=""> Status </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8" style="padding-left:0px; padding-bottom:20px">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label for="">
+                                            @if (Model.jsonTable.Rows[0]["joiningStatus"].TooInt() == 171)
+                                            {
+                                                <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Approved</span> </h4>
+
+                                            }
+                                            else if (Model.jsonTable.Rows[0]["joiningStatus"].TooInt() == 172)
+                                            {
+                                                <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Rejected</span> </h4>
+                                            }
+                                            else if (Model.jsonTable.Rows[0]["joiningStatus"].TooInt() == 54)
+                                            {
+                                                <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Re-Submitted</span> </h4>
+                                            }
+                                            else if (Model.jsonTable.Rows[0]["joiningStatus"].TooInt() == 173)
+                                            {
+                                                <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Grievance Approved</span> </h4>
+                                            }
+                                            else if (Model.jsonTable.Rows[0]["joiningStatus"].TooInt() == 174)
+                                            {
+                                                <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Rejected in Phase 2</span> </h4>
+                                            }
+                                            else if (Model.jsonTable.Rows[0]["joiningStatus"].TooInt() == 175)
+                                            {
+                                                <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Resubmitted for Phase 3</span> </h4>
+                                            }
+                                            else if (Model.jsonTable.Rows[0]["joiningStatus"].TooInt() == 176)
+                                            {
+                                                <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Rejected in Phase 3</span> </h4>
+                                            }
+                                            <span style="color:red"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-sm-4" style="padding-left:0px; padding-bottom:20px">
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
@@ -983,11 +1161,17 @@
                                 </div>
                             </div>
                         </div>
+
+
                         <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group">
                                 <label for=""> Induction <span style="color:red">*</span></label>
                                 <select required="required" disabled="disabled" readonly="readonly" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
 
+                                    @*<option selected="selected" value="11">2022-26</option>
+                    <option selected="selected" value="10">2021-25</option>
+                    <option selected="selected" value="9">2020-24</option>
+                    <option selected="selected" value="13">2022-26</option>*@
                                     <option selected="selected" value="9">2020-2021 (Teaching)</option>
                                     <option selected="selected" value="10">2021-2022 (Teaching)</option>
                                     <option selected="selected" value="11">2021-2022 (Only DHQ)</option>
@@ -1143,7 +1327,7 @@
                                         <label>Passing Date <span class="sprq">*</span></label>
                                         <div>
                                             <div class="form-group">
-                                                <input type="text" disabled="disabled" readonly="readonly" name="txtDateOfPassingMatric" id="txtDateOfPassingMatric" class="datepicker form-control dated" tabindex="19">
+                                                <input type="text" disabled="disabled" readonly="readonly" value="@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())" maxlength="11" name="txtDateOfPassingMatric" id="txtDateOfPassingMatric" class="datepicker form-control dated" tabindex="24" autocomplete="off">
                                             </div>
                                         </div>
                                     </div>
@@ -1160,7 +1344,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Profile Picture  <span style="color:red">*</span></label>
                                 @*<input type="file" class="form-control flup" name="flPic" id="flPic" tabindex="25" />
-                                    <input type="hidden" id="hfdPic" value="" />*@
+                <input type="hidden" id="hfdPic" value="" />*@
                                 <img id="imgPic" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvPic" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -1169,7 +1353,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> <span class="spnCnic"> CNIC Front Image</span> <span style="color:red">*</span>  </label>
                                 @*<input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="26" />
-                                    <input type="hidden" id="hfdCnicFront" value="" />*@
+                <input type="hidden" id="hfdCnicFront" value="" />*@
                                 <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvCnicFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -1178,7 +1362,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> <span id="spnCnicUpload2"> <span class="spnCnic">CNIC</span> Back Image</span> <span style="color:red">*</span>  </label>
                                 @*<input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="27" />
-                                    <input type="hidden" id="hfdCnicBack" value="" />*@
+                <input type="hidden" id="hfdCnicBack" value="" />*@
                                 <img id="imgCnicBack" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvCnicBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -1188,7 +1372,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Domicile Front Image <span style="color:red">*</span> </label>
                                 @*<input type="file" class="form-control flup" name="flDomicileFront" id="flDomicileFront" tabindex="28" />
-                                    <input type="hidden" id="hfdDomicileFront" value="" />*@
+                <input type="hidden" id="hfdDomicileFront" value="" />*@
                                 <img id="imgDomicileFront" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvDomicileFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -1197,24 +1381,42 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Matric Certificate Image <span class="sprq">*</span></label>
                                 @*<input type="file" id="flRowDegree1" name="flRowDegree1" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
-                                    <input type="hidden" id="hfdRowDegree1" value="" />*@
+                <input type="hidden" id="hfdRowDegree1" value="" />*@
                                 <img id="imgRowDegree1" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvRowDegree1" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
                         </div>
-                        <!--<div class="col-sm-4 divFaImage">
+                        <div class="col-sm-4 ">
                             <div class="form-group">
-                                <label for="" style="width:100% !important"> Fsc Certificate Image <span class="sprq">*</span></label>-->
+                                <label for="" style="width:100% !important"> Fsc Certificate Image <span class="sprq">*</span></label>
+                                @*<input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
+                                <input type="hidden" id="hfdRowDegree2" value="" />*@
+                                <img id="imgRowDegree2" class="flup-img" alt="" />
+                                @*<a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
+                            </div>
+                        </div>
+                        <!--<div class="col-sm-4 divFaImage">
+        <div class="form-group">
+            <label for="" style="width:100% !important"> Fsc Certificate Image <span class="sprq">*</span></label>-->
                         @*<input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="30" accept="image/jpeg, image/png">
-                            <input type="hidden" id="hfdRowDegree2" value="" />*@
+        <input type="hidden" id="hfdRowDegree2" value="" />*@
                         <!--<img id="imgRowDegree2" class="flup-img" src="" alt=""/>-->
                         @*<a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                         <!--</div>
-                        </div>-->
+    </div>-->
                     </div>
                 </div>
                 <hr />
+                <div class="col-sm-12" style="padding-left:0px; padding-bottom:20px">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Reason For Rejection. </p> <input type="text" class="form-control" disabled="disabled" readonly="readonly" required="required" name="txtReason" id="txtReason"><hr>
 
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
                 <fieldset id="fieldTypeUpdateInfo" class="fieldType">
                     <legend> Update Your Information </legend>
                     <fieldset id="fieldTypeFA" class="fieldType">
@@ -1230,7 +1432,7 @@
                                 <div class="form-group">
                                     <label> Select Degree <span class="sprq">*</span></label>
                                     <input type="hidden" id="hfdRowDegree2Id" value="0" />
-                                    <select required="required" name="ddlFa" id="ddlFa" class="form-control">
+                                    <select required="required" disabled name="ddlFa" id="ddlFa" class="form-control">
                                         <option selected="selected" value="9">FSc</option>
                                     </select>
                                 </div>
@@ -1239,7 +1441,7 @@
                                 <div class="form-group">
                                     <label> Select Board <span class="sprq">*</span></label>
                                     <input type="hidden" id="hfdRowDegree1Id" value="0" />
-                                    <select required="required" name="ddlFABoard" id="ddlFABoard" class="form-control" tabindex="20" onchange="faBoardCheckOption(this)">
+                                    <select required="required" disabled="disabled" name="ddlFABoard" id="ddlFABoard" class="form-control" tabindex="20" onchange="faBoardCheckOption(this)">
                                         <option selected="selected" value="1">BISE Lahore</option>
                                         <option value="2">BISE Faisalabad</option>
                                         <option value="3">BISE Sargodha</option>
@@ -1258,7 +1460,7 @@
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
                                     <label> Enter Board Name <span class="sprq">*</span></label>
-                                    <input type="text" maxlength="30" name="txtFaBoardName" id="txtFaBoardName" class="form-control " tabindex="21" autocomplete="off">
+                                    <input type="text" maxlength="30" disabled="disabled" name="txtFaBoardName" id="txtFaBoardName" class="form-control " tabindex="21" autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -1268,7 +1470,7 @@
                                     <label>Obtained Marks <span class="sprq">*</span></label>
                                     <div>
                                         <div class="form-group">
-                                            <input maxlength="4" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="22" autocomplete="off">
+                                            <input maxlength="4" disabled="disabled" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" name="txtRowDegree2MarksObtain" id="txtRowDegree2MarksObtain" class="datepicker form-control dated" tabindex="22" autocomplete="off">
                                         </div>
                                     </div>
                                 </div>
@@ -1278,7 +1480,7 @@
                                     <label>Total Marks <span class="sprq">*</span></label>
                                     <div>
                                         <div class="form-group">
-                                            <input maxlength="4" disabled name="txtRowDegree2MarksTotal" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="23" autocomplete="off">
+                                            <input maxlength="4"  disabled="disabled" name="txtRowDegree2MarksTotal" type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" id="txtRowDegree2MarksTotal" class="datepicker form-control dated" tabindex="23" autocomplete="off">
                                         </div>
                                     </div>
                                 </div>
@@ -1287,19 +1489,10 @@
                         <div class="row col-md-6 fieldType5">
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group">
-                                    <label> Certificate Image <span class="sprq">*</span></label>
-                                    <input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
-                                    <input type="hidden" id="hfdRowDegree2" value="" />
-                                    <img id="imgRowDegree2" class="flup-img" alt="" />
-                                    <a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
                                     <label>Passing Date <span class="sprq">*</span></label>
                                     <div>
                                         <div class="form-group">
-                                            <input type="text" maxlength="11" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="24" autocomplete="off">
+                                            <input type="text" maxlength="11" disabled="disabled" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="24" autocomplete="off">
                                         </div>
                                     </div>
                                 </div>
@@ -1310,48 +1503,42 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend>Upload your Documents</legend>
+                        <legend>Your Certificates</legend>
                         <div class="row col-md-12 fieldType5">
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label> No Dues Certificate <span class="sprq">*</span></label>
-                                    <input type="file" id="flNoDuesCertificate" name="flNoDuesCertificate" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
+                                    @*<input type="file" id="flNoDuesCertificate" name="flNoDuesCertificate" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">*@
                                     <input type="hidden" id="hfdNoDuesCertificate" value="" />
                                     <img id="imgNoDuesCertificate" class="flup-img" alt="" />
-                                    <a id="rmvNoDuesCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    @*<a id="rmvNoDuesCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label> No Enquiry Certificate <span class="sprq">*</span></label>
-                                    <input type="file" id="flNoEnquiryCertificate" name="flNoEnquiryCertificate" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">
+                                    @*<input type="file" id="flNoEnquiryCertificate" name="flNoEnquiryCertificate" class="form-control flup" tabindex="2" accept="image/jpeg, image/png">*@
                                     <input type="hidden" id="hfdNoEnquiryCertificate" value="" />
                                     <img id="imgNoEnquiryCertificate" class="flup-img" alt="" />
-                                    <a id="rmvNoEnquiryCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    @*<a id="rmvNoEnquiryCertificate" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                                 </div>
                             </div>
-                            <div class="col-xs-12 col-sm-4 col-md-4">
-                                <div class="form-group">
-                                    <label> Add Relevant Data</label>
-                                    <input type="file" id="pdfFileInput" accept="application/pdf" />
-                                    <canvas id="pdfThumbnail"></canvas>
-                                </div>
-                            </div>
+
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend>Enter Probs </legend>
+                        <legend>Your Profs </legend>
                         <div style="display:none">
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for="lbl-err"> Date of Birth <span style="color:red">*</span> <span id="spnDob" class="lbl-err" style="display:none;">Invalid date</span> </label>
-                                    <input type="text" name="dob" id="txtDob" class="form-control datepicker dated" tabindex="6">
+                                    <input type="text" name="dob" id="txtDob" disabled="disabled" class="form-control datepicker dated" tabindex="6">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4 col-md-4">
                                 <div class="form-group">
                                     <label for=""> Joining Date <span style="color:red">*</span> <span id="spnJoiningDate" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                    <input type="text" class="form-control datepicker dated" name="joiningDate" id="txtJoiningDate" tabindex="7" autocomplete="off">
+                                    <input type="text" class="form-control datepicker dated" disabled="disabled" name="joiningDate" id="txtJoiningDate" tabindex="7" autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -1360,19 +1547,19 @@
                             <div class="col-xs-12 col-sm-3 col-md-3">
                                 <div class="form-group">
                                     <label for=""> Obtained Marks/CGPA <span style="color:red">*</span> <span id="spnOM" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                    <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="obtainedMarks1" id="obtainedMarks1" tabindex="7" autocomplete="off">
+                                    <input type="number" pattern="/^-?\d+\.?\d*$/" disabled="disabled" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="obtainedMarks1" id="obtainedMarks1" tabindex="7" autocomplete="off">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-3 col-md-3">
                                 <div class="form-group">
                                     <label for=""> Total Marks/CGPA <span style="color:red">*</span> <span id="spnTM" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                    <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="totalMarks1" id="totalMarks1" tabindex="7" autocomplete="off">
+                                    <input type="number" pattern="/^-?\d+\.?\d*$/" disabled="disabled" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="totalMarks1" id="totalMarks1" tabindex="7" autocomplete="off">
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-3 col-md-3">
                                 <div class="form-group">
                                     <label> Select University <span class="sprq">*</span></label>
-                                    <select required="required" name="ddlUni1" id="ddlUni1" class="form-control" tabindex="20">
+                                    <select required="required" disabled="disabled" name="ddlUni1" id="ddlUni1" class="form-control" tabindex="20">
                                         <option selected="selected" value="UHS">UHS</option>
                                         <option value="FJMU">FJMU</option>
                                         <option value="KEMU">KEMU</option>
@@ -1383,10 +1570,10 @@
                             <div class="col-sm-3 divResultImage">
                                 <div class="form-group">
                                     <label for="" style="width:100% !important"> Result Card <span class="sprq">*</span></label>
-                                    <input type="file" id="flResultCard1" name="flResultCard1" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
+                                    @*<input type="file" id="flResultCard1" name="flResultCard1" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">*@
                                     <input type="hidden" id="hfdResultCard1" value="" />
                                     <img id="imgResultCard1" class="flup-img" src="" alt="" style="display:none;" />
-                                    <a id="rmvResultCard1" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                    @*<a id="rmvResultCard1" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                                 </div>
                             </div>
                         </div>
@@ -1398,19 +1585,19 @@
                                     <div class="col-xs-12 col-sm-3 col-md-3">
                                         <div class="form-group">
                                             <label for=""> Obtained Marks/CGPA <span style="color:red">*</span> <span id="spnOM" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                            <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="obtainedMarks2" id="obtainedMarks2" tabindex="7" autocomplete="off">
+                                            <input type="number" pattern="/^-?\d+\.?\d*$/" disabled="disabled" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="obtainedMarks2" id="obtainedMarks2" tabindex="7" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-xs-12 col-sm-3 col-md-3">
                                         <div class="form-group">
                                             <label for=""> Total Marks/CGPA <span style="color:red">*</span> <span id="spnTM" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                            <input type="number" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="totalMarks2" id="totalMarks2" tabindex="7" autocomplete="off">
+                                            <input type="number" pattern="/^-?\d+\.?\d*$/" disabled="disabled" onKeyPress="if(this.value.length==4) return false;" class="form-control" name="totalMarks2" id="totalMarks2" tabindex="7" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-xs-12 col-sm-3 col-md-3">
                                         <div class="form-group">
                                             <label> Select University <span class="sprq">*</span></label>
-                                            <select required="required" name="ddlUni2" id="ddlUni2" class="form-control" tabindex="20">
+                                            <select required="required" name="ddlUni2" id="ddlUni2" disabled="disabled" class="form-control" tabindex="20">
                                                 <option selected="selected" value="UHS">UHS</option>
                                                 <option value="FJMU">FJMU</option>
                                                 <option value="KEMU">KEMU</option>
@@ -1421,10 +1608,10 @@
                                     <div class="col-sm-3 divResultImage">
                                         <div class="form-group">
                                             <label for="" style="width:100% !important"> Result Card <span class="sprq">*</span></label>
-                                            <input type="file" id="flResultCard2" name="flResultCard2" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
+                                            @*<input type="file" id="flResultCard2" name="flResultCard2" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">*@
                                             <input type="hidden" id="hfdResultCard2" value="" />
                                             <img id="imgResultCard2" class="flup-img" src="" alt="" style="display:none;" />
-                                            <a id="rmvResultCard2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                            @*<a id="rmvResultCard2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                                         </div>
                                     </div>
                                 </div>
@@ -1436,43 +1623,68 @@
                 </fieldset>
 
 
-                <div class="col-sm-12">
-                    <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Preferences</p> <hr>
-                </div>
+                @*<div class="col-sm-12">
+                        <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Preferences</p> <hr>
+                    </div>*@
                 <fieldset id="fieldTypePref" class="fieldType">
-                    <legend> Your Preferences </legend>
-                    <div class="row mt-2">
-                        <div>
-                            <div class="row" style="padding:15px">
-                                <div id="selectedChoices" style="width:60%; border:0px; height:auto !important">
-                                    <!-- Selected choices will be displayed here -->
-                                    <!-- <div class="selected-choice text-success text-decoration-underline col-md-10" style="height:30px" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.name}</div><div class="col-md-2"> <span class="btn-danger delete-btn" style="width:30px; padding: 4px">Delete</span></div>`); -->
-                                    @*@foreach (var item in Model.listSpecility)
-                                        {
-                                            <div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="@item.preferenceNo" data-id="@item.hospitalId">@item.preferenceNo. @item.hospitalName</div><div class="col-md-2"> <span class="btn-danger delete-btn pull-right" style="width:60px; text-align:center">Delete</span></div>
-                                        }*@
+                    @*<legend> Your Preferences </legend>
+                        <div class="row mt-2">
+                            <div>
+                                <div class="row" style="padding:15px">
+                                    <div id="selectedChoices" style="width:60%; border:0px; height:auto !important">
+                                        <!-- Selected choices will be displayed here -->
+                                        <!-- <div class="selected-choice text-success text-decoration-underline col-md-10" style="height:30px" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.name}</div><div class="col-md-2"> <span class="btn-danger delete-btn" style="width:30px; padding: 4px">Delete</span></div>`); -->
+                                        <!--@foreach (var item in Model.listSpecility)
+                                            {
+                                                <div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="@item.preferenceNo" data-id="@item.hospitalId">@item.preferenceNo. @item.hospitalName</div><div class="col-md-2"> <span class="btn-danger delete-btn pull-right" style="width:60px; text-align:center">Delete</span></div>
+                                            }-->
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <hr />
+                        <hr />*@
                     <div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <select id="choices" class="form-control">
-                                    <option value="0">-- Add a Preference --</option>
-                                    @foreach (var choice in Model.listSpecilityMerit)
-                                    {
-                                        <option value="@choice.specialityJobId">@choice.hospitalName</option>
-                                    }
-                                </select>
+                        @*<div class="row">
+            <div class="col-md-6">
+                <select id="choices" class="form-control">
+                    <option value="0">-- Add a Preference --</option>
+                    @foreach (var choice in Model.listSpecilityMerit)
+                    {
+                        <option value="@choice.specialityJobId">@choice.hospitalName</option>
+                    }
+                </select>
+            </div>
+        </div>*@
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <hr><b><p class="card-title" style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> اگر آپ کو کوئی شکایت ہے تو آپ یہاں اپنی شکایت درج کر سکتے ہیں اور متعلقہ فائل "پی ڈی ایف" فارمیٹ میں "اٹیچ" کر سکتے ہیں۔ </p> </b><hr>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div>
+                                <div class="form-group">
+                                    <label for="heard">Grievance *:</label>
+                                    <textarea class="form-control" required="required" name="txtComments" id="txtComments" tabindex="13" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div>
+                                <div class="form-group">
+                                    <label> Add Relevant Data (Combined as PDF)</label>
+                                    <input type="file" id="pdfFileInput" accept="application/pdf" />
+                                    <canvas id="pdfThumbnail"></canvas>
+                                </div>
                             </div>
                         </div>
 
                         <hr />
-                        <div class="row" style="padding-top: 20px">
+                        <div class="col-xs-12 col-sm-12 col-md-12" style="padding-top: 20px">
                             <div class="col-md-6">
-                                <button id="submitBtn" class="btn btn-primary">Submit And View Application</button>
+                                <button id="submitBtnGrievance" class="btn btn-primary">Save Your Grievance</button>
+                            </div>
+                            <div class="col-md-6">
                             </div>
                         </div>
                     </div>

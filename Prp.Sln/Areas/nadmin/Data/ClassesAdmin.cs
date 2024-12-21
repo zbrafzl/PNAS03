@@ -29,29 +29,9 @@ namespace Prp.Sln.Areas.nadmin
                 DDLConstants dDLConstant = new DDLConstants();
                 dDLConstant.condition = "ByType";
                 dDLConstant.typeId = ProjConstant.Constant.degreeType;
-                model.listType = new ConstantDAL().GetConstantDDL(dDLConstant).OrderBy(x => x.id).ToList();
-
+                //model.listType = new ConstantDAL().GetConstantDDL(dDLConstant).OrderBy(x => x.id).ToList();
+                model.listType = new List<EntityDDL>();
                 model.applicant = new ApplicantDAL().GetApplicant(inductionId, applicantId);
-
-                if (model.applicant == null)
-                {
-                    try
-                    {
-                        ApplicationStatus objss = new ApplicationStatus();
-                        objss.applicantId = applicantId;
-                        objss.statusTypeId = ProjConstant.Constant.statusApplicantAccount;
-                        objss.statusId = 0;
-
-                        new ApplicantDAL().ApplicantStatusUpdate(objss);
-                        model.applicant = new ApplicantDAL().GetApplicant(inductionId, applicantId);
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    model.applicant = new ApplicantDAL().GetApplicant(inductionId, applicantId);
-                }
-
                 try
                 {
 

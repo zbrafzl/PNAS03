@@ -83,7 +83,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             }
             else
             {
-                model.listDashBoard = new CommonDAL().GetDashboardCount(ProjConstant.inductionId, ProjConstant.phaseId);
+                model.listDashBoard = new CommonDAL().GetDashboardCount(ProjConstant.inductionId, loggedInUser.userId);
                 return View("DashboardInductionWise", model);
             }
         }
@@ -94,7 +94,7 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             HomeModelAdmin model = new HomeModelAdmin();
             model.inductionId = Request.QueryString["inductionId"].TooInt();
             if (model.inductionId == 0) model.inductionId = ProjConstant.inductionId;
-            model.listDashBoard = new CommonDAL().GetDashboardCount(model.inductionId, ProjConstant.phaseId);
+            model.listDashBoard = new CommonDAL().GetDashboardCount(model.inductionId, loggedInUser.userId);
 
             return View(model);
         }

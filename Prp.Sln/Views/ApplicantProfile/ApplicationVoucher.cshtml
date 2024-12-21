@@ -16,8 +16,9 @@
 
     <script>
 
-        var applicantId = 0, applicantVoucherId = 0, imagesPath = ""
-            , objApplicant = {}, objApplicantInfo = {}, objVoucher = {};
+        var applicantId = 0, applicantVoucherId = 0, applicantVoucherIdEvening = 0, imagesPath = "", voucherCount = 0, programSelected = 0
+            , objApplicant = {}, objApplicantInfo = {}, objVoucher = {}, objVoucherEvening = {};
+        var objSpecilityList = [], objSpecilityListEvening = [];
         //var testingCenters = [{ "centerID": 1, "centerName": "AIMH, Sialkot" }, { "centerID": 2, "centerName": "Allied Hospital, Faisalabad" }, { "centerID": 3, "centerName": "ABS Teaching Hospital, Gujrat" }, { "centerID": 4, "centerName": "Bahawal Victoria Hospital, Bahawalpur" }, { "centerID": 5, "centerName": "Benazir Bhutto Hospital, Rawalpindi" }, { "centerID": 7, "centerName": "Children Hospital, Lahore" }, { "centerID": 9, "centerName": "Children Hospital, Multan" }, { "centerID": 10, "centerName": "Choudhary Prevez Ilahi Institute of Cardiology , Multan" }, { "centerID": 11, "centerName": "DHQ Hospital, DG Khan" }, { "centerID": 12, "centerName": "DHQ Hospital, Faisalabad" }, { "centerID": 13, "centerName": "DHQ Hospital, Gujranwala" }, { "centerID": 14, "centerName": "DHQ Rawalpindi" }, { "centerID": 15, "centerName": "Sahiwal Teaching Hospital, Sahiwal" }, { "centerID": 16, "centerName": "DHQ Teaching Hospital, Sargodha" }, { "centerID": 17, "centerName": "Faisalabad Institute of Cardiology, Faisalabad" }, { "centerID": 18, "centerName": "Govt. Teaching Hospital GM Abad, Faisalabad" }, { "centerID": 19, "centerName": "Govt.Teaching Hospital , Shahdra , Lahore" }, { "centerID": 20, "centerName": "Holy Family Hospital, Rawalpindi" }, { "centerID": 21, "centerName": "Jinnah Hospital, Lahore" }, { "centerID": 22, "centerName": "Lahore General Hospital, Lahore" }, { "centerID": 23, "centerName": "Mayo Hospital, Lahore" }, { "centerID": 24, "centerName": "Nishtar Hospital, Multan" }, { "centerID": 25, "centerName": "Punjab Institute of Cardiology, Lahore" }, { "centerID": 26, "centerName": "Punjab Institute of Neurosciences, Lahore" }, { "centerID": 27, "centerName": "Rawalpindi Institute of Cardiology , Rawalpindi" }, { "centerID": 28, "centerName": "Services Hospital, Lahore" }, { "centerID": 29, "centerName": "Sir Ganga Ram Hospital, Lahore" }, { "centerID": 30, "centerName": "SZ Hospital, Rahim Yar Khan" }, { "centerID": 31, "centerName": "Wazirabad Institute of Cardiology, Warzirabad" }, { "centerID": 32, "centerName": "Punjab Dental Hospital, Lahore" }, { "centerID": 33, "centerName": "Allied Hospital (Dentistry), Faisalabad" }, { "centerID": 34, "centerName": "Nishtar Institute of Dentistry, Multan" }, { "centerID": 35, "centerName": "Lady Aitchison Hospital" }, { "centerID": 36, "centerName": "Lady Willingdon Hospital" }, { "centerID": 37, "centerName": "Kot Khawaja Saeed Hospital, Lahore" }, { "centerID": 39, "centerName": "Institute of Child Health, Faisalabad" }, { "centerID": 40, "centerName": "Faisalabad Institute of Cardiology" }, { "centerID": 41, "centerName": "Civil Hospital Bahawalpur" }, { "centerID": 42, "centerName": "RMU Allied Hospital, Rawalpindi" }, { "centerID": 4794, "centerName": "Govt. M. Nawaz Sharif Teaching Hospital, Yakki Gate, Lahore" }, { "centerID": 4795, "centerName": "Said Mitha Hospital" }, { "centerID": 4798, "centerName": "Punjab Institute of Mental Health, Lahore" }, { "centerID": 4799, "centerName": "Govt Haji Abdul Qayyum Teaching Hospital Sahiwal" }, { "centerID": 4806, "centerName": "Government Mian Munshi Teaching Hospital Lahore" }, { "centerID": 4811, "centerName": "Sheikh Zayed Medical Complex, Lahore" }, { "centerID": 4813, "centerName": "Institute Of Public health (IPH) Lahore" }]
         var testingCenters = [{ "centerID": 1, "centerName": "UHS, Lahore" }]
 
@@ -27,9 +28,22 @@
             imagesPath = "/Images/Applicant/" + applicantId + "/";
 
             PreInit();
+            PreInitEvening();
 
-            var startDate = new Date(2023, 11 - 1, 13)
-            var endDate = new Date(2023, 11 - 1, 30)
+
+            GetApplicantSpecilityList();
+
+            GetApplicantInfo();
+            GetApplicantVoucherInfo();
+            GetApplicantVoucherInfoEvening();
+
+
+            var startDate = new Date(2024, 12 - 1, 10)
+            var endDate = new Date(2024, 12 - 1, 31)
+
+            var startDateEvening = new Date(2024, 12 - 1, 20)
+            var endDateEvening = new Date(2025, 01 - 1, 10)
+
 
             var dateFormatDatePocker = 'dd/mm/yyyy';
 
@@ -50,6 +64,19 @@
                 startDate: startDate,
                 endDate: endDate
             });
+
+            $(".txtSubmittedDateEvening").datepicker({
+                format: dateFormatDatePocker,
+                autoclose: true,
+                clearBtn: true,
+                disableTouchKeyboard: true,
+                todayHighlight: true,
+                showOnFocus: true,
+                changeYear: true,
+                startDate: startDateEvening,
+                endDate: endDateEvening
+            });
+
 
             $(document).on('click', '#chkSubmittedVoucher', function () {
                 var status = $("#chkSubmittedVoucher").is(':checked');
@@ -72,34 +99,48 @@
                 SaveAndProceed();
             });
 
+            $(document).on('click', '.btnSaveEvening', function () {
+                SaveAndProceedEvening();
+            });
+
             $(document).on('click', '#ankVoucherDownload', function () {
                 sessionStorage.setItem("applicantIdPrint", applicantId);
                 window.open('/print/voucher', '_blank');
+            });
+            $(document).on('click', '#ankVoucherDownloadEvening', function () {
+                sessionStorage.setItem("applicantIdPrintEvening", applicantId);
+                window.open('/print/voucher-evening', '_blank');
             });
 
             $(document).on('click', '.ankVoucherLink', function () {
                 BindVoucherForm();
             });
-
-
-            $(document).keypress(function (event) {
-                var keycode = (event.keyCode ? event.keyCode : event.which);
-                if (keycode == '13') {
-                    SaveAndProceed();
-                }
+            $(document).on('click', '.ankVoucherLinkEvening', function () {
+                BindVoucherFormEvening();
             });
+
+
+            //$(document).keypress(function (event) {
+            //    var keycode = (event.keyCode ? event.keyCode : event.which);
+            //    if (keycode == '13') {
+            //        SaveAndProceed();
+            //    }
+            //});
             $(document).on('click', '#btnSaveModal', function () {
                 $('#myModal').modal('hide');
                 window.location = "/applicant-proof-reading";
             });
+
             $(document).on('click', '#ankContinue', function () {
 
-                if (applicantVoucherId > 0) {
+                if (applicantVoucherId > 0 || applicantVoucherIdEvening > 0) {
+                    if (programSelected == voucherCount) {
+                        CallActionGet("/ApplicantProfile/UpdateApplicantStatus?applicantId=" + applicantId
+                            + "&applicationStatus=7&condition=applicationStatus");
 
-                    CallActionGet("/ApplicantProfile/UpdateApplicantStatus?applicantId=" + applicantId
-                        + "&applicationStatus=7&condition=applicationStatus");
+                        $('#myModal').modal('show');
+                    }
 
-                    $('#myModal').modal('show');
                 }
                 else {
 
@@ -107,21 +148,85 @@
                 }
             });
 
-            GetApplicantInfo();
-            GetApplicantVoucherInfo();
 
         });
+
+        function GetApplicantSpecilityList() {
+            debugger;
+            $(".divAction").hide();
+
+            var obj = {};
+            obj.applicantId = applicantId;
+
+            objSpecilityList = [];
+            objSpecilityListEvening = [];
+            var resp = CallActionPost("/ApplicantProfile/ApplicantSpecilityGet", obj);
+
+
+            try {
+                if (resp != null) {
+                    var listSpcApp = resp.Table;
+
+                    $("#divHtml").html("");
+                    $("#divHtml2").html("");
+
+                    if (listSpcApp.length > 0) {
+                        $(".divAction").show();
+                    }
+
+                    objSpecilityList = $.grep(listSpcApp, function (n, i) {
+                        return n.typeId == 9;
+                    });
+
+
+                    objSpecilityListEvening = $.grep(listSpcApp, function (n, i) {
+                        return n.typeId == 10;
+                    });
+                }
+            } catch (e) {
+                $(".divAction").hide();
+            }
+
+            if (objSpecilityList.length > 0) {
+                $("#divVoucherForm").show();
+                $("#divPaymentForm").show();
+                $("#divGridVoucher").show();
+                $("#divGridPayment").show();
+            }
+            else {
+                $("#divVoucherForm").hide();
+                $("#divPaymentForm").hide();
+                $("#divGridVoucher").hide();
+                $("#divGridPayment").hide();
+            }
+
+            if (objSpecilityListEvening.length > 0) {
+                $("#divVoucherFormEvening").show();
+                $("#divPaymentFormEvening").show();
+                $("#divGridVoucherEvening").show();
+                $("#divGridPaymentEvening").show();
+            }
+            else {
+                $("#divVoucherFormEvening").hide();
+                $("#divPaymentFormEvening").hide();
+                $("#divGridVoucherEvening").hide();
+                $("#divGridPaymentEvening").hide();
+            }
+
+
+        }
 
         function PreInit() {
 
             var obj = {};
             obj.applicantId = applicantId
+            obj.typeId = 1;
             var resp = CallActionPost("/ApplicantProfile/ApplicantVoucherInfoGetAll", obj);
             if (resp != null) {
-
+                debugger;
                 var voucherBankId = 0;
                 try {
-                    var objIndInfo = resp.Table5[0];
+                    var objIndInfo = resp.Table[0];
                     voucherBankId = objIndInfo.voucherBankId;
                 } catch (e) {
                     voucherBankId = 0;
@@ -132,9 +237,30 @@
                 }
             }
         }
+        function PreInitEvening() {
+            debugger;
+            var obj = {};
+            obj.applicantId = applicantId
+            obj.typeId = 2;
+            var resp = CallActionPost("/ApplicantProfile/ApplicantVoucherInfoGetAll", obj);
+            if (resp != null) {
+                debugger;
+                var voucherBankId = 0;
+                try {
+                    var objIndInfo = resp.Table[0];
+                    voucherBankId = objIndInfo.voucherBankId;
+                } catch (e) {
+                    voucherBankId = 0;
+                }
+                if (voucherBankId > 0) {
+                    $("#btnSaveVoucherEvening").show();
+
+                }
+            }
+        }
 
         function SaveAndProceed() {
-
+            debugger;
             if (ValidateForm() == false) {
 
                 var resp = CallActionPost("/ApplicantProfile/ApplicantVoucherAddUpdate", objVoucher);
@@ -145,9 +271,21 @@
 
             }
         }
+        function SaveAndProceedEvening() {
+
+            if (ValidateFormEvening() == false) {
+
+                var resp = CallActionPost("/ApplicantProfile/ApplicantVoucherAddUpdate", objVoucherEvening);
+                if (resp != null && resp.status == true) {
+                    GetApplicantVoucherInfo();
+                    alert("Voucher information saved sucessfully.")
+                }
+
+            }
+        }
 
         function ValidateForm() {
-
+            debugger;
             var isError = false, ctrl = "";
             objVoucher = {};
 
@@ -183,6 +321,8 @@
 
             var status = $("#chkSubmittedVoucher").is(':checked');
             if (status == true) {
+
+                objVoucher.typeId = 1;
 
                 objVoucher.branchCode = ConvertToString($("#txtBranchCode").val());
 
@@ -266,6 +406,126 @@
 
             return isError;
         }
+        function ValidateFormEvening() {
+
+            var isError = false, ctrl = "";
+            objVoucherEvening = {};
+
+            $(".req-fld").removeClass("req-fld");
+            $(".lbl-err").hide();
+
+            /* Get Values
+           *****************************************************************************/
+            objVoucherEvening.applicantVoucherId = applicantVoucherIdEvening;
+            var amounts = "";
+            if (@Convert.ToInt32(Session["degreeAchieved"]) != 13)
+            {
+                amounts = "2000";
+            }
+            else
+            {
+                amounts = "500";
+            }
+
+            objVoucherEvening.applicantId = applicantId;
+
+            objVoucherEvening.amount = amounts;
+            objVoucherEvening.branchCode = "";
+            objVoucherEvening.voucherImage = "";
+            objVoucherEvening.ibn = "";
+            objVoucherEvening.accountNo = "";
+            objVoucherEvening.accountTitle = "";
+            objVoucherEvening.dateSubmitted = "";
+            objVoucherEvening.testingCenter = ConvertToInt($("#ddlCenterEvening").val());
+
+
+
+
+            var status = $("#chkSubmittedVoucherEvening").is(':checked');
+            if (status == true) {
+                objVoucherEvening.typeId = 2;
+                objVoucherEvening.branchCode = ConvertToString($("#txtBranchCodeEvening").val());
+
+                if ($("#flVoucherEvening").val()) {
+                    objVoucherEvening.voucherImage = UploadImage("flVoucherEvening", applicantId, "voucherEvening");
+                    $("#hfdVoucherEvening").val(objVoucherEvening.voucherImage);
+                }
+                objVoucherEvening.voucherImage = ConvertToString($("#hfdVoucherEvening").val());
+
+                objVoucherEvening.dateSubmitted = "";
+                if (ValidateDate("txtSubmittedDateVoucherEvening")) {
+                    objVoucherEvening.dateSubmitted = ConvertToString($("#txtSubmittedDateVoucherEvening").val());
+                }
+
+
+
+                if (objVoucherEvening.branchCode == "") {
+                    $("#txtBranchCodeEvening").addClass("req-fld");
+                    ctrl = "txtBranchCodeEvening";
+                    isError = true;
+                }
+                if (objVoucherEvening.voucherImage == "") {
+
+                    $("#flVoucherEvening").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "flVoucherEvening";
+                }
+
+
+                if (objVoucherEvening.dateSubmitted == "") {
+                    $("#txtSubmittedDateVoucherEvening").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtSubmittedDateVoucherEvening";
+                }
+
+            }
+            else {
+
+
+                objVoucherEvening.ibn = ConvertToString($("#txtIBNEvening").val());
+                objVoucherEvening.accountNo = ConvertToString($("#txtAccountNoEvening").val());
+                objVoucherEvening.accountTitle = ConvertToString($("#txtAccountTitleEvening").val());
+
+                objVoucherEvening.dateSubmitted = "";
+                if (ValidateDate("txtSubmittedDatePaymentEvening")) {
+                    objVoucher.dateSubmitted = ConvertToString($("#txtSubmittedDatePaymentEvening").val());
+                }
+
+                if (objVoucherEvening.ibn == "") {
+                    $("#txtIBNEvening").addClass("req-fld");
+                    ctrl = "txtIBNEvening";
+                    isError = true;
+                }
+                if (objVoucherEvening.accountNo == "") {
+                    $("#txtAccountNoEvening").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtAccountNoEvening";
+                }
+                if (objVoucherEvening.accountTitle == "") {
+                    $("#txtAccountTitleEvening").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtAccountTitleEvening";
+                }
+
+                if (objVoucherEvening.dateSubmitted == "") {
+                    $("#txtSubmittedDatePaymentEvening").addClass("req-fld");
+                    isError = true;
+                    if (ctrl == "")
+                        ctrl = "txtSubmittedDatePaymentEvening";
+                }
+
+            }
+
+
+            if (ctrl != "")
+                $("#" + ctrl).focus();
+
+            return isError;
+        }
 
         function GetApplicantInfo() {
             objApplicant = CallActionGet("/ApplicantProfile/GetApplicantInfo?applicantId=" + applicantId);
@@ -275,13 +535,14 @@
         function GetApplicantVoucherInfo() {
 
 
+
             applicantVoucherId = 0;
             $("#divVoucherForm").hide();
             $("#divPaymentForm").hide();
             $("#divGridVoucher").hide();
             $("#divGridPayment").hide();
 
-            objVoucher = CallActionGet("/ApplicantProfile/GetApplicantVoucher?applicantId=" + applicantId);
+            objVoucher = CallActionGet("/ApplicantProfile/GetApplicantVoucher?applicantId=" + applicantId +"&phaseId=1");
             if (objVoucher != null && objVoucher.applicantVoucherId > 0) {
 
                 console.log(objVoucher);
@@ -319,11 +580,96 @@
                     $("#tdTestingCenter").html(tc);
                 }
             }
-            else {
+            else if (objSpecilityList.length == 0) {
+                debugger;
+                $("#chkSubmittedVoucher").prop("checked", false);
+                $("#divVoucherForm").hide();
+                $("#divPaymentForm").hide();
+                $("#divDownload").hide();
 
+            }
+            else {
+                debugger;
                 $("#chkSubmittedVoucher").prop("checked", true);
                 $("#divVoucherForm").show();
                 $("#divPaymentForm").hide();
+
+            }
+        }
+
+        function GetApplicantVoucherInfoEvening() {
+
+
+
+            applicantVoucherIdEvening = 0;
+            $("#divVoucherFormEvening").hide();
+            $("#divPaymentFormEvening").hide();
+            $("#divGridVoucherEvening").hide();
+            $("#divGridPaymentEvening").hide();
+
+            objVoucherEvening = CallActionGet("/ApplicantProfile/GetApplicantVoucher?applicantId=" + applicantId + "&phaseId=2");
+            if (objVoucherEvening != null && objVoucherEvening.applicantVoucherId > 0) {
+
+                console.log(objVoucherEvening);
+                //                "centerID": 1, "centerName": "AIMH, Sialkot"
+                var tc = '';//testingCenters.find(ele => ele.centerID === objVoucher.testingCenter).centerName;
+
+                applicantVoucherIdEvening = objVoucherEvening.applicantVoucherId;
+
+                $("#chkSubmittedVoucherEvening").prop("checked", false);
+                debugger;
+                if (objVoucherEvening.voucherImage.length > 0) {
+
+                    $("#chkSubmittedVoucherEvening").prop("checked", true);
+
+                    $("#divGridVoucherEvening").show();
+
+                    $("#tdBranchCodeEvening").html(objVoucherEvening.branchCode);
+                    $("#tdSubmittedDateEvening").html(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucherEvening.submittedDate)));
+
+                    if (objVoucherEvening.voucherImage.length > 0) {
+                        $('#tdImgVoucherEvening').attr('src', imagesPath + objVoucherEvening.voucherImage);
+                        $('.ankImgVoucherEvening').attr('href', imagesPath + objVoucherEvening.voucherImage);
+                    }
+                    $("#ddlCenterEvening").val(objVoucherEvening.centerID);
+                    $("#tdTestingCenterEvening").html(tc);
+                }
+
+                else if (objSpecilityListEvening.length == 0) {
+
+                    $("#divGridPaymentEvening").hide();
+                    $("#divVoucherFormEvening").hide();
+                    $("#tdIBNEvening").html(objVoucherEvening.ibn);
+                    $("#tdAccountNoEvening").html(objVoucherEvening.accountNo);
+                    $("#tdAccountTitleEvening").html(objVoucherEvening.accountTitle);
+                    $("#tdSubmittedDateEvening").html(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucherEvening.submittedDate)));
+                    $("#ddlCenterEvening").val(objVoucherEvening.centerID);
+                    $("#tdTestingCenterEvening").html(tc);
+                }
+                else {
+
+                    $("#divGridPaymentEvening").show();
+                    $("#tdIBNEvening").html(objVoucherEvening.ibn);
+                    $("#tdAccountNoEvening").html(objVoucherEvening.accountNo);
+                    $("#tdAccountTitleEvening").html(objVoucherEvening.accountTitle);
+                    $("#tdSubmittedDateEvening").html(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucherEvening.submittedDate)));
+                    $("#ddlCenterEvening").val(objVoucherEvening.centerID);
+                    $("#tdTestingCenterEvening").html(tc);
+                }
+            }
+            else if (objSpecilityListEvening.length == 0){
+
+                $("#chkSubmittedVoucherEvening").prop("checked", false);
+                $("#divVoucherFormEvening").hide();
+                $("#divPaymentFormEvening").hide();
+                $("#divDownloadEvening").hide();
+
+            }
+            else {
+
+                $("#chkSubmittedVoucherEvening").prop("checked", true);
+                $("#divVoucherFormEvening").show();
+                $("#divPaymentFormEvening").hide();
 
             }
         }
@@ -371,6 +717,49 @@
             }
         }
 
+        function BindVoucherFormEvening() {
+            //alert(objVoucher.voucherImage.length);
+
+            if (objVoucherEvening != null && objVoucherEvening.applicantVoucherId > 0) {
+
+                applicantVoucherIdEvening = objVoucherEvening.applicantVoucherId;
+
+                $("#chkSubmittedVoucherEvening").prop("checked", false);
+
+                if (objVoucherEvening.voucherImage.length > 0) {
+
+                    $("#chkSubmittedVoucherEvening").prop("checked", true);
+
+                    $("#divVoucherFormEvening").show();
+
+                    $("#txtBranchCodeEvening").val(objVoucherEvening.branchCode);
+                    $("#hfdVoucherEvening").val(objVoucherEvening.voucherImage);
+
+                    $("#txtSubmittedDateVoucherEvening").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucherEvening.submittedDate)));
+
+                    if (objVoucherEvening.voucherImage.length > 0) {
+                        $('#imgVoucherEvening').attr('src', imagesPath + objVoucherEvening.voucherImage);
+                        $('#imgVoucherEvening').show();
+                        $('#rmvVoucherEvening').show();
+                        $("#hfdVoucherEvening").val(objVoucherEvening.voucherImage);
+                    }
+
+                    $("#ddlCenterEvening").val(objVoucherEvening.testingCenter);
+
+                }
+                else {
+
+                    $("#divPaymentFormEvening").show();
+                    $("#txtIBNEvening").val(objVoucherEvening.ibn);
+                    $("#txtAccountTitleEvening").val(objVoucherEvening.accountTitle);
+                    $("#txtAccountNoEvening").val(objVoucherEvening.accountNo);
+                    $("#txtSubmittedDatePaymentEvening").val(ToDateFormatDDMMYYYWithSlash(JsonToDate(objVoucherEvening.submittedDate)));
+
+                }
+
+            }
+        }
+
     </script>
 }
 
@@ -399,7 +788,7 @@
                         <input type="hidden" id="hfdSpecilityId" value="0">
                         <hr class="colorgraph">
                         <h3>Payment  Information</h3>
-                        <h3>Upload Orignal Bank Deposit Receipt Picture</h3>
+                        <h3>Upload Orignal Bank Deposit Receipt Picture(s)</h3>
                         <hr class="colorgraph">
                         <div id="divGridVoucher" class="row" style="display:none;">
                             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -456,8 +845,6 @@
                             </div>
                         </div>
                         <div class="well">
-
-
                         </div>
                         <div class="well">
                             <form role="form">
@@ -467,21 +854,14 @@
                                             <a class="ank" id="ankVoucherDownload"> <i class="fa fa-download "></i> Generate &amp; Download Challan Form </a>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row" style="display:none">
-                                    <div class="col-md-12" style="padding: 20px 15px; ">
-                                        <label style="word-wrap: break-word; line-height: 16px; float: left;" for="chkForeignNational">
-                                            <input type="checkbox" name="checkbox" id="chkSubmittedVoucher" value="Foriegn_National" style="float: left;margin: 0px 5px;height: 18px;width: 20px;">
-                                            In Case you deposited(voucher) fee in Bank of punjab.
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-12" style="padding: 20px 15px; ">
                                         <label style="word-wrap: break-word; line-height: 16px; float: left;">
                                             Fee should be submitted in Bank of the Punjab only
                                         </label>
                                     </div>
+                                </div>
+                                <div class="row" style="display:none">
+                                    
                                 </div>
                                 <div id="divVoucherForm" class="row" style="display:none;">
                                     <div class="col-xs-12 col-sm-4 col-md-4">
@@ -501,7 +881,7 @@
                                     <div class="col-xs-12 col-sm-4 col-md-4">
                                         <div class="form-group">
                                             <span style="color:red">*</span>
-                                            <label for="flVoucher"> Voucher Image </label>
+                                            <label for="flVoucher"> Voucher Image For Morning </label>
                                             <input type="file" class="form-control flup" name="flVoucher" id="flVoucher" tabindex="18" />
                                             <input type="hidden" id="hfdVoucher" value="" />
                                             <img id="imgVoucher" class="flup-img" src="" alt="" style="display:none;" />
@@ -572,6 +952,120 @@
                                             <div class="form-group">
                                                 <label>&nbsp;</label>
                                                 <input type="button" id="btnSavePayment" name="submit" class="btn mybtn animated-button form-control btnSave" style="display:none;" value="Save" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="well">
+                            <form role="form">
+                                <div id="divDownloadEvening" class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="form-group">
+                                            <a class="ank" id="ankVoucherDownloadEvening"> <i class="fa fa-download "></i> Generate &amp; Download Challan Form For Special Evening </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" style="padding: 20px 15px; ">
+                                        <label style="word-wrap: break-word; line-height: 16px; float: left;">
+                                            Fee (For Evening Special) should be submitted in Bank of the Punjab only
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row" style="display:none">
+                                    
+                                </div>
+                                <div id="divVoucherFormEvening" class="row" style="display:none;">
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <span style="color:red">*</span>
+                                            <label> Branch Code</label>
+                                            <input required="required" type="text" name="txtBranchCodeEvening" id="txtBranchCodeEvening" class="form-control numeric " len="4" tabindex="1">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <span style="color:red">*</span>
+                                            <label for=""> Submit Date </label>
+                                            <input required="required" type="text" name="txtSubmittedDateVoucherEvening" id="txtSubmittedDateVoucherEvening" class="form-control datepicker txtSubmittedDate" tabindex="1">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <span style="color:red">*</span>
+                                            <label for="flVoucherEvening"> Voucher Image For Evening Special </label>
+                                            <input type="file" class="form-control flup" name="flVoucherEvening" id="flVoucherEvening" tabindex="18" />
+                                            <input type="hidden" id="hfdVoucherEvening" value="" />
+                                            <img id="imgVoucherEvening" class="flup-img" src="" alt="" style="display:none;" />
+                                            <a id="rmvVoucherEvening" class="removeImageEvening" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
+                                        </div>
+                                    </div>
+                                    @if (Convert.ToString(Session["degreeAchieved"]) == "11" && Convert.ToInt32(Session["appliedFor"]) == 11)
+                                    {
+                                        <div class="col-xs-12 col-sm-8 col-md-8">
+                                            <div class="form-group">
+                                                <label> Testing Center  <span class="sprq">*</span></label>
+                                                <select class="form-control" id="ddlCenterEvening" name="ddlCenterEvening">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-xs-12 col-sm-8 col-md-8" style="display:none">
+                                            <div class="form-group">
+                                                <label> Testing Center  <span class="sprq">*</span></label>
+                                                <select class="form-control" id="ddlCenterEvening" name="ddlCenterEvening">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-xs-12 col-sm-4 col-md-4">
+                                        <div class="form-group">
+                                            <label>&nbsp;</label>
+                                            <input type="button" id="btnSaveVoucherEvening" name="submit" class="btn mybtn animated-button form-control btnSaveEvening" style="display:none;" value="Save" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="divPaymentFormEvening" class="row" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <span style="color:red">*</span>
+                                                <label for=""> IBN </label>
+                                                <input required="required" type="text" name="txtIBNEvening" id="txtIBNEvening" class="form-control lenth" len="25" tabindex="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <span style="color:red">*</span>
+                                                <label for=""> Applicant Account No. </label>
+                                                <input required="required" type="text" name="txtAccountNoEvening" id="txtAccountNoEvening" class="form-control lenth" len="20" tabindex="1">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <span style="color:red">*</span>
+                                                <label for=""> Applicant Account Title </label>
+                                                <input required="required" type="text" name="txtAccountTitleEvening" id="txtAccountTitleEvening" class="form-control alpha" len="100" tabindex="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group">
+                                                <span style="color:red">*</span>
+                                                <label for=""> Submit Date </label>
+                                                <input required="required" type="text" name="txtSubmittedDatePaymentEvening" id="txtSubmittedDatePaymentEvening" class="form-control datepicker txtSubmittedDate" tabindex="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <div class="form-group">
+                                                <label>&nbsp;</label>
+                                                <input type="button" id="btnSavePaymentEvening" name="submit" class="btn mybtn animated-button form-control btnSaveEvening" style="display:none;" value="Save" />
                                             </div>
                                         </div>
 

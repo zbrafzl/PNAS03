@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "College - Applicant Joining";
+    ViewBag.Title = "Migration - Applicant Joining";
     Layout = "~/Areas/nadmin/Views/Shared/_Layout.cshtml";
 }
 
@@ -67,10 +67,11 @@
 
             if (ValidateFormJoining() == false) {
 
-                var resp = CallActionPost("/JoiningAdmin/ApplicantJoiningAddUpdate", objJoining);
+                var resp = CallActionPost("/JoiningAdmin/ApplicantMigrationJoiningAddUpdate", objJoining);
+                debugger;
                 if (resp != null && resp.status == true) {
-                    alert("Data saved successfully")
-                    window.location = "/admin/applicant-search-join?statusTypeId=191&statusId=0";
+                    alert("Data saved successfully");
+                    window.location = "/admin/applicant-search-join?statusTypeId=200&statusId=0";
                 }
             }
         }
@@ -133,7 +134,7 @@
             objJoining.dateJoining = ConvertToString($("#txtJoinigDate").val());
 
             if ($("#flScanImage").val()) {
-                objJoining.image = UploadImage("flScanImage", objJoining.applicantId, "JoinigImage");
+                objJoining.image = UploadImage("flScanImage", objJoining.applicantId, "JoinigMigrationImage");
                 $("#hfdScanImage").val(objJoining.image);
             }
             objJoining.image = ConvertToString($("#hfdScanImage").val());
@@ -165,7 +166,7 @@
 <div class="col-md-12 col-sm-12  ">
     <div class="x_panel">
         <div class="x_title">
-            <h2>Joining </h2>
+            <h2>Migration </h2>
             <div class="clearfix"></div>
         </div>
 
@@ -349,7 +350,7 @@
                     </div>
                 </fieldset>
 
-                string sqlQuery = "select top 1 * from tvwMeritApplicant where applicantId = " + Model.applicant.applicantId + " order by 1";
+                string sqlQuery = "select t2.degreePicFront matricDegree, t3.degreePicFront faDegree, t1.* from tblMigrationMeritList3 t1 inner join tblNursingApplicantDegreeData t2 on t1.appId = t2.applicantID inner join tblNursingApplicantDegreeData t3 on t1.appId = t3.applicantID where t1.appID = " + Model.applicant.applicantId + " and t2.degreeTypeID = 8 and t3.degreeTypeID = 11  order by 1";
                 DataTable dt = new DataTable();
                 SqlCommand cmd = new SqlCommand(sqlQuery);
                 SqlConnection conn = new SqlConnection(PrpDbConnectADO.Conn);
@@ -365,42 +366,49 @@
                         @*@Html.HiddenFor(m => m.joinApplicant.applicantId, new { @id = "hfdApplicantId" })*@
                         <div class="col-md-3 col-sm-3 col-xs-3">
                             <label for="heard" style="width:100%;">Fsc Marks Percentage</label>
-                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0][2].TooDecimal())" class="form-control" readonly="readonly" />
+                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0]["fa"].TooDecimal())" class="form-control" readonly="readonly" />
                         </div>
                         <div class="col-md-3 col-sm-3 col-xs-3">
                             <label for="heard" style="width:100%;">Fsc Degree</label>
-                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + dt.Rows[0][7].TooString())" target="_blank" title="Click to view">
-                                <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + dt.Rows[0][7].TooString())" />
+                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + dt.Rows[0]["faDegree"].TooString())" target="_blank" title="Click to view">
+                                <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + dt.Rows[0]["faDegree"].TooString())" />
                             </a>
                         </div>
                         <div class="col-md-3 col-sm-3 col-xs-3">
                             <label for="heard" style="width:100%;">Matric Marks Percentage</label>
-                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0][3].TooDecimal())" class="form-control" readonly="readonly" />
+                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0]["matric"].TooDecimal())" class="form-control" readonly="readonly" />
                         </div>
                         <div class="col-md-3 col-sm-3 col-xs-3">
                             <label for="heard" style="width:100%;">Matric Degree</label>
-                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + dt.Rows[0][8].TooString())" target="_blank" title="Click to view">
-                                <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + dt.Rows[0][8].TooString())" />
+                            <a class="ank" href="@("/images/Applicant/" + applicant.applicantId + "/" + dt.Rows[0]["matricDegree"].TooString())" target="_blank" title="Click to view">
+                                <img class="imgView" src="@("/images/Applicant/" + applicant.applicantId + "/" + dt.Rows[0]["matricDegree"].TooString())" />
                             </a>
                         </div>
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend> Selected In  </legend>
+                    <legend> Selection  </legend>
                     <div class="form-group col-lg-12">
                         @Html.HiddenFor(m => m.joinApplicant.applicantId, new { @id = "hfdApplicantId" })
-                        <div class="col-md-3 col-sm-3 col-xs-3">
-                            <label for="heard" style="width:100%;">Preference No</label>
-                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0][5].TooInt())" class="form-control" readonly="readonly" />
+                        <div class="col-md-2 col-sm-2 col-xs-2">
+                            <label for="heard" style="width:100%;">Induction Session</label>
+                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0]["Induction"].TooString())" class="form-control" readonly="readonly" />
                         </div>
-                        <div class="col-md-9 col-sm-9 col-xs-9">
-                            <label for="heard" style="width:100%;">Hospital Name</label>
-                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0][6].TooString())" class="form-control" readonly="readonly" />
+                        <div class="col-md-5 col-sm-5 col-xs-5">
+                            <label for="heard" style="width:100%;">Migrated From</label>
+                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0]["CollegeJoined"].TooString())" class="form-control" readonly="readonly" />
+                        </div><div class="col-md-5 col-sm-5 col-xs-5">
+                            <label for="heard" style="width:100%;">Migrated In</label>
+                            <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0]["College_Selected_In"].TooString())" class="form-control" readonly="readonly" />
                         </div>
+                        @*<div class="col-md-2 col-sm-2 col-xs-2">
+                                <label for="heard" style="width:100%;">Preference No</label>
+                                <input type="text" id="txtFormNo" name="btnSendEmail" value="@(dt.Rows[0]["preferenceNo"].TooInt())" class="form-control" readonly="readonly" />
+                            </div>*@
                     </div>
                 </fieldset>
 
-                string queryCheck = "SELECT ISNULL((select applicantId from tblApplicantJoiningStatus where inductionId = 15 and applicantId = " + Model.applicant.applicantId + " and JoiningStatus = 1 and roundId = 1 ), 0)";
+                string queryCheck = "SELECT ISNULL((select applicantId from tblApplicantMigrationJoiningStatus where applicantId = " + Model.applicant.applicantId + " and JoiningStatus = -1 ), 0)";
                 DataTable dtCheck = new DataTable();
                 SqlCommand cmdCheck = new SqlCommand(queryCheck);
                 SqlConnection connCheck = new SqlConnection(PrpDbConnectADO.Conn);
@@ -412,7 +420,7 @@
                 int hopitalId = 0;
                 if (Convert.ToInt32(dtCheck.Rows[0][0]) > 0)
                 {
-                    string queryCheckIsFirstCollege = "SELECT ISNULL((select hospitalId from tblApplicantJoiningStatus where inductionId = 15 and applicantId = " + Model.applicant.applicantId + " and JoiningStatus = 1 and roundId = 1 and hospitalId = " + Model.loggedInUser.userId + "), 0)";
+                    string queryCheckIsFirstCollege = "SELECT ISNULL((select hospitalId from tblApplicantMigrationJoiningStatus where applicantId = " + Model.applicant.applicantId + " and JoiningStatus = 1 and hospitalId = " + Model.loggedInUser.userId + "), 0)";
                     cmdCheck = new SqlCommand(queryCheckIsFirstCollege);
                     SqlConnection connCheckIsFirstCollege = new SqlConnection(PrpDbConnectADO.Conn);
                     connCheckIsFirstCollege.Open();
@@ -421,83 +429,21 @@
                     connCheckIsFirstCollege.Close();
                     if (hopitalId > 0)
                     {
-                        string queryCheckIsSecondCollege = "SELECT ISNULL((select hospitalId from tblApplicantJoiningStatus where inductionId = 15 and applicantId = " + Model.applicant.applicantId + " and JoiningStatus = -1 and roundId = 1 and hospitalId = " + Model.loggedInUser.userId + "), 0)";
-                        cmdCheck = new SqlCommand(queryCheckIsSecondCollege);
-                        connCheckIsFirstCollege.Open();
-                        cmdCheck.Connection = connCheckIsFirstCollege;
-                        hopitalId = Convert.ToInt32(cmdCheck.ExecuteScalar());
-                        connCheckIsFirstCollege.Close();
-                        if (hopitalId > 0)
-                        {
-                            <fieldset>
-                                <legend> Re Joining  </legend>
-                                <form class="form-horizontal form-label-left input_mask">
-                                    <div class="form-group col-lg-12">
-
-                                        <div class="col-md-3 col-sm-3 col-xs-3">
-                                            <label for="heard" style="width:100%;">Joining Date</label>
-                                            <input type="text" id="txtJoinigDate" name="txtJoinigDate" class="form-control" tabindex="3" />
-                                        </div>
-                                        <div class="col-md-5 col-sm-5 col-xs-5">
-                                            <label style="float: left; clear: both; width: 100%;"> Joining Scan Image </label>
-                                            <input type="file" class="form-control flup" name="flScanImage" id="flScanImage" tabindex="18" />
-                                            <input type="hidden" id="hfdScanImage" value="" />
-                                            <img id="imgScanImage" class="flup-img" src="" alt="" style="display:none;" />
-                                            <a id="rmvScanImage" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-lg-12">
-                                        <div class="col-md-2 col-sm-2 col-xs-2">
-                                            <label for="heard" style="width:100%;">&nbsp;</label>
-                                            <input type="button" id="btnJoin" name="submit" class="btn btn-success" value="Save" />
-                                        </div>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        }
-                        else
-                        {
-                            <fieldset>
-                                <legend> Releaving  </legend>
-                                <form class="form-horizontal form-label-left input_mask">
-                                    <div class="form-group col-lg-12">
-
-                                        <div class="col-md-3 col-sm-3 col-xs-3">
-                                            <label for="heard" style="width:100%;">Releaving Date</label>
-                                            <input type="text" id="txtJoinigDate" name="txtJoinigDate" class="form-control" tabindex="3" />
-                                        </div>
-                                        <div class="col-md-5 col-sm-5 col-xs-5">
-                                            <label style="float: left; clear: both; width: 100%;"> Releaving Affidavit </label>
-                                            <input type="file" class="form-control flup" name="flScanImage" id="flScanImage" tabindex="18" />
-                                            <input type="hidden" id="hfdScanImage" value="" />
-                                            <img id="imgScanImage" class="flup-img" src="" alt="" style="display:none;" />
-                                            <a id="rmvScanImage" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-lg-12">
-                                        <div class="col-md-2 col-sm-2 col-xs-2">
-                                            <label for="heard" style="width:100%;">&nbsp;</label>
-                                            <input type="button" id="btnReleave" name="submit" class="btn btn-success" value="Releave from College" />
-                                        </div>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        }
 
                     }
                     else
                     {
                         <fieldset>
-                            <legend> Joining  </legend>
+                            <legend> Set Migration </legend>
                             <form class="form-horizontal form-label-left input_mask">
                                 <div class="form-group col-lg-12">
 
                                     <div class="col-md-3 col-sm-3 col-xs-3">
-                                        <label for="heard" style="width:100%;">Joining Date</label>
+                                        <label for="heard" style="width:100%;">Migration Date</label>
                                         <input type="text" id="txtJoinigDate" name="txtJoinigDate" class="form-control" tabindex="3" />
                                     </div>
                                     <div class="col-md-5 col-sm-5 col-xs-5">
-                                        <label style="float: left; clear: both; width: 100%;"> Joining Scan Image </label>
+                                        <label style="float: left; clear: both; width: 100%;"> Migration Document </label>
                                         <input type="file" class="form-control flup" name="flScanImage" id="flScanImage" tabindex="18" />
                                         <input type="hidden" id="hfdScanImage" value="" />
                                         <img id="imgScanImage" class="flup-img" src="" alt="" style="display:none;" />
@@ -507,7 +453,7 @@
                                 <div class="form-group col-lg-12">
                                     <div class="col-md-2 col-sm-2 col-xs-2">
                                         <label for="heard" style="width:100%;">&nbsp;</label>
-                                        <input type="button" id="btnJoin" name="submit" class="btn btn-success" value="Save" />
+                                        <input type="button" id="btnJoin" name="submit" class="btn btn-success" value="Save Migration" />
                                     </div>
                                 </div>
                             </form>
@@ -517,31 +463,7 @@
                 }
                 else
                 {
-                    <fieldset>
-                        <legend> Joining  </legend>
-                        <form class="form-horizontal form-label-left input_mask">
-                            <div class="form-group col-lg-12">
-
-                                <div class="col-md-3 col-sm-3 col-xs-3">
-                                    <label for="heard" style="width:100%;">Joining Date</label>
-                                    <input type="text" id="txtJoinigDate" name="txtJoinigDate" class="form-control" tabindex="3" />
-                                </div>
-                                <div class="col-md-5 col-sm-5 col-xs-5">
-                                    <label style="float: left; clear: both; width: 100%;"> Joining Scan Image </label>
-                                    <input type="file" class="form-control flup" name="flScanImage" id="flScanImage" tabindex="18" />
-                                    <input type="hidden" id="hfdScanImage" value="" />
-                                    <img id="imgScanImage" class="flup-img" src="" alt="" style="display:none;" />
-                                    <a id="rmvScanImage" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>
-                                </div>
-                            </div>
-                            <div class="form-group col-lg-12">
-                                <div class="col-md-2 col-sm-2 col-xs-2">
-                                    <label for="heard" style="width:100%;">&nbsp;</label>
-                                    <input type="button" id="btnJoin" name="submit" class="btn btn-success" value="Save" />
-                                </div>
-                            </div>
-                        </form>
-                    </fieldset>
+                    
                 }
 
             }

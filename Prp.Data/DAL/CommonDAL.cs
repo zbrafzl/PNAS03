@@ -47,7 +47,7 @@ namespace Prp.Data
                     con.Open();
                     cmd.Connection = con;
                     cmd.Parameters.AddWithValue("@inductionId", inductionId);
-                    cmd.Parameters.AddWithValue("@phaseId", 1);
+                    cmd.Parameters.AddWithValue("@phaseId", phaseId);
                     DataTable dt = new DataTable();
                     using (var da = new SqlDataAdapter(cmd))
                     {

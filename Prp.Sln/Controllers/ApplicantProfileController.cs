@@ -19,7 +19,7 @@ namespace Prp.Sln.Controllers
         public ActionResult  ProfileBuilder()
             {
             DataTable dtCheckStatus = new DataTable();
-            string query = "Select top(1) tas.applicationStatusId, tas.inductionId, tas.applicantId,tas.statusTypeId, tas.statusId, tas.dated , a.facultyId, a.genderID, a.levelId, a.pncNo, a.contactNumber from tblApplicationStatus tas inner join tblApplicant a on tas.applicantId = a.applicantId where a.applicantId = " + loggedInUser.applicantId + " order by dated DESC";
+            string query = "Select top(1) tas.applicationStatusId, tas.inductionId, tas.applicantId,tas.statusTypeId, tas.statusId, tas.dated , a.facultyId, a.genderID, a.levelId, a.pncNo, a.pic, a.contactNumber from tblApplicationStatus tas inner join tblApplicant a on tas.applicantId = a.applicantId where a.applicantId = " + loggedInUser.applicantId + " order by dated DESC";
             SqlConnection con = new SqlConnection();
             Message msg = new Message();
             SqlCommand cmd = new SqlCommand(query);
@@ -46,7 +46,7 @@ namespace Prp.Sln.Controllers
 
             DataRow dr = dtCheckStatus.Rows[0];
             Session["degreeAchieved"] = dr[6].ToString();
-            ProjConstant.Constant.statusApplicantApplication = Convert.ToInt32(dr[3]);
+            //ProjConstant.Constant.statusApplicantApplication = Convert.ToInt32(dr[3]);
             #region Profile Model
 
 
@@ -83,6 +83,7 @@ namespace Prp.Sln.Controllers
                 {
                     Session["applicantExist"] = 0;
                     Session["Name"] = loggedInUser.name;
+                    Session["profilePic"] = dr["pic"].TooString();
                     Session["email"] = loggedInUser.emailId;
                     Session["pncNumber"] = dr["pncNo"].ToString();
                     Session["contactNumber"] = dr["contactNumber"].ToString();
@@ -676,7 +677,7 @@ namespace Prp.Sln.Controllers
                 //model.listDistinction = new ApplicantDAL().GetApplicantDistinctionList(0, 0, loggedInUser.applicantId);
                 //model.listResearchPaper = new ApplicantDAL().GetApplicantResearchPaperListDetail(0, 0, loggedInUser.applicantId);
                 model.listSpecility = new ApplicantDAL().GetApplicantSpecilityList(inductionId, 0, loggedInUser.applicantId);
-                model.voucher = new ApplicantDAL().GetApplicantVoucher(0, 0, loggedInUser.applicantId);
+                model.voucher = new ApplicantDAL().GetApplicantVoucher(inductionId, 0, loggedInUser.applicantId);
                 model.listMarks = new MarksDAL().GetMarksDetaikByApplicant(inductionId, loggedInUser.applicantId);
 
             }
@@ -920,6 +921,7 @@ namespace Prp.Sln.Controllers
         {
             Message msg = new Message();
 
+
             //ApplicantDegrees degree = objEducation.applicantDegrees;
 
             //degree.applicantId = degree.typeIds.TooString().TrimStart(',').TrimEnd(',');
@@ -930,6 +932,7 @@ namespace Prp.Sln.Controllers
             //delete existing degree records
             foreach (var item in objEducation.DegreeMarks)
             {
+                item.applicantId = loggedInUser.applicantId;
                 if (item.degreeTypeId == 1 || item.degreeTypeId == 8)
                 {
                     item.passingDate = objEducation.matricPassindDate.TooDate();
@@ -1487,7 +1490,7 @@ namespace Prp.Sln.Controllers
         public JsonResult ApplicantSpecilityAddUpdate(ApplicantSpecility objSpecility)
         {
             objSpecility.dated = DateTime.Now;
-
+            objSpecility.applicantId = loggedInUser.applicantId;
             objSpecility.inductionId = ProjConstant.inductionId;
             objSpecility.phaseId = ProjConstant.phaseId;
 
@@ -1543,7 +1546,7 @@ namespace Prp.Sln.Controllers
         [HttpPost]
         public ActionResult ApplicantSpecilityGet(ApplicantSpecility obj)
         {
-            
+            obj.applicantId = loggedInUser.applicantId;    
             DataSet dataSet = new ApplicantDAL().ApplicantSpecilityGet(obj);
 
             string json = JsonConvert.SerializeObject(dataSet, Formatting.Indented);
@@ -1576,9 +1579,9 @@ namespace Prp.Sln.Controllers
         #region Voucher
 
         [HttpGet]
-        public JsonResult GetApplicantVoucher(int applicantId)
+        public JsonResult GetApplicantVoucher(int applicantId, int phaseId)
         {
-            ApplicantVoucher applicant = new ApplicantDAL().GetApplicantVoucher(0, 0, applicantId);
+            ApplicantVoucher applicant = new ApplicantDAL().GetApplicantVoucher(ProjConstant.inductionId, phaseId, applicantId);
             return Json(applicant, JsonRequestBehavior.AllowGet);
         }
 

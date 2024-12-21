@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Voucher";
+    ViewBag.Title = "Voucher Special";
     Layout = "~/Views/Shared/_LayoutPrint.cshtml";
 }
 
@@ -107,7 +107,7 @@
 
                             htmlVoucher = htmlVoucher + htmlSingle.replace(/{#copyType#}/g, copyType)
                                 .replace(/#width#/g, width).replace(/{#currentDate#}/g, printDate)
-                                .replace(/{#applicantId#}/g, "55" + FormatNumberToLength(app.applicantId, 6)).replace(/{#applicantName#}/g, app.name)
+                                .replace(/{#applicantId#}/g, "57" + FormatNumberToLength(app.applicantId, 6)).replace(/{#applicantName#}/g, app.name)
                                 .replace(/{#applicantCNIC#}/g, info.cnicNo)
                                 .replace(/{#amount#}/g, '500')
                                 .replace(/{#amountInWords#}/g, 'Five Hundred Only')
@@ -232,10 +232,10 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="width: 50%;">
-                                                        Session
+                                                        Quota
                                                     </td>
                                                     <td style="">
-                                                        <span> Morning/Evening</span>
+                                                        <span> Special (Evening)</span>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -325,7 +325,7 @@
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px 0px;width: 100%;">
-                                        <span style="border:1px solid #000;padding:5px;">Due Date : 23 December 2024</span>
+                                        <span style="border:1px solid #000;padding:5px;">Due Date : 09 January 2025</span>
                                     </td>
                                 </tr>
                             </tbody>

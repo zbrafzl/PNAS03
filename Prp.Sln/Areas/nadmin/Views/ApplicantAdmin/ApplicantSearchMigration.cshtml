@@ -43,9 +43,9 @@
 			$('#exportButton').click(function () {
                 // Get the values of the hidden fields
                 var id1 = 12;
-                var id2 = ConvertToInt($("#hfdStatusTypeId").val());
+                var id2 = 193;
                 var id3 = 1;
-                var id4 = ConvertToInt($("#hfdPhaseId").val());
+                var id4 = ConvertToInt($("#hfdPhaseId").val());;
                 var id5 = "";
 
                 // Make AJAX request to controller action with all three IDs
@@ -81,7 +81,6 @@
             });
 
             $(document).on('click', '.tbRow', function () {
-                debugger;
                 //alert(userTypeId);
                 if (userTypeId == 69) {
 					debugger;
@@ -100,10 +99,7 @@
                         url = "/admin/addMigrationCandidate?applicantId=" + applicantId;
                     }
                     else {
-                        if (statusTypeId == 200) {
-                            url = "/admin/applicant-join-migration-add?applicantId=" + applicantId;
-                        }
-						else if(statusTypeId == 201)
+						if(statusTypeId == 201)
 						{
 							url = "/admin/applicant-join-add?applicantId=" + applicantId;
 						}
@@ -305,7 +301,7 @@
 			var selectedIndex = $('#ddlInduction').val();
 			//alert(selectedIndex);
 			$.ajax({
-				url: '@Url.Action("PopulateSecondList", "ApplicantAdmin")',
+				url: '@Url.Action("PopulateSecondListMigration", "ApplicantAdmin")',
 				type: 'GET',
 				data: { selectedIndex: selectedIndex },
 				success: function (result) {
@@ -322,7 +318,6 @@
 
         function SearchApplicant() {
 
-            debugger;
             var rowHtml = "";
 
             //$("#divDownload").hide();
@@ -332,10 +327,10 @@
             obj = {};
             obj.top = perPageRecords;
             obj.pageNum = pageNum;
-            obj.statusTypeId = ConvertToInt($("#hfdStatusTypeId").val());
+            obj.statusTypeId = 193;
             //obj.statusId = ConvertToInt($("#ddlStatus").val());
             obj.statusId = @Convert.ToInt32(Session["SelectedStatusID"]);
-            obj.inductionId = inductionId;
+            obj.inductionId = $("#ddlInduction").val();
             obj.phaseId = @Model.loggedInUser.userId;
 
 			if($("#txtSearch").val()!=null && $("#txtSearch").val().length > 0)
@@ -344,16 +339,16 @@
 				obj.search = ConvertToString($("#txtSearch").val());
 			}
 			else{
-				obj.search = $("#ddlInduction").val() + '-' + $("#ddlCollege").val();
+				obj.search = $("#ddlCollege").val();
 			}
 
 			console.log(obj);
-			if(obj.search === 'undefined-undefined')
+			if(obj.search === 'undefined')
 			{
 				obj.search = '';
 			}
             //alert('clicked');
-            var url = "/ApplicantAdmin/ApplicantSearchSimpleJoin";
+            var url = "/ApplicantAdmin/ApplicantSearchSimpleMigration";
 
 			//debugger;
             var list = CallActionPost(url, obj);
@@ -510,10 +505,9 @@
                     <div class="col-md-2 col-sm-2 col-xs-2">
                         <label for="heard">Induction :</label>
                         <select required="required" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
-                            <option selected="selected" value="2021-2022 (Only DHQ)">2021-2022 (Only DHQ)</option>
-                            <option selected="selected" value="2021-2022 (Teaching)">2021-2022 (Teaching)</option>
-                            <option selected="selected" value="2020-2021 (Teaching)">2020-2021 (Teaching)</option>
-                            <option selected="selected" value="2022-2023 Morning">2022-2023 Morning</option>
+                            <option selected="selected" value="11">2021-2022 (Only DHQ)</option>
+                            <option selected="selected" value="10">2021-2022 (Teaching)</option>
+                            <option selected="selected" value="13">2022-2023 Morning</option>
                         </select>
                     </div>
                     <div class="col-md-5 col-sm-5 col-xs-5">
@@ -575,8 +569,8 @@
                             <th class="column-title">Name </th>
                             <th class="column-title">Email </th>
                             <th class="column-title">Number </th>
-                            <th class="column-title">Result</th>
-                            <th class="column-title">Session </th>
+                            <th class="column-title">Applied For</th>
+                            <th class="column-title">Status </th>
                             <th class="column-title">Dated </th>
                             @*<th class="column-title">Status Date </th>*@
 
@@ -632,4 +626,5 @@
         </div>
     </div>
 </div>
+
 

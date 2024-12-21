@@ -34,68 +34,21 @@
 
     <script>
 
-        var typeId, session, jobId;
+        var typeId = 1, session, jobId;
         var progIds = {};
 
         $(document).ready(function () {
 
             var msgg = $("#idErrorMsg").val();
-            $("#showOptions").hide();
-            $('#ConsentSaveDiv').hide();
+            $("#showOptions").show();
+            $('#ConsentSaveDiv').show();
         });
 
-        $("#ddlSession").change(function () {
-            var id = $(this).children(":selected").attr("id");
-            if (id == "val0") {
-                $("#showOptions").hide();
-            }
-            else if (id == "val9") {
-                typeId = 9;
-                jobId = $(this).children(":selected").attr("value");
-                $("#showOptions").show();
-            }
-            else {
-                typeId = 10;
-                jobId = $(this).children(":selected").attr("value");
-                $("#showOptions").show();
-            }
-            $("input:radio[name='consent']").each(function (i) {
-                this.checked = false;
-            });
-            $("input:radio[name='upgradeConsent']").each(function (i) {
-                this.checked = false;
-            });
-            $('#upgradeConsentDiv').hide();
-        });
-
-        $('input[name="consent"]').change(function () {
-            if ($(this).val() === 'Given' && typeId == 9) {
-                if ('@Model.listOfMerits.Any(i => i.typeId == 9)' == 'True') {
-                    if ('@Model.listOfMerits.Any(d=> d!= null && d.typeId == 9 && d.prefNo > 1)' == 'True') {
-                        $('#upgradeConsentDiv').show();
-                    }
-                    else {
-                        $('#upgradeConsentDiv').hide();
-                    }
-                }
-
-            }
-            else if ($(this).val() === 'Given' && typeId == 10) {
-                if ('@Model.listOfMerits.Any(i => i.typeId == 10)' == 'True') {
-                    if ('@Model.listOfMerits.Any(d=> d!= null && d.typeId == 10 && d.prefNo > 1)' == 'True') {
-                        $('#upgradeConsentDiv').show();
-                    }
-                    else {
-                        $('#upgradeConsentDiv').hide();
-                    }
-                }
-            }
-        });
         var cosentTypeId = 0, consentUpgradeCheck = 0;
 
         $(document).on('click', '#btnEdit', function () {
             $('#ConsentSaveDiv').show();
-            $('#showConsent').hide();
+            $('#showConsentHidden').show();
         });
 
         $(document).on('click', '#btnSave', function () {
@@ -105,42 +58,9 @@
             debugger;
             if (radioValue == 'Given') {
                 cosentTypeId = 1;
-                var radioValue2;
-                if (typeId == 9) {
-                    if ('@Model.listOfMerits.Any(i => i!=null && i.typeId == 9 && i.prefNo == 1)' == 'True') {
-                        radioValue2 = 'false';
-                    }
-                    else {
-                        radioValue2 = $("input[name='upgradeConsent']:checked").val();
-                    }
-                }
-                else {
-                    if ('@Model.listOfMerits.Any(i => i!=null && i.typeId == 10 && i.prefNo == 1)' == 'True') {
-                    radioValue2 = 'false';
-                    }
-                    else {
-                        radioValue2 = $("input[name='upgradeConsent']:checked").val();
-                    }
-                }
-
-                if (radioValue2 == 'true') {
-                    consentUpgradeCheck = 1;
-                }
-                else if (radioValue2 == 'false') {
-                    consentUpgradeCheck = 0;
-                }
-                else {
-                    isError = true;
-                    alert("Please select your upgrade choice")
-                }
             }
             else if (radioValue == 'NotGiven') {
                 cosentTypeId = 0;
-                consentUpgradeCheck = 0
-            }
-            else {
-                isError = true;
-                alert("Please select your consent")
             }
 
 
@@ -168,13 +88,15 @@
             objData.upgradable = consentUpgradeCheck;
             objData.firstName = "@Model.listOfMerits.FirstOrDefault().firstName";
             console.log(objData);
-            var resp = CallActionPost("/LoggedIn/saveConsentData", objData);
+            var resp = CallActionPost("/LoggedIn/saveConsentDataMigrants", objData);
             if (resp.msg == "You have already submitted your consent") {
                 alert("You have already submitted your consent");
             }
             else {
                 if (confirm("Congratulations! Your Consent has been saved!.")) {
-                    window.location = "/logout";
+                    if (confirm("Your Application will now logout!.")) {
+                        window.location = "/logout";
+                    }
                 }
             }
 
@@ -187,16 +109,15 @@
 }
 <div class="container content">
     <div class="row main">
-        <div class="col-sm-12 form-box" style="height:800px;">
+        <div class="col-sm-12 form-box" style="height:700px;">
             <div class="row">
                 <div class="col-md-12" style="text-align:center;">
                     <h3> Dear @Model.listOfMerits.FirstOrDefault().nam, Form No : @Model.listOfMerits.FirstOrDefault().applicantId <br /></h3>
-                    <br />
-
+                    <h3> Current College of Admission : @Model.listOfMerits.FirstOrDefault().joinedCollege <br /></h3>
                 </div>
             </div>
             <div class="container row">
-                <span style="text-align: left !important; padding-left: 30px; "> You are selected in Following Session</span>
+                <span style="text-align: left !important; padding-left: 30px; "> You are selected in Following College for Migration</span>
             </div>
             <hr class="colorgraph">
             @foreach (var item in Model.listOfMerits)
@@ -207,19 +128,24 @@
                         <div class="form-group">
                             <span style="color:red"></span>
                             <label for=""> Session </label>
-                            @if (item.typeId == 9)
+                            @if (item.typeId == 10)
                             {
                                 <div>
-                                    <input required="required" type="text" name="prefNo" id="prefNo" value="Morning 3rd List" class="form-control" readonly="readonly">
+                                    <input required="required" type="text" name="prefNo" id="prefNo" value="2021-2022 (Teaching)" class="form-control" readonly="readonly">
                                 </div>
                             }
-                            else
+                            else if (item.typeId == 11)
                             {
                                 <div>
-                                    <input required="required" type="text" name="prefNo" id="prefNo" value="Evening 1st List" class="form-control" readonly="readonly">
+                                    <input required="required" type="text" name="prefNo" id="prefNo" value="2021-2022 (Only DHQ)" class="form-control" readonly="readonly">
                                 </div>
                             }
-                            
+                            else if (item.typeId == 13)
+                            {
+                                <div>
+                                    <input required="required" type="text" name="prefNo" id="prefNo" value="2022-2023 (Morning)" class="form-control" readonly="readonly">
+                                </div>
+                            }
 
                         </div>
                     </div>
@@ -236,7 +162,7 @@
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
                             <span style="color:red"></span>
-                            <label for=""> College </label>
+                            <label for=""> Migration College </label>
                             <div>
                                 <span>
                                     <input required="required" type="text" name="colg" id="colg" value="@item.firstName" class="form-control" readonly="readonly">
@@ -252,33 +178,37 @@
 
 
 
-            @if ((Model.consents.Count(i => i.roundId == 3 && i.typeId == 9)) + (Model.consents.Count(i => i.roundId == 1 && i.typeId == 10)) == 0)
+            @if (Model.consents.Count == 0)
             {
                 <div class="row" id="dateRow" style="padding-left: 30px; text-align:center">
                     <h3 style="text-align:center; font-weight:bold">Submit Consent</h3>
                     <div class="row">
-                        <div class="col-xs-12 col-sm-4 col-md-4 col-md-push-4">
-                            <label for=""> Session: </label>
-                            <div>
-                                <div class="form-group">
-                                    <select required="required" name="ddlSession" id="ddlSession" class="form-control" tabindex="4">
-                                        <option selected="selected" id="val0" value="0">Select</option>
-                                        @foreach (var item in Model.listOfMerits)
-                                        {
+                        @*<div class="col-xs-12 col-sm-4 col-md-4 col-md-push-4">
+                        <label for=""> Session: </label>
+                        <div>
+                            <div class="form-group">
+                                <select required="required" name="ddlSession" id="ddlSession" class="form-control" tabindex="4">
+                                    <option selected="selected" id="val0" value="0">Select</option>
+                                    @foreach (var item in Model.listOfMerits)
+                                    {
 
-                                            if (item.typeId == 9)
-                                            {
-                                                <option id="val9" value="@item.specialityJobId">Morning</option>
-                                            }
-                                            else
-                                            {
-                                                <option id="val10" value="@item.specialityJobId">Evening</option>
-                                            }
+                                        if (item.typeId == 10)
+                                        {
+                                            <option id="10" value="10">2021-2022 (Teaching)</option>
                                         }
-                                    </select>
-                                </div>
+                                        else if (item.typeId == 11)
+                                        {
+                                            <option id="11" value="11">2021-2022 (Only DHQ)</option>
+                                        }
+                                        else if (item.typeId == 13)
+                                        {
+                                            <option id="13" value="13">2022-2023 (Morning)</option>
+                                        }
+                                    }
+                                </select>
                             </div>
                         </div>
+                    </div>*@
                     </div>
                     <div id="showOptions">
                         <h3>Choose an option:</h3>
@@ -289,18 +219,6 @@
                         <label>
                             <input class=" form-check-input" type="radio" name="consent" value="NotGiven" /> <p>Not Given</p>
                         </label>
-
-                        <div id="upgradeConsentDiv" style="display: none;">
-                            <span><span style="font-weight:bold; font-size:18px;">Do you want to be upgraded in subsequent rounds? </span><br />(in case of vacant seats at higher preference)</span><br /><br />
-                            <label>
-                                <input class="form-check-input" type="radio" name="upgradeConsent" value="true" /> <p> YES </p>
-                            </label>
-                            <label style="width:50px"></label>
-                            <label>
-                                <input class="form-check-input" type="radio" name="upgradeConsent" value="false" /> <p> NO </p>
-                            </label>
-                        </div>
-
                         <div class="col-sm-12" style="padding-top: 20px;">
                             <span id="btnSave" type="button" class="btn btn-lg mb10 mt5 btn-red" tabindex="28">Save Consent &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
                         </div>
@@ -313,59 +231,29 @@
                 <div class="row" id="showConsent" style="padding-left: 30px; text-align:center; color:red">
 
                     @{
-                        int consent, upgrad;
+                        int consent1, upgrad1;
                         try
                         {
-                            consent = Model.consents.Where(i => i.roundId == 3 && i.typeId == 9).FirstOrDefault().consentTypeId;
-                            upgrad = Model.consents.Where(i => i.roundId == 3 && i.typeId == 9).FirstOrDefault().upgradable;
+                            consent1 = Model.consents.Where(i => i.roundId == 1).FirstOrDefault().consentTypeId;
+                            upgrad1 = Model.consents.Where(i => i.roundId == 1).FirstOrDefault().upgradable;
                         }
                         catch (Exception ex)
                         {
-                            consent = -1;
-                            upgrad = -1;
+                            consent1 = -1;
+                            upgrad1 = -1;
                         }
 
                     }
 
-                    @if (consent == 1 && upgrad == 1)
+                    @if (consent1 == 1)
                     {
-                        <h3>You have submitted consent in Round 3 Morning as "Given" and You wished to be upgraded in Next Rounds (in case of vacant seats on your higher preference institute)</h3>
+                        <h3>You have submitted consent as "Given"</h3>
                     }
-                    else if (consent == 1 && upgrad == 0)
+                    else if (consent1 == 0)
                     {
-                        <h3>You have submitted consent in Round 3 Morning as "Given" and You wished NOT to be upgraded in Next Rounds</h3>
-                    }
-                    else if (consent == 0)
-                    {
-                        <h3>You have submitted consent in Round 3 Morning as "NOT Given", You will NOT be considered for Next Rounds </h3>
+                        <h3>You have submitted consent as "NOT Given" </h3>
                     }
 
-                    @{
-                        int consent2, upgrad2;
-                        try
-                        {
-                            consent2 = Model.consents.Where(i => i.roundId == 1 && i.typeId == 10).FirstOrDefault().consentTypeId;
-                            upgrad2 = Model.consents.Where(i => i.roundId == 1 && i.typeId == 10).FirstOrDefault().upgradable;
-                        }
-                        catch (Exception ex)
-                        {
-                            consent2 = -1;
-                            upgrad2 = -1;
-                        }
-                    }
-
-                    @if (consent2 == 1 && upgrad2 == 1)
-                    {
-                        <h3>You have submitted consent in Round 1 Evening as "Given" and You wished to be upgraded in Next Rounds (in case of vacant seats on your higher preference institute)</h3>
-                    }
-                    else if (consent2 == 1 && upgrad2 == 0)
-                    {
-                        <h3>You have submitted consent in Round 1 Evening as "Given" and You wished NOT to be upgraded in Next Rounds</h3>
-                    }
-                    else if (consent2 == 0)
-                    {
-                        <h3>You have submitted consent in Round 1 Evening as "NOT Given", You will NOT be considered for Next Rounds </h3>
-                    }
 
                     <div class="col-sm-12" style="padding-top: 20px;">
                         <span id="btnEdit" type="button" class="btn btn-lg mb10 mt5 btn-success" tabindex="28">EDIT CONSENT &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
@@ -374,31 +262,10 @@
 
             }
 
-            <div class="row" id="ConsentSaveDiv" style="padding-left: 30px; text-align:center">
-                <h3 style="text-align:center; font-weight:bold">Submit Consent</h3>
+            <div class="row" id="showConsentHidden" style="padding-left: 30px; text-align:center; display:none">
+                <h3 style="text-align:center; font-weight:bold">Update Consent</h3>
                 <div class="row">
-                    <div class="col-xs-12 col-sm-4 col-md-4 col-md-push-4">
-                        <label for=""> Session: </label>
-                        <div>
-                            <div class="form-group">
-                                <select required="required" name="ddlSession" id="ddlSession" class="form-control" tabindex="4">
-                                    <option selected="selected" id="val0" value="0">Select</option>
-                                    @foreach (var item in Model.listOfMerits)
-                                    {
-
-                                        if (item.typeId == 9)
-                                        {
-                                            <option id="val9" value="@item.specialityJobId">Morning</option>
-                                        }
-                                        else
-                                        {
-                                            <option id="val10" value="@item.specialityJobId">Evening</option>
-                                        }
-                                    }
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                    
                 </div>
                 <div id="showOptions">
                     <h3>Choose an option:</h3>
@@ -409,26 +276,12 @@
                     <label>
                         <input class=" form-check-input" type="radio" name="consent" value="NotGiven" /> <p>Not Given</p>
                     </label>
-
-                    <div id="upgradeConsentDiv" style="display: none;">
-                        <span><span style="font-weight:bold; font-size:18px;">Do you want to be upgraded in subsequent rounds? </span><br />(in case of vacant seats at higher preference)</span><br /><br />
-                        <label>
-                            <input class="form-check-input" type="radio" name="upgradeConsent" value="true" /> <p> YES </p>
-                        </label>
-                        <label style="width:50px"></label>
-                        <label>
-                            <input class="form-check-input" type="radio" name="upgradeConsent" value="false" /> <p> NO </p>
-                        </label>
-                    </div>
-
                     <div class="col-sm-12" style="padding-top: 20px;">
-                        <span id="btnSave" type="button" class="btn btn-lg mb10 mt5 btn-red" tabindex="28">Save Consent &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
+                        <span id="btnSave" type="button" class="btn btn-lg mb10 mt5 btn-red" tabindex="28">Update Consent &nbsp; &nbsp;<i class="fa fa-arrow-right"></i></span>
                     </div>
                 </div>
             </div>
-
-
-
+        </div>
 
         </div>
         </div>

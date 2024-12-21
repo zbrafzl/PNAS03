@@ -64,13 +64,14 @@
 
         #newscontent {
             float: none !important;
-            padding: 20px;
             font-size: 20px;
             color: red;
         }
 
         #ticker_container {
             background-color: yellow;
+            overflow: hidden;
+            height: 100px;
         }
 
         #controls {
@@ -112,6 +113,7 @@
 <body cz-shortcut-listen="true">
     <div id="divBgImage" class="bg-img bg-container">
         <header>
+            <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
             <div class="container" style="width: 100%;">
                 <div class="container" style="width: 100%;">
                     <div class="col-sm-12 col-md-4 logo"> <a href="/"><img src="~/Images/punjab.png" style="height: auto; margin: 10px !important; width: 90px;" /><span style="color: white; font-size: large;">Punjab Nursing Admission System</span></a> </div>
@@ -139,37 +141,54 @@
                                             if (Model.applicationStatusId == 8)
                                             {
                                                 @*<li>
-                                                    <a href="/application-status">View Status</a>
-                                                </li>
-                                                <li class="blink">
-                                                    <a href="/nett/grievance-verification-application">Apply Grievance</a>
-                                                </li>*@
+                                                        <a href="/application-status">View Status</a>
+                                                    </li>
+                                                    <li class="blink">
+                                                        <a href="/nett/grievance-verification-application">Apply Grievance</a>
+                                                    </li>*@
                                                 @* <li class="blink">
-                                                    <a href="/applicant/joining">Joining</a>
-                                                </li>*@
-                                                <li>
-                                                    <a href="/profile-view-print">View Profile</a>
-                                                    <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
-                                                </li>
+                                                        <a href="/applicant/joining">Joining</a>
+                                                    </li>*@
+                                                @*<li>
+                                                        <a href="/profile-view-print">View Profile</a>
+                                                        <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
+                                                    </li>*@
+
                                                 @*<li class="blink">
-                                                    <a href="@("/"+ProjConstant.preUrl + "/applicant/consent")">Give Consent</a>
-                                                </li>*@
+                                                            <a href="@("/"+ProjConstant.preUrl + "/applicant/consent")">Give Consent</a>
+                                                    </li>*@
+                                                @*<li>
+                                                        <a href="/apply-grievance">Apply Gazette Grievance</a>
+                                                        <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
+                                                    </li>*@
+                                                @*<li>
+                                                        <a href="/apply-fsc-grievance">FSc Grievance</a>
+                                                        <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
+                                                    </li>*@
+                                                @*<li>
+                                                        <a href="/give-consent">Give Consent</a>
+                                                        <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
+                                                    </li>*@
                                             }
                                             else
                                             {
-                                                <li class="blink">
-                                                    <a href="/applicant-profile-create">Profile Builder <i class="fa fa-edit"> </i></a>
-                                                    <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
-                                                </li>
-                                                <li>
-                                                    &nbsp;
-                                                </li>
+                                                @*<li class="blink">
+                                                        <a href="/applicant-profile-create">Profile Builder <i class="fa fa-edit"> </i></a>
+                                                        <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
+                                                    </li>
+                                                    <li>
+                                                        &nbsp;
+                                                    </li>*@
                                                 if (Model.applicationStatusId > 1)
                                                 {
                                                     <li class="blink">
                                                         <a href="/print/voucher" target="_blank">Download Challan Form <i class="fa fa-download"> </i></a>
                                                     </li>
                                                 }
+                                                @*<li>
+                                                        <a href="/apply-grievance">Apply Gazette Grievance</a>
+                                                        <input type="hidden" id="hfdApplicantId" value="@(Model.loggedInUser.applicantId)" />
+                                                    </li>*@
                                             }
                                         }
                                         else
@@ -178,7 +197,7 @@
                                     </ul>
                                     <ul class="nav navbar-nav navbar-right red ul-link " style="margin-top: 20px;">
                                         <li class="red">
-                                            <a href="#"> <i class="fa fa-phone" aria-hidden="true"></i>Help Line: 0304-1111972 | 042-99211982&nbsp; (10 AM to 4 PM)</a>
+                                            <a href="#"> <i class="fa fa-phone" aria-hidden="true"></i>Help Line: 0307-1001095 | 0307-1001527&nbsp; (Mon-Fri 10 AM to 4 PM)</a>
                                         </li>
                                         <li class="red" style="display:none;">
                                             <a href="#" style="text-transform:lowercase;"> <i class="fa fa-envelope" aria-hidden="true"></i>  support@phf.gop.pk </a>
@@ -187,17 +206,17 @@
                                         @if (Model.loggedInUser != null && Model.loggedInUser.applicantId > 0)
                                         {
                                             @*<li style="display:none">
-                                                <a href="/contact-us">Contact Us</a>
-                                            </li>
-                                            <li class="red">
-                                                <a href="#"> Welcome </a>
-                                            </li>*@
+                                                    <a href="/contact-us">Contact Us</a>
+                                                </li>
+                                                <li class="red">
+                                                    <a href="#"> Welcome </a>
+                                                </li>*@
                                             <li class="red"><a href="/logout">Logout</a></li>
                                             <li>
                                                 <img src="@(Model.loggedInUser.pathProfilePic)" style="width:40px; height:40px;" class="img-circle mt10 dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" alt="">
                                                 <ul class="dropdown-menu">
                                                     @*<li><a href="/applicant-profile-create">View Profile</a></li>
-                                                    <li><a href="/change-password">Change Password</a></li>*@
+                                                        <li><a href="/change-password">Change Password</a></li>*@
                                                     <li><a href="/logout">Logout</a></li>
                                                 </ul>
                                             </li>
@@ -205,9 +224,10 @@
                                         }
                                         else
                                         {
-                                            <li><a href="/contactus">Contact Us</a> </li>
-                                            <li class="red"><a href="/login">Login</a></li>
-                                            <li class="red"><a href="/register"> Register </a></li>
+                                            @*<li><a href="/contactus">Contact Us</a> </li>*@
+                                            @*<li class="red"><a href="/login">Login</a></li>*@
+                                            @*<li class="red"><a href="/loginMigrant">Migration Candidate Login</a></li>*@
+                                            @*<li class="red"><a href="/register"> Register </a></li>*@
                                         }
                                     </ul>
                                 </div>
@@ -224,34 +244,34 @@
 
                 var totalCount = Model.listTicker.Count;
                 <div style="display:none;"> Total Ticker  are  @totalCount</div>
-                
+
 
                 @*<div class="notifyAlert" style="text-align:center; background-color:yellow !important;">
-                    <div class="container-fluid" style="text-align:center">
-                        <ul id="ticker" style=" text-align:center">
-                            <li style="text-align:center; padding:20px;">
-                                <strong style="text-align:center">
-                                    BSN Generic Admission Program (Morning & Afternoon) 2024-2027 Session Is Live Now
-                                </strong>
-                            </li>
-                            <li style="text-align:center; padding:20px;">
-                                <strong style="text-align:center">
-                                    فیس جمع کروانے کے لیے فیس واؤچر   صرف    اور صرف   پورٹل سے ہی  ڈاؤن لوڈ  کرنا ہو گا۔ بینک کی سلپ، آن لائن یا کسی اور ذریعہ سے جمع کروائی   ہوئی فیس قابل قبول نہ ہو گی
-                                </strong>
-                            </li>
-                        </ul>
-                    </div>
-                </div>*@
+                        <div class="container-fluid" style="text-align:center">
+                            <ul id="ticker" style=" text-align:center">
+                                <li style="text-align:center; padding:20px;">
+                                    <strong style="text-align:center">
+                                        BSN Generic Admission Program (Morning & Afternoon) 2024-2027 Session Is Live Now
+                                    </strong>
+                                </li>
+                                <li style="text-align:center; padding:20px;">
+                                    <strong style="text-align:center">
+                                        فیس جمع کروانے کے لیے فیس واؤچر   صرف    اور صرف   پورٹل سے ہی  ڈاؤن لوڈ  کرنا ہو گا۔ بینک کی سلپ، آن لائن یا کسی اور ذریعہ سے جمع کروائی   ہوئی فیس قابل قبول نہ ہو گی
+                                    </strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>*@
 
 
 
                 var listTicker = Model.listTicker.Where(x => x.typeId == 1 && x.isActive == true).ToList().OrderBy(x => x.sortOrder).ToList();
 
-                
-                
+
+
                 if (listTicker != null && listTicker.Count > 0)
                 {
-                    <div class="">
+                    <div class="notifyAlert">
                         <div class="container-fluid">
                             <ul id="ticker">
                                 @foreach (var item in listTicker)
@@ -259,7 +279,7 @@
                                     <li>
                                         <strong>
                                             <center>
-                                                @item.detail
+                                                @Html.Raw(item.detail)
                                             </center>
                                         </strong>
                                     </li>
@@ -274,24 +294,52 @@
             }
 
             @*<div class="notifyAlert">
-                <div class="container-fluid tick-static">
-                    <ul id="ticker">
-                        <li>
-                            <strong>
-                                ایک شناختی کارڈ پر ایک دفعہ ہی رجسٹریشن ہو گی۔ اگر آپ نے پہلے کبھی نرسنگ پورٹل پر اپلائی کیا تھا تو  دوبارہ  اپلائی کرنے کے لیے  صرف لاگ ان کرنا ہو گا۔ نئی رجسٹریشن کرنے کی ضرورت نہیں  ہے۔
-                            </strong>
-                        </li>
-                    </ul>
-                </div>
-            </div>*@
+                    <div class="container-fluid tick-static">
+                        <ul id="ticker">
+                            <li>
+                                <strong>
+                                    ایک شناختی کارڈ پر ایک دفعہ ہی رجسٹریشن ہو گی۔ اگر آپ نے پہلے کبھی نرسنگ پورٹل پر اپلائی کیا تھا تو  دوبارہ  اپلائی کرنے کے لیے  صرف لاگ ان کرنا ہو گا۔ نئی رجسٹریشن کرنے کی ضرورت نہیں  ہے۔
+                                </strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>*@
 
+            try
+            {
+                var alert = Model.listTicker.Where(x => x.typeId == 6 && x.isActive == true).ToList().OrderBy(x => x.sortOrder).ToList();
+                if (alert != null && alert.Count > 0)
+                {
+                    <div class="notifyAlert">
+                        <div class="container-fluid">
+                            <ul id="ticker">
+                                @foreach (var item in alert)
+                                {
+                                    <li>
+                                        <strong>
+                                            <center>
+                                                @Html.Raw(@item.detail)
+
+                                            </center>
+                                        </strong>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
+
         @RenderBody()
         <footer>
             <div class="footer">
                 <div class="container">
                     <div class="col-sm-12 text-center tc">
-                        Copyrights@2023 SHC&ME Dept  Powered by: Punjab Health Foundation.
+                        Copyrights@2024 SHC&ME Dept  Powered by: Punjab Health Foundation.
                     </div>
                 </div>
             </div>

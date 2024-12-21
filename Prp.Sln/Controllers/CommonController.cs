@@ -327,8 +327,51 @@ namespace Prp.Sln.Controllers
             List<EntityDDL> list = new List<EntityDDL>();
             string checkQuery = "";
             DataTable dt = new DataTable();
-            checkQuery = "select h.instituteId, h.name from tblInstitute h where instituteId > 216";
+            checkQuery = "select h.userId instituteId, h.firstName name from tblUser h where typeId = 69 and userId < 65";
             
+            SqlCommand cmd = new SqlCommand(checkQuery);
+            SqlConnection con = new SqlConnection(PrpDbConnectADO.Conn);
+            con.Open();
+            cmd.Connection = con;
+            try
+            {
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                sda.Fill(dt);
+                foreach (DataRow dr in dt.Rows)
+                {
+                    EntityDDL c = new EntityDDL();
+                    c.id = dr[0].TooInt();
+                    c.name = dr[1].TooString();
+                    c.value = dr[1].TooString();
+                    list.Add(c);
+                    //c.typeName = dr[14].TooString();
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult HospitalGetForDDLspecialityEvening(DDLHospitals obj)
+        {
+
+            obj.typeId = obj.typeId.TooInt();
+            obj.typeId = obj.typeId.TooInt();
+            obj.userId = obj.userId.TooInt();
+            obj.reffIds = obj.reffIds.TooString();
+
+            List<EntityDDL> list = new List<EntityDDL>();
+            string checkQuery = "";
+            DataTable dt = new DataTable();
+            checkQuery = "select u.userId instituteId, u.firstName name from tblSpecialityJob t1 inner join tblUser u on t1.hospitalId = u.userId where t1.inductionId = 16 and t1.typeId = 10 and t1.quotaId = 1 and t1.jobs > 0";
+
             SqlCommand cmd = new SqlCommand(checkQuery);
             SqlConnection con = new SqlConnection(PrpDbConnectADO.Conn);
             con.Open();

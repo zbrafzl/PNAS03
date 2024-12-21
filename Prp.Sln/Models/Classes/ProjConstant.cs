@@ -12,7 +12,7 @@ namespace Prp.Sln
     public static class ProjConstant
     {
         //public static int inductionId = WebConfigurationManager.AppSettings["InductionId"].TooInt();
-        public static int inductionId = 15;
+        public static int inductionId = 16;
         public static int phaseId = WebConfigurationManager.AppSettings["PhaseId"].TooInt();
         public static int consentRound = WebConfigurationManager.AppSettings["ConsentRound"].TooInt();
         public static string preUrl = WebConfigurationManager.AppSettings["PreUrl"].TooString();

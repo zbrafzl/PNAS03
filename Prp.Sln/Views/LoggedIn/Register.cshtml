@@ -8,6 +8,8 @@
 }
 @section RenderScript{
 
+    <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3/jquery.inputmask.bundle.js"></script>
+
     <script src="~/Scripts/spin.min.js"></script>
     <script src="~/Scripts/ladda.min.js"></script>
     <script>
@@ -16,6 +18,8 @@
 
         $(document).ready(function () {
 
+
+            $(":input").inputmask();
 
             $('#txtContactNumber.prefix').keyup(function () {
                 var prefix = '03';
@@ -196,6 +200,8 @@
 
                 if (ValidateForm() == false) {
 
+                    debugger;
+
                     //if (IsExistPMDC() == true) {
                     //    isError = true;
                     //    errorMsg = "<li>This PMDC No already exists. Please try another.</li>";
@@ -204,9 +210,25 @@
                     //    //$("#btnRegister.ladda-spinner").css("display", "none");
                     //}
 
+                    if (IsExistCNIC() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>This CNIC  already exists. Please try another.</li>";
+                        $('#btnRegister').prop("disabled", false);
+                        $('#btnRegister').prop("data-loading", false);
+                        //$("#btnRegister.ladda-spinner").css("display", "none");
+                    }
+
                     if (IsExistEmail() == true) {
                         isError = true;
                         errorMsg = errorMsg + "<li>This emaild  already exists. Please try another.</li>";
+                        $('#btnRegister').prop("disabled", false);
+                        $('#btnRegister').prop("data-loading", false);
+                        //$("#btnRegister.ladda-spinner").css("display", "none");
+                    }
+
+                    if (IsExistContact() == true) {
+                        isError = true;
+                        errorMsg = errorMsg + "<li>Contact Number  already exists. Please try another.</li>";
                         $('#btnRegister').prop("disabled", false);
                         $('#btnRegister').prop("data-loading", false);
                         //$("#btnRegister.ladda-spinner").css("display", "none");
@@ -231,10 +253,10 @@
 
                             //SendSMS(resp.value, resp.msg);
 
-                            // verify-registration 
-                             ///register-complete 
+                            // verify-registration
+                            ///register-complete
                             window.location = "/register-complete";
-                           
+
                         }
                         else {
                             $("#divError").show();
@@ -271,7 +293,7 @@
             objApplicant = {};
 
             objApplicant.name = $("#txtName").val();
-            objApplicant.pmdcNo = $("#txtPMDCNo").val();
+            objApplicant.pmdcNo = $("#txtCnic").val();
             objApplicant.emailId = $("#txtEmail").val().toLowerCase();
             objApplicant.password = $("#txtPassword").val();
 
@@ -473,6 +495,35 @@
 
         }
 
+        function IsExistCNIC() {
+
+            debugger;
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+                obj.id = 0;
+                obj.search = $("#txtCnic").val();
+                obj.condition = "cnic";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+
         function IsExistEmail() {
 
             var isExist = true;
@@ -485,6 +536,34 @@
                 obj.id = 0;
                 obj.search = $("#txtEmail").val();
                 obj.condition = "emailId";
+
+                var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
+                if (resp != null && resp.id > 0) {
+                    isExist = true;
+                } else {
+                    isExist = false;
+                }
+
+            } catch (e) {
+
+                isExist = true;
+            }
+
+            return isExist;
+        }
+
+        function IsExistContact() {
+
+            var isExist = true;
+
+            try {
+
+
+                var obj = {};
+
+                obj.id = 0;
+                obj.search = $("#txtContactNumber").val();
+                obj.condition = "contactNumber";
 
                 var resp = CallActionPost("/LoggedIn/ApplicantIsExist", obj)
                 if (resp != null && resp.id > 0) {
@@ -547,6 +626,17 @@
             <div class="main-login main-center">
                 <form class="form-horizontal">
                     <h3 class="heading">Register with Punjab Nursing Admission System </h3>
+                    <div class="col-sm-12">
+                        <div class="cols-sm-10">
+                            <div class="input-group mt10">
+                                <span class="input-group-addon" style="padding-left: 50px !important; padding-right: 50px !important;"><i class="fa fa-user fa" aria-hidden="true"></i>14 Digit CNIC No</span>
+
+                                <input type="text" class="form-control" id="txtCnic" data-inputmask="'mask': '99999-9999999-9'" placeholder="XXXXX-XXXXXXX-X" name="cnic" required="">
+                                @*<input type="number" class="form-control" maxlength="15" id="txtCnic" data-inputmask="'mask': '99999-9999999-9'" placeholder="XXXXX-XXXXXXX-X" name="cnic" required="">*@
+                                @*<input type="text" class="form-control alpha" maxlength="45" required="required" name="cnicNo" id="txtCnic" placeholder="14 Digit CNIC">*@
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-sm-6">
                         <div class="cols-sm-10">
                             <div class="input-group mt10">

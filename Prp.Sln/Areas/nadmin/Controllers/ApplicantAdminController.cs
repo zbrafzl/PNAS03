@@ -186,6 +186,27 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return View(model);
         }
 
+        public ActionResult ApplicantSearchMigration()
+        {
+            ApplicantStatusModel model = new ApplicantStatusModel();
+
+            model.inductionId = 12;
+            model.phaseId = 1;
+            model.statusTypeId = Request.QueryString["statusTypeId"].TooInt();
+            model.statusId = Request.QueryString["statusId"].TooInt();
+            Session["SelectedStatusID"] = model.statusId;
+            if (model.statusTypeId == 0)
+                model.statusTypeId = 52;
+
+            DDLConstants ddlConstant = new DDLConstants();
+            ddlConstant.typeId = model.statusTypeId;
+            ddlConstant.condition = "ByType";
+            model.listStatus = new ConstantDAL().GetConstantDDL(ddlConstant);
+            model.listApplicant = getListApplicant(model.statusTypeId, model.statusId);
+
+            return View(model);
+        }
+
         public List<Applicant> getListApplicant(int statusTypeId, int statusId)
         {
             List<Applicant> list = new List<Applicant>();
@@ -261,6 +282,23 @@ namespace Prp.Sln.Areas.nadmin.Controllers
             return Json(options, JsonRequestBehavior.AllowGet);
 
         }
+        [HttpGet]
+        public ActionResult PopulateSecondListMigration(string selectedIndex)
+        {
+            List<SelectListItem> options = new List<SelectListItem>();
+
+            DataTable dataTable = new ApplicantAdminDAL().getCollegesForInductionMigration(selectedIndex);
+
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                string value = dr["collegeName"].ToString();
+                options.Add(new SelectListItem { Value = value, Text = value });
+            }
+
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Json(options, JsonRequestBehavior.AllowGet);
+
+        }
 
         public ActionResult PopulateInductionList(int adminId)
         {
@@ -327,6 +365,13 @@ namespace Prp.Sln.Areas.nadmin.Controllers
         public ActionResult ApplicantSearchSimpleJoin(ApplicantSearch obj)
         {
             DataTable dataTable = new ApplicantAdminDAL().ApplicantSearchSimpleJoin(obj);
+            string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
+            return Content(json, "application/json");
+        }
+        [HttpPost]
+        public ActionResult ApplicantSearchSimpleMigration(ApplicantSearch obj)
+        {
+            DataTable dataTable = new ApplicantAdminDAL().ApplicantSearchSimpleMigration(obj);
             string json = JsonConvert.SerializeObject(dataTable, Formatting.Indented);
             return Content(json, "application/json");
         }

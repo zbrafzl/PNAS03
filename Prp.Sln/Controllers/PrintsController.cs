@@ -25,6 +25,11 @@ namespace Prp.Sln.Controllers
             VoucherModel model = new VoucherModel();
             return View(model);
         }
+        public ActionResult VouchersSpecial()
+        {
+            VoucherModel model = new VoucherModel();
+            return View(model);
+        }
 
 
         public ActionResult GrievanceGazzettePrint()

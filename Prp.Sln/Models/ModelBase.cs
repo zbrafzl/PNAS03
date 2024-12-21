@@ -25,7 +25,6 @@ namespace Prp.Sln
         {
             loggedInUser = ProjFunctions.CookieApplicantGet();
             applicationStatusId = 0;
-
             try
             {
                 listTicker = new MasterSetupDAL().TickerGetByInduction(ProjConstant.inductionId);
@@ -61,6 +60,18 @@ namespace Prp.Sln
                 }
 
               
+            }
+            else
+            {
+                loggedInUser = new Applicant();
+                try
+                {
+                    ProjFunctions.RemoveCookies(ProjConstant.Cookies.loggedInApplicant);
+                }
+                catch (Exception)
+                {
+                }
+
             }
         }
     }
@@ -114,6 +125,8 @@ namespace Prp.Sln
         public decimal matric { get; set; }
         public decimal fa { get; set; }
         public string firstName { get; set; }
+        public string joinedCollege { get; set; }
+        public string migratingCollege { get; set; }
     }
     public class MeritData : ModelBase
     {

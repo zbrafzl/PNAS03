@@ -15,6 +15,7 @@
             height: 40px;
             border: 1px solid #ede9e9;
         }
+
         .div-apply {
             margin-left: 35%;
             font-size: 25px;
@@ -24,11 +25,13 @@
             padding: 5px 15px;
             margin-bottom: 10px;
         }
+
         .chk-apply {
             width: 30px;
             float: left;
             margin-right: 20px !important;
         }
+
         .spn-apply {
             float: left;
             margin-top: 12px !important;
@@ -56,6 +59,7 @@
             GetApplicantInfo();
             //BindTypeDDL(0);
             BindSpecialityDDL();
+            BindSpecialityDDLEvening();
 
             //$(document).on('change', '#ddlType', function () {
             //    typeId = $(this).val();
@@ -180,7 +184,7 @@
                     else {
                         DeleteSpecility();
                     }
-                    
+
                 }
             });
 
@@ -268,6 +272,7 @@
                 //alert('this');
                 //$("option[value<62]").remove();
                 fnDllPopulate();
+                fnDllPopulateEvening();
 
             }
 
@@ -275,11 +280,11 @@
         });
 
         function fnDllPopulate() {
-            $('select').children('option[value="0"]').remove();
-            $("select#selected").prop('selectedIndex', 64);
-            for (let i = 52; i < 63; i++) {
-                $('select').children('option[value="' + i + '"]').remove();
-            }
+            //$('select').children('option[value="0"]').remove();
+            //$("select#selected").prop('selectedIndex', 64);
+            //for (let i = 52; i < 63; i++) {
+            //    $('select').children('option[value="' + i + '"]').remove();
+            //}
             //BindTypeDDL();
             listHospitalByTypeAndSepecility = [];
             var obj = {};
@@ -289,10 +294,10 @@
             obj.condition = "GetThoseHasJobBySepecilityAndQuotaAndApplicant";//"GetThoseHasJobBySepecility";
 
             DDLSetToDefault("ddlHospital", 'Select One', 0);
-            DDLSetToDefault("ddlHospital2", 'Select One', 0);
+            //DDLSetToDefault("ddlHospital2", 'Select One', 0);
 
             var list = CallActionPost("/Common/HospitalGetForDDLspeciality", obj);
-
+            debugger;
             if (list != null && list.length > 0) {
 
                 if (objApplicant.genderID == 2) {
@@ -309,10 +314,60 @@
 
                     if (hospitalId == ddlItem.id) {
                         $("#ddlHospital").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
-                        $("#ddlHospital2").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                        //$("#ddlHospital2").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
                     }
                     else {
                         $("#ddlHospital").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                        //$("#ddlHospital2").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                    }
+                }
+            }
+            $('.divSpec').hide().css("visibility", "hidden");
+            $('td:nth-child(1),th:nth-child(1)').hide();
+        }
+
+        function fnDllPopulateEvening() {
+            //$('select').children('option[value="0"]').remove();
+            //$("select#selected").prop('selectedIndex', 64);
+            //for (let i = 52; i < 63; i++) {
+            //    $('select').children('option[value="' + i + '"]').remove();
+            //}
+            //BindTypeDDL();
+            listHospitalByTypeAndSepecility = [];
+            var obj = {};
+            obj.typeId = 6;
+            obj.reffId = 64;
+            obj.userId = applicantId;
+            obj.condition = "GetThoseHasJobBySepecilityAndQuotaAndApplicant";//"GetThoseHasJobBySepecility";
+
+            //DDLSetToDefault("ddlHospital", 'Select One', 0);
+            DDLSetToDefault("ddlHospital2", 'Select One', 0);
+
+            var list = CallActionPost("/Common/HospitalGetForDDLspecialityEvening", obj);
+            debugger;
+            if (list != null && list.length > 0) {
+
+                if (objApplicant.genderID == 2) {
+                    list = list.filter(obj => obj.id !== 64);
+                    //list = list.splice(0, 43);
+                }
+                else if (objApplicant.genderID == 1) {
+                    const objectWithId64 = list.find(obj => obj.id === 64);
+                    list = objectWithId64 ? [objectWithId64] : [];
+                    //list = list.splice(43, 44);
+                }
+                console.log(list.length)
+                listHospitalByTypeAndSepecility = list;
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (hospitalId == ddlItem.id) {
+                        //$("#ddlHospital").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                        $("#ddlHospital2").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    }
+                    else {
+                        //$("#ddlHospital").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
                         $("#ddlHospital2").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
                     }
                 }
@@ -322,7 +377,7 @@
         }
 
         function GetApplicantInfo() {
-
+            debugger;
             var resp = CallActionGet("/ApplicantProfile/GetApplicantInfo?applicantId=" + applicantId);
             if (resp != null && resp.applicantId > 0) {
                 objApplicant = resp;
@@ -360,6 +415,34 @@
         }
 
         function BindSpecialityDDL(specialityId) {
+
+            var obj = {};
+            obj.typeId = typeId;
+            obj.reffId = applicantId;
+            obj.condition = "GetThoseHasJobsByTypeIdAndQuotaAndApplicantId";//"GetThoseHasJobsByTypeId";
+
+            DDLSetToDefault("ddlSpeciality", 'Select One', 0);
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+
+            DDLSetToDefault("ddlHospital2", 'Select One', 0);
+
+
+            var list = CallActionPost("/Common/SpecialityGetForDDLSpeciality", obj);
+            if (list != null && list.length > 0) {
+
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (specialityId == ddlItem.id)
+                        $("#ddlSpeciality").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    else $("#ddlSpeciality").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                }
+            }
+
+        }
+
+        function BindSpecialityDDLEvening(specialityId) {
 
             var obj = {};
             obj.typeId = typeId;
@@ -430,7 +513,53 @@
 
         }
 
+        function BindHospitalDDLEvening(hospitalId) {
+
+            listHospitalByTypeAndSepecility = [];
+            var obj = {};
+            obj.typeId = typeId;
+            obj.reffId = specialityId;
+            obj.userId = applicantId;
+            obj.condition = "GetThoseHasJobBySepecilityAndQuotaAndApplicant";//"GetThoseHasJobBySepecility";
+
+            DDLSetToDefault("ddlHospital", 'Select One', 0);
+
+            DDLSetToDefault("ddlHospital2", 'Select One', 0);
+
+            var list = CallActionPost("/Common/HospitalGetForDDLspecialityEvening", obj);
+
+            if (list != null && list.length > 0) {
+
+                if (objApplicant.genderID == 2) {
+                    list = list.filter(obj => obj.id !== 64);
+                    //list = list.splice(0, 43);
+                }
+                else if (objApplicant.genderID == 1) {
+                    const objectWithId64 = list.find(obj => obj.id === 64);
+                    list = objectWithId64 ? [objectWithId64] : [];
+                    //list = list.splice(43, 44);
+                }
+                console.log(list.length)
+                listHospitalByTypeAndSepecility = list;
+                var ddlItem = {};
+                for (var i = 0; i < list.length; i++) {
+                    ddlItem = list[i];
+
+                    if (hospitalId == ddlItem.id) {
+                        //$("#ddlHospital").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                        $("#ddlHospital2").append("<option  value='" + ddlItem.id + "' selected='selected'>" + ddlItem.value + "</option>");
+                    }
+                    else {
+                        //$("#ddlHospital").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                        $("#ddlHospital2").append("<option  value='" + ddlItem.id + "'>" + ddlItem.value + "</option>");
+                    }
+                }
+            }
+
+        }
+
         function SaveSpecilityData() {
+            debugger;
             if (ValidateSpecilityFrom() == false) {
 
                 var checkPrefNo = CallActionPost("/ApplicantProfile/ApplicantSpecilityCheckPreferenceNo", objSpecility);
@@ -465,6 +594,7 @@
                 $('td:nth-child(1),th:nth-child(1)').hide();
             }
             fnDllPopulate();
+            fnDllPopulateEvening();
 
         }
 
@@ -524,6 +654,7 @@
         }
 
         function GetApplicantSpecilityList() {
+            debugger;
             $(".divAction").hide();
 
             var obj = {};
@@ -531,9 +662,9 @@
 
             objSpecilityList = [];
             objSpecilityListEvening = [];
-            resp = CallActionPost("/ApplicantProfile/ApplicantSpecilityGet", obj);
+            var resp = CallActionPost("/ApplicantProfile/ApplicantSpecilityGet", obj);
 
-           
+
             try {
                 if (resp != null) {
                     listSpcApp = resp.Table;
@@ -561,7 +692,7 @@
                 $(".divAction").hide();
             }
 
-            
+
         }
 
         function BindPenelSpecilityList() {
@@ -577,7 +708,7 @@
             var htmlCompleteDiv = "", htmlSingleDiv = "";
             console.log(objSpecilityList[0]);
 
-            $("#divParent9").hide();
+            //$("#divParent9").hide();
             $("#chkIs9").prop("checked", false);
             if (objSpecilityList != null && objSpecilityList.length > 0) {
 
@@ -609,7 +740,7 @@
                 }
 
 
-                htmlCompleteDiv = htmlCompleteDiv + "<h3>Your Morning Preferences:</h3><hr class=colorgraph'>" +
+                htmlCompleteDiv = htmlCompleteDiv + "<h3>Your Preferences:</h3><hr class=colorgraph'>" +
                     "<div class='row'><div class='col-xs-12 col-sm-12 col-md-12'>"
                     + body + "</div></div> "
             }
@@ -695,9 +826,9 @@
 
             $("#hfdSpecilityId").val(objSpecility.applicantSpecilityId);
             //$("#ddlType").val(typeId);
-            BindSpecialityDDL(specialityId)
+            BindSpecialityDDLEvening(specialityId)
             $("#ddlSpeciality2").val(specialityId);
-            BindHospitalDDL(hospitalId);
+            BindHospitalDDLEvening(hospitalId);
             $("#ddlHospital2").val(hospitalId);
             $("#txtPreferenceNo2").val(objSpecility.preferenceNo);
             $("#ddlHospital").val(0);
@@ -745,6 +876,7 @@
                 //alert('this');
                 //$("option[value<62]").remove();
                 fnDllPopulate();
+                fnDllPopulateEvening();
 
 
             }
@@ -758,6 +890,7 @@
         <div class="col-sm-12 form-box">
             <div class="main-login main-center">
                 <div class="row">
+                    <input type="hidden" id="hfdApplicantId" class="hfdApplicantId" value="" />
                     <div class="col-sm-12">
                         <div class="progress mt15">
                             <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:90%">
@@ -807,7 +940,7 @@
                                 <form role="form">
                                     <div class="row" style="height:20px; "> </div>
                                     <div class="row">
-                                        <div class="col-md-6"><h4> Add your Morning Preference </h4></div>
+                                        <div class="col-md-6"><h4> Add your Preference </h4></div>
                                         <div class="col-md-6" style="display:none;"><a id="addPrefAsEvening" class="btn mybtn animated-button form-control" style="font-weight: bold; margin-bottom: 10px; width: 90%; text-align: center; display: none;"> Replace Preferences From Evening </a></div>
                                     </div>
                                     <div class="row">

@@ -511,6 +511,18 @@ namespace Prp.Sln
 
     }
 
+    public class Seat
+    {
+        public int CollegeId { get; set; }
+        public string CollegeName { get; set; }
+        public int typeId { get; set; }
+        public int quotaId { get; set; }
+        public string typeName { get; set; }
+        public string quotaName { get; set; }
+        public int Seats { get; set; }
+        public int adminId { get; set; }
+    }
+
     public class Activity
     {
         public int activityId { get; set; }
@@ -525,6 +537,16 @@ namespace Prp.Sln
         public ActivityViewModel()
         {
             activities = new List<Activity>();
+        }
+    }
+
+    public class SeatsViewModel : ModelBaseAdmin
+    {
+        public List<Seat> Seats { get; set; }
+
+        public SeatsViewModel()
+        {
+            Seats = new List<Seat>();
         }
     }
 

@@ -12,7 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
-
     <script>
         var applicantId = 0, applicantDetailId = 0, objApplicant = {}, objApplicantInfo = {}, objApplicantInfoDualNational = {},
             imagesPath = "", districtListAll = [], countryList = [], dualNationalityType = 1, countryId = 132, inductionId;
@@ -31,7 +30,7 @@
 
             loadData();
 
-            var pdfFilePath = '@Model.jsonTable.Rows[0]["pdfAllData"].TooString()'; // Assume you have the path in the model
+			var pdfFilePath = '@Model.jsonTable.Rows[0]["pdfAllData"].TooString()'; // Assume you have the path in the model
             pdfFilePath = "/Images/Applicant/" + applicantId + "/" + pdfFilePath;
             // Load the PDF file
             pdfjsLib.getDocument(pdfFilePath).promise.then(function (pdf) {
@@ -60,6 +59,7 @@
             }).catch(function (error) {
                 console.error("Error loading PDF:", error);
             });
+
             var selectedChoices = [];
 
             function updateSelectedChoices() {
@@ -115,9 +115,8 @@
 
             BindDistrictDDL(196, 0);
             BindDistrictDDLDomicile(196, 0);
-
-            var dateFormatDatePocker = 'dd/mm/yyyy';
-
+            var dateFormatDatePocker = 'dd/MM/yyyy';
+			/*
             $("#txtDob").datepicker({
                 format: dateFormatDatePocker,
                 autoclose: true,
@@ -127,6 +126,7 @@
                 showOnFocus: true,
                 changeYear: true
             });
+
 
             $("#txtJoiningDate").datepicker(
                 {
@@ -139,6 +139,7 @@
                     changeYear: true
                 }
             );
+			*/
 
 
         });
@@ -169,10 +170,14 @@
                     $("#txtName").val('@Model.jsonTable.Rows[0]["name"].TooString()').change();
                     $("#txtFatherName").val('@Model.jsonTable.Rows[0]["fatherName"].TooString()').change();
                     $("#ddlGender").val(@Model.jsonTable.Rows[0]["genderID"].TooInt()).change();
+					/*
+					$("#txtDob").datepicker({
+						dateFormat: "dd/MM/yy"
+					}).datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["dob"]).ToString("dd/MM/yyyy").ToString())");
+					*/
+                    //$("#txtDob").datepicker({dateFormat: "dd/mm/yy","setDate", });
 
-                    $("#txtDob").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["dob"]).ToString("dd/MM/yyyy").ToString())");
-
-                    $("#txtJoiningDate").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["joiningDate"]).ToString("dd/MM/yyyy").ToString())");
+                    //$("#txtJoiningDate").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["joiningDate"]).ToString("dd/MM/yyyy").ToString())");
 
                     $("#txtContactNo").val('@Model.jsonTable.Rows[0]["contactNumber"].TooString()').change();
                     $("#txtCNIC").val('@Model.jsonTable.Rows[0]["cnicNo"].TooString()').change();
@@ -192,17 +197,19 @@
                     $("#txtEmail").val('@Model.jsonTable.Rows[0]["emailId"].TooString()').change();
                     $("#ddlDistrict").val(@Model.jsonTable.Rows[0]["districtId"].TooInt()).change();
                     $("#txtAddress").val('@Model.jsonTable.Rows[0]["address"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ')').change();
-                    $("#txtCollege").val('@Model.jsonTable.Rows[0]["college"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ')').change();
+                    $("#txtCollege").val('@Model.jsonTable.Rows[0]["college"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ').Split('-')[0]').change();
 
                     $("#ddlMatricBoard option:selected").text('@Model.jsonTable.Rows[0]["matricBoard"].TooString()');
                     $("#txtRowDegree1MarksObtain").val(@Model.jsonTable.Rows[0]["matricObt"].TooInt()).change();
                     $("#txtRowDegree1MarksTotal").val(@Model.jsonTable.Rows[0]["matricTotal"].TooInt()).change();
-                    $("#txtDateOfPassingMatric").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())");
+                    //$("#txtDateOfPassingMatric").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())");
 
                     $("#ddlFABoard option:selected").text('@Model.jsonTable.Rows[0]["boardStudentFscData"].TooString()');
                     $("#txtRowDegree2MarksObtain").val(@Model.jsonTable.Rows[0]["obtainedMarksStudentFscData"].TooInt()).change();
                     $("#txtRowDegree2MarksTotal").val(@Model.jsonTable.Rows[0]["totalMarksStudentFscData"].TooInt()).change();
-                    $("#txtDateOfPassingInter").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["passingDateStudentFscData"]).ToString("dd/MM/yyyy").ToString())");
+                    //$("#txtDateOfPassingInter").datepicker("setDate", "@(Convert.ToDateTime(Model.jsonTable.Rows[0]["passingDateStudentFscData"]).ToString("dd/MM/yyyy").ToString())");
+
+					$("#txtReason").val('@Model.jsonTable.Rows[0]["college"].TooString().Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', ' ').Split('-')[1]').change();
 
                     $("#hfdPic").val("");
                     if (("@(Model.jsonTable.Rows[0]["pic"].TooString())") != "") {
@@ -362,7 +369,16 @@
             <div class="main-login main-center">
                 <div class="row">
                     <div class="col-sm-12">
-                        <hr class="colorgraph">
+                        <div class="col-sm-12" style="padding-left:0px; padding-bottom:20px">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Reason For Rejection. </p> <input type="text" class="form-control" disabled="disabled" readonly="readonly" required="required" name="txtReason" id="txtReason"><hr>
+
+
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
                         <div class="col-sm-4" style="padding-left:0px; padding-bottom:20px">
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
@@ -379,10 +395,64 @@
                                 </div>
                             </div>
                         </div>
+                        @if (Model.jsonTable.Rows[0]["joiningStatus"].TooInt() == 171)
+                        {
+                        <th style="float: left; width:27%">
+                            <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Approved</span> </h4>
+                        </th>
+                        }
+                        else if (applicant.applicationStatusId == 172)
+                        {
+                        <th style="float: left; width:27%">
+                            <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Rejected</span> </h4>
+                        </th>
+                        }
+                        else if (applicant.applicationStatusId == 54)
+                        {
+                        <th style="float: left; width:27%">
+                            <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Re-Submitted</span> </h4>
+                        </th>
+                        }
+                        else if (applicant.applicationStatusId == 173)
+                        {
+                        <th style="float: left; width:27%">
+                            <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Grievance Approved</span> </h4>
+                        </th>
+                        }
+                        else if (applicant.applicationStatusId == 174)
+                        {
+                        <th style="float: left; width:27%">
+                            <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Rejected in Phase 2</span> </h4>
+                        </th>
+                        }
+                        else if (applicant.applicationStatusId == 175)
+                        {
+                        <th style="float: left; width:27%">
+                            <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Resubmitted for Phase 3</span> </h4>
+                        </th>
+                        }
+                        else if (applicant.applicationStatusId == 176)
+                        {
+                        <th style="float: left; width:27%">
+                            <h4 style="margin: 0px; font-size: 20px; "> Application Status : <span class="spnbtn"> Rejected in Phase 3</span> </h4>
+                        </th>
+                        }
                         <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group">
                                 <label for=""> Induction <span style="color:red">*</span></label>
                                 <select required="required" disabled="disabled" readonly="readonly" name="ddlInduction" id="ddlInduction" class="form-control" tabindex="2">
+                                    @*<option value="3">July 2018 (Morning)</option>
+                    <option value="4">July 2018 (Evening)</option>
+                    <option value="5">July 2019 (Morning)</option>
+                    <option value="6">July 2019 (Evening)</option>
+                    <option value="7">July 2020 (Morning)</option>
+                    <option value="8">July 2020 (Evening)</option>
+                    <option value="9">July 2021 (Morning)</option>
+                    <option value="10">July 2021 (Evening)</option>*@
+                                    @*<option selected="selected" value="11">2022-26</option>
+                    <option selected="selected" value="10">2021-25</option>
+                    <option selected="selected" value="9">2020-24</option>
+                    <option selected="selected" value="13">2022-26</option>*@
                                     <option selected="selected" value="9">2020-2021 (Teaching)</option>
                                     <option selected="selected" value="10">2021-2022 (Teaching)</option>
                                     <option selected="selected" value="11">2021-2022 (Only DHQ)</option>
@@ -453,14 +523,14 @@
                         </div>
                         <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group">
-                                <label for="lbl-err"> Date of Birth <span style="color:red">*</span> <span id="spnDob" class="lbl-err" style="display:none;">Invalid date</span> </label>
-                                <input type="text" name="dob" id="txtDob" disabled="disabled" readonly="readonly" class="form-control datepicker dated" tabindex="6">
+                                <label for="lbl-err"> Date of Birth   <span style="color:red">*</span> <span id="spnDob" class="lbl-err" style="display:none;">Invalid date</span> </label>
+                                <input type="text" name="dob" id="txtDob" value="@(Convert.ToDateTime(Model.jsonTable.Rows[0]["dob"]).ToString("dd/MM/yyyy").ToString())" disabled="disabled" readonly="readonly" class="form-control datepicker dated" tabindex="6">
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group">
                                 <label for=""> Joining Date <span style="color:red">*</span> <span id="spnJoiningDate" class="lbl-err" style="display:none;">Invalid date</span></label>
-                                <input type="text" class="form-control datepicker dated" disabled="disabled" readonly="readonly" name="joiningDate" id="txtJoiningDate" tabindex="7" autocomplete="off">
+                                <input type="text" class="form-control datepicker dated" disabled="disabled" readonly="readonly" value="@(Convert.ToDateTime(Model.jsonTable.Rows[0]["joiningDate"]).ToString("dd/MM/yyyy").ToString())" name="joiningDate" id="txtJoiningDate" tabindex="7" autocomplete="off">
                             </div>
                         </div>
                         <div id="divDDLDistrict" class="col-xs-12 col-sm-4 col-md-4">
@@ -550,7 +620,7 @@
                                         <label>Passing Date <span class="sprq">*</span></label>
                                         <div>
                                             <div class="form-group">
-                                                <input type="text" disabled="disabled" readonly="readonly" name="txtDateOfPassingMatric" id="txtDateOfPassingMatric" class="datepicker form-control dated" tabindex="19">
+                                                <input type="text" disabled="disabled" readonly="readonly" value="@(Convert.ToDateTime(Model.jsonTable.Rows[0]["matricPassDate"]).ToString("dd/MM/yyyy").ToString())" name="txtDateOfPassingMatric" id="txtDateOfPassingMatric" class="datepicker form-control dated" tabindex="19">
                                             </div>
                                         </div>
                                     </div>
@@ -628,7 +698,7 @@
                                         <label>Passing Date <span class="sprq">*</span></label>
                                         <div>
                                             <div class="form-group">
-                                                <input type="text" disabled="disabled" readonly="readonly" maxlength="11" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="24" autocomplete="off">
+                                                <input type="text" disabled="disabled" readonly="readonly" value="@(Convert.ToDateTime(Model.jsonTable.Rows[0]["passingDateStudentFscData"]).ToString("dd/MM/yyyy").ToString())" maxlength="11" name="txtDateOfPassingInter" id="txtDateOfPassingInter" class="datepicker form-control dated" tabindex="24" autocomplete="off">
                                             </div>
                                         </div>
                                     </div>
@@ -642,7 +712,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Profile Picture  <span style="color:red">*</span></label>
                                 @*<input type="file" class="form-control flup" name="flPic" id="flPic" tabindex="25" />
-                                    <input type="hidden" id="hfdPic" value="" />*@
+                <input type="hidden" id="hfdPic" value="" />*@
                                 <img id="imgPic" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvPic" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -651,7 +721,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> <span class="spnCnic"> CNIC Front Image</span> <span style="color:red">*</span>  </label>
                                 @*<input type="file" class="form-control flup" name="flCnicFront" id="flCnicFront" tabindex="26" />
-                                    <input type="hidden" id="hfdCnicFront" value="" />*@
+                <input type="hidden" id="hfdCnicFront" value="" />*@
                                 <img id="imgCnicFront" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvCnicFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -660,7 +730,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> <span id="spnCnicUpload2"> <span class="spnCnic">CNIC</span> Back Image</span> <span style="color:red">*</span>  </label>
                                 @*<input type="file" class="form-control flup" name="flCnicBack" id="flCnicBack" tabindex="27" />
-                                    <input type="hidden" id="hfdCnicBack" value="" />*@
+                <input type="hidden" id="hfdCnicBack" value="" />*@
                                 <img id="imgCnicBack" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvCnicBack" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -670,7 +740,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Domicile Front Image <span style="color:red">*</span> </label>
                                 @*<input type="file" class="form-control flup" name="flDomicileFront" id="flDomicileFront" tabindex="28" />
-                                    <input type="hidden" id="hfdDomicileFront" value="" />*@
+                <input type="hidden" id="hfdDomicileFront" value="" />*@
                                 <img id="imgDomicileFront" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvDomicileFront" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -679,7 +749,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Matric Certificate Image <span class="sprq">*</span></label>
                                 @*<input type="file" id="flRowDegree1" name="flRowDegree1" class="form-control flup" tabindex="29" accept="image/jpeg, image/png">
-                                    <input type="hidden" id="hfdRowDegree1" value="" />*@
+                <input type="hidden" id="hfdRowDegree1" value="" />*@
                                 <img id="imgRowDegree1" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvRowDegree1" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -688,7 +758,7 @@
                             <div class="form-group">
                                 <label for="" style="width:100% !important"> Fsc Certificate Image <span class="sprq">*</span></label>
                                 @*<input type="file" id="flRowDegree2" name="flRowDegree2" class="form-control flup" tabindex="30" accept="image/jpeg, image/png">
-                                    <input type="hidden" id="hfdRowDegree2" value="" />*@
+                <input type="hidden" id="hfdRowDegree2" value="" />*@
                                 <img id="imgRowDegree2" class="flup-img" src="" alt="" style="display:none;" />
                                 @*<a id="rmvRowDegree2" class="removeImage" style="display:none;"> <i class="fa fa-window-close"></i> Remove</a>*@
                             </div>
@@ -705,21 +775,14 @@
                                 <img id="imgNoEnquiryCertificate" class="flup-img" src="" alt="" style="display:none;" />
                             </div>
                         </div>
-                        <div class="col-sm-4 divFaImage">
-                            <div class="form-group">
-                                <label for="" style="width:100% !important"> Other Relevant Data <span class="sprq">*</span></label>
-                                <a id="pdfDownloadLink" target="_blank">
-                                    <canvas id="pdfThumbnail"></canvas>
-                                </a>
-                            </div>
-                        </div>
+
 
                     </div>
 
                 </div>
 
                 <fieldset id="fieldTypeMatric" class="fieldType">
-                    <legend> Prob 1 </legend>
+                    <legend> Prof 1 </legend>
                     <input type="hidden" id="fieldTypeMatric" class="hfdTypeId" value="" />
                     <div class="row col-md-6 fieldType5">
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -758,7 +821,7 @@
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
-                                <label for="" style="width:100% !important"> 1st Prob Result Card <span class="sprq">*</span></label>
+                                <label for="" style="width:100% !important"> 1st Prof Result Card <span class="sprq">*</span></label>
                                 <img id="imgResultCard1" class="flup-img" src="" alt="" style="display:none;" />
                             </div>
                         </div>
@@ -770,7 +833,7 @@
                 @if (Model.jsonTable.Rows[0]["inductionID"].TooInt() == 10)
                 {
                     <fieldset id="fieldTypeMatric" class="fieldType">
-                        <legend> Prob 2 </legend>
+                        <legend> Prof 2 </legend>
                         <input type="hidden" id="fieldTypeMatric" class="hfdTypeId" value="" />
                         <div class="row col-md-6 fieldType5">
                             <div class="col-xs-12 col-sm-6 col-md-6">
@@ -809,7 +872,7 @@
                             </div>
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group">
-                                    <label for="" style="width:100% !important"> 2nd Prob Result Card <span class="sprq">*</span></label>
+                                    <label for="" style="width:100% !important"> 2nd Prof Result Card <span class="sprq">*</span></label>
                                     <img id="imgResultCard2" class="flup-img" src="" alt="" style="display:none;" />
                                 </div>
                             </div>
@@ -821,35 +884,54 @@
 
                 <hr />
 
-                <div class="col-sm-12">
-                    <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Preferences</p> <hr>
-                </div>
-                <fieldset id="fieldTypePref" class="fieldType">
-                    <legend> Your Preferences </legend>
-                    <div class="row mt-2">
-                        <div>
-                            <div class="row" style="padding:15px">
-                                <div id="selectedChoices" style="width:60%; border:0px; height:auto !important">
-                                    <!-- Selected choices will be displayed here -->
-                                    <!-- <div class="selected-choice text-success text-decoration-underline col-md-10" style="height:30px" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.name}</div><div class="col-md-2"> <span class="btn-danger delete-btn" style="width:30px; padding: 4px">Delete</span></div>`); -->
-                                    @foreach (var item in Model.listSpecility)
-                                    {
-                                        <div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="@item.preferenceNo" data-id="@item.hospitalId">@item.preferenceNo. @item.hospitalName</div><div class="col-md-2"> </div>
-                                    }
+                @*<div class="col-sm-12">
+                        <hr><p style="background-color: #e11427;color: #fff;padding: 10px 0px;text-align: center;margin: 0px 0px;font-weight: 600;"> Preferences</p> <hr>
+                    </div>
+                    <fieldset id="fieldTypePref" class="fieldType">
+                        <legend> Your Preferences </legend>
+                        <div class="row mt-2">
+                            <div>
+                                <div class="row" style="padding:15px">
+                                    <div id="selectedChoices" style="width:60%; border:0px; height:auto !important">
+                                        <!-- Selected choices will be displayed here -->
+                                        <!-- <div class="selected-choice text-success text-decoration-underline col-md-10" style="height:30px" data-order="${index + 1}" data-id="${choice.id}">${index + 1}. ${choice.name}</div><div class="col-md-2"> <span class="btn-danger delete-btn" style="width:30px; padding: 4px">Delete</span></div>`); -->
+                                        @foreach (var item in Model.listSpecility)
+                                        {
+                                            <div class="selected-choice text-success text-decoration-underline col-md-10 pull-left" style="height:30px;" data-order="@item.preferenceNo" data-id="@item.hospitalId">@item.preferenceNo. @item.hospitalName</div><div class="col-md-2"> </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <hr />
-                    <div>
                         <hr />
-                        <div class="row" style="padding-top: 20px">
-                            <div class="col-md-6">
-                                <button id="submitBtn" class="btn btn-primary">Submit Application</button>
+                        <div>
+                            <hr />
+                            <div class="row" style="padding-top: 20px">
+                                <div class="col-md-6">
+                                    <button id="submitBtn" class="btn btn-primary">Submit Application</button>
+                                </div>
                             </div>
                         </div>
+                    </fieldset>*@
+                <div class="col-sm-12 col-md-12 row">
+                    <div class="col-md-4 ">
+                        <div class="form-group">
+                            <label for="" style="width:100% !important"> Other Relevant Data <span class="sprq">*</span></label>
+                            <a id="pdfDownloadLink" target="_blank">
+                                <canvas id="pdfThumbnail"></canvas>
+                            </a>
+                        </div>
                     </div>
-                </fieldset>
+                </div>
+
+                <div>
+                    <hr />
+                    <div class="row" style="padding-top: 20px">
+                        <div class="col-md-6">
+                            <button id="submitBtn" class="btn btn-primary">Submit Application</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

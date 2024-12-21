@@ -32,6 +32,24 @@ namespace Prp.Sln.Controllers
             MeritGazatModel model = new MeritGazatModel();
             return View(model);
         }
+
+        public ActionResult MeritList10()
+        {
+            MeritGazatModel model = new MeritGazatModel();
+            return View(model);
+        }
+
+        public ActionResult MeritList11()
+        {
+            MeritGazatModel model = new MeritGazatModel();
+            return View(model);
+        }
+
+        public ActionResult MeritList13()
+        {
+            MeritGazatModel model = new MeritGazatModel();
+            return View(model);
+        }
         public ActionResult MeritListFemale()
         {
             MeritGazatModel model = new MeritGazatModel();

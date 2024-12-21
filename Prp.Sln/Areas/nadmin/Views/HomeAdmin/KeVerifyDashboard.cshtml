@@ -59,7 +59,7 @@
             $(document).on('click', '.sts_account', function () {
                 var id = ConvertToInt($(this).attr("id"));
                 if (id == 0) {
-                    var url = "/admin/applicant-search-to-verify?statusTypeId=131&statusId=" + id;
+                    var url = "/admin/applicant-search-to-verify?statusTypeId=132&statusId=" + id;
                     window.open(url, "_blank");
                 }
 
@@ -97,6 +97,14 @@
                 }
             });
 
+            $(document).on('click', '.sts_application200', function () {
+                var id = ConvertToInt($(this).attr("id"));
+                if (id == -1) {
+                    var url = "/admin/applicant-search-join?statusTypeId=200&statusId=0";
+                    window.open(url, "_blank");
+                }
+            });
+
             $(document).on('click', '.sts_application1911', function () {
                 var id = ConvertToInt($(this).attr("id"));
                 if (id == 0) {
@@ -125,696 +133,855 @@
     {
 
 
-        <div class="row col-md-12 col-sm-12">
-            @{
-                var listVerification = Model.listDashBoard.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.verification).ToList();
-                if (listVerification != null && listVerification.Count > 0)
+    <div class="row col-md-12 col-sm-12">
+        @{
+            var listVerification = Model.listDashBoard.Where(x => x.statusTypeId == ProjConstant.Constant.ApplicationStatusType.verification).ToList();
+            if (listVerification != null && listVerification.Count > 0)
+            {
+                var verifyToal = 0;
+                var verifyPending = 0;
+                var verifyApproved = 0;
+                var verifyReject = 0;
+                try
                 {
-                    var verifyToal = 0;
-                    var verifyPending = 0;
-                    var verifyApproved = 0;
-                    var verifyReject = 0;
-                    try
-                    {
-                        verifyToal = listVerification.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-                        verifyToal = 0;
-                    }
-
-                    try
-                    {
-                        verifyPending = listVerification.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                    try
-                    {
-                        verifyApproved = listVerification.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    try
-                    {
-                        verifyReject = listVerification.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    <div class="col-md-3 col-sm-3 ">
-                        <div class="x_panel tile fixed_height_320 overflow_hidden">
-                            <div class="x_title">
-                                <h2>Verification Status</h2>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="x_content">
-                                <table style="width:100%">
-                                    <tr>
-                                        <th>
-                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
-                                                <p class="">Status</p>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
-                                                <p class="">Count</p>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <table class="tile_info">
-                                                <tr class="sts_account" id="-1">
-                                                    <td>
-                                                        <p><i class="fa fa-square black"></i>Total </p>
-                                                    </td>
-                                                    <td>@verifyToal</td>
-                                                </tr>
-                                                <tr class="sts_account" id="0">
-                                                    <td>
-                                                        <p><i class="fa fa-square aero"></i>Pending </p>
-                                                    </td>
-                                                    <td>@verifyPending</td>
-                                                </tr>
-                                                <tr class="sts_account" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Approved </p>
-                                                    </td>
-                                                    <td>@verifyApproved</td>
-                                                </tr>
-                                                <tr class="sts_account" id="2">
-                                                    <td>
-                                                        <p><i class="fa fa-square  red"></i>Rejected </p>
-                                                    </td>
-                                                    <td>@verifyReject</td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                    verifyToal = listVerification.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    verifyToal = 0;
                 }
 
-
-
-                var listAmmendment = Model.listDashBoard.Where(x => x.statusTypeId == 133).ToList();
-                if (listAmmendment != null && listAmmendment.Count > 0)
+                try
+                {
+                    verifyPending = listVerification.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
                 {
 
-                    var verifyToal = 0;
-                    var verifyPending = 0;
-                    var verifyApproved = 0;
-                    var verifyReject = 0;
-                    try
-                    {
-                        verifyToal = listAmmendment.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-                        verifyToal = 0;
-                    }
-
-                    try
-                    {
-                        verifyPending = listAmmendment.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                    try
-                    {
-                        verifyApproved = listAmmendment.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    try
-                    {
-                        verifyReject = listAmmendment.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    <div class="col-md-3 col-sm-3 ">
-                        <div class="x_panel tile fixed_height_320 overflow_hidden">
-                            <div class="x_title">
-                                <h2>Ammendment Status</h2>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="x_content">
-                                <table style="width:100%">
-                                    <tr>
-                                        <th>
-                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
-                                                <p class="">Status</p>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
-                                                <p class="">Count</p>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <table class="tile_info">
-                                                <tr class="sts_application" id="-1">
-                                                    <td>
-                                                        <p><i class="fa fa-square black"></i>Total </p>
-                                                    </td>
-                                                    <td>@verifyToal</td>
-                                                </tr>
-                                                <tr class="sts_application" id="0">
-                                                    <td>
-                                                        <p><i class="fa fa-square aero"></i>Pending </p>
-                                                    </td>
-                                                    <td>@verifyPending</td>
-                                                </tr>
-                                                <tr class="sts_application" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Approved </p>
-                                                    </td>
-                                                    <td>@verifyApproved</td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @*<div class="col-md-3">
-                            <div>
-                                <div>
-                                    <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
-                                </div>
-                            </div>
-                        </div>*@
                 }
 
-
-                var listJoining = Model.listDashBoard.Where(x => x.statusTypeId == 191).ToList();
-                if (listJoining != null && listJoining.Count > 0)
+                try
+                {
+                    verifyApproved = listVerification.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
                 {
 
-                    var joinedTotal = 0;
-                    var joinedPending = 0;
-                    var joinedApproved = 0;
-                    var joinedApproved1st = 0;
-                    var joinedReject = 0;
-                    var joinedReleaved = 0;
-                    try
-                    {
-                        joinedTotal = listJoining.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-                        joinedTotal = 0;
-                    }
-
-                    try
-                    {
-                        joinedPending = listJoining.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                    try
-                    {
-                        joinedApproved = listJoining.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    try
-                    {
-                        //joinedApproved1st = listJoining.Where(x => x.statusId == 4).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    try
-                    {
-                        joinedReject = listJoining.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    try
-                    {
-                        joinedReleaved = listJoining.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    <div class="col-md-3 col-sm-3 ">
-                        <div class="x_panel tile fixed_height_320 overflow_hidden">
-                            <div class="x_title">
-                                <h2>Joining Status Round 1</h2>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="x_content">
-                                <table style="width:100%">
-                                    <tr>
-                                        <th>
-                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
-                                                <p class="">Status</p>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
-                                                <p class="">Count</p>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <table class="tile_info">
-                                                <tr class="sts_application1911" id="-1">
-                                                    <td>
-                                                        <p><i class="fa fa-square black"></i>Total </p>
-                                                    </td>
-                                                    <td>@joinedTotal</td>
-                                                </tr>
-                                                <tr class="sts_application1911" id="0">
-                                                    <td>
-                                                        <p><i class="fa fa-square aero"></i>Pending </p>
-                                                    </td>
-                                                    <td>@joinedPending</td>
-                                                </tr>
-                                                <tr class="sts_application1911" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Joined </p>
-                                                    </td>
-                                                    <td>@joinedApproved</td>
-                                                </tr>
-                                                @*<tr class="sts_application1911" id="4">
-                                                        <td>
-                                                            <p><i class="fa fa-square green"></i>Joined on First Preference </p>
-                                                        </td>
-                                                        <td>@joinedApproved1st</td>
-                                                    </tr>*@
-                                                <tr class="sts_application1911" id="2">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Not Joined </p>
-                                                    </td>
-                                                    <td>@joinedReject</td>
-                                                </tr>
-                                                @*<tr class="sts_application1911" id="3">
-                                                        <td>
-                                                            <p><i class="fa fa-square green"></i> Joining Relieved </p>
-                                                        </td>
-                                                        <td>@joinedReleaved</td>
-                                                    </tr>*@
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @*<div class="col-md-3">
-                            <div>
-                                <div>
-                                    <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
-                                </div>
-                            </div>
-                        </div>*@
                 }
-
-
-                var listJoining2 = Model.listDashBoard.Where(x => x.statusTypeId == 192).ToList();
-                if (listJoining2 != null && listJoining2.Count > 0)
+                try
+                {
+                    verifyReject = listVerification.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
                 {
 
-                    var joinedTotal = 0;
-                    var joinedPending = 0;
-                    var joinedApproved = 0;
-                    var joinedReject = 0;
-                    try
-                    {
-                        joinedTotal = listJoining2.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-                        joinedTotal = 0;
-                    }
-
-                    try
-                    {
-                        joinedPending = listJoining2.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                    try
-                    {
-                        joinedApproved = listJoining2.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    try
-                    {
-                        joinedReject = listJoining2.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    <div class="col-md-3 col-sm-3 ">
-                        <div class="x_panel tile fixed_height_320 overflow_hidden">
-                            <div class="x_title">
-                                <h2>Joining Status Round 2</h2>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="x_content">
-                                <table style="width:100%">
-                                    <tr>
-                                        <th>
-                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
-                                                <p class="">Status</p>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
-                                                <p class="">Count</p>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <table class="tile_info">
-                                                <tr class="sts_application" id="-1">
-                                                    <td>
-                                                        <p><i class="fa fa-square black"></i>Total </p>
-                                                    </td>
-                                                    <td>@joinedTotal</td>
-                                                </tr>
-                                                <tr class="sts_application" id="0">
-                                                    <td>
-                                                        <p><i class="fa fa-square aero"></i>Pending </p>
-                                                    </td>
-                                                    <td>@joinedPending</td>
-                                                </tr>
-                                                <tr class="sts_application" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Joined </p>
-                                                    </td>
-                                                    <td>@joinedApproved</td>
-                                                </tr>
-                                                <tr class="sts_application" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Not Joined </p>
-                                                    </td>
-                                                    <td>@joinedReject</td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Verification Status</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@verifyToal</td>
+                                            </tr>
+                                            <tr class="" id="0">
+                                                <td>
+                                                    <p><i class="fa fa-square aero"></i>Pending </p>
+                                                </td>
+                                                <td>@verifyPending</td>
+                                            </tr>
+                                            <tr class="" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Approved </p>
+                                                </td>
+                                                <td>@verifyApproved</td>
+                                            </tr>
+                                            <tr class="" id="2">
+                                                <td>
+                                                    <p><i class="fa fa-square  red"></i>Rejected </p>
+                                                </td>
+                                                <td>@verifyReject</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
-                    @*<div class="col-md-3">
-                            <div>
-                                <div>
-                                    <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
-                                </div>
-                            </div>
-                        </div>*@
-                }
-
-
-                var listJoining3 = Model.listDashBoard.Where(x => x.statusTypeId == 195).ToList();
-                if (listJoining3 != null && listJoining3.Count > 0)
-                {
-
-                    var joinedTotal = 0;
-                    var joinedPending = 0;
-                    var joinedApproved = 0;
-                    var joinedReject = 0;
-                    try
-                    {
-                        joinedTotal = listJoining3.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-                        joinedTotal = 0;
-                    }
-
-                    try
-                    {
-                        joinedPending = listJoining3.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                    try
-                    {
-                        joinedApproved = listJoining3.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    try
-                    {
-                        joinedReject = listJoining3.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    <div class="col-md-3 col-sm-3 ">
-                        <div class="x_panel tile fixed_height_320 overflow_hidden">
-                            <div class="x_title">
-                                <h2>Joining Status Round 4</h2>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="x_content">
-                                <table style="width:100%">
-                                    <tr>
-                                        <th>
-                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
-                                                <p class="">Status</p>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
-                                                <p class="">Count</p>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <table class="tile_info">
-                                                <tr class="sts_application" id="-1">
-                                                    <td>
-                                                        <p><i class="fa fa-square black"></i>Total </p>
-                                                    </td>
-                                                    <td>@joinedTotal</td>
-                                                </tr>
-                                                <tr class="sts_application" id="0">
-                                                    <td>
-                                                        <p><i class="fa fa-square aero"></i>Pending </p>
-                                                    </td>
-                                                    <td>@joinedPending</td>
-                                                </tr>
-                                                <tr class="sts_application" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Joined </p>
-                                                    </td>
-                                                    <td>@joinedApproved</td>
-                                                </tr>
-                                                <tr class="sts_application" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Not Joined </p>
-                                                    </td>
-                                                    <td>@joinedReject</td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @*<div class="col-md-3">
-                            <div>
-                                <div>
-                                    <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
-                                </div>
-                            </div>
-                        </div>*@
-                }
-
-                var listJoining4 = Model.listDashBoard.Where(x => x.statusTypeId == 196).ToList();
-                if (listJoining4 != null && listJoining4.Count > 0)
-                {
-
-                    var joinedTotal = 0;
-                    var joinedPending = 0;
-                    var joinedApproved = 0;
-                    var joinedReject = 0;
-                    try
-                    {
-                        joinedTotal = listJoining4.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-                        joinedTotal = 0;
-                    }
-
-                    try
-                    {
-                        joinedPending = listJoining4.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                    try
-                    {
-                        joinedApproved = listJoining4.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    try
-                    {
-                        joinedReject = listJoining4.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    <div class="col-md-3 col-sm-3 ">
-                        <div class="x_panel tile fixed_height_320 overflow_hidden">
-                            <div class="x_title">
-                                <h2>Joining Status Round 5</h2>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="x_content">
-                                <table style="width:100%">
-                                    <tr>
-                                        <th>
-                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
-                                                <p class="">Status</p>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
-                                                <p class="">Count</p>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <table class="tile_info">
-                                                <tr class="sts_application" id="-1">
-                                                    <td>
-                                                        <p><i class="fa fa-square black"></i>Total </p>
-                                                    </td>
-                                                    <td>@joinedTotal</td>
-                                                </tr>
-                                                <tr class="sts_application" id="0">
-                                                    <td>
-                                                        <p><i class="fa fa-square aero"></i>Pending </p>
-                                                    </td>
-                                                    <td>@joinedPending</td>
-                                                </tr>
-                                                <tr class="sts_application" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Joined </p>
-                                                    </td>
-                                                    <td>@joinedApproved</td>
-                                                </tr>
-                                                <tr class="sts_application" id="1">
-                                                    <td>
-                                                        <p><i class="fa fa-square green"></i>Not Joined </p>
-                                                    </td>
-                                                    <td>@joinedReject</td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @*<div class="col-md-3">
-                            <div>
-                                <div>
-                                    <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
-                                </div>
-                            </div>
-                        </div>*@
-                }
-
-                var listMigrants = Model.listDashBoard.Where(x => x.statusTypeId == 193).ToList();
-                if (listMigrants != null && listMigrants.Count > 0 && Model.loggedInUser.userId != 64)
-                {
-
-                    var joinedTotal = 0;
-                    try
-                    {
-                        joinedTotal = listMigrants.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
-                    }
-                    catch (Exception)
-                    {
-                        joinedTotal = 0;
-                    }
-                    <div class="col-md-3 col-sm-3 ">
-                        <div class="x_panel tile fixed_height_320 overflow_hidden">
-                            <div class="x_title">
-                                <h2>Candidates Added For Migration</h2>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="x_content">
-                                <table style="width:100%">
-                                    <tr>
-                                        <th>
-                                            <div class="col-lg-9 col-md-9 col-sm-9 ">
-                                                <p class="">Status</p>
-                                            </div>
-                                            <div class="col-lg-3 col-md-3 col-sm-3 ">
-                                                <p class="">Count</p>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <table class="tile_info">
-                                                <tr class="sts_application193" id="-1">
-                                                    <td>
-                                                        <p><i class="fa fa-square black"></i>Total </p>
-                                                    </td>
-                                                    <td>@joinedTotal</td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                }
+                </div>
             }
-        </div>
+
+            listVerification = Model.listDashBoard.Where(x => x.statusTypeId == 132).ToList();
+            if (listVerification != null && listVerification.Count > 0)
+            {
+                var verifyToal = 0;
+                var verifyPending = 0;
+                var verifyApproved = 0;
+                var verifyReject = 0;
+                try
+                {
+                    verifyToal = listVerification.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    verifyToal = 0;
+                }
+
+                try
+                {
+                    verifyPending = listVerification.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+
+                try
+                {
+                    verifyApproved = listVerification.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    verifyReject = listVerification.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Verification Status Phase 2</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="sts_account" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@verifyToal</td>
+                                            </tr>
+                                            <tr class="sts_account" id="0">
+                                                <td>
+                                                    <p><i class="fa fa-square aero"></i>Pending </p>
+                                                </td>
+                                                <td>@verifyPending</td>
+                                            </tr>
+                                            <tr class="sts_account" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Approved </p>
+                                                </td>
+                                                <td>@verifyApproved</td>
+                                            </tr>
+                                            <tr class="sts_account" id="2">
+                                                <td>
+                                                    <p><i class="fa fa-square  red"></i>Rejected </p>
+                                                </td>
+                                                <td>@verifyReject</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+
+            var listAmmendment = Model.listDashBoard.Where(x => x.statusTypeId == 133).ToList();
+            if (listAmmendment != null && listAmmendment.Count > 0)
+            {
+
+                var verifyToal = 0;
+                var verifyPending = 0;
+                var verifyApproved = 0;
+                var verifyReject = 0;
+                try
+                {
+                    verifyToal = listAmmendment.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    verifyToal = 0;
+                }
+
+                try
+                {
+                    verifyPending = listAmmendment.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+
+                try
+                {
+                    verifyApproved = listAmmendment.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    verifyReject = listAmmendment.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Ammendment Status</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="sts_application" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@verifyToal</td>
+                                            </tr>
+                                            <tr class="sts_application" id="0">
+                                                <td>
+                                                    <p><i class="fa fa-square aero"></i>Pending </p>
+                                                </td>
+                                                <td>@verifyPending</td>
+                                            </tr>
+                                            <tr class="sts_application" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Approved </p>
+                                                </td>
+                                                <td>@verifyApproved</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-3">
+                    <div>
+                        <div>
+                            <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
+                        </div>
+                    </div>
+                </div>*@
+            }
+
+
+            var listJoining = Model.listDashBoard.Where(x => x.statusTypeId == 191).ToList();
+            if (listJoining != null && listJoining.Count > 0)
+            {
+
+                var joinedTotal = 0;
+                var joinedPending = 0;
+                var joinedApproved = 0;
+                var joinedApproved1st = 0;
+                var joinedReject = 0;
+                var joinedReleaved = 0;
+                try
+                {
+                    joinedTotal = listJoining.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    joinedTotal = 0;
+                }
+
+                try
+                {
+                    joinedPending = listJoining.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+
+                try
+                {
+                    joinedApproved = listJoining.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    //joinedApproved1st = listJoining.Where(x => x.statusId == 4).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    joinedReject = listJoining.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    joinedReleaved = listJoining.Where(x => x.statusId == 3).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Joining Status Round 1</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="sts_application1911" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@joinedTotal</td>
+                                            </tr>
+                                            <tr class="sts_application1911" id="0">
+                                                <td>
+                                                    <p><i class="fa fa-square aero"></i>Pending </p>
+                                                </td>
+                                                <td>@joinedPending</td>
+                                            </tr>
+                                            <tr class="sts_application1911" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Joined </p>
+                                                </td>
+                                                <td>@joinedApproved</td>
+                                            </tr>
+                                            @*<tr class="sts_application1911" id="4">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Joined on First Preference </p>
+                                                </td>
+                                                <td>@joinedApproved1st</td>
+                                            </tr>*@
+                                            <tr class="sts_application1911" id="2">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Not Joined </p>
+                                                </td>
+                                                <td>@joinedReject</td>
+                                            </tr>
+                                            @*<tr class="sts_application1911" id="3">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i> Joining Relieved </p>
+                                                </td>
+                                                <td>@joinedReleaved</td>
+                                            </tr>*@
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-3">
+                    <div>
+                        <div>
+                            <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
+                        </div>
+                    </div>
+                </div>*@
+            }
+
+
+            var listJoining2 = Model.listDashBoard.Where(x => x.statusTypeId == 192).ToList();
+            if (listJoining2 != null && listJoining2.Count > 0)
+            {
+
+                var joinedTotal = 0;
+                var joinedPending = 0;
+                var joinedApproved = 0;
+                var joinedReject = 0;
+                try
+                {
+                    joinedTotal = listJoining2.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    joinedTotal = 0;
+                }
+
+                try
+                {
+                    joinedPending = listJoining2.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+
+                try
+                {
+                    joinedApproved = listJoining2.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    joinedReject = listJoining2.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Joining Status Round 2</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="sts_application" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@joinedTotal</td>
+                                            </tr>
+                                            <tr class="sts_application" id="0">
+                                                <td>
+                                                    <p><i class="fa fa-square aero"></i>Pending </p>
+                                                </td>
+                                                <td>@joinedPending</td>
+                                            </tr>
+                                            <tr class="sts_application" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Joined </p>
+                                                </td>
+                                                <td>@joinedApproved</td>
+                                            </tr>
+                                            <tr class="sts_application" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Not Joined </p>
+                                                </td>
+                                                <td>@joinedReject</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-3">
+                    <div>
+                        <div>
+                            <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
+                        </div>
+                    </div>
+                </div>*@
+            }
+
+
+            var listJoining3 = Model.listDashBoard.Where(x => x.statusTypeId == 195).ToList();
+            if (listJoining3 != null && listJoining3.Count > 0)
+            {
+
+                var joinedTotal = 0;
+                var joinedPending = 0;
+                var joinedApproved = 0;
+                var joinedReject = 0;
+                try
+                {
+                    joinedTotal = listJoining3.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    joinedTotal = 0;
+                }
+
+                try
+                {
+                    joinedPending = listJoining3.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+
+                try
+                {
+                    joinedApproved = listJoining3.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    joinedReject = listJoining3.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Joining Status Round 4</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="sts_application" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@joinedTotal</td>
+                                            </tr>
+                                            <tr class="sts_application" id="0">
+                                                <td>
+                                                    <p><i class="fa fa-square aero"></i>Pending </p>
+                                                </td>
+                                                <td>@joinedPending</td>
+                                            </tr>
+                                            <tr class="sts_application" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Joined </p>
+                                                </td>
+                                                <td>@joinedApproved</td>
+                                            </tr>
+                                            <tr class="sts_application" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Not Joined </p>
+                                                </td>
+                                                <td>@joinedReject</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-3">
+                    <div>
+                        <div>
+                            <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
+                        </div>
+                    </div>
+                </div>*@
+            }
+
+            var listJoining4 = Model.listDashBoard.Where(x => x.statusTypeId == 196).ToList();
+            if (listJoining4 != null && listJoining4.Count > 0)
+            {
+
+                var joinedTotal = 0;
+                var joinedPending = 0;
+                var joinedApproved = 0;
+                var joinedReject = 0;
+                try
+                {
+                    joinedTotal = listJoining4.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    joinedTotal = 0;
+                }
+
+                try
+                {
+                    joinedPending = listJoining4.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+
+                try
+                {
+                    joinedApproved = listJoining4.Where(x => x.statusId == 1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    joinedReject = listJoining4.Where(x => x.statusId == 2).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Joining Status Round 5</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="sts_application" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@joinedTotal</td>
+                                            </tr>
+                                            <tr class="sts_application" id="0">
+                                                <td>
+                                                    <p><i class="fa fa-square aero"></i>Pending </p>
+                                                </td>
+                                                <td>@joinedPending</td>
+                                            </tr>
+                                            <tr class="sts_application" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Joined </p>
+                                                </td>
+                                                <td>@joinedApproved</td>
+                                            </tr>
+                                            <tr class="sts_application" id="1">
+                                                <td>
+                                                    <p><i class="fa fa-square green"></i>Not Joined </p>
+                                                </td>
+                                                <td>@joinedReject</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-3">
+                    <div>
+                        <div>
+                            <a href="~/admin/applicant-search-to-ammendment?statusTypeId=132&statusId=0" class="btn btnRegister animated-button btn-danger" style="width:auto !important; background:green"><h2>Gazette Amendments</h2></a>
+                        </div>
+                    </div>
+                </div>*@
+            }
+
+            var listMigrants = Model.listDashBoard.Where(x => x.statusTypeId == 193).ToList();
+            if (listMigrants != null && listMigrants.Count > 0 && Model.loggedInUser.userId != 64)
+            {
+
+                var joinedTotal = 0;
+                try
+                {
+                    joinedTotal = listMigrants.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    joinedTotal = 0;
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Candidates Added For Migration</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="sts_application193" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@joinedTotal</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            var listMigrantsJoining = Model.listDashBoard.Where(x => x.statusTypeId == 200).ToList();
+            if (listMigrantsJoining != null && listMigrantsJoining.Count > 0 && Model.loggedInUser.userId != 64)
+            {
+
+                var joinedTotal = 0;
+                var joinedPending = 0;
+                try
+                {
+                    joinedTotal = listMigrantsJoining.Where(x => x.statusId == 0).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    joinedTotal = 0;
+                }
+                try
+                {
+                    joinedPending = listMigrantsJoining.Where(x => x.statusId == -1).FirstOrDefault().totalCount;
+                }
+                catch (Exception)
+                {
+                    joinedPending = 0;
+                }
+                <div class="col-md-3 col-sm-3 ">
+                    <div class="x_panel tile fixed_height_320 overflow_hidden">
+                        <div class="x_title">
+                            <h2>Joining For Migration Candidates</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table style="width:100%">
+                                <tr>
+                                    <th>
+                                        <div class="col-lg-9 col-md-9 col-sm-9 ">
+                                            <p class="">Status</p>
+                                        </div>
+                                        <div class="col-lg-3 col-md-3 col-sm-3 ">
+                                            <p class="">Count</p>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="tile_info">
+                                            <tr class="sts_application200" id="0">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Total </p>
+                                                </td>
+                                                <td>@joinedTotal</td>
+                                            </tr>
+                                            <tr class="sts_application200" id="-1">
+                                                <td>
+                                                    <p><i class="fa fa-square black"></i>Pending </p>
+                                                </td>
+                                                <td>@joinedPending</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
     }
 }

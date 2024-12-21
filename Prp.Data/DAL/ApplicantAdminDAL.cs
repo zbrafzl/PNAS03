@@ -114,12 +114,36 @@ namespace Prp.Data
             return PrpDbADO.FillDataTable(cmd);
         }
 
+        public DataTable getCollegesForInductionMigration(string induction)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetCollegeForInductionMigration]"
+            };
+
+            cmd.Parameters.AddWithValue("@induction", induction);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
         public DataTable getActivitesForInduction(string induction)
         {
             SqlCommand cmd = new SqlCommand
             {
                 CommandType = CommandType.StoredProcedure,
                 CommandText = "[dbo].[spGetActivitesForInduction]"
+            };
+
+            cmd.Parameters.AddWithValue("@induction", induction);
+            return PrpDbADO.FillDataTable(cmd);
+        }
+
+        public DataTable getSeatsForInduction(string induction)
+        {
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spGetSeatsForInduction]"
             };
 
             cmd.Parameters.AddWithValue("@induction", induction);
@@ -231,6 +255,32 @@ namespace Prp.Data
             return PrpDbADO.FillDataTable(cmd);
         }
 
+        public DataTable ApplicantSearchSimpleMigration(ApplicantSearch obj)
+        {
+            if (obj.statusTypeId == 73 && obj.statusId == 3)
+            {
+                obj.statusTypeId = 53;
+                obj.statusId = 8;
+            }
+            SqlCommand cmd = new SqlCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandText = "[dbo].[spApplicantSearchSimpleMigration]"
+            };
+
+            if (Convert.ToInt32(90) == 3 && obj.inductionId == 12)
+            {
+                obj.inductionId = 112;
+            }
+            cmd.Parameters.AddWithValue("@pageNum", obj.pageNum);
+            cmd.Parameters.AddWithValue("@top", obj.top);
+            cmd.Parameters.AddWithValue("@inductionId", obj.inductionId);
+            cmd.Parameters.AddWithValue("@phaseId", obj.phaseId);
+            cmd.Parameters.AddWithValue("@statusTypeId", obj.statusTypeId);
+            cmd.Parameters.AddWithValue("@statusId", obj.statusId);
+            cmd.Parameters.AddWithValue("@search", obj.search.TooString());
+            return PrpDbADO.FillDataTable(cmd);
+        }
         public DataTable ApplicantSearchByAdmin(ApplicantSearch obj)
         {
             SqlCommand cmd = new SqlCommand
